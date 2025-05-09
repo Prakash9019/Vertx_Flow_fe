@@ -1,18 +1,45 @@
 import React, { useRef, useState } from "react";
+import axios from "axios";
 import BackgroundImage from "../assets/login_background.svg";
 import Logo from "../assets/logo.svg";
+import { useNavigate } from "react-router-dom";
 
-function Login_page() {
+function Login_Page() {
   const [userEmail, setUserEmail] = useState("");
   const [otpFormDisplay, setOtpFormDisplay] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [emailError, setEmailError] = useState("");
   const inputsRef = useRef([]);
 
-  const handleEmail = () => {
-    // simulate email send + show OTP input
-    setOtpFormDisplay(true);
-    setErrorMessage(""); // Clear error
+  const navigate = useNavigate();
+
+  const handleEmail = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(userEmail)) {
+      setEmailError("Please enter a valid email address.");
+      setUserEmail("");
+      return;
+    }
+
+    try {
+      setEmailError("OTP Send!");
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/send-otp",
+        {
+          email: userEmail,
+        }
+      );
+      // console.log("response from handleEmail:-", response);
+      if (response) {
+        setOtpFormDisplay(true);
+      }
+      setEmailError("");
+    } catch (error) {
+      setEmailError("Failed to send OTP. Please try again.");
+      console.error("Send OTP error:", error);
+    }
   };
 
   const handleOtpChange = (index, value) => {
@@ -33,16 +60,29 @@ function Login_page() {
     }
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = async () => {
     const fullOtp = otp.join("");
-
-    // Simulate OTP validation (replace this with real API call)
-    if (fullOtp === "123456") {
-      alert("OTP verified!");
-      setOtpFormDisplay(false);
-      setOtp(["", "", "", "", "", ""]);
-    } else {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/verify-otp",
+        {
+          email: userEmail,
+          otp: fullOtp,
+        }
+      );
+      console.log(response);
+      console.log(userEmail, fullOtp);
+      if (response) {
+        localStorage.setItem("isVerified", "true");
+        navigate("/profile");
+        // alert("OTP verified!");
+        setOtpFormDisplay(false);
+        setOtp(["", "", "", "", "", ""]);
+        setErrorMessage("");
+      }
+    } catch (error) {
       setErrorMessage("OTP has expired or is invalid");
+      console.error("Verify OTP error:", error);
     }
   };
 
@@ -71,7 +111,7 @@ function Login_page() {
           </p>
 
           <button
-            className="bg-white w-72 text-sm text-black px-4 py-3 rounded-md shadow hover:bg-gray-200"
+            className="bg-white w-72 text-sm text-black px-4 py-3 rounded-md shadow hover:bg-gray-200 active:bg-gray-200 "
             onClick={handleLoginWithGoogle}
           >
             Continue with Google
@@ -89,10 +129,15 @@ function Login_page() {
             onChange={(e) => setUserEmail(e.target.value)}
             placeholder="Enter email address"
           />
-
+          {emailError &&
+            (emailError === "OTP Send!" ? (
+              <p className="text-green-600 text-sm">{emailError}</p>
+            ) : (
+              <p className="text-red-600 text-sm">{emailError}</p>
+            ))}
           <button
             onClick={handleEmail}
-            className="bg-gray-400 text-sm w-72 text-black px-4 py-3 rounded-md shadow hover:bg-gray-200"
+            className="bg-gray-400 text-sm w-72 text-black px-4 py-3 rounded-md shadow hover:bg-gray-200 active:bg-gray-200 "
           >
             Continue with email
           </button>
@@ -143,7 +188,7 @@ function Login_page() {
 
                 <button
                   onClick={handleOtpSubmit}
-                  className="bg-white text-black px-6 py-2 rounded w-72 hover:bg-gray-300"
+                  className="bg-white text-black px-6 py-2 rounded w-72 hover:bg-gray-300 active:bg-gray-300 "
                 >
                   Submit
                 </button>
@@ -161,7 +206,10 @@ function Login_page() {
         <div className="pt-14">
           <p className="text-sm text-gray-400">
             Trouble logging in? Email us at{" "}
-            <a href="mailto:support@govertx.com" className="hover:underline">
+            <a
+              href="mailto:support@govertx.com"
+              className="hover:underline hover:text-white active:text-white "
+            >
               support@govertx.com
             </a>
           </p>
@@ -181,4 +229,4 @@ function Login_page() {
   );
 }
 
-export default Login_page;
+export default Login_Page;

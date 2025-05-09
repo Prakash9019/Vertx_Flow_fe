@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import { FaLinkedin } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-function ProfileSetup_page() {
+function ProfileSetup_Page() {
   const [linkedinProfile, setLinkedinProfile] = useState("");
 
   const handleInputChange = (e) => {
@@ -19,7 +19,7 @@ function ProfileSetup_page() {
       //   }}
     >
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black to-violet-950 opacity-65 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
 
       {/* Content */}
       <div className="relative z-10">
@@ -51,7 +51,7 @@ function ProfileSetup_page() {
               />
             </div>
 
-            <button className="mt-5 w-full text-sm sm:text-base bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 transition-all">
+            <button className="mt-5 w-full text-sm sm:text-base bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 active:bg-gray-200 transition-all">
               Create Flow Profile
             </button>
 
@@ -60,7 +60,7 @@ function ProfileSetup_page() {
               <span className="block lg:inline">
                 <Link
                   to="/profile/manual"
-                  className="text-white hover:underline"
+                  className="text-white hover:underline active:undeline"
                 >
                   Fill it manually instead
                 </Link>
@@ -73,4 +73,4 @@ function ProfileSetup_page() {
   );
 }
 
-export default ProfileSetup_page;
+export default ProfileSetup_Page;
