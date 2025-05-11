@@ -104,7 +104,7 @@ function EvaluateReportComponent({ data }) {
                       : data.score < 36
                       ? "bg-green-500"
                       : "bg-purple-500"
-                  } px-3 py-1 rounded-full text-center inline-block`}
+                  } px-3 py-2 rounded-full text-center inline-block`}
                 >
                   {breakdownData.score}
                 </span>
