@@ -1,4 +1,30 @@
-body {
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.gradient-border {
+  border: 2px solid;
+  border-image-source: linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%);
+  border-image-slice: 1;
+}
+
+@layer utilities {
+  .gradient-badge {
+    background-image: 
+      linear-gradient(99.45deg, #000000 -4%, #33005C 104%),
+      linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%);
+  }
+}
+
+/* In your global stylesheet */
+.gradient-bg {
+  background: 
+  linear-gradient(99.45deg, #400606 -4%, #13073c 104%),
+              linear-gradient(260.47deg, rgba(29, 78, 38, 0.827) -22.9%, rgba(83, 40, 8, 0.542) 119.49%);
+}
+
+
+/* body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -10,4 +36,4 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
+} */
