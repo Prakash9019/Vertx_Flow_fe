@@ -6,15 +6,19 @@ import ProfileSetup_Page from "./screens/ProfileSetup_Page";
 import Profile_Manual_Page from "./screens/Profile_Manual_Page";
 import Usage_Page from "./screens/Usage_Page";
 import AddCofounder_Page from "./screens/AddCofounder_Page";
+import Evaluate_Page from "./screens/Evaluate_Page";
+import EvaluateReport_page from "./screens/EvaluateReport_page";
 
 function App() {
   const isVerified = localStorage.getItem("isVerified") == "true";
 
   return (
     <Routes>
-      <Route path="/" element={<Login_Page />} />
+      {/* <Route path="/" element={<Login_Page />} /> */}
       {/* <Route path="/" element={<Usage_Page />} /> */}
       {/* <Route path="/" element={<AddCofounder_Page />} /> */}
+      <Route path="/" element={<Evaluate_Page />} />
+      <Route path="/evaluate/report" element={<EvaluateReport_page />} />
 
       <Route
         path="/profile"
