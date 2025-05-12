@@ -7,6 +7,7 @@ function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [showUploader, setShowUploader] = useState(false);
   const [evaluation, setEvaluation] = useState(false);
+  const [evaluationError, setEvaluationError] = useState(false);
 
   const navigate = useNavigate();
 
@@ -54,6 +55,11 @@ function Evaluate_Page() {
       });
     } catch (error) {
       console.log("Error", error);
+      setEvaluationError(true);
+      setTimeout(() => {
+        setEvaluationError(false);
+      }, 2000);
+      setEvaluation(false);
     }
   };
 
@@ -191,7 +197,11 @@ function Evaluate_Page() {
                   onClick={handleEvaluation}
                   className="mt-2 bg-white text-black w-full py-1 rounded-md hover:bg-gray-500 hover:text-white"
                 >
-                  {evaluation === true ? "Initializing..." : "Evaluate"}
+                  {evaluation === true
+                    ? "Initializing..."
+                    : evaluationError === true
+                    ? "Failed to evaluate"
+                    : "Evaluate"}
                 </button>
               </div>
             ))}

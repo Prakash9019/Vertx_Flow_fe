@@ -7,11 +7,11 @@ function EvaluateReportComponent({ data }) {
   const companyName = data?.overview?.company_name;
 
   const scoreRanges = [
-    { label: "Critical", color: "bg-red-600", value: 0, max: 299 },
-    { label: "Weak", color: "bg-orange-500", value: 300, max: 499 },
+    { label: "Critical", color: "bg-red-700", value: 0, max: 299 },
+    { label: "Weak", color: "bg-orange-600", value: 300, max: 499 },
     { label: "Average", color: "bg-yellow-500", value: 500, max: 649 },
-    { label: "Solid", color: "bg-green-600", value: 650, max: 749 },
-    { label: "VERTX\nAssured", color: "bg-purple-700", value: 750, max: 800 }, // new line in label
+    { label: "Solid", color: "bg-green-700", value: 650, max: 749 },
+    { label: "VERTX\nAssured", color: "bg-purple-800", value: 750, max: 800 }, // new line in label
   ];
 
   return (
@@ -55,7 +55,7 @@ function EvaluateReportComponent({ data }) {
                 );
               })}
             </div>
-            <div className="flex justify-between text-[10px] text-gray-400 mt-1 w-full">
+            <div className="flex justify-between text-[11px] text-gray-400 mt-1 w-full">
               <span>0</span>
               <span>300</span>
               <span>500</span>
@@ -96,15 +96,15 @@ function EvaluateReportComponent({ data }) {
                 <span
                   className={`${
                     breakdownData.score === 0
-                      ? "bg-red-500"
+                      ? "bg-red-700"
                       : data.score < 28
-                      ? "bg-orange-500"
+                      ? "bg-orange-700"
                       : data.score < 30
-                      ? "bg-yellow-500"
+                      ? "bg-yellow-700"
                       : data.score < 36
-                      ? "bg-green-500"
-                      : "bg-purple-500"
-                  } px-3 py-1 rounded-full text-center inline-block`}
+                      ? "bg-green-700"
+                      : "bg-purple-700"
+                  } px-3 py-2 rounded-full text-center inline-block`}
                 >
                   {breakdownData.score}
                 </span>

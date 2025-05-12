@@ -8,8 +8,8 @@ import EvaluateReportOverview from "../components/EvaluateReportOverview";
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
-  const fileName = location.state.pdfFiles.name;
-  console.log(fileName);
+  const fileName = location.state.pdfFiles[0].name;
+  console.log(location.state);
   const data = location.state.reportData;
 
   const [reportData, setReportData] = useState([]);
