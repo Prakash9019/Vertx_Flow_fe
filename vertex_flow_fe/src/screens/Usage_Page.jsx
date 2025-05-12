@@ -40,7 +40,7 @@ function Usage_Page() {
       navigate("/");
       alert("Select a role and options");
     } else {
-      navigate("/Usage_Page");
+      navigate("/addfounder");
     }
   };
 
