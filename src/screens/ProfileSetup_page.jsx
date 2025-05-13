@@ -1,66 +1,87 @@
-import React, { useState } from "react";
-import Background from "../assets/Profile_background.png";
+// Vertx_Flow_fe/src/screens/ProfileSetup_Page.jsx
+import React, { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import { FaLinkedin } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useStartupProfile } from "../context/StartupProfileContext";
 
 function ProfileSetup_Page() {
-  const [linkedinProfile, setLinkedinProfile] = useState("");
+  const navigate = useNavigate();
+  // Context handles initial data fetch. We mainly use loadingData and error for UI feedback here.
+  const { loadingData, error: contextError, fetchStartupData, startupData } = useStartupProfile();
+  const [linkedinHandle, setLinkedinHandle] = React.useState("");
+
+  // If directly navigating to this page and context hasn't tried fetching, trigger a fetch.
+  // The context's useEffect will also attempt to fetch if a token is present.
+  useEffect(() => {
+    if (loadingData === undefined && !localStorage.getItem('authToken')) { // First load, no token
+        setLoadingData(false); // Explicitly set loading to false if no auth, context might not
+    } else if (loadingData === undefined && localStorage.getItem('authToken')) {
+        fetchStartupData(); // Or rely on context's own useEffect
+    }
+    // If startupData.stage is empty (or another key field), it implies new profile or data not loaded.
+    // The context's loadingData handles the primary loading state.
+  }, [fetchStartupData, loadingData, startupData]);
+
 
   const handleInputChange = (e) => {
-    setLinkedinProfile("https://www.linkedin.com/in/" + e.target.value);
+    setLinkedinHandle(e.target.value);
   };
+
+  const handleContinueToSetup = () => {
+    // Navigate to the first actual data collection step.
+    // Assumes context has loaded/initialized startupData.
+    navigate("/profile/setup"); // This should be the "Stage" selection page
+  };
+
+  if (loadingData) {
+    return <div className="min-h-screen flex justify-center items-center bg-black text-white">Loading your profile...</div>;
+  }
 
   return (
     <div
       className="relative min-h-screen text-white bg-black bg-cover bg-top bg-no-repeat px-4 py-6 sm:px-6 md:px-10 lg:px-16"
-      //   style={{
-      //     backgroundImage: `url(${Background})`,
-      //   }}
     >
-      {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
-
-      {/* Content */}
       <div className="relative z-10">
         <Header />
-
-        {/* Centered Form */}
-        <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg w-full sm:max-w-[63%]  xl:max-w-[43%] shadow-lg">
-            <div className="flex justify-between">
-              <h2 className="text-2xl sm:text-3xl font-semibold flex items-center gap-3 mb-4">
-                Enter your LinkedIn URL
-              </h2>
-              <FaLinkedin className="text-white text-3xl mt-1" />
-            </div>
-            <p className="text-sm text-gray-400 mb-5">
+        <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
+          <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg w-full sm:max-w-[63%] xl:max-w-[43%] shadow-xl text-center flex flex-col items-center">
+            <FaLinkedin className="text-5xl sm:text-6xl text-white mb-4" />
+            <h2 className="text-xl sm:text-2xl font-semibold mb-2">
+              Complete your profile with LinkedIn
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 mb-5">
               We use your LinkedIn to autofill your profile, giving you a better
-              and faster experience while saving your time.
+              and faster experience while saving your time. (Autofill feature TBD)
             </p>
-
-            <div className="flex items-center w-full border border-gray-700 rounded-md text-white overflow-hidden">
-              <span className="pl-3 py-2 text-sm whitespace-nowrap select-none">
+            <div className="flex items-center w-full border border-gray-700 rounded-md text-white overflow-hidden mb-3">
+              <span className="pl-3 py-2 text-sm whitespace-nowrap select-none bg-gray-800">
                 https://www.linkedin.com/in/
               </span>
               <input
                 type="text"
+                value={linkedinHandle}
                 onChange={handleInputChange}
-                placeholder="profilename"
-                className="flex-1 pr-4 py-2 bg-transparent text-white text-sm outline-none"
+                placeholder="yourprofilename"
+                className="flex-1 px-3 py-2 bg-black text-white text-sm outline-none focus:ring-1 focus:ring-purple-500"
               />
             </div>
 
-            <button className="mt-5 w-full text-sm sm:text-base bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 active:bg-gray-200 transition-all">
-              Create Flow Profile
-            </button>
+            {contextError && <p className="text-red-500 text-sm mb-3">{contextError}</p>}
 
+            <button
+              onClick={handleContinueToSetup}
+              className="mt-5 w-full text-sm sm:text-base bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 active:bg-gray-200 transition-all"
+            >
+              Continue to Profile Setup
+            </button>
             <p className="mt-4 text-xs sm:text-sm text-gray-400">
               Not interested in sharing your LinkedIn profile URL?{" "}
               <span className="block lg:inline">
                 <Link
                   to="/profile/manual"
-                  className="text-white hover:underline active:undeline"
+                  className="text-white hover:underline active:underline"
                 >
                   Fill it manually instead
                 </Link>
