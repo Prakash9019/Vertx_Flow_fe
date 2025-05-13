@@ -102,7 +102,7 @@ function Login_Page() {
           <img src={Logo} alt="Logo" className="w-11 h-11 mb-14" />
 
           <h1 className="text-4xl font-medium mb-2">
-            Welcome to <br /> Vertex Flow
+            Welcome to <br /> Vertx Flow
           </h1>
 
           <p className="my-6 text-sm leading-relaxed">

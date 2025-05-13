@@ -24,13 +24,14 @@ import IndustrySelected from "./screens/IndustrySelected";
 import InvestorsPitch from "./screens/InvestorsPitch";
 
 function App() {
-  const isVerified = localStorage.getItem("isVerified") === "true";
+  const isVerified = "true";
 
   const protectedRoutes = [
     { path: "/profile", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
     { path: "/profile/setup", element: <ProfileSetup /> },
     { path: "/Startup", element: <StartupLocation /> },
+    // {path:"/login", }
     { path: "/location", element: <LocationSetup /> },
     { path: "/location-select", element: <SelectLocation /> },
     { path: "/raise", element: <RaiseFunds /> },
@@ -43,7 +44,7 @@ function App() {
     { path: "/usage", element: <Usage_Page /> },
     { path: "/addfounder", element: <AddCofounder_Page /> },
     { path: "/homepage", element: <HomePage /> },
-    { path: "/", element: <Evaluate_Page /> },
+    { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
   ];
 
@@ -51,7 +52,7 @@ function App() {
     <div className="relative h-screen overflow-hidden">
       <Routes>
         {/* Public Route */}
-        {/* <Route path="/" element={<Login_Page />} /> */}
+        <Route path="/" element={<Login_Page />} />
 
         {/* Protected Routes */}
         {protectedRoutes.map(({ path, element }) => (
