@@ -26,7 +26,7 @@ function EvaluateReport_page() {
   const companyName = data?.overview?.company_name;
 
   return (
-    <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white">
+    <div className="overflow-y-auto h-screen w-full flex flex-col md:flex-row  bg-black text-white">
       {/* Sidebar */}
       <div className="w-full md:w-1/5 bg-gray-800 p-4 text-center text-xl md:text-2xl">
         Side nav

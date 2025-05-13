@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import { FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function AddCofounder_Page() {
   const [cofounders, setCofounders] = useState([""]); // Start with one input
   const [inviteAlert, setInviteAlert] = useState(false);
+
+  const navigate = useNavigate();
 
   // Handle individual cofounder email input change
   const handleCofounderChange = (index, value) => {
@@ -25,6 +28,9 @@ function AddCofounder_Page() {
     }, 1000);
     console.log(cofounders);
     setCofounders([""]);
+    setTimeout(() => {
+      navigate("/homepage");
+    }, 1500);
   };
 
   return (
@@ -77,7 +83,10 @@ function AddCofounder_Page() {
                 Invite
               </button>
               <span className="mx-3">or</span>
-              <button className="bg-black px-5 py-2 rounded-md font-semibold border-2 border-black hover:border-gray-700 active:border-gray-700">
+              <button
+                onClick={() => navigate("/homepage")}
+                className="bg-black px-5 py-2 rounded-md font-semibold border-2 border-black hover:border-gray-700 active:border-gray-700"
+              >
                 Skip
               </button>
             </div>

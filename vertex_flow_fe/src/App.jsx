@@ -1,43 +1,70 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login_Page from "./screens/Login_page";
 import PrivateRoute from "./components/PrivateRoute";
+
+// Screens
 import ProfileSetup_Page from "./screens/ProfileSetup_Page";
 import Profile_Manual_Page from "./screens/Profile_Manual_Page";
 import Usage_Page from "./screens/Usage_Page";
 import AddCofounder_Page from "./screens/AddCofounder_Page";
 import Evaluate_Page from "./screens/Evaluate_Page";
 import EvaluateReport_page from "./screens/EvaluateReport_page";
+import HomePage from "./screens/Home";
+import ProfileSetup from "./screens/ProfileSetup";
+import StartupLocation from "./screens/StartupLocation";
+import LocationSetup from "./screens/LocationSetup";
+import RaiseFunds from "./screens/RaiseFunds";
+import RaiseSelected from "./screens/RaiseSelected";
+import SelectLocation from "./screens/LocationSelect";
+import RevenueStaus from "./screens/RevenueStatus";
+import RevenueSelected from "./screens/RevenueSelected";
+import InvestorsIndustry from "./screens/InvestorsIndustry";
+import IndustrySelected from "./screens/IndustrySelected";
+import InvestorsPitch from "./screens/InvestorsPitch";
 
 function App() {
-  const isVerified = localStorage.getItem("isVerified") == "true";
+  const isVerified = localStorage.getItem("isVerified") === "true";
+
+  const protectedRoutes = [
+    { path: "/profile", element: <ProfileSetup_Page /> },
+    { path: "/profile/manual", element: <Profile_Manual_Page /> },
+    { path: "/profile/setup", element: <ProfileSetup /> },
+    { path: "/Startup", element: <StartupLocation /> },
+    { path: "/location", element: <LocationSetup /> },
+    { path: "/location-select", element: <SelectLocation /> },
+    { path: "/raise", element: <RaiseFunds /> },
+    { path: "/raise-select", element: <RaiseSelected /> },
+    { path: "/revenue", element: <RevenueStaus /> },
+    { path: "/revenue-select", element: <RevenueSelected /> },
+    { path: "/industry", element: <InvestorsIndustry /> },
+    { path: "/industry-select", element: <IndustrySelected /> },
+    { path: "/pitch", element: <InvestorsPitch /> },
+    { path: "/usage", element: <Usage_Page /> },
+    { path: "/addfounder", element: <AddCofounder_Page /> },
+    { path: "/homepage", element: <HomePage /> },
+    { path: "/", element: <Evaluate_Page /> },
+    { path: "/evaluate/report", element: <EvaluateReport_page /> },
+  ];
 
   return (
-    <Routes>
-      {/* <Route path="/" element={<Login_Page />} /> */}
-      {/* <Route path="/" element={<Usage_Page />} /> */}
-      {/* <Route path="/" element={<AddCofounder_Page />} /> */}
-      <Route path="/" element={<Evaluate_Page />} />
-      <Route path="/evaluate/report" element={<EvaluateReport_page />} />
+    <div className="relative h-screen overflow-hidden">
+      <Routes>
+        {/* Public Route */}
+        {/* <Route path="/" element={<Login_Page />} /> */}
 
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute isAllowed={isVerified}>
-            {" "}
-            <ProfileSetup_Page />{" "}
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/profile/manual"
-        element={
-          <PrivateRoute isAllowed={isVerified}>
-            <Profile_Manual_Page />
-          </PrivateRoute>
-        }
-      />
-    </Routes>
+        {/* Protected Routes */}
+        {protectedRoutes.map(({ path, element }) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <PrivateRoute isAllowed={isVerified}>{element}</PrivateRoute>
+            }
+          />
+        ))}
+      </Routes>
+    </div>
   );
 }
 

@@ -2,11 +2,35 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import Background from "../assets/Profile_background.png";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Profile_Manual_Page() {
   const [accountName, setAccountName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyWebsite, setCompanyWebsite] = useState("");
+  const [message, setMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleCreateProfile = () => {
+    if (companyName && accountName && companyWebsite) {
+      setMessage(true);
+
+      setTimeout(() => {
+        setMessage(false);
+      }, 1000);
+
+      setTimeout(() => {
+        navigate("/profile/setup");
+      }, 1000);
+    } else {
+      setErrorMessage(true);
+      setTimeout(() => {
+        setErrorMessage(false);
+      }, 1000);
+    }
+  };
 
   return (
     <div
@@ -21,6 +45,17 @@ function Profile_Manual_Page() {
         <div className="flex justify-center items-center min-h-[70vh]">
           <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-lg">
             <div className="w-full sm:w-85 sm:mx-auto">
+              {message && (
+                <p className="bg-green-700 text-center font-semibold py-1 rounded-md mb-1">
+                  Profile created successfully!
+                </p>
+              )}
+              {errorMessage && (
+                <p className="bg-red-700 text-center font-semibold py-1 rounded-md mb-1">
+                  {" "}
+                  Failed to created profile.
+                </p>
+              )}
               <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center sm:text-left">
                 Enter Details to Create Account
               </h2>
@@ -52,7 +87,10 @@ function Profile_Manual_Page() {
                 />
               </div>
 
-              <button className="mt-6 w-full bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 transition-all">
+              <button
+                onClick={handleCreateProfile}
+                className="mt-6 w-full bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 transition-all"
+              >
                 Create Flow Profile
               </button>
             </div>
