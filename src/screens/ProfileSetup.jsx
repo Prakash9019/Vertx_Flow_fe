@@ -92,7 +92,7 @@ const ProfileSetup = () => {
                 <div className="w-8 h-8 rounded-full bg-[#6C2BD9] text-white flex items-center justify-center text-sm font-bold">
                     {step}
                 </div>
-                <span className="text-[12px] text-gray-300">{label}</span>
+                <span className="text-[12px] text-white-400">{label}</span>
                 </div>
              ))}
         </div>

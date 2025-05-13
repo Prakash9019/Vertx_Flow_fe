@@ -61,29 +61,21 @@ function Usage_Page() {
                 I am a
                 <button
                   onClick={() => toggleRole("Founder")}
-                  className={`ml-2 mr-1 px-4 py-1 rounded-md border border-purple-950 text-white bg-cover bg-center ${
-                    selectedRole === "Founder" ? "" : "bg-black"
+                  className={`ml-2 mr-1 px-4 py-1 rounded-md border border-purple-950 text-white ${
+                    selectedRole === "Founder" 
+                      ? "bg-gradient-to-r from-purple-800 to-red-700" 
+                      : "bg-black"
                   }`}
-                  style={{
-                    backgroundImage:
-                      selectedRole === "Founder"
-                        ? `url(${Background})`
-                        : "none",
-                  }}
                 >
                   Founder
                 </button>
                 <button
                   onClick={() => toggleRole("Investor")}
-                  className={`mr-2 ml-1 px-4 py-1 rounded-md border border-purple-950 text-white bg-cover bg-center ${
-                    selectedRole === "Investor" ? "" : "bg-black"
+                  className={`mr-2 ml-1 px-4 py-1 rounded-md border border-purple-950 text-white ${
+                    selectedRole === "Investor" 
+                      ? "bg-gradient-to-r from-purple-800 to-red-700" 
+                      : "bg-black"
                   }`}
-                  style={{
-                    backgroundImage:
-                      selectedRole === "Investor"
-                        ? `url(${Background})`
-                        : "none",
-                  }}
                 >
                   Investor
                 </button>
@@ -92,21 +84,16 @@ function Usage_Page() {
                 </span>
               </p>
 
-              <div className="flex flex-wrap gap-2 w-full  xl:w-3xl">
+              <div className="flex flex-wrap gap-2 w-full xl:w-3xl">
                 {options.map((option) => (
                   <button
                     key={option}
                     onClick={() => toggleOption(option)}
-                    className={`px-4 py-1 rounded border border-purple-950 bg-cover bg-center ${
+                    className={`px-4 py-1 rounded border border-purple-950 text-white ${
                       selected.includes(option)
-                        ? "text-white"
-                        : "bg-black text-white "
+                        ? "bg-gradient-to-r from-purple-800 to-red-700"
+                        : "bg-black"
                     }`}
-                    style={{
-                      backgroundImage: selected.includes(option)
-                        ? `url(${Background})`
-                        : "none",
-                    }}
                   >
                     {option}
                   </button>

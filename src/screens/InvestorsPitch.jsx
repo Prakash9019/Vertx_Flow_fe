@@ -184,7 +184,9 @@ const InvestorsPitch = () => {
           <input
             type="text"
             placeholder="Write here..."
-            className="w-full h-full border border-[#B8B8B821] rounded-[5px] px-4 bg-[#1a1a1a] text-white placeholder-gray-400 outline-none"
+            className="w-full h-full border border-[#B8B8B821] rounded-[5px] px-4 bg-[#1a1a1a] text-white placeholder-gray-400 outline-none placeholder:text-[14px] placeholder:absolute placeholder:top-3 placeholder:left-4"
+            value={pitch}
+            onChange={(e) => setPitch(e.target.value)}
           />
 
           {/* Container for multiple icons on the right */}

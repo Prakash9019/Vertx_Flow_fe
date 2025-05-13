@@ -204,7 +204,7 @@ function Login_Page() {
         </div>
 
         <div className="pt-14">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-white-400">
             Trouble logging in? Email us at{" "}
             <a
               href="mailto:support@govertx.com"

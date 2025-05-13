@@ -27,14 +27,14 @@ function ProfileSetup_Page() {
 
         {/* Centered Form */}
         <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg w-full sm:max-w-[63%]  xl:max-w-[43%] shadow-lg">
+          <div className=" bg-opacity-60 p-6 sm:p-8 rounded-lg w-full sm:max-w-[63%]  xl:max-w-[43%] shadow-lg">
             <div className="flex justify-between">
               <h2 className="text-2xl sm:text-3xl font-semibold flex items-center gap-3 mb-4">
                 Enter your LinkedIn URL
               </h2>
               <FaLinkedin className="text-white text-3xl mt-1" />
             </div>
-            <p className="text-sm text-gray-400 mb-5">
+            <p className="text-sm text-white-400 mb-5">
               We use your LinkedIn to autofill your profile, giving you a better
               and faster experience while saving your time.
             </p>

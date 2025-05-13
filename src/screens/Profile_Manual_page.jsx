@@ -43,7 +43,7 @@ function Profile_Manual_Page() {
 
         {/* Centered Form */}
         <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-lg">
+          <div className="bg-opacity-60 p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-lg">
             <div className="w-full sm:w-85 sm:mx-auto">
               {message && (
                 <p className="bg-green-700 text-center font-semibold py-1 rounded-md mb-1">
@@ -67,7 +67,7 @@ function Profile_Manual_Page() {
                   required
                   onChange={(e) => setAccountName(e.target.value)}
                   placeholder="Account full name"
-                  className="bg-black text-white border border-gray-700 py-1 px-3 rounded-md"
+                  className=" text-white border border-gray-700 py-1 px-3 rounded-md"
                 />
                 <input
                   type="text"

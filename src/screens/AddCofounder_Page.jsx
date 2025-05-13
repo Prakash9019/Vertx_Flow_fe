@@ -62,7 +62,7 @@ function AddCofounder_Page() {
                   type="email"
                   value={email}
                   onChange={(e) => handleCofounderChange(index, e.target.value)}
-                  placeholder={`Enter cofounder email`}
+                  placeholder={`Cofounder@yourcompany.com`}
                   className="w-full py-1 rounded-md px-2 border border-gray-700 text-white"
                 />
               ))}
