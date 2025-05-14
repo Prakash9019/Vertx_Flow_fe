@@ -49,11 +49,11 @@ function Login_Page() {
 
 
   const handleEmail = async () => {
-    const emailRegex = /^[^\\s@]+@[^\\s@]+\.[^\\s@]+$/;
-    if (!emailRegex.test(userEmail)) {
-      setEmailError("Please enter a valid email address.");
-      return;
-    }
+    // const emailRegex = /^[^\\s@]+@[^\\s@]+\.[^\\s@]+$/;
+    // if (!emailRegex.test(userEmail)) {
+    //   setEmailError("Please enter a valid email address.");
+    //   return;
+    // }
     try {
       setEmailError("OTP Send!");
       const response = await axios.post(
@@ -93,6 +93,7 @@ function Login_Page() {
         "http://localhost:5000/api/auth/verify-otp", // Your OTP verification
         { email: userEmail, otp: fullOtp }
       );
+       console.log(response);
       if (response && response.data && response.data.token) {
         localStorage.setItem("authToken", response.data.token); // Cofounder's own auth token
         localStorage.setItem("isVerified", "true");

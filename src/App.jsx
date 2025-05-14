@@ -17,7 +17,7 @@ import RevenueStatus from "./screens/RevenueStatus";        // Revenue input (en
 import InvestorsIndustry from "./screens/InvestorsIndustry";  // Industry input
 import InvestorsPitch from "./screens/InvestorsPitch";        // Pitch input
 
-// Intermediate "Selected" pages (if you decide to keep them)
+// Intermediate "Selected" pages (if you decide to keep them) 
 import StartupLocation from "./screens/StartupLocation";    // Stage Selected confirmation
 import LocationSelect from "./screens/LocationSelect";      // Location Selected confirmation
 import RaiseSelected from "./screens/RaiseSelected";        // Raise Selected confirmation
