@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
-import logo from "../assets/ProfileImg.svg"; // Assuming original logo import
-import SignOut from "../assets/logout.svg";   // Assuming original signout import
+import logo from "../assets/ProfileImg.svg";
+import SignOut from "../assets/logout.svg";
+import CustomSelect from "../components/CustomSelect";
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -78,22 +79,20 @@ const ProfileSetup = () => {
         </label>
         <p className="text-xs text-gray-400 mb-4">
           This helps us to match you with the investors who focus on your stage.
-        </p>
-
-        <select
+        </p>        <CustomSelect
           value={currentStage}
           onChange={handleStageChange}
-          className="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2" // Changed w-[320px] to w-full
-        >
-          <option value="" disabled>Select your stage</option>
-          <option value="Pre-seed">Pre-seed</option>
-          <option value="Seed">Seed</option>
-          <option value="Series A">Series A</option>
-          <option value="Series B">Series B</option>
-          <option value="Series B+">Series B+</option>
-          <option value="Pre-IPO">Pre-IPO</option>
-          <option value="">Not Specified</option>
-        </select>
+          placeholder="Select your stage"
+          options={[
+            { value: "Pre-seed", label: "Pre-seed" },
+            { value: "Seed", label: "Seed" },
+            { value: "Series A", label: "Series A" },
+            { value: "Series B", label: "Series B" },
+            { value: "Series B+", label: "Series B+" },
+            { value: "Pre-IPO", label: "Pre-IPO" },
+            { value: "", label: "Not Specified" }
+          ]}
+        />
 
         {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
         
