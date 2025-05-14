@@ -38,25 +38,41 @@ const HomePage = () => {
             </div>
             <div className="text-sm space-y-4 pt-6 border-t border-gray-600"></div>
             <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-              <img src={EllipseOne} alt="Ellipse 1" className="w-[26px] h-[26px]" />
+              <img
+                src={EllipseOne}
+                alt="Ellipse 1"
+                className="w-[26px] h-[26px]"
+              />
               <span className="font-inter font-medium text-sm leading-none tracking-normal">
                 Bunny - AI Assistant
               </span>
             </div>
             <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-              <img src={EllipseTwo} alt="Ellipse 2" className="w-[26px] h-[26px]" />
+              <img
+                src={EllipseTwo}
+                alt="Ellipse 2"
+                className="w-[26px] h-[26px]"
+              />
               <span className="font-inter font-medium text-sm leading-none tracking-normal">
                 Outreach Expert
               </span>
             </div>
             <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-              <img src={EllipseThree} alt="Ellipse 3" className="w-[26px] h-[26px]" />
+              <img
+                src={EllipseThree}
+                alt="Ellipse 3"
+                className="w-[26px] h-[26px]"
+              />
               <span className="font-inter font-medium text-sm leading-none tracking-normal">
                 Outreach Expert
               </span>
             </div>
             <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-              <img src={EllipseFour} alt="Ellipse 4" className="w-[26px] h-[26px]" />
+              <img
+                src={EllipseFour}
+                alt="Ellipse 4"
+                className="w-[26px] h-[26px]"
+              />
               <span className="font-inter font-medium text-sm leading-none tracking-normal">
                 Playground
               </span>
@@ -87,7 +103,11 @@ const HomePage = () => {
         {/* Main Chat Area */}
         <div className="absolute w-[1000px] h-[200px] top-[430px] left-[388px] text-center bg-black bg-opacity-50 z-50 mb-10">
           <div className="relative">
-            <img src={RectangleBox} alt="Text Message" className="w-full h-full object-cover" />
+            <img
+              src={RectangleBox}
+              alt="Text Message"
+              className="w-full h-full object-cover"
+            />
             <img
               src={Text}
               alt="Text Bunny"
@@ -101,12 +121,6 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-
-
-
-
-
 
 // // Home.jsx
 // import React from "react";
@@ -132,8 +146,8 @@ export default HomePage;
 //         backgroundSize: "cover",
 //         backgroundRepeat: "no-repeat",
 //         backgroundPosition: "center",
-//         backgroundColor: "#1C001E66", 
-//         backgroundBlendMode: "overlay", 
+//         backgroundColor: "#1C001E66",
+//         backgroundBlendMode: "overlay",
 //         width: "1530px",
 //         height: "740px",
 //         left:"0",
