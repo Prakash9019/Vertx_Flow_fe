@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import logo from "../assets/ProfileImg.svg";
 import SignOut from "../assets/logout.svg";
+import ProfileProgressBar from "../components/ProfileProgressBar";
 
 const LocationSetup = () => {
   const navigate = useNavigate();
@@ -59,16 +60,7 @@ const LocationSetup = () => {
       </div>
 
       <div className="relative w-[720px] h-auto min-h-[362px] mt-[60px] gradient-border rounded-[10px] bg-black text-white p-8 flex flex-col">
-        <div className="flex justify-between items-center mb-6">
-          {['Stage', 'Location', 'Raise', 'Revenue', 'Industry', 'Pitch'].map((stepLabel, index) => (
-            <div key={stepLabel} className="flex flex-col items-center space-y-1 text-center flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${index <= 1 ? 'bg-[#6C2BD9] border-[#6C2BD9]' : 'border-gray-600 text-gray-400'}`}>
-                {index + 1}
-              </div>
-              <span className={`text-[12px] ${index <= 1 ? 'text-white' : 'text-gray-400'}`}>{stepLabel}</span>
-            </div>
-          ))}
-        </div>
+        <ProfileProgressBar currentStep={1} />
         <label htmlFor="location-input" className="block text-sm font-medium mb-2">
           Where is your startup headquartered?
         </label>

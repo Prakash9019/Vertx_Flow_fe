@@ -60,14 +60,14 @@ function Profile_Manual_Page() {
                 Enter Details to Create Account
               </h2>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-6">
                 <input
                   type="text"
                   value={accountName}
                   required
                   onChange={(e) => setAccountName(e.target.value)}
                   placeholder="Account full name"
-                  className=" text-white border border-gray-700 py-1 px-3 rounded-md"
+                  className=" text-white border border-gray-700 py-3 px-4 rounded-md"
                 />
                 <input
                   type="text"
@@ -75,7 +75,7 @@ function Profile_Manual_Page() {
                   required
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Company name"
-                  className="bg-black text-white border border-gray-700 py-1 px-3 rounded-md"
+                  className="bg-black text-white border border-gray-700 py-4 px-4 rounded-md"
                 />
                 <input
                   type="text"
@@ -83,7 +83,7 @@ function Profile_Manual_Page() {
                   required
                   onChange={(e) => setCompanyWebsite(e.target.value)}
                   placeholder="Company website"
-                  className="bg-black text-white border border-gray-700 py-1 px-3 rounded-md"
+                  className="bg-black text-white border border-gray-700 py-3 px-4 rounded-md"
                 />
               </div>
 
