@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Background2 from "../assets/background2.jpg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -65,8 +66,9 @@ function Evaluate_Page() {
 
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white">
-      <div className="w-full md:w-1/5 bg-gray-800 p-4 text-center text-2xl">
-        Side nav
+      {/* w-full md:w-1/5 bg-gray-800 p-4 text-center text-2xl */}
+      <div className="">
+        <Sidebar />
       </div>
 
       <div className="flex-1 px-4 py-8">
