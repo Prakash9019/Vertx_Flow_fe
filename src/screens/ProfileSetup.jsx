@@ -139,7 +139,7 @@ const ProfileSetup = () => {
         {/* Title Block - Positioned relative to this centered 1280px area */}
         <div style={{ position: 'absolute', width: '572px', left: TITLE_BLOCK_LEFT_REL, top: TITLE_BLOCK_TOP_REL, color: '#FFFFFF' }}>
           <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
-          <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>We’ll use this information to match you with the right investors for your specific needs.</p>
+          <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>We'll use this information to match you with the right investors for your specific needs.</p>
         </div>
 
         {/* Content Box - Positioned relative to this centered 1280px area */}

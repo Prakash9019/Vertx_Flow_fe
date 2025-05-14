@@ -45,46 +45,47 @@ const RevenueStatus = () => {
   }
 
   return (
-    <div className="w-[1580px] h-[832px] bg-gradient-to-b from-[#0F0C29] via-[#08080d] to-[#0b0b3f] text-white flex flex-col items-center justify-center p-6">
-      <div className="absolute top-11 left-16 text-2xl font-bold flex items-center space-x-2">
-        <img src={logo} alt="Profile logo" className="w-[50px] h-[48px] object-contain" />
-        <span className="absolute top-[20px] left-[60px] text-[28px] leading-[100%] tracking-[0%] font-inter font-semibold text-white w-[122px] h-[28px]">VERTX</span>
+    <div className="w-full min-h-screen flex flex-col items-center" style={{ background: 'linear-gradient(0deg, rgba(28, 0, 30, 0.4) 0%, rgba(28, 0, 30, 0.4) 100%), #000000', position: 'relative' }}>
+      {/* Header: Logo Group */}
+      <div style={{ position: 'absolute', width: '190px', height: '48px', left: '49px', top: '41px' }}>
+        <img src={logo} alt="VERTX Logo Icon" style={{ position: 'absolute', width: '50px', height: '48px', left: '0px', top: '0px' }} />
+        <span style={{ position: 'absolute', width: '122px', height: '28px', left: '68px', top: '10px', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: '28px', lineHeight: '34px', color: '#FFFFFF', fontStyle:'normal' }}>VERTX</span>
       </div>
-      <div className="absolute top-[59px] left-[1133px] ml-60 flex items-center space-x-2 cursor-pointer" onClick={() => { localStorage.removeItem('authToken'); localStorage.removeItem('isVerified'); navigate('/'); }}>
-        <span className="w-[56px] h-[17px] font-inter font-medium text-[14px] leading-[100%] text-white">Sign out</span>
-        <img src={SignOut} alt="Sign out" className="h-[24px] w-[24px]" />
+      {/* Header: Sign Out Group */}
+      <div style={{ position: 'absolute', width: '85px', height: '24px', right: '49px', top: '55px', display: 'flex', alignItems: 'center', gap: '5px' }} className="cursor-pointer" onClick={() => { localStorage.removeItem('authToken'); localStorage.removeItem('isVerified'); navigate('/'); }}>
+        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '14px', lineHeight: '17px', color: '#FFFFFF', order: 1 }}>Sign out</span>
+        <img src={SignOut} alt="Sign out Icon" style={{ width: '24px', height: '24px', order: 2 }} />
       </div>
-
-      <div className="absolute w-[572px] h-[54px] top-[170px] left-[calc(50%-572px/2-180px/2)] text-white space-y-3">
-        <h2 className="font-inter font-semibold text-[20px] leading-[100%] tracking-[0%]">
-            Tell us about your startup
-        </h2>
-        <p className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] mt-[5px]">
+      {/* Centered Main Content Area */}
+      <div className="relative" style={{ width: '1280px', height: 'auto', marginTop: '0' }}>
+        {/* Title Block */}
+        <div style={{ position: 'absolute', width: '572px', left: '280px', top: '186px', color: '#FFFFFF' }}>
+          <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
+          <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>This helps investors understand your traction and growth.</p>
+        </div>
+        {/* Content Box */}
+        <div className="bg-black flex flex-col" style={{ position: 'absolute', width: '720px', height: '362px', left: '280px', top: '285px', borderRadius: '10px', boxSizing: 'border-box', paddingLeft: '35px', paddingRight: '35px' }}>
+          <ProfileProgressBar currentStep={3} />
+          <label htmlFor="revenue-dropdown" className="block text-sm font-medium mb-2">
+            What is your current revenue status (MRR)?
+          </label>
+          <p className="text-xs text-gray-400 mb-4">
             This helps investors understand your traction and growth.
-        </p>
-      </div>
-
-      <div className="relative w-[720px] h-auto min-h-[362px] mt-[60px] gradient-border rounded-[10px] bg-black text-white p-8 flex flex-col">
-        <ProfileProgressBar currentStep={3} />
-        <label htmlFor="revenue-dropdown" className="block text-sm font-medium mb-2">
-          What is your current revenue status (MRR)?
-        </label>
-        <p className="text-xs text-gray-400 mb-4">
-          This helps investors understand your traction and growth.
-        </p>
-        <Dropdown
-          options={revenueOptions}
-          selected={currentRevenue}
-          onSelect={handleRevenueChange}
-        />
-        {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
-        <div className="mt-auto pt-6 flex justify-between items-center w-full">
-          <button className="font-inter font-normal text-[14px] leading-[100%] text-white" onClick={handleBack}>
-           Back
-          </button>
-          <button className="w-[100px] h-[36px] font-inter text-[14px] font-medium bg-white text-black rounded-[4px]" onClick={handleContinue}>
-           Continue
-          </button>
+          </p>
+          <Dropdown
+            options={revenueOptions}
+            selected={currentRevenue}
+            onSelect={handleRevenueChange}
+          />
+          {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
+          <div className="mt-auto pt-6 flex justify-between items-center w-full">
+            <button className="font-inter font-normal text-[14px] leading-[100%] text-white" onClick={handleBack}>
+             Back
+            </button>
+            <button className="w-[100px] h-[36px] font-inter text-[14px] font-medium bg-white text-black rounded-[4px]" onClick={handleContinue}>
+             Continue
+            </button>
+          </div>
         </div>
       </div>
     </div>
