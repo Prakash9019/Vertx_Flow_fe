@@ -15,7 +15,7 @@ import Rocket from "../assets/rocket.svg";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 p-4  border-gray-700 flex flex-col justify-between bg-black">
+    <div className="w-64 p-4  border-gray-700 flex flex-col justify-between bg-black h-screen">
       <div className="w-[240px] h-full border border-[#B8B8B821] bg-black space-y-3">
         <div className="py-2 pl-2  flex items-center gap-40">
           <img src={bunnyIcon} alt="Bunny Icon" className="w-8 h-8" />
@@ -25,7 +25,9 @@ const Sidebar = () => {
         <div className="pt-3 border-t border-gray-600"></div>
         <div className="pb-6 flex flex-col space-y-4 px-2">
           <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-            <span className="ml-1">Home</span>
+            <a href="/" className="ml-1">
+              Home
+            </a>
             <img src={Home} alt="Feedback Icon" className="w-6 h-6" />
           </div>
           <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
@@ -43,9 +45,12 @@ const Sidebar = () => {
         </div>
         <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
           <img src={EllipseTwo} alt="Ellipse 2" className="w-[26px] h-[26px]" />
-          <span className="font-inter font-medium text-sm leading-none tracking-normal">
+          <a
+            href="/evaluate"
+            className="font-inter font-medium text-sm leading-none tracking-normal"
+          >
             Evaluate
-          </span>
+          </a>
         </div>
         <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
           <img src={Ellipse3} alt="Ellipse 3" className="w-[26px] h-[26px]" />

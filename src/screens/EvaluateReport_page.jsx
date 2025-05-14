@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Background from "../assets/imgBackground.jpg";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import EvaluateReportComponent from "../components/EvaluateReportComponent";
 import EvaluateReportOverview from "../components/EvaluateReportOverview";
 import Sidebar from "../components/Sidebar";
@@ -9,33 +8,33 @@ import Sidebar from "../components/Sidebar";
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
-  const fileName = location.state.pdfFiles[0].name;
-  console.log(location.state);
-  const data = location.state.reportData;
 
-  const [reportData, setReportData] = useState([]);
+  const fileName = location?.state?.pdfFiles?.[0]?.name || "filename.pdf";
+  const incomingData = location?.state?.reportData;
+
+  const [reportData, setReportData] = useState(null);
   const [activeTab, setActiveTab] = useState("Analysis");
 
   useEffect(() => {
-    if (!data) {
+    if (!incomingData) {
       navigate("/");
+    } else {
+      setReportData(incomingData);
     }
-    setReportData(data);
-    console.log(data);
-  }, [data, navigate]);
+  }, [incomingData, navigate]);
 
-  const companyName = data?.overview?.company_name;
+  const companyName = reportData?.overview?.company_name;
 
   return (
-    <div className="overflow-y-auto h-screen w-full flex flex-col md:flex-row  bg-black text-white">
-      {/* Sidebar */}
-      <div className="">
+    <div className="min-h-screen bg-black text-white">
+      {/* Fixed Sidebar */}
+      <div className="fixed top-0 left-0 z-20 h-screen">
         <Sidebar />
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 sm:px-6 md:px-12 w-full">
-        {/* Header */}
+      {/* Main Content Area (scrollable) */}
+      <div className="pl-72 h-screen overflow-y-auto">
+        {/* Header with background */}
         <div
           className="py-16 text-white"
           style={{
@@ -45,11 +44,9 @@ function EvaluateReport_page() {
           }}
         >
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">
-            {companyName}
+            {companyName || "Company Name"}
           </h1>
-          <p className="mb-8 text-sm sm:text-base">
-            {fileName ? fileName : "filename.pdf"}{" "}
-          </p>
+          <p className="mb-8 text-sm sm:text-base">{fileName}</p>
 
           {/* Navigation Tabs */}
           <div className="bg-purple-900 rounded-md px-3 py-2 w-full sm:w-fit">
@@ -71,19 +68,23 @@ function EvaluateReport_page() {
           </div>
         </div>
 
-        {activeTab === "Analysis" && (
-          <EvaluateReportComponent data={reportData} />
-        )}
-
-        {activeTab === "Overview" && (
-          <EvaluateReportOverview data={reportData.overview} />
-        )}
-        {activeTab === "Match" && (
-          <div className="text-white py-12">Match content goes here</div>
-        )}
-        {activeTab === "Suggestions" && (
-          <div className="text-white py-12">Suggestions content goes here</div>
-        )}
+        {/* Conditional Content */}
+        <div className="px-4 sm:px-6 md:px-12">
+          {activeTab === "Analysis" && reportData && (
+            <EvaluateReportComponent data={reportData} />
+          )}
+          {activeTab === "Overview" && reportData && (
+            <EvaluateReportOverview data={reportData.overview} />
+          )}
+          {activeTab === "Match" && (
+            <div className="text-white py-12">Match content goes here</div>
+          )}
+          {activeTab === "Suggestions" && (
+            <div className="text-white py-12">
+              Suggestions content goes here
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

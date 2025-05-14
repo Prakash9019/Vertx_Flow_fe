@@ -46,8 +46,8 @@ function App() {
     { path: "/profile/pitch", element: <InvestorsPitch /> }, // Pitch input & submit
     { path: "/usage", element: <Usage_Page /> }, // Next page after profile
     { path: "/addfounder", element: <AddCofounder_Page /> },
-    { path: "/homepage", element: <HomePage /> },
-    { path: "/", element: <Evaluate_Page /> },
+    { path: "/", element: <HomePage /> },
+    { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
   ];
 
