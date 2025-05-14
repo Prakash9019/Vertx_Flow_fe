@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MultiSelect from "../components/MultiSelectDropdown";
 import { useStartupProfile } from "../context/StartupProfileContext";
-import logo from "../assets/ProfileImg.svg";
-import SignOut from "../assets/logout.svg";
-import RightIcon from "../assets/RightTick.svg";
+import Header from "../components/Header";
 import ProfileProgressBar from "../components/ProfileProgressBar";
 
 const InvestorsIndustry = () => {
@@ -31,58 +29,104 @@ const InvestorsIndustry = () => {
       return;
     }
     setError(null);
-    navigate("/profile/pitch"); // Or "/profile/industry/selected"
+    navigate("/profile/pitch");
   };
 
   const handleBack = () => {
-    navigate("/profile/revenue"); // Or "/profile/revenue/selected"
+    navigate("/profile/revenue");
   };
 
   if (loadingData && !startupData.stage) {
-     return <div className="w-full h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
+    return <div className="w-screen h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
   }
 
-  return (
-    <div className="w-full min-h-screen flex flex-col items-center" style={{ background: 'linear-gradient(0deg, rgba(28, 0, 30, 0.4) 0%, rgba(28, 0, 30, 0.4) 100%), #000000', position: 'relative' }}>
-      {/* Header: Logo Group */}
-      <div style={{ position: 'absolute', width: '190px', height: '48px', left: '49px', top: '41px' }}>
-        <img src={logo} alt="VERTX Logo Icon" style={{ position: 'absolute', width: '50px', height: '48px', left: '0px', top: '0px' }} />
-        <span style={{ position: 'absolute', width: '122px', height: '28px', left: '68px', top: '10px', fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: '28px', lineHeight: '34px', color: '#FFFFFF', fontStyle:'normal' }}>VERTX</span>
-      </div>
-      {/* Header: Sign Out Group */}
-      <div style={{ position: 'absolute', width: '85px', height: '24px', right: '49px', top: '55px', display: 'flex', alignItems: 'center', gap: '5px' }} className="cursor-pointer" onClick={() => { localStorage.removeItem('authToken'); localStorage.removeItem('isVerified'); navigate('/'); }}>
-        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '14px', lineHeight: '17px', color: '#FFFFFF', order: 1 }}>Sign out</span>
-        <img src={SignOut} alt="Sign out Icon" style={{ width: '24px', height: '24px', order: 2 }} />
-      </div>
-      {/* Centered Main Content Area */}
-      <div className="relative" style={{ width: '1280px', height: 'auto', marginTop: '0' }}>
-        {/* Title Block */}
-        <div style={{ position: 'absolute', width: '572px', left: '280px', top: '186px', color: '#FFFFFF' }}>
-          <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
-          <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>Most investors specialize in specific industries. You can choose multiple.</p>
-        </div>
-        {/* Content Box */}
-        <div className="bg-black flex flex-col" style={{ position: 'absolute', width: '720px', height: '362px', left: '280px', top: '285px', borderRadius: '10px', boxSizing: 'border-box', paddingLeft: '35px', paddingRight: '35px' }}>
-          <ProfileProgressBar currentStep={4} />
-          <label htmlFor="industry-multiselect" className="block text-sm font-medium mb-2">
-            Which industry do you operate in?
-          </label>
-          <p className="text-xs text-gray-400 mb-4">
-            Most investors specialize in specific industries. You can choose multiple.
-          </p>
-          <MultiSelect
-            options={industryOptions}
-            selected={currentIndustry}
-            onSelect={handleIndustryChange}
-          />
-          {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
-          <div className="mt-auto pt-6 flex justify-between items-center w-full">
-            <button className="font-inter font-normal text-[14px] leading-[100%] text-white" onClick={handleBack}>
-             Back
-            </button>
-            <button className="w-[100px] h-[36px] font-inter text-[14px] font-medium bg-white text-black rounded-[4px]" onClick={handleContinue}>
-             Continue
-            </button>
+  // Layout constants
+  const MAIN_CONTENT_WIDTH = '1280px';  const CONTENT_BOX_WIDTH = '720px';
+  const CONTENT_BOX_HEIGHT = '362px';
+  const CONTENT_BOX_PADDING_X = '35px';
+  const circlesAreaTopInBox = 39;
+  const questionLabelMarginTop = 31;
+
+  return (<div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#150718] via-[#1C001E] via-[#14006E] to-[#14006E] opacity-100 z-0"></div>
+      <div className="relative z-10">
+        <Header />
+
+        {/* Centered Main Content Area */}
+        <div className="flex justify-center mt-28">
+          <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto' }}>
+            {/* Title Block */}
+            <div style={{ 
+              width: '572px', 
+              color: '#FFFFFF', 
+              marginBottom: '20px', 
+              marginLeft: 'auto', 
+              marginRight: 'auto' 
+            }}>
+              <h2 className="font-inter font-semibold" style={{ 
+                fontSize: '20px', 
+                lineHeight: '24px', 
+                marginBottom: '12px' 
+              }}>
+                Tell us about your startup
+              </h2>
+              <p className="font-inter font-normal" style={{ 
+                fontSize: '14px', 
+                lineHeight: '17px' 
+              }}>
+                Most investors specialize in specific industries. You can choose multiple.
+              </p>
+            </div>
+
+            {/* Content Box */}
+            <div
+              className="bg-black flex flex-col"
+              style={{
+                width: CONTENT_BOX_WIDTH,
+                height: CONTENT_BOX_HEIGHT,
+                borderRadius: '10px',
+                boxSizing: 'border-box',
+                paddingLeft: CONTENT_BOX_PADDING_X,
+                paddingRight: CONTENT_BOX_PADDING_X,
+                marginLeft: 'auto',
+                marginRight: 'auto'              }}
+            >
+              {/* Progress Steps */}
+              <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
+                <ProfileProgressBar currentStep={4} />
+              </div>
+              
+              {/* Form Elements Area */}
+              <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px` }}>
+                <label htmlFor="industry-multiselect" className="block font-inter font-semibold text-sm mb-2">
+                  Which industry do you operate in?
+                </label>
+                <p className="font-inter font-normal text-xs text-gray-400 mb-4">
+                  Most investors specialize in specific industries. You can choose multiple.
+                </p>
+                <MultiSelect
+                  options={industryOptions}
+                  selected={currentIndustry}
+                  onSelect={handleIndustryChange}
+                />
+                {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
+              </div>
+
+              {/* Buttons Container */}
+              <div className="mt-auto pt-6 flex justify-between items-center w-full pb-6">
+                <button 
+                  className="font-inter font-normal text-[14px] text-white" 
+                  onClick={handleBack}
+                >
+                  Back
+                </button>
+                <button 
+                  className="w-[100px] h-[36px] font-inter text-[14px] font-medium bg-white text-black rounded-[4px]" 
+                  onClick={handleContinue}
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
