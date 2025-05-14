@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
-import logo from "../assets/ProfileImg.svg";
-import SignOut from "../assets/logout.svg";
+import logo from "../assets/ProfileImg.svg"; 
+import SignOutIcon from "../assets/logout.svg"; 
 import CloseIcon from "../assets/close_icon.svg";
 
 const ProfileSetup = () => {
+  // ... (hooks, state, handlers remain the same) ...
   const navigate = useNavigate();
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
   const [currentStage, setCurrentStage] = useState('');
@@ -14,12 +15,8 @@ const ProfileSetup = () => {
 
   const stages = ["Pre-seed", "Seed", "Series A", "Series B", "Series B+", "Pre-IPO", "Not Specified"];
   const stepData = [
-    { id: 1, title: 'Stage' },
-    { id: 2, title: 'Location' },
-    { id: 3, title: 'Raise' },
-    { id: 4, title: 'Revenue' },
-    { id: 5, title: 'Industry' },
-    { id: 6, title: 'Pitch' },
+    { id: 1, title: 'Stage' }, { id: 2, title: 'Location' }, { id: 3, title: 'Raise' },
+    { id: 4, title: 'Revenue' }, { id: 5, title: 'Industry' }, { id: 6, title: 'Pitch' },
   ];
 
   useEffect(() => { setCurrentStage(startupData.stage || ""); }, [startupData.stage]);
@@ -32,70 +29,130 @@ const ProfileSetup = () => {
     return <div className="w-screen h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
   }
 
-  // Coordinate Constants
-  const CONTENT_BOX_TOP_ABS = 285;
-  const CIRCLES_AREA_TOP_PAGE = 324;
-  const LABELS_UNDER_CIRCLES_TOP_PAGE = 362;
-  const QUESTION_LABEL_TOP_PAGE = 408;
-  const HELP_TEXT_TOP_PAGE = 433;
-  const INPUT_ZONE_TOP_PAGE = 471;
+  // Header styles based on your provided CSS, interpreted for viewport edge alignment
+  // Assuming a desired padding from viewport edges, similar to image_222af1.png
+  const viewportEdgePadding = '49px'; // This can be adjusted
+  const headerTopPadding = '41px'; // For logo, signout can be slightly different if needed
 
-  const circlesAreaTopInBox = CIRCLES_AREA_TOP_PAGE - CONTENT_BOX_TOP_ABS; // 39px
-  const circleHeight = 30;
-  const labelUnderCircleHeight = 15;
-  const marginCircleToLabel = LABELS_UNDER_CIRCLES_TOP_PAGE - (CIRCLES_AREA_TOP_PAGE + circleHeight); // 8px
-  const progressBarSectionHeight = circleHeight + marginCircleToLabel + labelUnderCircleHeight; // 53px
-  const progressBarBottomInBox = circlesAreaTopInBox + progressBarSectionHeight; // 39 + 53 = 92px
+  const logoGroupStyle = {
+    position: 'absolute',
+    width: '190px', // From CSS
+    height: '48px', // From CSS
+    left: viewportEdgePadding,
+    top: headerTopPadding,
+  };
+  const vertxIconStyle = { position: 'absolute', width: '50px', height: '48px', left: '0px', top: '0px' };
+  const vertxTextStyle = {
+    position: 'absolute', width: '122px', height: '28px', left: '68px', top: '10px',
+    fontFamily: 'Inter, sans-serif', fontWeight: 500, fontSize: '28px', lineHeight: '34px', color: '#FFFFFF',
+    fontStyle:'normal',
+  };
 
-  const questionLabelTopInBox = QUESTION_LABEL_TOP_PAGE - CONTENT_BOX_TOP_ABS; // 123px
-  // This is the margin from the BOTTOM of the progress bar (circles + labels) to the TOP of the "What stage..." question
-  const questionLabelMarginTop = questionLabelTopInBox - progressBarBottomInBox; // 123 - 92 = 31px
+  const signOutGroupStyle = {
+    position: 'absolute',
+    width: '85px', // From CSS
+    height: '24px', // From CSS
+    right: viewportEdgePadding, // Aligned to the right edge of viewport
+    top: '55px', // From CSS for Group 339
+    display: 'flex', // To arrange text and icon
+    alignItems: 'center', // Vertically align text and icon
+    gap: '5px', // Space between text and icon (derived from CSS left values)
+  };
+  const signOutTextStyle = {
+    fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '14px', lineHeight: '17px', color: '#FFFFFF',
+    order: 1, // Text first
+  };
+  const signOutIconStyle = {
+    width: '24px', height: '24px',
+    order: 2, // Icon second
+  };
 
-  const helpTextTopInBox = HELP_TEXT_TOP_PAGE - CONTENT_BOX_TOP_ABS;
-  const questionLabelHeightApprox = 17;
-  const helpTextMarginTop = helpTextTopInBox - (questionLabelTopInBox + questionLabelHeightApprox); // 8px (margin below "What stage..." label)
+  // --- Constants for main content positioning (within a centered 1280px block) ---
+  const MAIN_CONTENT_WIDTH = '1280px'; // The conceptual centered block width
+  const MAIN_CONTENT_HEIGHT = '832px';// The conceptual centered block height
 
-  const inputZoneTopInBox = INPUT_ZONE_TOP_PAGE - CONTENT_BOX_TOP_ABS;
-  const helpTextHeightApprox = 15;
-  // This is the margin from the BOTTOM of the help text to the TOP of the input zone (select/chip)
-  const inputZoneMarginTop = inputZoneTopInBox - (helpTextTopInBox + helpTextHeightApprox); // 23px
 
-  const chipHeight = '32px';
-  const chipBorderRadius = '4px';
-  const chipBackground = 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)';
-  const chipMinWidth = '75px';
-  const chipPaddingX = '10px';
-  const chipIconWidth = 12;
-  const chipSpaceBetweenTextAndIcon = '8px';
-  const chipMarginTopFromCurrentlySelectedLabel = (494 - 471) - 15; // 8px
+  const TITLE_BLOCK_LEFT_REL = '280px'; // Relative to the 1280px block's start
+  const TITLE_BLOCK_TOP_REL = '186px';  // Relative to the 1280px block's start
+
+  const CONTENT_BOX_LEFT_REL = '280px'; // Relative to the 1280px block's start
+  const CONTENT_BOX_TOP_REL = '285px';  // Relative to the 1280px block's start
+  const CONTENT_BOX_WIDTH = '720px';
+  const CONTENT_BOX_HEIGHT = '362px';
+  const CONTENT_BOX_PADDING_X = '35px';
+
+  // ... other coordinate constants for elements inside the content box (circlesAreaTopInBox etc.) ...
+  // These should be calculated relative to CONTENT_BOX_TOP_REL if the content box itself is positioned absolutely
+    const CONTENT_BOX_TOP_ABS_FOR_CALC = 0; // Since these are now relative to content box, its top is 0 for these calculations
+    const CIRCLES_AREA_TOP_PAGE = 324;
+    const LABELS_UNDER_CIRCLES_TOP_PAGE = 362;
+    const QUESTION_LABEL_TOP_PAGE = 408;
+    const HELP_TEXT_TOP_PAGE = 433;
+    const INPUT_ZONE_TOP_PAGE = 471;
+
+    // Recalculate these based on the idea that they are *inside* the absolutely positioned Content Box
+    const circlesAreaTopInBox = CIRCLES_AREA_TOP_PAGE - 285; // 39px from top of an imaginary 285px offset content box
+    const circleHeight = 30;
+    const labelUnderCircleHeight = 15;
+    const marginCircleToLabel = LABELS_UNDER_CIRCLES_TOP_PAGE - (CIRCLES_AREA_TOP_PAGE + circleHeight); // 8px
+    const progressBarSectionHeight = circleHeight + marginCircleToLabel + labelUnderCircleHeight; // 53px
+    const progressBarBottomInBox = circlesAreaTopInBox + progressBarSectionHeight; // 39 + 53 = 92px
+
+    const questionLabelTopInBox = QUESTION_LABEL_TOP_PAGE - 285; // 123px
+    const questionLabelMarginTop = questionLabelTopInBox - progressBarBottomInBox; // 123 - 92 = 31px
+
+    const helpTextTopInBox = HELP_TEXT_TOP_PAGE - 285; // 148px
+    const questionLabelHeightApprox = 17;
+    const helpTextMarginTop = helpTextTopInBox - (questionLabelTopInBox + questionLabelHeightApprox); // 8px
+
+    const inputZoneTopInBox = INPUT_ZONE_TOP_PAGE - 285; // 186px
+    const helpTextHeightApprox = 15;
+    const inputZoneMarginTop = inputZoneTopInBox - (helpTextTopInBox + helpTextHeightApprox); // 23px
+
+    const chipHeight = '32px';
+    const chipBorderRadius = '4px';
+    const chipBackground = 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)';
+    const chipMinWidth = '75px';
+    const chipPaddingX = '10px';
+    const chipIconWidth = 12;
+    const chipSpaceBetweenTextAndIcon = '8px';
+    const chipMarginTopFromCurrentlySelectedLabel = (494 - 471) - 15; // 8px
+
 
   return (
-    <div className="w-full min-h-screen flex justify-center items-center" style={{ background: 'linear-gradient(0deg, rgba(28, 0, 30, 0.4) 0%, rgba(28, 0, 30, 0.4) 100%), #000000' }}>
-      <div className="text-white relative" style={{ width: '1280px', height: '832px' }}>
-        {/* Header */}
-        <div style={{ position: 'absolute', width: '190px', height: '48px', left: '49px', top: '41px' }}>
-          <img src={logo} alt="VERTX Logo" style={{ position: 'absolute', width: '50px', height: '48px', left: '0px', top: '0px' }} />
-          <span className="font-inter font-semibold" style={{ position: 'absolute', width: '122px', height: '28px', left: '68px', top: '10px', fontSize: '28px', lineHeight: '34px', color: '#FFFFFF' }}>V E R T X</span>
-        </div>
-        <div className="flex items-center space-x-2 cursor-pointer" style={{ position: 'absolute', width: 'auto', height: '24px', right: '49px', top: '55px' }} onClick={() => { localStorage.removeItem('authToken'); localStorage.removeItem('isVerified'); navigate('/'); }}>
-          <span className="font-inter font-medium" style={{ fontSize: '14px', lineHeight: '17px', color: '#FFFFFF' }}>Sign out</span>
-          <img src={SignOut} alt="Sign out" style={{ width: '24px', height: '24px' }} />
-        </div>
-        {/* Title Block */}
-        <div style={{ position: 'absolute', width: '572px', left: '280px', top: '186px', color: '#FFFFFF' }}>
+    <div className="w-full min-h-screen flex flex-col items-center" style={{ background: 'linear-gradient(0deg, rgba(28, 0, 30, 0.4) 0%, rgba(28, 0, 30, 0.4) 100%), #000000', position: 'relative' /* For viewport-absolute children */ }}>
+      
+      {/* Header: Logo Group - Positioned relative to viewport */}
+      <div style={logoGroupStyle}>
+        <img src={logo} alt="VERTX Logo Icon" style={vertxIconStyle} />
+        <span style={vertxTextStyle}>VERTX</span>
+      </div>
+
+      {/* Header: Sign Out Group - Positioned relative to viewport */}
+      <div style={signOutGroupStyle} className="cursor-pointer" onClick={() => { localStorage.removeItem('authToken'); localStorage.removeItem('isVerified'); navigate('/'); }}>
+        <span style={signOutTextStyle}>Sign out</span>
+        <img src={SignOutIcon} alt="Sign out Icon" style={signOutIconStyle} />
+      </div>
+
+      {/* Centered Main Content Area (for title and black box) */}
+      <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto', marginTop: '0' /* Or a specific top margin if header is not part of its height flow */ }}>
+        {/* Title Block - Positioned relative to this centered 1280px area */}
+        <div style={{ position: 'absolute', width: '572px', left: TITLE_BLOCK_LEFT_REL, top: TITLE_BLOCK_TOP_REL, color: '#FFFFFF' }}>
           <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
           <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>We’ll use this information to match you with the right investors for your specific needs.</p>
         </div>
 
-        {/* Content Box */}
+        {/* Content Box - Positioned relative to this centered 1280px area */}
         <div
           className="bg-black flex flex-col"
           style={{
-            position: 'absolute', width: '720px', height: '362px', left: '280px', top: '285px',
-            borderRadius: '10px', boxSizing: 'border-box', padding: `0 35px`, // Horizontal padding
+            position: 'absolute', width: CONTENT_BOX_WIDTH, height: CONTENT_BOX_HEIGHT, 
+            left: CONTENT_BOX_LEFT_REL, top: CONTENT_BOX_TOP_REL,
+            borderRadius: '10px', boxSizing: 'border-box', 
+            paddingLeft: CONTENT_BOX_PADDING_X, paddingRight: CONTENT_BOX_PADDING_X,
           }}
         >
-          {/* Progress Steps (Tracking Bar) - RESTORED */}
+          {/* Progress Steps (Tracking Bar) */}
           <div className="flex justify-between items-start" style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
             {stepData.map((step, index) => (
               <div key={step.id} className="flex flex-col items-center text-center flex-1" style={{ minWidth: 0 }}>
@@ -107,7 +164,7 @@ const ProfileSetup = () => {
             ))}
           </div>
 
-          {/* Form Elements Area - marginTop positions it after the progress bar */}
+          {/* Form Elements Area */}
           <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px` }}>
             <label className="block font-inter font-semibold" style={{ fontSize: '14px', lineHeight: '17px', marginBottom: `${helpTextMarginTop}px`}}>
               What stage is your startup at?
@@ -115,8 +172,6 @@ const ProfileSetup = () => {
             <p className="font-inter font-normal text-xs" style={{ fontSize: '12px', lineHeight: '15px', marginBottom: `${inputZoneMarginTop}px` }}>
               This helps us to match you with the investors who focus on your stage.
             </p>
-
-            {/* Input Zone: Either "Currently Selected" chip OR the "Select" dropdown */}
             <div style={{ width: '320px', position: 'relative' }}>
               {currentStage ? (
                 <>
@@ -146,13 +201,13 @@ const ProfileSetup = () => {
           </div>
 
           {/* Buttons Container */}
-          <div className="flex justify-between items-center w-full" style={{ color: '#FFFFFF', marginTop: 'auto', paddingTop: '20px', paddingBottom: 'calc(362px - (580px - 285px) - 36px)'}}>
+          <div className="flex justify-between items-center w-full" style={{ color: '#FFFFFF', marginTop: 'auto', paddingTop: '20px', paddingBottom: 'calc(362px - (580px - 285px) - 36px)' /* Ensure this calc is correct based on final button top relative to content box */}}>
             <button className="font-inter font-normal" onClick={handleBack} style={{ fontSize: '14px', lineHeight: '17px' }}>Back</button>
             <button className="font-inter font-medium" onClick={handleContinue} style={{ width: '100px', height: '36px', background: '#FFFFFF', color: '#000000', borderRadius: '4px', fontSize: '14px', lineHeight: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Continue</button>
           </div>
-        </div>
-      </div>
-    </div>
+        </div> {/* End of Content Box */}
+      </div> {/* End of Centered Main Content Area */}
+    </div> // End of Full Screen Wrapper
   );
 };
 
