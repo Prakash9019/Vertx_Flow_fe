@@ -6,6 +6,23 @@ import logo from "../assets/ProfileImg.svg";
 import SignOutIcon from "../assets/logout.svg"; 
 import CloseIcon from "../assets/close_icon.svg";
 
+const styles = `
+  @keyframes slideUp {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+`;
+
+const styleSheet = document.createElement("style");
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
+
 const ProfileSetup = () => {
   // ... (hooks, state, handlers remain the same) ...
   const navigate = useNavigate();
@@ -190,8 +207,38 @@ const ProfileSetup = () => {
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><path d="M7 10L12 15L17 10H7Z" fill="#656565"/></svg>
                   </div>
                   {isDropdownOpen && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 4px)', width: '320px', background: '#0F0E16', border: '1px solid rgba(184, 184, 184, 0.13)', borderRadius: '3px', zIndex: 10, maxHeight: `${(stages.length * 35) + 10}px`, overflowY: 'auto' }}>
-                      {stages.map((stageOption) => ( <div key={stageOption} onClick={() => handleStageSelect(stageOption)} className="cursor-pointer hover:bg-[#6C2BD9]" style={{ padding: '10px 15px', fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#FFFFFF' }}>{stageOption === "" ? "Not Specified" : stageOption}</div> ))}
+                    <div style={{ 
+                      position: 'absolute', 
+                      bottom: 'calc(100% + 4px)', 
+                      width: '320px', 
+                      background: '#0F0E16', 
+                      border: '1px solid rgba(184, 184, 184, 0.13)', 
+                      borderRadius: '3px', 
+                      zIndex: 9999, 
+                      maxHeight: `${(stages.length * 35) + 10}px`, 
+                      overflowY: 'auto',
+                      transform: 'translateY(0)',
+                      transition: 'transform 0.2s ease-in-out',
+                      animation: 'slideUp 0.2s ease-in-out'
+                    }}>
+                      {stages.map((stageOption) => ( 
+                        <div 
+                          key={stageOption} 
+                          onClick={() => handleStageSelect(stageOption)} 
+                          className="cursor-pointer hover:bg-[#6C2BD9]" 
+                          style={{ 
+                            padding: '10px 15px', 
+                            fontFamily: 'Inter, sans-serif', 
+                            fontStyle: 'normal', 
+                            fontWeight: 400, 
+                            fontSize: '12px', 
+                            lineHeight: '15px', 
+                            color: '#FFFFFF' 
+                          }}
+                        >
+                          {stageOption === "" ? "Not Specified" : stageOption}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </>
