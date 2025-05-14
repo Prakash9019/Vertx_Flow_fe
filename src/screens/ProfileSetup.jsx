@@ -5,6 +5,7 @@ import { useStartupProfile } from "../context/StartupProfileContext";
 import logo from "../assets/ProfileImg.svg";
 import SignOut from "../assets/logout.svg";
 import CustomSelect from "../components/CustomSelect";
+import ProfileProgressBar from "../components/ProfileProgressBar";
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -57,22 +58,13 @@ const ProfileSetup = () => {
             Tell us about your startup
         </h2>
         <p className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] mt-[5px]">
-            We’ll use this information to match you with the right investors for your specific needs.
+            We'll use this information to match you with the right investors for your specific needs.
         </p>
       </div>
 
       {/* Original Content Box */}
       <div className="relative w-[720px] h-auto min-h-[362px] mt-[60px] gradient-border rounded-[10px] bg-black text-white p-8 flex flex-col">
-        <div className="flex justify-between items-center mb-6"> {/* Adjusted for flex-wrap and centering if needed */}
-          {['Stage', 'Location', 'Raise', 'Revenue', 'Industry', 'Pitch'].map((stepLabel, index) => (
-            <div key={stepLabel} className="flex flex-col items-center space-y-1 text-center flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${index === 0 ? 'bg-[#6C2BD9] border-[#6C2BD9]' : 'border-gray-600 text-gray-400'}`}>
-                {index + 1}
-              </div>
-              <span className={`text-[12px] ${index === 0 ? 'text-white' : 'text-gray-400'}`}>{stepLabel}</span>
-            </div>
-          ))}
-        </div>
+        <ProfileProgressBar currentStep={0} />
 
         <label className="block text-sm font-medium mb-2">
           What stage is your startup at?

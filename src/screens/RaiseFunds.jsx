@@ -6,6 +6,7 @@ import { useStartupProfile } from "../context/StartupProfileContext";
 import logo from "../assets/ProfileImg.svg";
 import SignOut from "../assets/logout.svg";
 import RightIcon from "../assets/RightTick.svg"; // For step indicators
+import ProfileProgressBar from "../components/ProfileProgressBar";
 
 const RaiseFunds = () => {
   const navigate = useNavigate();
@@ -69,20 +70,7 @@ const RaiseFunds = () => {
       </div>
 
       <div className="relative w-[720px] h-auto min-h-[362px] mt-[60px] gradient-border rounded-[10px] bg-black text-white p-8 flex flex-col">
-        <div className="flex justify-between items-center mb-6">
-          {['Stage', 'Location', 'Raise', 'Revenue', 'Industry', 'Pitch'].map((stepLabel, index) => {
-            const isActive = index <= 2; // Steps 1, 2, 3 (Raise) are active or completed
-            const isCompleted = index < 2; // Steps before Raise are completed
-            return (
-              <div key={stepLabel} className="flex flex-col items-center space-y-1 text-center flex-1">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${isActive ? 'bg-[#6C2BD9] border-[#6C2BD9]' : 'border-gray-600 text-gray-400'}`}>
-                  {isCompleted ? <img src={RightIcon} alt="Tick" className="w-4 h-4" /> : index + 1}
-                </div>
-                <span className={`text-[12px] ${isActive ? 'text-white' : 'text-gray-400'}`}>{stepLabel}</span>
-              </div>
-            );
-          })}
-        </div>
+        <ProfileProgressBar currentStep={2} />
         <label htmlFor="raise-dropdown" className="block text-sm font-medium mb-2">
           How much are you looking to raise?
         </label>
