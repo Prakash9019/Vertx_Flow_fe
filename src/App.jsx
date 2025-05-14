@@ -47,7 +47,7 @@ function App() {
     { path: "/usage", element: <Usage_Page /> }, // Next page after profile
     { path: "/addfounder", element: <AddCofounder_Page /> },
     { path: "/homepage", element: <HomePage /> },
-    { path: "/evaluate", element: <Evaluate_Page /> },
+    { path: "/", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
   ];
 
@@ -58,7 +58,7 @@ function App() {
       {" "}
       {/* Consider CSS for global scroll if needed */}
       <Routes>
-        <Route path="/" element={<Login_Page />} />
+        {/* <Route path="/" element={<Login_Page />} /> */}
         <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
 
         {protectedRoutes.map(({ path, element }) => (
