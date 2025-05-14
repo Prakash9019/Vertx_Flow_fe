@@ -12,10 +12,10 @@ import LogOut from "../assets/logout.svg";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 p-4 border-r border-gray-700 flex flex-col justify-between bg-black">
+    <div className="w-64 p-4  border-gray-700 flex flex-col justify-between bg-black">
       <div className="w-[240px] h-full border border-[#B8B8B821] bg-black space-y-3">
-        <div className="py-2 pl-2 text-pink-500 flex items-center gap-40">
-          <img src={bunnyIcon} alt="Bunny Icon" className="w-5 h-5" />
+        <div className="py-2 pl-2  flex items-center gap-40">
+          <img src={bunnyIcon} alt="Bunny Icon" className="w-8 h-8" />
           <img src={LeftBackIcon} alt="Back Icon" className="w-5 h-5" />
         </div>
         <div className="text-sm space-y-4 pt-6 border-t border-gray-600"></div>
@@ -51,6 +51,7 @@ const Sidebar = () => {
             Playground
           </span>
         </div>
+        <div className="h-[18rem]"></div>
       </div>
 
       {/* Bottom Section */}

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import EvaluateReportComponent from "../components/EvaluateReportComponent";
 import EvaluateReportOverview from "../components/EvaluateReportOverview";
+import Sidebar from "../components/Sidebar";
 
 function EvaluateReport_page() {
   const location = useLocation();
@@ -28,8 +29,8 @@ function EvaluateReport_page() {
   return (
     <div className="overflow-y-auto h-screen w-full flex flex-col md:flex-row  bg-black text-white">
       {/* Sidebar */}
-      <div className="w-full md:w-1/5 bg-gray-800 p-4 text-center text-xl md:text-2xl">
-        Side nav
+      <div className="">
+        <Sidebar />
       </div>
 
       {/* Main Content */}

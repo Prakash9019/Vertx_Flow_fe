@@ -10,6 +10,7 @@ function Login_Page() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [storedEmail, setStoredEmail] = useState("");
   const inputsRef = useRef([]);
 
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function Login_Page() {
       }, 2000);
       return;
     }
-
+    console.log(userEmail);
     try {
       setEmailError("OTP Send!");
       const response = await axios.post(
@@ -36,6 +37,7 @@ function Login_Page() {
       );
       console.log("response from handleEmail:-", response);
       if (response) {
+        setStoredEmail(userEmail);
         setOtpFormDisplay(true);
       }
       setEmailError("");
@@ -66,23 +68,34 @@ function Login_Page() {
 
   const handleOtpSubmit = async () => {
     const fullOtp = otp.join("");
+
+    setErrorMessage("");
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/verify-otp",
         {
-          email: userEmail,
+          email: storedEmail,
           otp: fullOtp,
         }
       );
-      console.log(response);
-      console.log(userEmail, fullOtp);
-      if (response) {
-        localStorage.setItem("isVerified", "true");
+
+      console.log("OTP verification response:", response);
+      console.log(storedEmail, fullOtp);
+
+      if (response && response.data?.token) {
+        localStorage.setItem("token", response.data.token);
+
         navigate("/profile");
-        // alert("OTP verified!");
         setOtpFormDisplay(false);
         setOtp(["", "", "", "", "", ""]);
         setErrorMessage("");
+      } else {
+        setErrorMessage("Something went wrong. No token received.");
+        setTimeout(() => {
+          setOtp(["", "", "", "", "", ""]);
+          setErrorMessage("");
+        }, 3000);
       }
     } catch (error) {
       setErrorMessage("OTP has expired or is invalid");
@@ -145,10 +158,15 @@ function Login_Page() {
           >
             Continue with email
           </button>
+          {/* enter otp pop up  */}
           {otpFormDisplay && (
             <div
               className="fixed inset-0 bg-opacity-0 backdrop-blur-sm flex items-center justify-center z-5"
-              onClick={() => setOtpFormDisplay(false)}
+              onClick={() => {
+                setOtpFormDisplay(false);
+                setErrorMessage("");
+                setOtp(["", "", "", "", "", ""]);
+              }}
             >
               <div
                 className="bg-black px-[7rem] pb-8 border border-gray-900 text-white rounded-lg  flex flex-col items-center gap-5"

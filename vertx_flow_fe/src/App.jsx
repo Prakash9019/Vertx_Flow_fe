@@ -24,8 +24,6 @@ import IndustrySelected from "./screens/IndustrySelected";
 import InvestorsPitch from "./screens/InvestorsPitch";
 
 function App() {
-  const isVerified = localStorage.getItem("isVerified") === "true";
-
   const protectedRoutes = [
     { path: "/profile", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
@@ -58,9 +56,7 @@ function App() {
           <Route
             key={path}
             path={path}
-            element={
-              <PrivateRoute isAllowed={isVerified}>{element}</PrivateRoute>
-            }
+            element={<PrivateRoute>{element}</PrivateRoute>}
           />
         ))}
       </Routes>

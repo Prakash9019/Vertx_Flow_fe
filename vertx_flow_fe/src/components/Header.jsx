@@ -7,7 +7,7 @@ function Header() {
   const navigate = useNavigate();
 
   const handleSignout = () => {
-    localStorage.removeItem("isVerified");
+    localStorage.removeItem("token");
     navigate("/");
   };
 
