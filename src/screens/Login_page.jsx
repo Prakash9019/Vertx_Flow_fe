@@ -4,6 +4,7 @@ import BackgroundImage from "../assets/login_background.svg";
 import Logo from "../assets/logo.svg";
 import { useNavigate, useLocation } from "react-router-dom";
 import { API_KEY } from "../../key";
+
 function Login_Page() {
   const [userEmail, setUserEmail] = useState("");
   const [storedEmail, setStoredEmail] = useState("");
@@ -158,7 +159,7 @@ function Login_Page() {
           </button>
         </div>
 
-        <p className="w-72 text-center my-5">or</p>
+        <p className="w-2 text-center my-5">or</p>
 
         {/* Email Login */}
         <div className="flex flex-col gap-3">
