@@ -3,7 +3,7 @@ import axios from "axios";
 import BackgroundImage from "../assets/login_background.svg";
 import Logo from "../assets/logo.svg";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { API_KEY } from "../../key";
 function Login_Page() {
   const [userEmail, setUserEmail] = useState("");
   const [storedEmail, setStoredEmail] = useState("");
@@ -44,7 +44,7 @@ function Login_Page() {
     try {
       setEmailError("OTP Sent!");
       const response = await axios.post(
-        "http://localhost:5000/api/auth/send-otp",
+        `${API_KEY}/api/auth/send-otp`,
         {
           email: userEmail,
         }
@@ -89,7 +89,7 @@ function Login_Page() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
+        `${API_KEY}/api/auth/verify-otp`,
         {
           email: storedEmail,
           otp: fullOtp,
@@ -130,7 +130,7 @@ function Login_Page() {
 
   // Google Login
   const handleLoginWithGoogle = () => {
-    const backendGoogleAuthUrl = "http://localhost:5000/auth/google";
+    const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
     window.location.href = backendGoogleAuthUrl;
   };
 
