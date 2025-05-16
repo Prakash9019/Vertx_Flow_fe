@@ -2,14 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
-import logo from "../assets/ProfileImg.svg";
-import SignOut from "../assets/logout.svg";
+import Header from "../components/Header";
 import ProfileProgressBar from "../components/ProfileProgressBar";
 
 const LocationSetup = () => {
   const navigate = useNavigate();
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
-  const [currentLocation, setCurrentLocation] = useState('');
+  const [currentLocation, setCurrentLocation] = useState("");
 
   useEffect(() => {
     setCurrentLocation(startupData.location || "");
@@ -36,54 +35,99 @@ const LocationSetup = () => {
   };
 
   if (loadingData && !startupData.stage) {
-     return <div className="w-full h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
+     return <div className="w-screen h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
   }
 
-  return (
-    <div className="w-[1580px] h-[832px] bg-gradient-to-b from-[#0F0C29] via-[#08080d] to-[#0b0b3f] text-white flex flex-col items-center justify-center p-6">
-      <div className="absolute top-11 left-16 text-2xl font-bold flex items-center space-x-2">
-        <img src={logo} alt="Profile logo" className="w-[50px] h-[48px] object-contain" />
-        <span className="absolute top-[20px] left-[60px] text-[28px] leading-[100%] tracking-[0%] font-inter font-semibold text-white w-[122px] h-[28px]">VERTX</span>
-      </div>
-      <div className="absolute top-[59px] left-[1133px] ml-60 flex items-center space-x-2 cursor-pointer" onClick={() => { localStorage.removeItem('authToken'); localStorage.removeItem('isVerified'); navigate('/'); }}>
-        <span className="w-[56px] h-[17px] font-inter font-medium text-[14px] leading-[100%] text-white">Sign out</span>
-        <img src={SignOut} alt="Sign out" className="h-[24px] w-[24px]" />
-      </div>
+  // --- Layout constants (mirroring ProfileSetup.jsx) ---
+  const MAIN_CONTENT_WIDTH = '1280px';
+  const CONTENT_BOX_WIDTH = '720px';
+  const CONTENT_BOX_HEIGHT = '362px';
+  const CONTENT_BOX_PADDING_X = '35px';
+  const circlesAreaTopInBox = 39;
+  const marginCircleToLabel = 8;
+  const questionLabelMarginTop = 31; // Calculated value from original
+  const helpTextMarginTop = 8;
+  const inputZoneMarginTop = 23;
 
-      <div className="absolute w-[572px] h-[54px] top-[170px] left-[calc(50%-572px/2-180px/2)] text-white space-y-3">
-        <h2 className="font-inter font-semibold text-[20px] leading-[100%] tracking-[0%]">
-            Tell us about your startup
-        </h2>
-        <p className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] mt-[5px]">
-            Investors do have geographic preferences. This helps us to match with the right investor.
-        </p>
-      </div>
+  return (    <div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#150718] via-[#1C001E] via-[#14006E] to-[#14006E] opacity-100 z-0"></div>
+      <div className="relative z-10">
+        <Header />
 
-      <div className="relative w-[720px] h-auto min-h-[362px] mt-[60px] gradient-border rounded-[10px] bg-black text-white p-8 flex flex-col">
-        <ProfileProgressBar currentStep={1} />
-        <label htmlFor="location-input" className="block text-sm font-medium mb-2">
-          Where is your startup headquartered?
-        </label>
-        <p className="text-xs text-gray-400 mb-4">
-          e.g., San Francisco, USA
-        </p>
-        <input
-          type="text"
-          id="location-input"
-          value={currentLocation}
-          onChange={handleLocationChange}
-          placeholder="City, Country"
-          className="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
-        />
-        {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
-        <div className="mt-auto pt-6 flex justify-between items-center w-full">
-          <button className="font-inter font-normal text-[14px] leading-[100%] text-white" onClick={handleBack}>
-           Back
-          </button>
-          <button className="w-[100px] h-[36px] font-inter text-[14px] font-medium bg-white text-black rounded-[4px]" onClick={handleContinue}>
-           Continue
-          </button>
+        {/* Centered Main Content Area */}
+        <div className="flex justify-center mt-12">
+          <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto' }}>
+            {/* Title Block */}
+            <div style={{ width: '572px', color: '#FFFFFF', marginBottom: '20px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
+              <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>Investors do have geographic preferences. This helps us to match with the right investor.</p>
+            </div>
+
+            {/* Content Box */}
+             <div
+  className="relative w-full max-w-2xl min-h-[362px] mt-8 sm:mt-12 mx-auto"
+  style={{
+    position: 'relative',
+    background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
+    borderRadius: '12px',
+    padding: '2px', // Space for the border
+  }}
+>
+    <div 
+    className="w-full h-full flex flex-col" 
+    style={{
+      background: 'black',
+      borderRadius: '10px', // Slightly smaller to show the gradient border
+      height: 'calc(100% - 4px)',
+      padding: '2rem',
+    }}
+  >
+            {/* <div
+              className="bg-black flex flex-col"
+              style={{
+                width: CONTENT_BOX_WIDTH,
+                height: CONTENT_BOX_HEIGHT,
+                borderRadius: '10px',
+                boxSizing: 'border-box',
+                paddingLeft: CONTENT_BOX_PADDING_X,
+                paddingRight: CONTENT_BOX_PADDING_X,
+                marginLeft: 'auto',
+                marginRight: 'auto'
+              }}
+            > */}
+              {/* Progress Steps */}
+              <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
+                <ProfileProgressBar currentStep={1} />
+              </div>
+
+              {/* Form Elements Area */}
+              <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px` }}>
+                <label htmlFor="location-input" className="block font-inter font-semibold" style={{ fontSize: '14px', lineHeight: '17px', marginBottom: `${helpTextMarginTop}px` }}>
+                  Where is your startup headquartered?
+                </label>
+                <p className="font-inter font-normal text-xs" style={{ fontSize: '12px', lineHeight: '15px', marginBottom: `${inputZoneMarginTop}px` }}>
+                  e.g., San Francisco, USA
+                </p>
+                <input
+                  type="text"
+                  id="location-input"
+                  value={currentLocation}
+                  onChange={handleLocationChange}
+                  placeholder="City, Country"
+                  className="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
+                  style={{ width: '320px' }}
+                />
+                {error && <p className="text-red-500 text-sm" style={{ marginTop: '8px', width: '320px' }}>{error}</p>}
+              </div>
+
+              {/* Buttons Container */}
+              <div className="flex justify-between items-center w-full" style={{ color: '#FFFFFF', marginTop: 'auto', paddingTop: '20px', paddingBottom: '20px' }}>
+                <button className="font-inter font-normal" onClick={handleBack} style={{ fontSize: '14px', lineHeight: '17px' }}>Back</button>
+                <button className="font-inter font-medium" onClick={handleContinue} style={{ width: '100px', height: '36px', background: '#FFFFFF', color: '#000000', borderRadius: '4px', fontSize: '14px', lineHeight: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Continue</button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
       </div>
     </div>
   );

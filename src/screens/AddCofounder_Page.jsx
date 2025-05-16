@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios
-
+import { API_KEY } from "../../key";
 function AddCofounder_Page() {
   const [cofounders, setCofounders] = useState([""]); // Start with one input
   // Replacing 'inviteAlert' with more specific states for API feedback
@@ -61,7 +61,7 @@ function AddCofounder_Page() {
     for (const email of emailsToInvite) {
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/invites/cofounder",
+          `${API_KEY}/api/invites/cofounder`,
           { cofounderEmail: email },
           { headers: { Authorization: `Bearer ${token}` } }
         );

@@ -4,7 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import { FaLinkedin } from "react-icons/fa";
 import { useStartupProfile } from "../context/StartupProfileContext";
-
+import Image from "./image.png"; // Adjust the path as necessary
+import bgImage from "./bg.png"; // Adjust the path as necessary
 function ProfileSetup_Page() {
   const navigate = useNavigate();
   // Context handles initial data fetch. We mainly use loadingData and error for UI feedback here.
@@ -39,11 +40,54 @@ function ProfileSetup_Page() {
   }
 
   return (
-    <div
-      className="relative min-h-screen text-white bg-black bg-cover bg-top bg-no-repeat px-4 py-6 sm:px-6 md:px-10 lg:px-16"
-    >
-      <div className="absolute inset-0 bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
-      <div className="relative z-10">
+<div 
+
+  className="relative min-h-screen w-full text-white px-4 py-6 sm:px-6 md:px-10 lg:px-16"
+// className="relative min-h-screen text-white px-4 py-6 sm:px-6 md:px-10 lg:px-16" 
+style={{
+    backgroundColor: 'black',
+    backgroundImage: `url(${bgImage})`,
+    backgroundPosition: 'top',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+  }}
+  // style={{ 
+  //   position: 'relative',
+  //   backgroundImage: `url(${bgImage})`,
+  //   backgroundPosition: 'top',
+  //   backgroundSize: 'cover',
+  //   backgroundRepeat: 'no-repeat',
+  // }}
+> 
+{/* <div
+  className="relative min-h-screen w-full text-white px-4 py-6 sm:px-6 md:px-10 lg:px-16"
+  style={{
+    backgroundColor: 'black',
+    backgroundImage: `url(${bgImage})`,
+    backgroundPosition: 'top',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+  }}
+>
+  
+</div> */}
+  {/* <div 
+    className="absolute inset-0" 
+    style={{ 
+      backgroundColor: 'white', 
+      opacity: 0.1,
+      mixBlendMode: 'multiply'
+    }}
+  />
+  <div 
+    className="absolute inset-0" 
+    style={{ 
+      backgroundColor: '#1C001E', 
+      opacity: 0.6 
+    }}
+  /> */}
+
+     <div className="relative z-10">
         <Header />
 
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
@@ -90,7 +134,8 @@ function ProfileSetup_Page() {
               </span>
             </p>
           </div>
-        </div>
+        {/* </div> */}
+      </div>
       </div>
     </div>
   );

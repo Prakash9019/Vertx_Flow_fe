@@ -3,6 +3,7 @@ import axios from "axios";
 import BackgroundImage from "../assets/login_background.svg";
 import Logo from "../assets/logo.svg";
 import { useNavigate, useLocation } from "react-router-dom";
+import { API_KEY } from "../../key";
 
 function Login_Page() {
   const [userEmail, setUserEmail] = useState("");
@@ -44,7 +45,7 @@ function Login_Page() {
     try {
       setEmailError("OTP Sent!");
       const response = await axios.post(
-        "http://localhost:5000/api/auth/send-otp",
+        `${API_KEY}/api/auth/send-otp`,
         {
           email: userEmail,
         }
@@ -89,7 +90,7 @@ function Login_Page() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
+        `${API_KEY}/api/auth/verify-otp`,
         {
           email: storedEmail,
           otp: fullOtp,
@@ -130,13 +131,13 @@ function Login_Page() {
 
   // Google Login
   const handleLoginWithGoogle = () => {
-    const backendGoogleAuthUrl = "http://localhost:5000/auth/google";
+    const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
     window.location.href = backendGoogleAuthUrl;
   };
 
   return (
     <div className="min-h-screen flex bg-black">
-      {/* Left Side */}
+      {/* Left Side     1C001E   */}
       <div className="w-full xl:w-[38%] sm:ml-5 lg:ml-24 flex flex-col justify-center text-white px-8">
         <div>
           <img src={Logo} alt="Logo" className="w-11 h-11 mb-14" />
@@ -158,7 +159,7 @@ function Login_Page() {
           </button>
         </div>
 
-        <p className="w-72 text-center my-5">or</p>
+        <p className="w-2 text-center my-5">or</p>
 
         {/* Email Login */}
         <div className="flex flex-col gap-3">
@@ -188,7 +189,9 @@ function Login_Page() {
           {/* OTP Pop-up */}
           {otpFormDisplay && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+              // className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+
               onClick={() => {
                 setOtpFormDisplay(false);
                 setErrorMessage("");
