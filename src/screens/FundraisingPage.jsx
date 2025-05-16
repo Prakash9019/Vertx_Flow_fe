@@ -4,6 +4,7 @@ import Background from "../assets/imgBackground.png";
 import ToggleTabHeader from "../components/ToggleTabHeader";
 import FundraisingDashboard from "../components/FundraisingDashboard";
 import { useState } from "react";
+import FundraisingMatches from "../components/FundraisingMatches";
 
 function FundraisingPage() {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -54,7 +55,7 @@ function FundraisingPage() {
         {/* Tab Content */}
         <div className="px-4 sm:px-6 md:px-12">
           {activeTab === "Dashboard" && <FundraisingDashboard />}
-          {/* {activeTab === "Matches" && <EvaluateReportOverview />} */}
+          {activeTab === "Matches" && <FundraisingMatches/>}
           {/* {activeTab === "Reach" && <EvaluateReportCapital />} */}
         </div>
       </div>
