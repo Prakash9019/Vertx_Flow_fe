@@ -44,12 +44,9 @@ function Login_Page() {
 
     try {
       setEmailError("OTP Sent!");
-      const response = await axios.post(
-        `${API_KEY}/api/auth/send-otp`,
-        {
-          email: userEmail,
-        }
-      );
+      const response = await axios.post(`${API_KEY}/api/auth/send-otp`, {
+        email: userEmail,
+      });
 
       if (response) {
         setStoredEmail(userEmail);
@@ -89,13 +86,10 @@ function Login_Page() {
     setErrorMessage("");
 
     try {
-      const response = await axios.post(
-        `${API_KEY}/api/auth/verify-otp`,
-        {
-          email: storedEmail,
-          otp: fullOtp,
-        }
-      );
+      const response = await axios.post(`${API_KEY}/api/auth/verify-otp`, {
+        email: storedEmail,
+        otp: fullOtp,
+      });
 
       if (response && response.data?.token) {
         localStorage.setItem("authToken", response.data.token);
@@ -159,7 +153,7 @@ function Login_Page() {
           </button>
         </div>
 
-        <p className="w-2 text-center my-5">or</p>
+        <p className="w-2 text-center my-5 ml-[8rem]">or</p>
 
         {/* Email Login */}
         <div className="flex flex-col gap-3">
@@ -191,7 +185,6 @@ function Login_Page() {
             <div
               // className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
               className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
-
               onClick={() => {
                 setOtpFormDisplay(false);
                 setErrorMessage("");
