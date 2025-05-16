@@ -54,9 +54,9 @@ const Sidebar = () => {
         </div>
         <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
           <img src={Ellipse3} alt="Ellipse 3" className="w-[26px] h-[26px]" />
-          <span className="font-inter font-medium text-sm leading-none tracking-normal">
+          <a href="/fundraising" className="font-inter font-medium text-sm leading-none tracking-normal">
             Fundraising
-          </span>
+          </a>
         </div>
         <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
           <img

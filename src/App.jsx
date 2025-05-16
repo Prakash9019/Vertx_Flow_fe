@@ -29,6 +29,7 @@ import Usage_Page from "./screens/Usage_Page";
 import AddCofounder_Page from "./screens/AddCofounder_Page";
 import Evaluate_Page from "./screens/Evaluate_Page";
 import EvaluateReport_page from "./screens/EvaluateReport_page";
+import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
     { path: "/homepage", element: <HomePage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
+    { path: "/fundraising", element: <FundraisingPage /> },
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //

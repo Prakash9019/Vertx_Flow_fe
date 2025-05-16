@@ -19,7 +19,7 @@ function EvaluateReportComponent({ data }) {
       {/* Score Section */}
       <div className="pt-12">
         <h2 className="text-xl md:text-2xl font-semibold flex items-center mb-4">
-          <span className="w-2 h-6 bg-purple-700 mr-2 inline-block"></span>
+          <span className="w-1 h-6 bg-purple-700 mr-2 inline-block"></span>
           Score
         </h2>
 
@@ -79,7 +79,7 @@ function EvaluateReportComponent({ data }) {
       {/* Breakdown Section */}
       <div className="sm:mt-5 py-12">
         <h2 className="text-xl md:text-2xl font-semibold flex items-center mb-4">
-          <span className="w-2 h-6 bg-purple-700 mr-2 inline-block"></span>
+          <span className="w-1 h-6 bg-purple-700 mr-2 inline-block"></span>
           Breakdown
         </h2>
 

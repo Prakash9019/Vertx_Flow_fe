@@ -66,7 +66,7 @@ function Evaluate_Page() {
 
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white">
-      {/* w-full md:w-1/5 bg-gray-800 p-4 text-center text-2xl */}
+    
       <div className="md:col-span-3 bg-black text-white">
         <Sidebar />
       </div>
