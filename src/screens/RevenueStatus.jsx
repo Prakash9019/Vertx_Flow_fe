@@ -75,7 +75,7 @@ const RevenueStatus = () => {
                 fontSize: '14px', 
                 lineHeight: '17px' 
               }}>
-                This helps investors understand your traction and growth.
+                We'll use this information to match you with the right investors for your specific needs.
               </p>
             </div>
 
@@ -111,7 +111,7 @@ const RevenueStatus = () => {
                 marginRight: 'auto'              }}
             > */}
               {/* Progress Steps */}
-              <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
+              <div style={{ paddingTop: `${circlesAreaTopInBox -27 }px`, boxSizing: 'border-box', width: '100%' }}>
                 <ProfileProgressBar currentStep={3} />
               </div>
               
