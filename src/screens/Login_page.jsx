@@ -137,7 +137,7 @@ function Login_Page() {
 
   return (
     <div className="min-h-screen flex bg-black">
-      {/* Left Side */}
+      {/* Left Side     1C001E   */}
       <div className="w-full xl:w-[38%] sm:ml-5 lg:ml-24 flex flex-col justify-center text-white px-8">
         <div>
           <img src={Logo} alt="Logo" className="w-11 h-11 mb-14" />
@@ -189,7 +189,9 @@ function Login_Page() {
           {/* OTP Pop-up */}
           {otpFormDisplay && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+              // className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+
               onClick={() => {
                 setOtpFormDisplay(false);
                 setErrorMessage("");

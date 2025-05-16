@@ -22,9 +22,9 @@ const ProfileProgressBar = ({ currentStep }) => (
           </div>
           {idx < steps.length - 1 && (
             idx < currentStep - 1 ? (
-              <div className="flex-1 mx-1" style={{ height: '2px', background: '#6C2BD9', alignSelf: 'center' }}></div>
+              <div className="flex-1 mx-1 mb-4" style={{ height: '2px', background: '#6C2BD9', alignSelf: 'center' }}></div>
             ) : (
-              <div className="flex-1 mx-1" style={{ height: '2px', background: 'transparent', alignSelf: 'center' }}></div>
+              <div className="flex-1 mx-1 mb-4" style={{ height: '2px', background: 'transparent', alignSelf: 'center' }}></div>
             )
           )}
         </React.Fragment>

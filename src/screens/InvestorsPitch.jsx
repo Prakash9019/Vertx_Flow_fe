@@ -56,7 +56,7 @@ const InvestorsPitch = () => {
         <Header />
 
         {/* Centered Main Content Area */}
-        <div className="flex justify-center mt-28">
+        <div className="flex justify-center mt-12">
           <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto' }}>
             {/* Title Block */}
             <div style={{ 
@@ -82,7 +82,25 @@ const InvestorsPitch = () => {
             </div>
 
             {/* Content Box */}
-            <div              className="bg-black flex flex-col"
+                     <div
+  className="relative w-full max-w-2xl min-h-[362px] mt-8 sm:mt-12 mx-auto"
+  style={{
+    position: 'relative',
+    background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
+    borderRadius: '12px',
+    padding: '2px', // Space for the border
+  }}
+>
+    <div 
+    className="w-full h-full flex flex-col" 
+    style={{
+      background: 'black',
+      borderRadius: '10px', // Slightly smaller to show the gradient border
+      height: 'calc(100% - 4px)',
+      padding: '2rem',
+    }}
+  >
+            {/* <div              className="bg-black flex flex-col"
               style={{
                 width: CONTENT_BOX_WIDTH,
                 height: CONTENT_BOX_HEIGHT,
@@ -97,7 +115,7 @@ const InvestorsPitch = () => {
                 flexDirection: 'column',
                 justifyContent: 'space-between'
               }}
-            >
+            > */}
               {/* Progress Steps */}
               <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
                 <ProfileProgressBar currentStep={5} />
@@ -124,7 +142,7 @@ const InvestorsPitch = () => {
               </div>
 
               {/* Buttons Container */}
-              <div className="flex justify-between items-center w-full" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '20px', paddingBottom: '20px', marginTop: '10px' }}>
+              <div className="flex justify-between items-center w-full" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', marginTop: '10px' }}>
                 <button
                   onClick={handleBack}
                   className="font-inter font-normal"
@@ -144,6 +162,7 @@ const InvestorsPitch = () => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

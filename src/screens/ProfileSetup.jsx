@@ -99,7 +99,7 @@ const ProfileSetup = () => {
       <div className="relative z-10">
         <Header />
 
-        {/* Centered Main Content Area */}        <div className="flex justify-center mt-28">
+        {/* Centered Main Content Area */}        <div className="flex justify-center mt-12">
           <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto' }}>
             {/* Title Block */}
             <div style={{ width: '572px', color: '#FFFFFF', marginBottom: '20px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -108,7 +108,26 @@ const ProfileSetup = () => {
             </div>
 
             {/* Content Box */}
+
             <div
+  className="relative w-full max-w-2xl min-h-[362px] mt-8 sm:mt-12 mx-auto"
+  style={{
+    position: 'relative',
+    background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
+    borderRadius: '12px',
+    padding: '2px', // Space for the border
+  }}
+>
+    <div 
+    className="w-full h-full flex flex-col" 
+    style={{
+      background: 'black',
+      borderRadius: '10px', // Slightly smaller to show the gradient border
+      height: 'calc(100% - 4px)',
+      padding: '2rem',
+    }}
+  >
+            {/* <div
               className="bg-black flex flex-col"
               style={{
                 width: CONTENT_BOX_WIDTH, height: CONTENT_BOX_HEIGHT,
@@ -116,7 +135,7 @@ const ProfileSetup = () => {
                 paddingLeft: CONTENT_BOX_PADDING_X, paddingRight: CONTENT_BOX_PADDING_X,
                 marginLeft: 'auto', marginRight: 'auto'
               }}
-            >
+            > */}
               {/* Progress Steps */}
               <div className="flex justify-between items-start" style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
                 {stepData.map((step, index) => (
@@ -157,7 +176,7 @@ const ProfileSetup = () => {
                       {isDropdownOpen && (
                         <div style={{ 
                           position: 'absolute', 
-                          bottom: 'calc(100% + 4px)', 
+                          // bottom: 'calc(100% + 4px)', 
                           width: '320px', 
                           background: '#0F0E16', 
                           border: '1px solid rgba(184, 184, 184, 0.13)', 
@@ -203,6 +222,7 @@ const ProfileSetup = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
