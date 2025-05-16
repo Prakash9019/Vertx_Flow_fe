@@ -9,14 +9,16 @@ function HomePage() {
       <div className="absolute inset-0 bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
 
       {/* Sidebar */}
-      <div className="fixed top-0 left-0 z-20 h-screen">
-      <div className="relative z-10">
-        <Sidebar />
-      </div>
+      {/* <div className="col-md-3 fixed top-0 left-0 z-20 h-screen"> */}
+      <div className="md:col-span-3 bg-black text-white">
+        <div className="relative z-10">
+          <Sidebar />
+        </div>
       </div>
 
       {/* Body with input */}
-      <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white pl-64">
+      {/* <div className="col-md-9 w-full flex flex-col md:flex-row min-h-screen bg-black text-white pl-64"> */}
+      <div className="md:col-span-9 w-full flex flex-col md:flex-row min-h-screen bg-black text-white pb-10">
         <div className="flex-grow  flex justify-center items-end relative z-10  pb-10 ">
           <div className="bg-black h-[15rem] relative rounded-lg p-4 flex items-center w-full  sm:w-4xl">
             <input

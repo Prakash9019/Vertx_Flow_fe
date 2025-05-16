@@ -26,17 +26,18 @@ function EvaluateReport_page() {
   const companyName = reportData?.overview?.company_name;
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Fixed Sidebar */}
-      <div className="fixed top-0 left-0 z-20 h-screen">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row">
+      {/* Sidebar */}
+      {/* <div className="w-full md:w-3/12 bg-black text-white"> */}
+      <div className="md:col-span-3 bg-black text-white">
         <Sidebar />
       </div>
 
-      {/* Main Content Area (scrollable) */}
-      <div className="pl-72 h-screen overflow-y-auto">
-        {/* Header with background */}
+      {/* Main Content */}
+      <div className="w-full  h-screen overflow-y-auto">
+        {/* Header */}
         <div
-          className="py-16 text-white"
+          className="px-9 py-16 text-white"
           style={{
             backgroundImage: `url(${Background})`,
             backgroundSize: "cover",
@@ -68,7 +69,7 @@ function EvaluateReport_page() {
           </div>
         </div>
 
-        {/* Conditional Content */}
+        {/* Tab Content */}
         <div className="px-4 sm:px-6 md:px-12">
           {activeTab === "Analysis" && reportData && (
             <EvaluateReportComponent data={reportData} />

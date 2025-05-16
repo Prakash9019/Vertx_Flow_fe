@@ -67,11 +67,11 @@ function Evaluate_Page() {
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white">
       {/* w-full md:w-1/5 bg-gray-800 p-4 text-center text-2xl */}
-      <div className="fixed top-0 left-0 z-20 h-screen">
+      <div className="md:col-span-3 bg-black text-white">
         <Sidebar />
       </div>
 
-      <div className="pl-64 w-full flex flex-col md:flex-row min-h-screen bg-black text-white ">
+      <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white ">
         <div className="flex-1 px-4 py-8">
           {/* Header */}
 
