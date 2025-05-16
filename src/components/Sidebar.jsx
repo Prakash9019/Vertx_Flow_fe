@@ -14,6 +14,10 @@ import Home from "../assets/home.svg";
 import Rocket from "../assets/rocket.svg";
 
 const Sidebar = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+  };
+
   return (
     <div className="w-64 p-4  border-gray-700 flex flex-col justify-between bg-black h-screen">
       <div className="w-[240px] h-full border border-[#B8B8B821] bg-black space-y-3">
@@ -54,7 +58,10 @@ const Sidebar = () => {
         </div>
         <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
           <img src={Ellipse3} alt="Ellipse 3" className="w-[26px] h-[26px]" />
-          <a href="/fundraising" className="font-inter font-medium text-sm leading-none tracking-normal">
+          <a
+            href="/fundraising"
+            className="font-inter font-medium text-sm leading-none tracking-normal"
+          >
             Fundraising
           </a>
         </div>
@@ -86,7 +93,9 @@ const Sidebar = () => {
           <img src={UserFeedback} alt="Feedback Icon" className="w-6 h-6" />
         </div>
         <div className="flex items-center justify-between hover:text-red-400 cursor-pointer">
-          <span className="ml-1">Log out</span>
+          <span onClick={handleLogout} className="ml-1">
+            Log out
+          </span>
           <img src={LogOut} alt="Logout Icon" className="w-6 h-6" />
         </div>
       </div>
