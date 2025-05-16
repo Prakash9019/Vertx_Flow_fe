@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import Header from "../components/Header";
 import CloseIcon from "../assets/close_icon.svg";
+import ProfileProgressBar from "../components/ProfileProgressBar";
 
 const styles = `
   @keyframes slideUp {
@@ -67,7 +68,7 @@ const ProfileSetup = () => {
     const INPUT_ZONE_TOP_PAGE = 471;
 
     // Recalculate these based on the idea that they are *inside* the absolutely positioned Content Box
-    const circlesAreaTopInBox = CIRCLES_AREA_TOP_PAGE - 285; // 39px from top of an imaginary 285px offset content box
+    const circlesAreaTopInBox = CIRCLES_AREA_TOP_PAGE -310; // 39px from top of an imaginary 285px offset content box
     const circleHeight = 30;
     const labelUnderCircleHeight = 15;
     const marginCircleToLabel = LABELS_UNDER_CIRCLES_TOP_PAGE - (CIRCLES_AREA_TOP_PAGE + circleHeight); // 8px
@@ -137,20 +138,13 @@ const ProfileSetup = () => {
               }}
             > */}
               {/* Progress Steps */}
-              <div className="flex justify-between items-start" style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
-                {stepData.map((step, index) => (
-                  <div key={step.id} className="flex flex-col items-center text-center flex-1" style={{ minWidth: 0 }}>
-                    <div className={`w-[30px] h-[30px] rounded-full flex items-center justify-center border`} style={{ background: index === 0 ? '#6C2BD9' : '#33005C', borderColor: index === 0 ? '#6C2BD9' : (index === 1 ? '#000000' : '#33005C')}}>
-                      <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: index === 0 ? 600 : 500, fontSize: '12px', lineHeight: '15px', color: '#FFFFFF' }}>{index + 1}</span>
-                    </div>
-                    <span style={{ marginTop: `${marginCircleToLabel}px`, fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#FFFFFF', width: 'auto', height: '15px', display: 'block' }}>{step.title}</span>
-                  </div>
-                ))}
+              <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
+                <ProfileProgressBar currentStep={0} />
               </div>
 
               {/* Form Elements Area */}
-              <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px` }}>
-                <label className="block font-inter font-semibold" style={{ fontSize: '14px', lineHeight: '17px', marginBottom: `${helpTextMarginTop}px`}}>
+              <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop-26}px` }}>
+                <label className="block font-inter font-semibold" style={{ fontSize: '14px', lineHeight: '17px', marginBottom: `${helpTextMarginTop }px`}}>
                   What stage is your startup at?
                 </label>
                 <p className="font-inter font-normal text-xs" style={{ fontSize: '12px', lineHeight: '15px', marginBottom: `${inputZoneMarginTop}px` }}>
@@ -181,9 +175,10 @@ const ProfileSetup = () => {
                           background: '#0F0E16', 
                           border: '1px solid rgba(184, 184, 184, 0.13)', 
                           borderRadius: '3px', 
-                          zIndex: 9999, 
-                          maxHeight: `${(stages.length * 35) + 10}px`, 
-                          overflowY: 'auto',
+                          zIndex: 9999,
+                          marginTop: '-30px', //or use -280 for top view like just opposite of this 
+                          // maxHeight: `200px`, 
+                          // overflowY: 'hidden',
                           transform: 'translateY(0)',
                           transition: 'transform 0.2s ease-in-out',
                           animation: 'slideUp 0.2s ease-in-out'

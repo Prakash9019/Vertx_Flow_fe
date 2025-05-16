@@ -111,7 +111,7 @@ const RevenueStatus = () => {
                 marginRight: 'auto'              }}
             > */}
               {/* Progress Steps */}
-              <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
+              <div style={{ paddingTop: `${circlesAreaTopInBox -27 }px`, boxSizing: 'border-box', width: '100%' }}>
                 <ProfileProgressBar currentStep={3} />
               </div>
               

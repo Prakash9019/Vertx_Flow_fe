@@ -43,7 +43,7 @@ const LocationSetup = () => {
   const CONTENT_BOX_WIDTH = '720px';
   const CONTENT_BOX_HEIGHT = '362px';
   const CONTENT_BOX_PADDING_X = '35px';
-  const circlesAreaTopInBox = 39;
+  const circlesAreaTopInBox = 12;
   const marginCircleToLabel = 8;
   const questionLabelMarginTop = 31; // Calculated value from original
   const helpTextMarginTop = 8;
