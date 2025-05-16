@@ -77,7 +77,7 @@ const InvestorsPitch = () => {
                 fontSize: '14px', 
                 lineHeight: '17px' 
               }}>
-                Investors do have geographic preferences. This helps us to match with the right investor.
+                We'll use this information to match you with the right investors for your specific needs.
               </p>
             </div>
 

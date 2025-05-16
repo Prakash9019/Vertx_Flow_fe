@@ -75,7 +75,7 @@ const RevenueStatus = () => {
                 fontSize: '14px', 
                 lineHeight: '17px' 
               }}>
-                This helps investors understand your traction and growth.
+                We'll use this information to match you with the right investors for your specific needs.
               </p>
             </div>
 

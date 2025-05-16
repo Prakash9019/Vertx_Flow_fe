@@ -73,7 +73,7 @@ const InvestorsIndustry = () => {
                 fontSize: '14px', 
                 lineHeight: '17px' 
               }}>
-                Most investors specialize in specific industries. You can choose multiple.
+                We'll use this information to match you with the right investors for your specific needs.
               </p>
             </div>
          <div

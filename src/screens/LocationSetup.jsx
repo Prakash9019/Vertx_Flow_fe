@@ -59,7 +59,7 @@ const LocationSetup = () => {
             {/* Title Block */}
             <div style={{ width: '572px', color: '#FFFFFF', marginBottom: '20px', marginLeft: 'auto', marginRight: 'auto' }}>
               <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
-              <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>Investors do have geographic preferences. This helps us to match with the right investor.</p>
+              <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>We'll use this information to match you with the right investors for your specific needs.</p>
             </div>
 
             {/* Content Box */}
@@ -102,10 +102,10 @@ const LocationSetup = () => {
               {/* Form Elements Area */}
               <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px` }}>
                 <label htmlFor="location-input" className="block font-inter font-semibold" style={{ fontSize: '14px', lineHeight: '17px', marginBottom: `${helpTextMarginTop}px` }}>
-                  Where is your startup headquartered?
+                  Where is your startup based?
                 </label>
                 <p className="font-inter font-normal text-xs" style={{ fontSize: '12px', lineHeight: '15px', marginBottom: `${inputZoneMarginTop}px` }}>
-                  e.g., San Francisco, USA
+                 Investors do have geographic preferences. This helps us to match with the right investor
                 </p>
                 <input
                   type="text"

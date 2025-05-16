@@ -13,8 +13,7 @@ const Dropdown = ({ options, selected, onSelect }) => {
 
   return (
     <div className="relative w-[320px]">
-      {/* Selected Item */}
-      <button
+      {/* Selected Item */}      <button
         onClick={toggleDropdown}
         className={`w-full h-[36px] px-3 py-1 text-sm font-medium text-white rounded-md ${!selected ? 'border border-[#B8B8B8]' : ''} bg-black text-left flex justify-between items-center`}
       >
@@ -31,11 +30,13 @@ const Dropdown = ({ options, selected, onSelect }) => {
             />
           </div>
         ) : (
-          "Select"
+          <>
+            <span>Select</span>
+            <span className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`}>
+              ▼
+            </span>
+          </>
         )}
-        <span className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`}>
-          ▼
-        </span>
       </button>
 
       {/* Dropdown List */}
