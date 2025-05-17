@@ -175,12 +175,24 @@ function Login_Page() {
               {emailError}
             </p>
           )}
-          <button
+          {/* <button
             onClick={handleEmail}
             className="bg-gray-400 text-sm w-72 text-black px-4 py-3 rounded-md shadow hover:bg-gray-200 active:bg-gray-200"
           >
             Continue with email
-          </button>
+          </button> */}
+          <button
+  onClick={handleEmail}
+  disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)}
+  className={`text-sm w-72 px-4 py-3 rounded-md shadow 
+    ${/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)
+      ? "bg-white text-black hover:bg-gray-200 active:bg-gray-200"
+      : "bg-gray-400 text-black cursor-not-allowed"}
+  `}
+>
+  Continue with email
+</button>
+
 
           {/* OTP Pop-up */}
           {otpFormDisplay && (
