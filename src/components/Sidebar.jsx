@@ -16,6 +16,9 @@ import Rocket from "../assets/rocket.svg";
 const Sidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("isVerified");
+    window.location.reload();
   };
 
   return (

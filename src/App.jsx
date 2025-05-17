@@ -61,7 +61,7 @@ function App() {
       {/* Consider CSS for global scroll if needed */}
       <Routes>
         {/* <Route path="/" element={<Login_Page />} /> */}
-        <Route path="/" element={<FundraisingPage />} />
+        {/* <Route path="/" element={<FundraisingPage />} /> */}
         <Route path="/" element={<Login_Page />} />
 
         <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
