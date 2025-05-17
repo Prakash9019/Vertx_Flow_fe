@@ -43,14 +43,16 @@ function Login_Page() {
     }
 
     try {
+
       setEmailError("OTP Sent!");
+        setOtpFormDisplay(true);
       const response = await axios.post(`${API_KEY}/api/auth/send-otp`, {
         email: userEmail,
       });
 
       if (response) {
         setStoredEmail(userEmail);
-        setOtpFormDisplay(true);
+        // setOtpFormDisplay(true);
         setUserEmail("");
         setEmailError("");
       }
