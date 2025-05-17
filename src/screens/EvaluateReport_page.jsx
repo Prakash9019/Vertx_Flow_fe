@@ -7,7 +7,7 @@ import EvaluateReportCapital from "../components/EvaluateReportCapital";
 import EvaluateReportSuggestions from "../components/EvaluateReportSuggestions";
 import ToggleTabHeader from "../components/ToggleTabHeader";
 import Sidebar from "../components/Sidebar";
-
+  
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();

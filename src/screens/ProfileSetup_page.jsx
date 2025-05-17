@@ -89,7 +89,7 @@ style={{
 
      <div className="relative z-10">
         <Header />
-
+ 
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
           <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg w-full sm:max-w-[63%] xl:max-w-[43%] shadow-xl text-center flex flex-col items-center">
             <FaLinkedin className="text-5xl sm:text-6xl text-white mb-4" />

@@ -10,7 +10,7 @@ function Profile_Manual_Page() {
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [message, setMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
-
+ 
   const navigate = useNavigate();
 
   const handleCreateProfile = () => {
