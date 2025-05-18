@@ -23,13 +23,13 @@ export const StartupProfileProvider = ({ children }) => {
   const [successMessage, setSuccessMessage] = useState('');
 
   const getToken = () => localStorage.getItem('authToken');
-
+  // console.log(getToken)
   // Function to fetch existing startup data
   const fetchStartupData = useCallback(async () => {
     setLoadingData(true);
     setError(null);
     const token = getToken();
-
+    console.log(token)
     if (!token) {
       //setError("Authentication token not found. Please log in.");
       // setLoadingData(false); // Set loading to false as we are not fetching
