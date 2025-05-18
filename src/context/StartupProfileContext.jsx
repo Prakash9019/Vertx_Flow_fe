@@ -43,7 +43,7 @@ export const StartupProfileProvider = ({ children }) => {
     }
 
     try {
-      const response = await axios.get(API_URL, {
+      const response = await axios.get(`${API_KEY}/api/startups`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data && response.data.data) {
