@@ -123,7 +123,7 @@ const InvestorsPitch = () => {
                 {/* Form Elements Area */}
               <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px`, flex: '1', minHeight: '0' }}>
                 <label htmlFor="pitch-textarea" className="block font-inter font-semibold text-sm mb-2">
-                  Your Pitch (max ~100 words / 200 characters)
+                  Your Pitch (max ~100 words / 700 characters)
                 </label>
                 <textarea
                   id="pitch-textarea"
@@ -132,11 +132,11 @@ const InvestorsPitch = () => {
                   onChange={handlePitchChange}
                   placeholder="Describe your startup's vision, the problem it solves, your solution, and your target market. Make it concise and compelling!"
                   className="w-full p-3 bg-[#1e1e1e] border border-gray-600 rounded text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none mb-1"
-                  maxLength={200}
+                  maxLength={700}
                   style={{ minHeight: '120px', maxHeight: '120px' }}
                 />
                 <p className="font-inter font-normal text-xs text-gray-400 mt-1 text-right mb-2">
-                  {currentPitch.length}/200 characters
+                  {currentPitch.length}/700 characters
                 </p>
                 {error && <p className="text-red-500 text-sm my-2 text-center">{error}</p>}                {successMessage && <p className="text-green-500 text-sm my-2 text-center">{successMessage}</p>}
               </div>

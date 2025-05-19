@@ -169,41 +169,40 @@ const ProfileSetup = () => {
                           )}
                       </div>
                       {isDropdownOpen && (
-                        <div style={{ 
-                          position: 'absolute', 
-                          // bottom: 'calc(100% + 4px)', 
-                          width: '320px', 
-                          background: '#0F0E16', 
-                          border: '1px solid rgba(184, 184, 184, 0.13)', 
-                          borderRadius: '3px', 
-                          zIndex: 9999,
-                          marginTop: '-30px', //or use -280 for top view like just opposite of this 
-                          // maxHeight: `200px`, 
-                          // overflowY: 'hidden',
-                          transform: 'translateY(0)',
-                          transition: 'transform 0.2s ease-in-out',
-                          animation: 'slideUp 0.2s ease-in-out'
-                        }}>
-                          {stages.map((stageOption) => ( 
-                            <div 
-                              key={stageOption} 
-                              onClick={() => handleStageSelect(stageOption)} 
-                              className="cursor-pointer hover:bg-[#6C2BD9]" 
-                              style={{ 
-                                padding: '10px 15px', 
-                                fontFamily: 'Inter, sans-serif', 
-                                fontStyle: 'normal', 
-                                fontWeight: 400, 
-                                fontSize: '12px', 
-                                lineHeight: '15px', 
-                                color: '#FFFFFF' 
-                              }}
-                            >
-                              {stageOption === "" ? "Not Specified" : stageOption}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+  <div style={{ 
+    position: 'absolute',
+    top: '100%', // ensures it shows below the trigger
+    left: 0,
+    width: '320px', 
+    background: '#0F0E16', 
+    border: '1px solid rgba(184, 184, 184, 0.13)', 
+    borderRadius: '3px', 
+    zIndex: 9999,
+    marginTop: '4px', // small spacing below trigger
+    transform: 'translateY(0)',
+    transition: 'transform 0.2s ease-in-out',
+    animation: 'slideUp 0.2s ease-in-out'
+  }}>
+    {stages.map((stageOption) => ( 
+      <div 
+        key={stageOption} 
+        onClick={() => handleStageSelect(stageOption)} 
+        className="cursor-pointer hover:bg-[#6C2BD9]" 
+        style={{ 
+          padding: '10px 15px', 
+          fontFamily: 'Inter, sans-serif', 
+          fontWeight: 400, 
+          fontSize: '12px', 
+          lineHeight: '15px', 
+          color: '#FFFFFF' 
+        }}
+      >
+        {stageOption === "" ? "Not Specified" : stageOption}
+      </div>
+    ))}
+  </div>
+)}
+
                     </>
                   )}
                   {error && <p className="text-red-500 text-sm" style={{ marginTop: '8px', width: '320px' }}>{error}</p>}

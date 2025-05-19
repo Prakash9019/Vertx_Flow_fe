@@ -206,20 +206,21 @@ function Login_Page() {
               }}
             >
               <div
-                className="bg-black p-8 sm:px-[7rem] py-8 border border-gray-700 text-white rounded-lg flex flex-col items-center gap-5 shadow-2xl"
+                className="font-inter bg-[#000000] p-8 sm:px-[7rem] py-8 border border-gray-700 text-white rounded-lg flex flex-col items-center gap-5 "
                 onClick={(e) => e.stopPropagation()}
               >
                 <img src={Logo} alt="Logo" className="w-11 h-11 mb-3 mt-8" />
-                <h2 className="text-3xl sm:text-4xl font-semibold">
-                  Email sent
+                <h2 className="font-inter font-semibold text-2xl sm:text-3xl md:text-[32px] leading-[100%] tracking-[0%] align-middle">
+              Email sent
                 </h2>
-                <p className="text-center text-sm sm:text-base">
-                  Check your mail for a 6-digit code and enter it below.
-                  <br />
-                  <span className="text-xs sm:text-sm text-gray-400">
-                    (Might be in your spam folder)
-                  </span>
-                </p>
+                <p className="text-center font-inter font-normal text-sm sm:text-base leading-[100%] tracking-[0%] align-middle">
+  Check your mail for a 6-digit code and enter it below.
+  <br />
+  <span className="font-inter font-normal text-xs sm:text-sm text-gray-400 leading-[100%] tracking-[0%] align-middle">
+    (Might be in your spam folder)
+  </span>
+</p>
+
 
                 <div className="flex gap-2">
                   {otp.map((digit, index) => (
