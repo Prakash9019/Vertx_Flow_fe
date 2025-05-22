@@ -35,7 +35,7 @@ import HomePage from "./screens/Home";
 function App() {
   const authToken = localStorage.getItem("authToken");
 
-  // Option 1: Streamlined flow (main input pages only)
+  
   const streamlinedProtectedRoutes = [
     { path: "/profile", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
