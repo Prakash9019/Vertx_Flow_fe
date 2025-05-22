@@ -1,5 +1,5 @@
 // Vertx_Flow_fe/src/screens/ProfileSetup.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import Header from "../components/Header";
@@ -17,6 +17,15 @@ const styles = `
       opacity: 1;
     }
   }
+  
+  .dropdown-no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .dropdown-no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 `;
 
 const styleSheet = document.createElement("style");
@@ -28,6 +37,8 @@ const ProfileSetup = () => {
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
   const [currentStage, setCurrentStage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const selectButtonRef = useRef(null);
 
   const stages = ["Pre-seed", "Seed", "Series A", "Series B", "Series B+", "Pre-IPO", "Not Specified"];
   const stepData = [
@@ -36,6 +47,23 @@ const ProfileSetup = () => {
   ];
 
   useEffect(() => { setCurrentStage(startupData.stage || ""); }, [startupData.stage]);
+  
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target) &&
+        selectButtonRef.current &&
+        !selectButtonRef.current.contains(event.target)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  
   const handleStageSelect = (stage) => { setCurrentStage(stage); updateStartupField('stage', stage); setError(null); setIsDropdownOpen(false); };
   const clearStage = () => { setCurrentStage(""); updateStartupField('stage', ""); setError(null); };
   const handleContinue = () => { if (!currentStage) { setError("Please select your startup stage."); return; } setError(null); navigate('/profile/location'); };
@@ -128,15 +156,6 @@ const ProfileSetup = () => {
       padding: '2rem',
     }}
   >
-            {/* <div
-              className="bg-black flex flex-col"
-              style={{
-                width: CONTENT_BOX_WIDTH, height: CONTENT_BOX_HEIGHT,
-                borderRadius: '10px', boxSizing: 'border-box', 
-                paddingLeft: CONTENT_BOX_PADDING_X, paddingRight: CONTENT_BOX_PADDING_X,
-                marginLeft: 'auto', marginRight: 'auto'
-              }}
-            > */}
               {/* Progress Steps */}
               <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
                 <ProfileProgressBar currentStep={0} />
@@ -162,28 +181,59 @@ const ProfileSetup = () => {
                       </div>
                     </>
                   ) : (
-                    <>                      <div onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="cursor-pointer" style={{ width: '320px', height: '39.02px', background: '#0F0E16', border: '1px solid rgba(184, 184, 184, 0.13)', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px', boxSizing: 'border-box' }}>
-                          <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#656565' }}>Select</span>
-                          {!currentStage && (
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}><path d="M7 10L12 15L17 10H7Z" fill="#656565"/></svg>
-                          )}
-                      </div>
-                      {isDropdownOpen && (
-                        <div style={{ 
-                          position: 'absolute', 
-                          // bottom: 'calc(100% + 4px)', 
+                    <>
+                      <div 
+                        ref={selectButtonRef}
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+                        className="cursor-pointer" 
+                        style={{ 
                           width: '320px', 
+                          height: '39.02px', 
                           background: '#0F0E16', 
                           border: '1px solid rgba(184, 184, 184, 0.13)', 
                           borderRadius: '3px', 
-                          zIndex: 9999,
-                          marginTop: '-30px', //or use -280 for top view like just opposite of this 
-                          // maxHeight: `200px`, 
-                          // overflowY: 'hidden',
-                          transform: 'translateY(0)',
-                          transition: 'transform 0.2s ease-in-out',
-                          animation: 'slideUp 0.2s ease-in-out'
-                        }}>
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between', 
+                          padding: '0 15px', 
+                          boxSizing: 'border-box' 
+                        }}
+                      >
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#656565' }}>Select</span>
+                        <svg 
+                          width="18" 
+                          height="18" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          style={{ 
+                            transform: isDropdownOpen ? 'rotate(180deg)' : 'none', 
+                            transition: 'transform 0.2s' 
+                          }}
+                        >
+                          <path d="M7 10L12 15L17 10H7Z" fill="#656565"/>
+                        </svg>
+                      </div>
+                      
+                      {isDropdownOpen && (
+                        <div 
+                          ref={dropdownRef}
+                          className="dropdown-no-scrollbar"
+                          style={{ 
+                            position: 'absolute',
+                            top: '100%', // ensures it shows below the trigger
+                            left: 0,
+                            width: '320px', 
+                            background: '#0F0E16', 
+                            border: '1px solid rgba(184, 184, 184, 0.13)', 
+                            borderRadius: '3px', 
+                            zIndex: 9999,
+                            marginTop: '4px', // small spacing below trigger
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            animation: 'slideUp 0.2s ease-in-out'
+                          }}
+                        >
                           {stages.map((stageOption) => ( 
                             <div 
                               key={stageOption} 
@@ -192,7 +242,6 @@ const ProfileSetup = () => {
                               style={{ 
                                 padding: '10px 15px', 
                                 fontFamily: 'Inter, sans-serif', 
-                                fontStyle: 'normal', 
                                 fontWeight: 400, 
                                 fontSize: '12px', 
                                 lineHeight: '15px', 

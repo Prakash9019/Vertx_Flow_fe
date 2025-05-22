@@ -1,8 +1,8 @@
 // Vertx_Flow_fe/src/context/StartupProfileContext.jsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios'; // Using axios directly for simplicity, can be replaced with a preconfigured instance
-
-const API_URL = 'http://localhost:5000/api/startups'; // Backend API endpoint
+import { API_KEY } from '../../key';
+const API_URL = `${API_KEY}/api/startups`; // Backend API endpoint
 
 const StartupProfileContext = createContext();
 
@@ -23,13 +23,13 @@ export const StartupProfileProvider = ({ children }) => {
   const [successMessage, setSuccessMessage] = useState('');
 
   const getToken = () => localStorage.getItem('authToken');
-
+  // console.log(getToken)
   // Function to fetch existing startup data
   const fetchStartupData = useCallback(async () => {
     setLoadingData(true);
     setError(null);
     const token = getToken();
-
+    console.log(token)
     if (!token) {
       //setError("Authentication token not found. Please log in.");
       // setLoadingData(false); // Set loading to false as we are not fetching
@@ -43,7 +43,7 @@ export const StartupProfileProvider = ({ children }) => {
     }
 
     try {
-      const response = await axios.get(API_URL, {
+      const response = await axios.get(`${API_KEY}/api/startups`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data && response.data.data) {
@@ -124,7 +124,7 @@ export const StartupProfileProvider = ({ children }) => {
       return true; // Indicate success
     } catch (err) {
       console.error("Failed to submit startup data:", err);
-      let errorMessage = err.response?.data?.message || "An error occurred while saving your profile.";
+      let errorMessage = err.response?.data?.message || "An error occurred while saving your profile." ;
       if (err.response?.data?.errors) {
          const validationErrors = Object.values(err.response.data.errors).map(e => e.message).join(', ');
          errorMessage = `Validation Failed: ${validationErrors}`;

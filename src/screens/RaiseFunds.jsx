@@ -1,19 +1,68 @@
-// Vertx_Flow_fe/src/screens/RaiseFunds.jsx
-import React, { useState, useEffect } from "react";
+// Updated RaiseFunds.jsx with enhanced dropdown from duplicate version
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Dropdown from "../components/Dropdown";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import Header from "../components/Header";
 import ProfileProgressBar from "../components/ProfileProgressBar";
+import CloseIcon from "../assets/close_icon.svg";
+
+const styles = `
+  @keyframes slideUp {
+    from {
+      transform: translateY(0.625rem);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .dropdown-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .dropdown-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
+// Add the styles to the document head if they don't already exist
+if (!document.getElementById("raise-funds-styles")) {
+  const styleSheet = document.createElement("style");
+  styleSheet.id = "raise-funds-styles";
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+}
 
 const RaiseFunds = () => {
   const navigate = useNavigate();
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
   const [currentRaise, setCurrentRaise] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const selectButtonRef = useRef(null);
 
   useEffect(() => {
     setCurrentRaise(startupData.raise || "");
   }, [startupData.raise]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target) &&
+        selectButtonRef.current &&
+        !selectButtonRef.current.contains(event.target)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fundraisingOptions = [
     "$25K>",
@@ -24,9 +73,16 @@ const RaiseFunds = () => {
     "$1M+",
   ];
 
-  const handleRaiseChange = (value) => {
-    setCurrentRaise(value);
-    updateStartupField('raise', value);
+  const handleRaiseSelect = (option) => {
+    setCurrentRaise(option);
+    updateStartupField('raise', option);
+    setError(null);
+    setIsDropdownOpen(false);
+  };
+
+  const clearRaise = () => {
+    setCurrentRaise("");
+    updateStartupField('raise', "");
     setError(null);
   };
 
@@ -90,19 +146,6 @@ const RaiseFunds = () => {
       padding: '2rem',
     }}
   >
-            {/* <div
-              className="bg-black flex flex-col"
-              style={{
-                width: CONTENT_BOX_WIDTH,
-                height: CONTENT_BOX_HEIGHT,
-                borderRadius: '10px',
-                boxSizing: 'border-box',
-                paddingLeft: CONTENT_BOX_PADDING_X,
-                paddingRight: CONTENT_BOX_PADDING_X,
-                marginLeft: 'auto',
-                marginRight: 'auto'
-              }}
-            > */}
               {/* Progress Steps */}
               <div style={{ paddingTop: `${circlesAreaTopInBox -27 }px`, boxSizing: 'border-box', width: '100%' }}>
                 <ProfileProgressBar currentStep={2} />
@@ -116,12 +159,134 @@ const RaiseFunds = () => {
                 <p className="font-inter font-normal text-xs" style={{ fontSize: '12px', lineHeight: '15px', marginBottom: `${inputZoneMarginTop}px` }}>
                   This helps us match you with investors who can provide the right amount of capital.
                 </p>
-                <Dropdown
-                  options={fundraisingOptions}
-                  selected={currentRaise}
-                  onSelect={handleRaiseChange}
-                />
-                {error && <p className="text-red-500 text-sm" style={{ marginTop: '8px', width: '320px' }}>{error}</p>}
+                
+                {/* Enhanced dropdown from duplicate version */}
+                <div style={{ width: '320px', position: 'relative' }}>
+                  {currentRaise ? (
+                    <>
+                      <div style={{ 
+                        fontFamily: 'Inter, sans-serif', 
+                        fontStyle: 'normal', 
+                        fontWeight: 400, 
+                        fontSize: '12px', 
+                        lineHeight: '15px', 
+                        color: '#FFFFFF', 
+                        height: '15px', 
+                        marginBottom: '8px' 
+                      }}>
+                        Currently selected:
+                      </div>
+                      <div style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        height: '32px', 
+                        minWidth: '75px', 
+                        paddingLeft: '10px', 
+                        paddingRight: '10px', 
+                        background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)', 
+                        borderRadius: '4px', 
+                        boxSizing: 'border-box'
+                      }}>
+                        <span style={{ 
+                          fontFamily: 'Inter, sans-serif', 
+                          fontStyle: 'normal', 
+                          fontWeight: 500, 
+                          fontSize: '12px', 
+                          lineHeight: '15px', 
+                          color: '#FFFFFF', 
+                          marginRight: '8px' 
+                        }}>
+                          {currentRaise}
+                        </span>
+                        <img 
+                          src={CloseIcon} 
+                          alt="Clear selection" 
+                          onClick={clearRaise} 
+                          className="cursor-pointer" 
+                          style={{ width: '12px', height: '12px' }}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>                      
+                      <div 
+                        ref={selectButtonRef}
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+                        className="cursor-pointer" 
+                        style={{ 
+                          width: '320px', 
+                          height: '39px', 
+                          background: '#0F0E16', 
+                          border: '1px solid rgba(184, 184, 184, 0.13)', 
+                          borderRadius: '3px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between', 
+                          padding: '0 15px', 
+                          boxSizing: 'border-box' 
+                        }}
+                      >
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#656565', width: '38px', height: '15px' }}>
+                          Select
+                        </span>
+                        <svg 
+                          width="18px" 
+                          height="18px" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          style={{ 
+                            transform: isDropdownOpen ? 'rotate(180deg)' : 'none', 
+                            transition: 'transform 0.2s' 
+                          }}
+                        >
+                          <path d="M7 10L12 15L17 10H7Z" fill="#656565"/>
+                        </svg>
+                      </div>
+
+                      {isDropdownOpen && (
+                        <div 
+                          ref={dropdownRef}
+                          className="dropdown-container"
+                          style={{ 
+                            position: 'absolute', 
+                            top: '100%',
+                            left: '0',
+                            width: '320px', 
+                            background: '#0F0E16', 
+                            border: '1px solid rgba(184, 184, 184, 0.13)', 
+                            borderRadius: '3px', 
+                            zIndex: 9999,
+                            marginTop: '5px',
+                            maxHeight: '200px', 
+                            overflowY: 'auto',
+                            animation: 'slideUp 0.2s ease-in-out'
+                          }}
+                        >
+                          {fundraisingOptions.map((option) => ( 
+                            <div 
+                              key={option} 
+                              onClick={() => handleRaiseSelect(option)} 
+                              className="cursor-pointer hover:bg-[#6C2BD9]" 
+                              style={{ 
+                                padding: '10px 15px', 
+                                fontFamily: 'Inter, sans-serif', 
+                                fontStyle: 'normal', 
+                                fontWeight: 400, 
+                                fontSize: '12px', 
+                                lineHeight: '15px', 
+                                color: '#FFFFFF' 
+                              }}
+                            >
+                              {option}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {error && <p className="text-red-500 text-sm" style={{ marginTop: '8px', width: '320px' }}>{error}</p>}
+                </div>
               </div>
 
               {/* Buttons Container */}

@@ -8,7 +8,8 @@ function GoogleAuthCallback() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const googleAuthToken = params.get('token'); // This is the cofounder's own authToken from Google login
-
+        console.log("Google Auth Token:", googleAuthToken);
+        console.log("Google Auth Callback URL:", location.search);
     if (googleAuthToken) {
       localStorage.setItem('authToken', googleAuthToken);
       localStorage.setItem('isVerified', 'true');
