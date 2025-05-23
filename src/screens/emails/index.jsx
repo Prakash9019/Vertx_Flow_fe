@@ -4,7 +4,8 @@ import templates from "./templates.json";
 import { useRef, useState, useEffect } from "react";
 import Button from "../../components/button/component";
 import { useNavigate } from "react-router";
-import Sidebar from "../../components/Sidebar"; // Importing the Sidebar component instead of FlowNav
+// import Sidebar from "../../components/Sidebar"; // Importing the Sidebar component instead of FlowNav
+import Sidebar2 from "../../components/Sidebar2";
 
 export default function GenerateEmail() {
   const [template, setTemplate] = useState();
@@ -69,7 +70,7 @@ export default function GenerateEmail() {
 
   return (
     <div className="w-full h-screen bg-black flex overflow-hidden">
-      <Sidebar />
+      <Sidebar2 />
       
       <div className="w-full h-full flex flex-col text-white font-['Manrope'] overflow-y-auto">
         {/* Templates section with horizontal scrolling */}

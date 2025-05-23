@@ -1,7 +1,8 @@
 import "./style.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Sidebar from "../../components/Sidebar"; // Importing the Sidebar component instead of FlowNav
+// import Sidebar from "../../components/Sidebar"; // Importing the Sidebar component instead of FlowNav
+import Sidebar2 from "../../components/Sidebar2";
 
 export default function Pipeline() {
   const [resp, setResp] = useState();
@@ -141,7 +142,7 @@ export default function Pipeline() {
 
   return (
     <div className="w-full h-screen bg-black flex overflow-hidden">
-      <Sidebar />
+      <Sidebar2 />
       
       <div className="pipeline flex-1">
         <div className="sections">

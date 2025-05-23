@@ -5,7 +5,8 @@ import axios from "axios";
 import API_KEY from "../../../key.js";
 import { useNavigate } from "react-router";
 import gify from "../gify.gif";
-import Sidebar from "../../components/Sidebar"; 
+// import Sidebar from "../../components/Sidebar"; 
+import Sidebar2 from "../../components/Sidebar2";
 import "./style.css";
 
 function Step1({ cb }) {
@@ -780,7 +781,7 @@ export default function Matchflow() {
     <div className="flex h-screen bg-black">
       {/* Sidebar - Fixed position */}
       <div className="h-screen sticky top-0">
-        <Sidebar />
+        <Sidebar2 />
       </div>
       
       {/* Main Content - Scrollable */}
