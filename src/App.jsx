@@ -1,5 +1,3 @@
-// Vertx_Flow_fe/src/App.jsx
-// Ensure all imported components are correctly named (PascalCase)
 
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
@@ -16,6 +14,11 @@ import RaiseFunds from "./screens/RaiseFunds"; // Raise input
 import RevenueStatus from "./screens/RevenueStatus"; // Revenue input (ensure component name matches if it's RevenueStaus.jsx)
 import InvestorsIndustry from "./screens/InvestorsIndustry"; // Industry input
 import InvestorsPitch from "./screens/InvestorsPitch"; // Pitch input
+
+
+import GenerateEmail from "./screens/emails";
+import Pipeline from "./screens/events";
+import Matchflow from "./screens/matchflow";
 
 // Intermediate "Selected" pages (if you decide to keep them)
 import StartupLocation from "./screens/StartupLocation"; // Stage Selected confirmation
@@ -51,6 +54,11 @@ function App() {
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     { path: "/fundraising", element: <FundraisingPage /> },
+
+    { path:"/flow/outbound", element:<GenerateEmail />},
+    { path:"/flow/match flow", element:<Matchflow />} ,
+    {path:"/flow/pipeline", element:<Pipeline /> },
+
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //

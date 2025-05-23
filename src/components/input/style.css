@@ -1,0 +1,46 @@
+
+.pas{
+    width: 100%;
+    height: max-content;
+    position: relative;
+}
+
+.inp, .eye{
+    width: 100%;
+    height: max-content;
+    padding: 13px;
+    font-size: 13px;
+    border-radius: 10px;
+    font-family: "Manrope";
+    font-weight: 600;
+    cursor: pointer;
+    transition: all ease 0.3s;
+    margin-bottom: 10px;
+}
+
+.eye{
+    width: 42px;
+    height: 42px;
+    border: none;
+    font-size: 20px;
+    color: white;
+    background: #2b2b2b;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: flex;
+    justify-content: center;
+}
+
+.inp.dark{
+    color: white;
+    background: black;
+    border: 1px solid #9f9f9f;
+}
+
+
+.inp.dark2{
+    color: #ffffff;
+    background: #1a1a1a;
+    border: 1px solid #494949;
+}

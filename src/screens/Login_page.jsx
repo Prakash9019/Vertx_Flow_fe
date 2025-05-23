@@ -3,7 +3,7 @@ import axios from "axios";
 import BackgroundImage from "../assets/login_background.svg";
 import Logo from "../assets/logo.svg";
 import { useNavigate, useLocation } from "react-router-dom";
-import { API_KEY } from "../../key";
+import  API_KEY  from "../../key";
 
 function Login_Page() {
   const [userEmail, setUserEmail] = useState("");

@@ -1,0 +1,319 @@
+.emailCont{
+  width: 100%;
+  height: 100vh;
+  background: black;
+  gap: 10px;
+  overflow: hidden;
+}
+
+
+.emailCont .topbar{
+  width: 100%;
+  height: 70px;
+  border-bottom: 1px solid #75757569;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  color: white;
+  font-family: "Kode Mono";
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.emailCont .topbar div{
+  width: max-content;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emailCont .topbar div.btns{
+  font-size: 13px;
+  width: max-content;
+  height: max-content;
+  padding: 6px 14px;
+  /* border: 1px solid #8ff52a36; */
+  background: linear-gradient(35deg, #a1a1a1db, #fffffff7, #a1a1a1db);
+  border-radius: 50px;
+  font-weight: 700;
+  color: black;
+  cursor: pointer;
+}
+
+.emailCont .topbar .title{
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.emailCont .topbar .logo{
+  width: 25px;
+  height: auto;
+}
+
+.emailCont .sections{
+  width: 100%;
+  height: calc(100% - 70px);
+  display: grid;
+  grid-template-columns: 0.4fr 1fr;
+  gap: 15px;
+  color: white;
+  font-family: "Manrope";
+}
+
+.emailCont .sections .templates{
+  width: 100%;
+  padding: 20px;
+  height: 100%;
+  gap: 10px;
+  overflow-y: scroll;
+  background-color: #090909;
+}
+
+.emailCont .sections .templates .template{
+  width: 100%;
+  height: max-content;
+  border-radius: 10px;
+  background: #101010;
+  margin-bottom: 20px;
+  justify-content: center;
+  display: flex;
+  color: white;
+  font-family: "Manrope";
+  flex-direction: column;
+  text-align: left;
+  padding: 20px;
+  gap: 10px;
+  border: 1px solid #2b2b2b;
+  position: relative;
+  overflow: hidden;
+}
+
+.emailCont .sections .templates .type{
+  font-size: 11px;
+  font-weight: 700;
+  color: #e0e0e0;
+  width: max-content;
+  height: max-content;
+  border: 1px solid #2b2b2b;
+  border-bottom: none;
+  text-transform: uppercase;
+  padding: 8px 13px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.emailCont .sections .templates .template .subject{
+  font-size: 14px;
+  color: #bdbdbd;
+}
+
+.emailCont .sections .templates .template .subject.desc{
+  font-size: 12px;
+  width: 100%;
+  height: max-content;
+  background: #181818;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.emailCont .sections .templates .template .subject span{
+  color: grey;
+}
+
+.emailCont .sections .ttitle{
+  margin-bottom: 25px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.emailCont .sections .templates .template:hover .filter{
+  opacity: 1;
+}
+
+
+.emailCont .sections .templates .template .filter{
+  width: 100%;
+  height: 100%;
+  background: #00000067;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(9px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.emailCont .sections .templates .template .filter .sel{
+  width: max-content;
+  height: max-content;
+  border: 1px solid white;
+  font-family: "Manrope";
+  font-size: 12px;
+  color: white;
+  padding: 9px 19px;
+  background: #ffffff2a;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+
+.emailCont .sections .cs{
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  padding: 20px;
+}
+
+.emailCont .sections .editor{
+  width: 100%;
+  height: 100%;
+  border: 1px solid #222222;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #090909;
+}
+
+.emailCont .sections .editor .enav{
+  width: 100%;
+  height: 50px;
+  border-bottom: 1px solid #171717;
+  background: #121212;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  padding-right: 0;
+}
+
+.emailCont .sections .editor .enav .cls{
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-left:1px solid #222222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  background: #222;
+  font-size: 27px;
+  color: #9a9a9a;
+  cursor: pointer;
+}
+
+.emailCont .sections .editor .area{
+  width: 100%;
+  height: calc(100% - 50px);
+  padding: 20px;
+  border: none;
+  background: transparent;
+  color: white;
+  overflow-y: scroll;
+  font-family: "Manrope";
+  outline: none;
+  font-size: 13px;
+  display: grid;
+  grid-template-rows: 40px 40px 1fr;
+  gap: 5px
+}
+
+.emailCont .sections .editor .area .fm{
+  width: 100%;
+  height: 40px;
+  border: 1px solid #36363652;
+  border-radius: 5px;
+  padding: 0 15px;
+  color: white;
+  font-family: "Manrope";
+  outline: none;
+  background: #121212;
+}
+
+.emailCont .sections .editor .area .body{
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.emailCont .sections .editor .area .tarea{
+  width: 100%;
+  height: 100%;
+  border: 1px solid #36363652;
+  border-radius: 5px;
+  color: white;
+  font-family: "Manrope";
+  outline: none;
+  font-size: 13px;
+  padding: 15px;
+  position: relative;
+  padding-top: 60px;
+  background: #121212;
+  line-height: 150%;
+}
+
+.emailCont .sections .float{
+  width: max-content;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+} 
+
+.emailCont .sections .editor .area .tarea .set{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.emailCont .sections .editor .area .body .set{
+  width: max-content;
+  height: 30px;
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+}
+
+.emailCont .sections .editor .area .body .set .style{
+  width: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #36363652;
+  background: #1a1a1a;
+  color: #c2c2c2;
+  font-family: "Manrope";
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.emailCont .sections .editor .area .body .set .style.b{
+  font-weight: 700;
+}
+
+.emailCont .sections .editor .area .body .set .style.u{
+  text-decoration: underline;
+}
+
+.emailCont .sections .editor .area .body .set .style.i{
+  font-style: italic;
+  font-family: "Kode Mono";
+}
+
+@media only screen and (max-width: 946px) {
+  .emailCont .sections{
+      grid-template-columns: 1fr;
+  }
+  .emailCont{
+      height: max-content;
+  }
+  .emailCont .sections .cs{
+      height: 100vh;
+  }
+}

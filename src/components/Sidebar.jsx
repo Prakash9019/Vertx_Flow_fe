@@ -32,7 +32,7 @@ const Sidebar = () => {
         <div className="pt-3 border-t border-gray-600"></div>
         <div className="pb-6 flex flex-col space-y-4 px-2">
           <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-            <a href="/" className="ml-1">
+            <a href="/flow/match flow" className="ml-1">
               Home
             </a>
             <img src={Home} alt="Feedback Icon" className="w-6 h-6" />

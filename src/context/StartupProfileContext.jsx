@@ -1,7 +1,7 @@
 // Vertx_Flow_fe/src/context/StartupProfileContext.jsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios'; // Using axios directly for simplicity, can be replaced with a preconfigured instance
-import { API_KEY } from '../../key';
+import  API_KEY  from '../../key';
 const API_URL = `${API_KEY}/api/startups`; // Backend API endpoint
 
 const StartupProfileContext = createContext();
