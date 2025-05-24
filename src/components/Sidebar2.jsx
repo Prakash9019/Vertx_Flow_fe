@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 
-const Sidebar = () => {
+const Sidebar2 = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [fundraisingExpanded, setFundraisingExpanded] = useState(true);
+  const [selectedFundraisingOption, setSelectedFundraisingOption] = useState('');
+
+  const handleFundraisingToggle = () => {
+    setFundraisingExpanded(!fundraisingExpanded);
+  };
+
+  const handleFundraisingOptionClick = (option) => {
+    setSelectedFundraisingOption(option);
+  };
 
   return (
     <div className="flex h-screen">
@@ -30,7 +40,7 @@ const Sidebar = () => {
         <div className="border-b border-[#B8B8B8] opacity-25 mx-4"></div>
 
         {/* Company section - updated with precise measurements */}
-        {/* <div className="py-3 px-4 flex items-center justify-between">
+        <div className="py-3 px-4 flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-7.5 h-7.5 bg-[#33005C] flex items-center justify-center rounded-sm mr-3">
               <span className="text-white text-sm font-semibold">C</span>
@@ -42,7 +52,7 @@ const Sidebar = () => {
               <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-        </div> */}
+        </div>
 
         {/* Main navigation - updated order and icons to match image */}
         <div className="flex-1 overflow-y-auto">
@@ -95,15 +105,87 @@ const Sidebar = () => {
                 />
                 <span className="text-[#B8B8B8] font-medium text-sm">Evaluate</span>
               </li>
-              <li className="px-4 py-2 flex items-center hover:bg-gray-900">
-                <img 
-                  src="../src/assets/Ellipse 3.svg" 
-                  alt="Fundraising" 
-                  className="mr-3" 
-                  style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
-                />
-                <span className="text-[#B8B8B8] font-medium text-sm">Fundraising</span>
+              
+              {/* Fundraising with collapsible dropdown */}
+              <li>
+                <div 
+                  className="px-4 py-2 flex items-center hover:bg-gray-900 cursor-pointer"
+                  onClick={handleFundraisingToggle}
+                >
+                  <img 
+                    src="../src/assets/Ellipse 3.svg" 
+                    alt="Fundraising" 
+                    className="mr-3" 
+                    style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
+                  />
+                  <span className="text-[#B8B8B8] font-medium text-sm">Fundraising</span>
+                  <div className="ml-auto">
+                    <svg 
+                      width="5" 
+                      height="9" 
+                      viewBox="0 0 5 9" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={`transform transition-transform ${fundraisingExpanded ? 'rotate-90' : ''}`}
+                      style={{ width: '0.3125rem', height: '0.5625rem' }}
+                    >
+                      <path d="M1 1L4 4.5L1 8" stroke="#B8B8B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Fundraising submenu */}
+                {fundraisingExpanded && (
+                  <ul className="ml-12">
+                    <li 
+                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      onClick={() => handleFundraisingOptionClick('Dashboard')}
+                    >
+                      <span 
+                        className={`font-medium ${selectedFundraisingOption === 'Dashboard' ? 'text-white' : 'text-[#B8B8B8]'}`}
+                        style={{ 
+                          fontFamily: 'Inter', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 500 
+                        }}
+                      >
+                        Dashboard
+                      </span>
+                    </li>
+                    <li 
+                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      onClick={() => handleFundraisingOptionClick('Raise')}
+                    >
+                      <span 
+                        className={`font-medium ${selectedFundraisingOption === 'Raise' ? 'text-white' : 'text-[#B8B8B8]'}`}
+                        style={{ 
+                          fontFamily: 'Inter', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 500 
+                        }}
+                      >
+                        Raise
+                      </span>
+                    </li>
+                    <li 
+                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      onClick={() => handleFundraisingOptionClick('Reach')}
+                    >
+                      <span 
+                        className={`font-medium ${selectedFundraisingOption === 'Reach' ? 'text-white' : 'text-[#B8B8B8]'}`}
+                        style={{ 
+                          fontFamily: 'Inter', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 500 
+                        }}
+                      >
+                        Reach
+                      </span>
+                    </li>
+                  </ul>
+                )}
               </li>
+              
               <li className="px-4 py-2 flex items-center hover:bg-gray-900">
                 <img 
                   src="../src/assets/Ellipse4.svg" 
@@ -171,5 +253,4 @@ const Sidebar = () => {
 };
 
 
-
-export default Sidebar;
+export default Sidebar2;
