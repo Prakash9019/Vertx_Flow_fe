@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import rectangleImage from '../assets/Rectangle 82.png';
+import { API_BASE_URL } from '../config/config';
 
 function AddRoundPopup({ isOpen, onClose, onNext }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -13,6 +14,8 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const [selectedMultiOptions, setSelectedMultiOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [error, setError] = useState(null);
 
   // Format number with Indian comma system
   const formatIndianNumber = (num) => {
@@ -26,22 +29,61 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     return lastThreeDigits;
   };
 
-  // Handle input change for amount (existing logic for dollar amounts)
+  // Add this validation function after other utility functions
+  const isValidDate = (dateStr) => {
+    if (!dateStr) return false;
+    
+    // Check format
+    if (!/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return false;
+    
+    const [day, month, year] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    
+    // Check if date is valid and not in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return date instanceof Date && !isNaN(date) && 
+           date.getDate() === day && 
+           date.getMonth() === month - 1 && 
+           date.getFullYear() === year &&
+           date >= today;
+  };
+
+  // Update handleInputChange function
   const handleInputChange = (e) => {
+    const value = e.target.value;
+    
     if (isAmountStep()) {
-      const value = e.target.value.replace(/[^0-9]/g, '');
-      setInputAmount(value);
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setInputAmount(numericValue);
       setShowValidationError(false);
+    } else if (isDateStep()) {
+      // Allow typing the date format
+      if (value.length <= 10) {
+        // Auto-format date as user types
+        const cleaned = value.replace(/[^0-9]/g, '');
+        let formatted = cleaned;
+        
+        if (cleaned.length > 4) {
+          formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2, 4)}-${cleaned.slice(4)}`;
+        } else if (cleaned.length > 2) {
+          formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
+        }
+        
+        setInputAmount(formatted);
+        setShowValidationError(false);
+      }
     } else {
-      // For other input types, allow all characters
-      setInputAmount(e.target.value);
+      setInputAmount(value);
       setShowValidationError(false);
     }
   };
 
-  // Get validation error message
+  // Update getValidationError function
   const getValidationError = () => {
     if (!inputAmount) return '';
+    
     if (isAmountStep()) {
       const amount = parseInt(inputAmount);
       if (amount < 10000) {
@@ -49,6 +91,10 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       }
       if (amount > 5000000) {
         return 'Cannot be greater than $ 50,00,000';
+      }
+    } else if (isDateStep()) {
+      if (!isValidDate(inputAmount)) {
+        return 'Please enter a valid future date in DD-MM-YYYY format';
       }
     }
     return '';
@@ -242,6 +288,21 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     }
   };
 
+  const formatDateForAPI = (dateStr) => {
+    if (!dateStr) return null;
+    const [day, month, year] = dateStr.split('-');
+    return new Date(year, month - 1, day).toISOString();
+  };
+
+  // Add this function to get the auth token
+  const getAuthToken = () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Authentication token not found. Please log in again.');
+    }
+    return token;
+  };
+
   const handleNext = () => {
     // Validate current step before proceeding
     if (!isStepValid()) {
@@ -251,16 +312,151 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       return;
     }
 
-    // Handle loading and success states
+    let currentStepLocalData = {}; // Use a local variable for current step's data
+    const getFieldKeyForStep = (step) => {
+      // This function maps step number to the backend field key
+      // Ensure these keys match your backend model expectations (from FundingRound.js)
+      switch (step) {
+        case 1: return 'isBridgeRound';
+        case 2: return 'lastPrimaryRoundType';
+        case 3: return 'bridgeOrExtensionType';
+        case 4: return 'plannedRaiseAmount';
+        case 5: return 'amountWiredOrCommitted';
+        case 6: return 'fundraisingInstrument';
+        case 7: return 'safeType';
+        case 8: return 'isLeadInvestorCommitted';
+        case 9: return 'isTermSheetSigned';
+        case 10: return 'plannedCloseDate';
+        case 11: return 'valuationCap';
+        case 12: return 'valuationCapType';
+        case 13: return 'discountRate';
+        case 14: return 'interestRate';
+        case 15: return 'conversionTerm';
+        case 16: // Assuming step 16 & 17 both contribute to targetInvestorTypes
+        case 17: return 'targetInvestorTypes';
+        case 18: return 'targetRunway';
+        default: return `step${step}_unmapped_data`; // Fallback key for unmapped steps
+      }
+    };
+
+    const fieldKey = getFieldKeyForStep(currentStep);
+    let valueForStep;
+
+    if (isInputStep()) {
+      // For amount, discount, interest rate steps, parse as float
+      if (isAmountStep() || [13, 14].includes(currentStep)) {
+        valueForStep = parseFloat(String(inputAmount).replace(/,/g, '')) || null; // Use null if parsing fails
+      } else {
+        valueForStep = inputAmount; // Keep as string for dates, terms, runway etc.
+      }
+    } else if (isMultiSelectStep()) { // Step 17
+      valueForStep = selectedMultiOptions;
+    } else { // Dropdown single select steps (1,2,3,6,7,8,9,12,16)
+      if (selectedOption === 'Yes') {
+        valueForStep = true;
+      } else if (selectedOption === 'No') {
+        valueForStep = false;
+      } else {
+        valueForStep = selectedOption;
+      }
+    }
+    currentStepLocalData[fieldKey] = valueForStep;
+
+    // Special handling for targetInvestorTypes if steps 16 and 17 are additive or conditional
+    // This example assumes step 17 is the definitive multi-select for targetInvestorTypes.
+    // If step 16 is also for targetInvestorTypes and is single-select, you might need to combine them.
+    // For simplicity now, step 17's multi-select will overwrite step 16 if both use 'targetInvestorTypes'.
+    // If step 16 should be a separate field, assign it a unique key in getFieldKeyForStep.
+
+    const updatedFormData = { ...formData, ...currentStepLocalData };
+    setFormData(updatedFormData);
+
+    // When reaching the last step (18)
     if (currentStep === 18) {
       setIsLoading(true);
-      setTimeout(() => {
+      setError(null); // Clear any previous errors
+
+      try {
+        const token = getAuthToken();
+        
+        // Prepare the data for API submission
+        const apiData = {
+          isBridgeRound: updatedFormData.isBridgeRound,
+          lastPrimaryRoundType: updatedFormData.lastPrimaryRoundType,
+          bridgeOrExtensionType: updatedFormData.bridgeOrExtensionType,
+          plannedRaiseAmount: parseFloat(updatedFormData.plannedRaiseAmount),
+          amountWiredOrCommitted: parseFloat(updatedFormData.amountWiredOrCommitted),
+          fundraisingInstrument: updatedFormData.fundraisingInstrument,
+          safeType: updatedFormData.safeType,
+          // Make sure these required fields are always included
+          isLeadInvestorCommitted: updatedFormData.isLeadInvestorCommitted ?? false,
+          isTermSheetSigned: updatedFormData.isTermSheetSigned ?? false,
+          plannedCloseDate: formatDateForAPI(updatedFormData.plannedCloseDate),
+          valuationCap: updatedFormData.valuationCap ? parseFloat(updatedFormData.valuationCap) : undefined,
+          valuationCapType: updatedFormData.valuationCapType,
+          discountRate: updatedFormData.discountRate ? parseFloat(updatedFormData.discountRate) : undefined,
+          interestRate: updatedFormData.interestRate ? parseFloat(updatedFormData.interestRate) : undefined,
+          conversionTerm: updatedFormData.conversionTerm,
+          targetInvestorTypes: updatedFormData.targetInvestorTypes,
+          targetRunway: updatedFormData.targetRunway
+        };
+
+        // Make the API call
+        fetch(`${API_BASE_URL}/funding-rounds`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(apiData)
+        })
+        .then(async response => {
+          console.log('API Response Status:', response.status); // Log response status
+          console.log('API Response Headers:', Object.fromEntries(response.headers.entries())); // Log headers
+          
+          let data;
+          const contentType = response.headers.get("content-type");
+          console.log('Content-Type:', contentType); // Log content type
+          
+          try {
+            const text = await response.text();
+            console.log('Raw response:', text); // Log raw response
+            
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              data = JSON.parse(text);
+            } else {
+              throw new Error(`Invalid response format. Status: ${response.status}, Content-Type: ${contentType}, Body: ${text}`);
+            }
+          } catch (error) {
+            console.error('Error parsing response:', error);
+            throw error;
+          }
+          
+          if (!response.ok) {
+            throw new Error(data.message || data.error || data.msg || 'Failed to create funding round');
+          }
+          return data;
+        })
+        .then(data => {
+          setIsLoading(false);
+          setShowSuccess(true);
+          setTimeout(() => {
+            if (onNext) {
+              onNext(data);
+            }
+          }, 3000);
+        })
+        .catch(error => {
+          console.error('Detailed error:', error); // Debug log
+          setIsLoading(false);
+          setError(error.message || 'An error occurred while creating the funding round');
+        });
+      } catch (error) {
         setIsLoading(false);
-        setShowSuccess(true);
-        setTimeout(() => {
-          onNext();
-        }, 3000);
-      }, 5000);
+        setError(error.message);
+        console.error('Error in handleNext:', error);
+      }
+
       return;
     }
 
@@ -474,6 +670,7 @@ if (showSuccess) {
     </div>
   );
 }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Dimmed background overlay */}
@@ -855,6 +1052,27 @@ if (showSuccess) {
             {' '}to see if you qualify for our premium services.
           </p>
         </div>
+
+        {error && (
+          <div 
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'rgba(252, 65, 65, 0.9)',
+              padding: '0.75rem 1rem',
+              borderRadius: '0.25rem',
+              color: '#FFF',
+              fontFamily: 'Inter',
+              fontSize: '0.875rem',
+              maxWidth: '80%',
+              textAlign: 'center'
+            }}
+          >
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

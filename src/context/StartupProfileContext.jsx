@@ -1,7 +1,7 @@
 // Vertx_Flow_fe/src/context/StartupProfileContext.jsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios'; // Using axios directly for simplicity, can be replaced with a preconfigured instance
-import  API_KEY  from '../../key';
+import API_KEY from '../../key';
 const API_URL = `${API_KEY}/api/startups`; // Backend API endpoint
 
 const StartupProfileContext = createContext();
@@ -22,20 +22,21 @@ export const StartupProfileProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const getToken = () => localStorage.getItem('authToken');
-  // console.log(getToken)
+  // Update token handling to be consistent
+  const getToken = () => {
+    const token = localStorage.getItem('authToken'); // Changed back to 'authToken' to match login storage
+    console.log('Current token:', token); // Debug log
+    return token;
+  };
+
   // Function to fetch existing startup data
   const fetchStartupData = useCallback(async () => {
     setLoadingData(true);
     setError(null);
     const token = getToken();
-    console.log(token)
+    console.log('Fetching with token:', token); // Debug log
+
     if (!token) {
-      //setError("Authentication token not found. Please log in.");
-      // setLoadingData(false); // Set loading to false as we are not fetching
-      // navigate('/login'); // Or handle as per your app's auth flow
-      // For now, allow proceeding with an empty form if no token (e.g. initial setup before full auth guard)
-      // This behavior might need adjustment based on strictness of auth for this page.
       console.warn("No auth token found for fetching startup data. User might be new or not logged in.");
       setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
       setLoadingData(false);
@@ -44,7 +45,10 @@ export const StartupProfileProvider = ({ children }) => {
 
     try {
       const response = await axios.get(`${API_KEY}/api/startups`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       if (response.data && response.data.data) {
         const fetchedData = response.data.data;
@@ -62,6 +66,11 @@ export const StartupProfileProvider = ({ children }) => {
         setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
       }
     } catch (err) {
+      console.error("Fetch error details:", {
+        status: err.response?.status,
+        data: err.response?.data,
+        headers: err.response?.headers
+      });
       if (err.response && err.response.status === 404) {
         console.log("No startup profile found for this user. Ready for new profile creation.");
         setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
@@ -97,38 +106,45 @@ export const StartupProfileProvider = ({ children }) => {
       return false;
     }
 
-    // Ensure industry is an array for the payload
     const payload = {
-        ...startupData,
-        industry: Array.isArray(startupData.industry) ? startupData.industry : (startupData.industry ? [startupData.industry] : [])
+      ...startupData,
+      industry: Array.isArray(startupData.industry) ? startupData.industry : [startupData.industry].filter(Boolean)
     };
-    // If industry is empty, backend model defaults to [], so sending an empty array is fine.
 
     try {
+      console.log('Submitting with token:', token); // Debug log
+      console.log('Payload:', payload); // Debug log
+
       const response = await axios.post(API_URL, payload, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+      
+      console.log('Submit response:', response.data); // Debug log
+      
       setSuccessMessage(response.data.message || "Profile saved successfully!");
       if (response.data && response.data.data) {
         const savedData = response.data.data;
         // Update context with potentially processed/validated data from backend
         setStartupData({
-            stage: savedData.stage || '',
-            location: savedData.location || '',
-            raise: savedData.raise || '',
-            revenue: savedData.revenue || '',
-            industry: Array.isArray(savedData.industry) ? savedData.industry : (savedData.industry ? [savedData.industry] : []),
-            pitch: savedData.pitch || ''
+          stage: savedData.stage || '',
+          location: savedData.location || '',
+          raise: savedData.raise || '',
+          revenue: savedData.revenue || '',
+          industry: Array.isArray(savedData.industry) ? savedData.industry : [savedData.industry].filter(Boolean),
+          pitch: savedData.pitch || ''
         });
       }
       return true; // Indicate success
     } catch (err) {
-      console.error("Failed to submit startup data:", err);
-      let errorMessage = err.response?.data?.message || "An error occurred while saving your profile." ;
-      if (err.response?.data?.errors) {
-         const validationErrors = Object.values(err.response.data.errors).map(e => e.message).join(', ');
-         errorMessage = `Validation Failed: ${validationErrors}`;
-      }
+      console.error("Submit error details:", {
+        status: err.response?.status,
+        data: err.response?.data,
+        headers: err.response?.headers
+      });
+      const errorMessage = err.response?.data?.message || "An error occurred while saving your profile.";
       setError(errorMessage);
       return false; // Indicate failure
     } finally {
