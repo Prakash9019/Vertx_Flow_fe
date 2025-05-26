@@ -2,7 +2,7 @@ import "./style.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 // import Sidebar from "../../components/Sidebar"; // Importing the Sidebar component instead of FlowNav
-import Sidebar2 from "../../components/Sidebar2";
+import Sidebar2 from "../../components/Sidebar";
 
 export default function Pipeline() {
   const [resp, setResp] = useState();

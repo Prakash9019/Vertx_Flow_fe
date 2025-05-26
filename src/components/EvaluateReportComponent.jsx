@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function EvaluateReportComponent({ data }) {
-  const scoreValue = data?.score?.value || 0;
-  const scoreLabel = data?.score?.label || "UNKNOWN";
+  const scoreValue = data?.breakdown?.score?.value || 0;
+  const scoreLabel = data?.breakdown?.score?.label || "UNKNOWN";
   const companyName = data?.overview?.company_name;
 
   const scoreRanges = [
@@ -84,7 +84,7 @@ function EvaluateReportComponent({ data }) {
         </h2>
 
         <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 overflow-x-auto">
-          {data?.breakdown?.map((breakdownData, index) => (
+          {data?.breakdown?.breakdown?.map((breakdownData, index) => (
             <div
               key={index}
               className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-300 py-2 border-b border-gray-700 text-sm"

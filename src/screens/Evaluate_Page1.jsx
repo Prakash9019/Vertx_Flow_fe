@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Background2 from "../assets/background2.jpg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/Sidebar2";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -156,18 +156,16 @@ function Evaluate_Page() {
           {/* Centered Upload Popup */}
           {showUploader && (
             <div className="absolute inset-0 flex items-center justify-center z-40">
-             <div
-  style={{
-    width: '33.75rem',
-    height: '17rem',
-    borderRadius: '0.625rem',
-    background: '#000',
-    backgroundImage: `url("data:image/svg+xml,%3csvg width='540' height='272' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25' gradientTransform='rotate(224.28)'%3e%3cstop offset='18.6%25' style='stop-color:%23592582'/%3e%3cstop offset='81.4%25' style='stop-color:%236965ED'/%3e%3c/linearGradient%3e%3c/defs%3e%3crect x='1.5' y='1.5' width='537' height='269' rx='10' fill='none' stroke='url(%23grad)' stroke-width='3' stroke-dasharray='8,4'/%3e%3c/svg%3e")`,
-    backgroundSize: '100% 100%',
-    backgroundRepeat: 'no-repeat'
-  }}
-  className="flex flex-col justify-between items-center"
->
+              <div
+                style={{
+                  width: '33.75rem',
+                  height: '17rem',
+                  borderRadius: '0.625rem',
+                  border: '3px dashed #592582',
+                  background: '#000'
+                }}
+                className="flex flex-col justify-between items-center "
+              >
                 {/* Upload Section - Centered */}
                 <div className="flex-1 flex flex-col items-center justify-center">
                   <label className="cursor-pointer flex flex-col items-center justify-center">
@@ -203,20 +201,17 @@ function Evaluate_Page() {
                     </svg>
                     
                     {/* Upload PDF Text */}
-                    <p
-  style={{
-    background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    fontFamily: 'Inter',
-    fontSize: '1rem',
-    fontWeight: 600,
-    marginTop: '0.38rem'
-  }}
->
-  Upload PDF
-</p>
-
+                    <p 
+                      style={{
+                        color: '#FFF',
+                        fontFamily: 'Inter',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        marginTop: '0.38rem'
+                      }}
+                    >
+                      Upload PDF
+                    </p>
                     
                     <input
                       type="file"
@@ -309,20 +304,17 @@ function Evaluate_Page() {
                   </svg>
                   
                   {/* Upload PDF Text with 0.38rem gap from icon */}
-                  <p
-  style={{
-    background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    fontFamily: 'Inter',
-    fontSize: '1rem',
-    fontWeight: 600,
-    marginTop: '0.38rem'
-  }}
->
-  Upload PDF
-</p>
-
+                  <p 
+                    style={{
+                      color: '#FFF',
+                      fontFamily: 'Inter',
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      marginTop: '0.38rem'
+                    }}
+                  >
+                    Upload PDF
+                  </p>
                   <input
                     type="file"
                     accept="application/pdf"

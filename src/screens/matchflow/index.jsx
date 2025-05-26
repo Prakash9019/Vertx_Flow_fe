@@ -6,7 +6,7 @@ import API_KEY from "../../../key.js";
 import { useNavigate } from "react-router";
 import gify from "../gify.gif";
 // import Sidebar from "../../components/Sidebar"; 
-import Sidebar2 from "../../components/Sidebar2";
+import Sidebar2 from "../../components/Sidebar.jsx";
 import "./style.css";
 
 function Step1({ cb }) {

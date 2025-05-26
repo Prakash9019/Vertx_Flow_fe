@@ -1,5 +1,5 @@
 import React from "react";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/Sidebar2";
 import Background from "../assets/imgBackground.png";
 import ToggleTabHeader from "../components/ToggleTabHeader";
 import FundraisingDashboard from "../components/FundraisingDashboard";

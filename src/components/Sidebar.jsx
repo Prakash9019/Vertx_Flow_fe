@@ -1,109 +1,256 @@
-import React from "react";
-import bunnyIcon from "../assets/bunny.svg";
-import LeftBackIcon from "../assets/BackIcon.svg";
-import EllipseOne from "../assets/Ellipse1.svg";
-import EllipseTwo from "../assets/Ellipse23.svg";
-import EllipseThree from "../assets/Ellipse23.svg";
-import EllipseFour from "../assets/Ellipse4.svg";
-import Ellipse3 from "../assets/Ellipse 3.svg";
-import UserAccount from "../assets/account.svg";
-import UserPlan from "../assets/plan.svg";
-import UserFeedback from "../assets/feedback.svg";
-import LogOut from "../assets/logout.svg";
-import Home from "../assets/home.svg";
-import Rocket from "../assets/rocket.svg";
+import React, { useState } from 'react';
 
 const Sidebar = () => {
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("isVerified");
-    window.location.reload();
+  const [collapsed, setCollapsed] = useState(false);
+  const [fundraisingExpanded, setFundraisingExpanded] = useState(true);
+  const [selectedFundraisingOption, setSelectedFundraisingOption] = useState('');
+
+  const handleFundraisingToggle = () => {
+    setFundraisingExpanded(!fundraisingExpanded);
+  };
+
+  const handleFundraisingOptionClick = (option) => {
+    setSelectedFundraisingOption(option);
   };
 
   return (
-    <div className="w-64 p-4  border-gray-700 flex flex-col justify-between bg-black h-screen">
-      <div className="w-[240px] h-full border border-[#B8B8B821] bg-black space-y-3">
-        <div className="py-2 pl-2  flex items-center gap-40">
-          <img src={bunnyIcon} alt="Bunny Icon" className="w-8 h-8" />
-          <img src={LeftBackIcon} alt="Back Icon" className="w-5 h-5" />
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="w-60 bg-black text-white flex flex-col h-full border-r border-[rgba(184,184,184,0.13)]">
+        {/* Top section with logo and collapse button */}
+        <div className="flex items-center justify-between p-4">
+          <div className="text-white">
+            <img
+              src="../src/assets/logo.svg"
+              alt="Icon"
+              className="w-8 h-8"
+            />
+          </div>
+
+          <button className="text-gray-400 hover:text-white">
+            <img
+              src="../src/assets/BackIcon.svg"
+              alt="Back icon"
+              className="w-6 h-6"
+            />
+          </button>
         </div>
 
-        <div className="pt-3 border-t border-gray-600"></div>
-        <div className="pb-6 flex flex-col space-y-4 px-2">
-          <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-            <a href="/flow/match flow" className="ml-1">
-              Home
-            </a>
-            <img src={Home} alt="Feedback Icon" className="w-6 h-6" />
-          </div>
-          <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-            <span className="ml-1">Getting Started</span>
-            <img src={Rocket} alt="Feedback Icon" className="w-6 h-6" />
-          </div>
-        </div>
-        <div className="pt-3 border-t border-gray-600"></div>
+        {/* First divider */}
+        <div className="border-b border-[#B8B8B8] opacity-25 mx-4"></div>
 
-        <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-          <img src={EllipseOne} alt="Ellipse 1" className="w-[26px] h-[26px]" />
-          <span className="font-inter font-medium text-sm leading-none tracking-normal">
-            Flash
-          </span>
+        {/* Company section - updated with precise measurements */}
+        <div className="py-3 px-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-7.5 h-7.5 bg-[#33005C] flex items-center justify-center rounded-sm mr-3">
+              <span className="text-white text-sm font-semibold">C</span>
+            </div>
+            <div className="text-white text-sm font-medium">Company Name</div>
+          </div>
+          <button className="text-[#656565] hover:text-white">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
-        <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-          <img src={EllipseTwo} alt="Ellipse 2" className="w-[26px] h-[26px]" />
-          <a
-            href="/evaluate"
-            className="font-inter font-medium text-sm leading-none tracking-normal"
-          >
-            Evaluate
-          </a>
+
+        {/* Main navigation - updated order and icons to match image */}
+        <div className="flex-1 overflow-y-auto">
+          <nav className="py-4">
+            <ul>
+              <li className="px-4 py-2 flex items-center justify-between hover:bg-gray-900">
+                <span className="text-white font-medium text-sm">Home</span>
+                <img 
+                  src="../src/assets/home.svg" 
+                  alt="Home" 
+                  className="w-5 h-5" 
+                  style={{ width: '1.25rem', height: '1.25rem' }} 
+                />
+              </li>
+              <li className="px-4 py-2 flex items-center justify-between hover:bg-gray-900">
+                <span className="text-[#B8B8B8] font-medium text-sm">Getting Started</span>
+                <img 
+                  src="../src/assets/rocket.svg" 
+                  alt="Magic" 
+                  style={{ width: '1.25rem', height: '1.25rem' }} 
+                />
+              </li>
+            </ul>
+          </nav>
+
+          {/* Second divider */}
+          <div className="border-b border-[#B8B8B8] opacity-25 mx-4 my-2"></div>
+
+          {/* Features with icons */}
+          <nav className="py-2">
+            <ul>
+              <li className="px-4 py-2 flex items-center hover:bg-gray-900">
+                <img 
+                  src="../src/assets/flash.svg" 
+                  alt="Flash" 
+                  className="mr-3" 
+                  style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
+                />
+                <span className="text-[#B8B8B8] font-medium text-sm">Flash</span>
+                <div className="ml-2 w-[33px] h-[17px] bg-[#33005C] rounded flex items-center justify-center">
+                  <span className="text-[#AD6FDE] text-[8px] font-bold">BETA</span>
+                </div>
+              </li>
+              <li className="px-4 py-2 flex items-center hover:bg-gray-900">
+                <img 
+                  src="../src/assets/Ellipse23.svg" 
+                  alt="Ellipse " 
+                  className="mr-3" 
+                  style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
+                />
+                <span className="text-[#B8B8B8] font-medium text-sm">Evaluate</span>
+              </li>
+              
+              {/* Fundraising with collapsible dropdown */}
+              <li>
+                <div 
+                  className="px-4 py-2 flex items-center hover:bg-gray-900 cursor-pointer"
+                  onClick={handleFundraisingToggle}
+                >
+                  <img 
+                    src="../src/assets/Ellipse 3.svg" 
+                    alt="Fundraising" 
+                    className="mr-3" 
+                    style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
+                  />
+                  <span className="text-[#B8B8B8] font-medium text-sm">Fundraising</span>
+                  <div className="ml-auto">
+                    <svg 
+                      width="5" 
+                      height="9" 
+                      viewBox="0 0 5 9" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={`transform transition-transform ${fundraisingExpanded ? 'rotate-90' : ''}`}
+                      style={{ width: '0.3125rem', height: '0.5625rem' }}
+                    >
+                      <path d="M1 1L4 4.5L1 8" stroke="#B8B8B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Fundraising submenu */}
+                {fundraisingExpanded && (
+                  <ul className="ml-12">
+                    <li 
+                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      onClick={() => handleFundraisingOptionClick('Dashboard')}
+                    >
+                      <span 
+                        className={`font-medium ${selectedFundraisingOption === 'Dashboard' ? 'text-white' : 'text-[#B8B8B8]'}`}
+                        style={{ 
+                          fontFamily: 'Inter', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 500 
+                        }}
+                      >
+                        Dashboard
+                      </span>
+                    </li>
+                    <li 
+                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      onClick={() => handleFundraisingOptionClick('Raise')}
+                    >
+                      <span 
+                        className={`font-medium ${selectedFundraisingOption === 'Raise' ? 'text-white' : 'text-[#B8B8B8]'}`}
+                        style={{ 
+                          fontFamily: 'Inter', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 500 
+                        }}
+                      >
+                        Raise
+                      </span>
+                    </li>
+                    <li 
+                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      onClick={() => handleFundraisingOptionClick('Reach')}
+                    >
+                      <span 
+                        className={`font-medium ${selectedFundraisingOption === 'Reach' ? 'text-white' : 'text-[#B8B8B8]'}`}
+                        style={{ 
+                          fontFamily: 'Inter', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 500 
+                        }}
+                      >
+                        Reach
+                      </span>
+                    </li>
+                  </ul>
+                )}
+              </li>
+              
+              <li className="px-4 py-2 flex items-center hover:bg-gray-900">
+                <img 
+                  src="../src/assets/Ellipse4.svg" 
+                  alt="Playground" 
+                  className="mr-3" 
+                  style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
+                />
+                <span className="text-[#B8B8B8] font-medium text-sm">Playground</span>
+                <div className="ml-2 w-[33px] h-[17px] bg-[#33005C] rounded flex items-center justify-center">
+                  <span className="text-[#AD6FDE] text-[8px] font-bold">BETA</span>
+                </div>
+              </li>
+            </ul>
+          </nav>
         </div>
-        <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-          <img src={Ellipse3} alt="Ellipse 3" className="w-[26px] h-[26px]" />
-          <a
-            href="/fundraising"
-            className="font-inter font-medium text-sm leading-none tracking-normal"
-          >
-            Fundraising
-          </a>
+
+        {/* Third divider */}
+        <div className="border-b border-[#B8B8B8] opacity-25 mx-4"></div>
+
+        {/* Bottom section with account options */}
+        <div className="mt-auto">
+          <ul>
+            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
+              <span className="text-[#B8B8B8] font-medium text-sm">Your account</span>
+              <img 
+                src="../src/assets/account.svg" 
+                alt="User" 
+                style={{ width: '1.25rem', height: '1.25rem' }} 
+              />
+            </li>
+            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
+              <span className="text-[#B8B8B8] font-medium text-sm">Upgrade plan</span>
+              <img 
+                src="../src/assets/plan.svg" 
+                alt="Layers" 
+                style={{ width: '1.25rem', height: '1.25rem' }} 
+              />
+            </li>
+            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
+              <span className="text-[#B8B8B8] font-medium text-sm">Leave a feedback</span>
+              <img 
+                src="../src/assets/feedback.svg" 
+                alt="Chat" 
+                style={{ width: '1.25rem', height: '1.25rem' }} 
+              />
+            </li>
+            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
+              <span className="text-[#B8B8B8] font-medium text-sm">Log out</span>
+              <img 
+                src="../src/assets/logout.svg" 
+                alt="Logout" 
+                style={{ width: '1.25rem', height: '1.25rem' }} 
+              />
+            </li>
+          </ul>
         </div>
-        <div className="py-2 pl-2 text-gray-300 flex items-center gap-4">
-          <img
-            src={EllipseFour}
-            alt="Ellipse 4"
-            className="w-[26px] h-[26px]"
-          />
-          <span className="font-inter font-medium text-sm leading-none tracking-normal">
-            Playground
-          </span>
-        </div>
-        <div className="h-[6rem]"></div>
       </div>
 
-      {/* Bottom Section */}
-      <div className="space-y-4 pt-6 border-t border-gray-600">
-        <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-          <span className="ml-1">Your account</span>
-          <img src={UserAccount} alt="Account Icon" className="w-6 h-6" />
-        </div>
-        <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-          <span className="ml-1">Upgrade plan</span>
-          <img src={UserPlan} alt="Plan Icon" className="w-6 h-5" />
-        </div>
-        <div className="flex items-center justify-between hover:text-gray-300 cursor-pointer">
-          <span className="ml-1">Leave a feedback</span>
-          <img src={UserFeedback} alt="Feedback Icon" className="w-6 h-6" />
-        </div>
-        <div className="flex items-center justify-between hover:text-red-400 cursor-pointer">
-          <span onClick={handleLogout} className="ml-1">
-            Log out
-          </span>
-          <img src={LogOut} alt="Logout Icon" className="w-6 h-6" />
-        </div>
+      {/* Main content area */}
+      <div className="flex-1 bg-[#1a0b2e]">
+        {/* Your main content goes here */}
       </div>
     </div>
   );
 };
+
 
 export default Sidebar;

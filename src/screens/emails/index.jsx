@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import Button from "../../components/button/component";
 import { useNavigate } from "react-router";
 // import Sidebar from "../../components/Sidebar"; // Importing the Sidebar component instead of FlowNav
-import Sidebar2 from "../../components/Sidebar2";
+import Sidebar2 from "../../components/Sidebar";
 
 export default function GenerateEmail() {
   const [template, setTemplate] = useState();

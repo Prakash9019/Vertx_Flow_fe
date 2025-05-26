@@ -5,6 +5,7 @@ import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios
 import  API_KEY  from "../../key";
+
 function AddCofounder_Page() {
   const [cofounders, setCofounders] = useState([""]); // Start with one input
   // Replacing 'inviteAlert' with more specific states for API feedback
@@ -97,69 +98,135 @@ function AddCofounder_Page() {
       <div className="absolute inset-0 bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
       <div className="relative z-10">
         <Header />
-        {/* body  */}
-        <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="w-full sm:w-3/5 lg:w-3/6 xl:w-3/10 flex flex-col gap-8 justify-center px-4 sm:px-0 text-white">
-            {/* API Feedback Messages */}
-            {inviteSuccessMsg && !inviteError && ( // Show success only if no errors
-              <div className="bg-green-600 text-white px-4 py-3 mb-4 rounded-md border border-green-700 shadow-md whitespace-pre-line text-sm text-center">
-                {inviteSuccessMsg}
-              </div>
-            )}
-            {inviteError && (
-              <div className="bg-red-600 text-white px-4 py-3 mb-4 rounded-md border border-red-700 shadow-md whitespace-pre-line text-sm text-center">
-                {inviteError}
-              </div>
-            )}
-            {/* End API Feedback Messages */}
+        
+        {/* Content positioned with exact specifications */}
+        <div style={{ marginLeft: '17rem', marginTop: '9.87rem' }}>
+          {/* API Feedback Messages */}
+          {inviteSuccessMsg && !inviteError && ( // Show success only if no errors
+            <div className="bg-green-600 text-white px-4 py-3 mb-4 rounded-md border border-green-700 shadow-md whitespace-pre-line text-sm">
+              {inviteSuccessMsg}
+            </div>
+          )}
+          {inviteError && (
+            <div className="bg-red-600 text-white px-4 py-3 mb-4 rounded-md border border-red-700 shadow-md whitespace-pre-line text-sm">
+              {inviteError}
+            </div>
+          )}
+          {/* End API Feedback Messages */}
+          
+          {/* 1. Main heading */}
+          <h5 style={{
+            color: '#FFF',
+            fontFamily: 'Inter',
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            marginBottom: '0.81rem'
+          }}>
+            One last thing! Invite your co-founder
+          </h5>
+          
+          {/* 2. Subtitle */}
+          <p style={{
+            color: '#FFF',
+            fontFamily: 'Inter',
+            fontSize: '0.875rem',
+            fontWeight: 400,
+            marginBottom: '2.19rem'
+          }}>
+            Get a lot more done with Visible by inviting your team
+          </p>
+
+          {/* 3. Email input containers */}
+          <div style={{ marginBottom: '0.56rem' }}>
+            {cofounders.map((email, index) => (
+              <input
+                key={index}
+                type="email"
+                value={email}
+                onChange={(e) => handleCofounderChange(index, e.target.value)}
+                placeholder="Cofounder@yourcompany.com"
+                style={{
+                  width: '22.5rem',
+                  height: '2.5rem',
+                  borderRadius: '0.1875rem',
+                  border: '1px solid rgba(184, 184, 184, 0.13)',
+                  background: 'rgba(7, 7, 7, 0.76)',
+                  color: '#656565',
+                  fontFamily: 'Inter',
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  padding: '0 0.75rem',
+                  marginBottom: index < cofounders.length - 1 ? '0.5rem' : '0'
+                }}
+              />
+            ))}
+          </div>
+
+          {/* 4. Add Co-founder button */}
+          <button
+            onClick={handleAddCofounder}
+            disabled={isInviting || cofounders.length >= 5}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#FFF',
+              fontFamily: 'Inter',
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '2.19rem',
+              cursor: isInviting || cofounders.length >= 5 ? 'not-allowed' : 'pointer',
+              opacity: isInviting || cofounders.length >= 5 ? 0.5 : 1
+            }}
+          >
+            <FaPlus /> Add Co-founder
+          </button>
+
+          {/* 5. Invite and Skip buttons container */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {/* 5. Invite button */}
+            <button
+              onClick={handleInvite}
+              disabled={isInviting}
+              style={{
+                display: 'inline-flex',
+                padding: '0.5625rem 2rem 0.625rem 1.9375rem',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: '#FFF',
+                border: 'none',
+                borderRadius: '0.25rem',
+                color: '#000',
+                fontFamily: 'Inter',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                cursor: isInviting ? 'not-allowed' : 'pointer',
+                opacity: isInviting ? 0.5 : 1
+              }}
+            >
+              {isInviting ? "Sending..." : "Invite"}
+            </button>
             
-            <div>
-              <h5 className="text-xl sm:text-2xl font-semibold mb-2">
-                One last thing! Invite your co-founder
-              </h5>
-              <p className="text-sm sm:text">
-                Get a lot more done with Vertx Flow by inviting your team {/* Corrected "Visible" to "Vertx Flow" based on context */}
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              {cofounders.map((email, index) => (
-                <input
-                  key={index}
-                  type="email"
-                  value={email}
-                  onChange={(e) => handleCofounderChange(index, e.target.value)}
-                  placeholder={`Enter cofounder email`}
-                  className="w-full py-1 rounded-md px-2 border border-gray-700 text-white"
-                />
-              ))}
-
-              <button
-                onClick={handleAddCofounder}
-                className="bg-black px-4 py-2 mt-2 flex items-center gap-2 rounded-md border-2 border-gray-700 hover:border-purple-500 active:border-gray-700 disabled:opacity-50" // Adjusted border and hover/active, added disabled
-                disabled={isInviting || cofounders.length >= 5} // Example limit
-              >
-                <FaPlus /> Add Co-founder
-              </button>
-            </div>
-
-            <div>
-              <button
-                onClick={handleInvite}
-                className="bg-white text-black px-5 py-2 rounded-md font-semibold border-2 border-white hover:bg-gray-200 active:bg-gray-300 disabled:opacity-50" // Consistent border, hover, active, disabled
-                disabled={isInviting}
-              >
-                {isInviting ? "Sending..." : "Invite"}
-              </button>
-              <span className="mx-3">or</span>
-              <button
-                onClick={() => navigate("/homepage")}
-                className="bg-black px-5 py-2 rounded-md font-semibold border-2 border-gray-700 hover:border-purple-500 active:border-purple-600 disabled:opacity-50" // Adjusted border and hover/active, added disabled
-                disabled={isInviting}
-              >
-                Skip
-              </button>
-            </div>
+            {/* 6. Skip button */}
+            <button
+              onClick={() => navigate("/homepage")}
+              disabled={isInviting}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#FFF',
+                fontFamily: 'Inter',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                marginLeft: '1.25rem',
+                cursor: isInviting ? 'not-allowed' : 'pointer',
+                opacity: isInviting ? 0.5 : 1
+              }}
+            >
+              or Skip
+            </button>
           </div>
         </div>
       </div>
