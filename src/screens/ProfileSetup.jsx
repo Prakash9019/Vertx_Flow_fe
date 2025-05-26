@@ -75,16 +75,6 @@ const ProfileSetup = () => {
 
   // --- Constants for main content positioning (within a centered 1280px block) ---
   const MAIN_CONTENT_WIDTH = '1280px';
-  const MAIN_CONTENT_HEIGHT = '832px';
-
-  const TITLE_BLOCK_LEFT_REL = '280px';
-  const TITLE_BLOCK_TOP_REL = '186px';
-
-  const CONTENT_BOX_LEFT_REL = '280px';
-  const CONTENT_BOX_TOP_REL = '285px';
-  const CONTENT_BOX_WIDTH = '720px';
-  const CONTENT_BOX_HEIGHT = '362px';
-  const CONTENT_BOX_PADDING_X = '35px';
 
   // ... other coordinate constants for elements inside the content box (circlesAreaTopInBox etc.) ...
   // These should be calculated relative to CONTENT_BOX_TOP_REL if the content box itself is positioned absolutely
@@ -128,13 +118,19 @@ const ProfileSetup = () => {
       <div className="relative z-10">
         <Header />
 
-        {/* Centered Main Content Area */}        <div className="flex justify-center mt-12">
-          <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto' }}>
+        {/* Centered Main Content Area */}     
+           <div className="flex justify-center mt-12">
+          <div className="relative w-full text-left " >
             {/* Title Block */}
-            <div style={{ width: '572px', color: '#FFFFFF', marginBottom: '20px', marginLeft: 'auto', marginRight: 'auto' }}>
-              <h2 className="font-inter font-semibold" style={{ fontSize: '20px', lineHeight: '24px', marginBottom: '12px' }}>Tell us about your startup</h2>
-              <p className="font-inter font-normal" style={{ fontSize: '14px', lineHeight: '17px' }}>We'll use this information to match you with the right investors for your specific needs.</p>
-            </div>
+            <div className="text-left w-[572px] text-white mb-5 mx-auto">
+  <h2 className="font-inter font-semibold text-[20px] leading-[24px] mb-3">
+    Tell us about your startup
+  </h2>
+  <p className="font-inter font-normal text-[14px] leading-[17px]">
+    We'll use this information to match you with the right investors for your specific needs.
+  </p>
+</div>
+
 
             {/* Content Box */}
 

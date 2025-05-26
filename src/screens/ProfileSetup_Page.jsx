@@ -92,37 +92,47 @@ style={{
  
         <div className="flex justify-center items-center min-h-[calc(100vh-10rem)]">
           <div className="bg-black bg-opacity-60 p-6 sm:p-8 rounded-lg w-full sm:max-w-[63%] xl:max-w-[43%] shadow-xl text-center flex flex-col items-center">
-            <FaLinkedin className="text-5xl sm:text-6xl text-white mb-4" />
-            <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-              Complete your profile with LinkedIn
-            </h2>
-            <p className="text-xs sm:text-sm text-gray-400 mb-5">
+          <div className="flex justify-between items-center w-full">
+          <h2 className="font-inter font-semibold text-[32px] leading-[100%] tracking-[0%]">
+  Enter your LinkedIn URL
+</h2>
 
-              We use your LinkedIn to autofill your profile, giving you a better
-              and faster experience while saving your time. (Autofill feature TBD)
-            </p>
-            <div className="flex items-center w-full border border-gray-700 rounded-md text-white overflow-hidden mb-3">
-              <span className="pl-3 py-2 text-sm whitespace-nowrap select-none bg-gray-800">
-                https://www.linkedin.com/in/
-              </span>
-              <input
-                type="text"
-                value={linkedinHandle}
-                onChange={handleInputChange}
-                placeholder="yourprofilename"
-                className="flex-1 px-3 py-2 bg-black text-white text-sm outline-none focus:ring-1 focus:ring-purple-500"
-              />
-            </div>
+  <FaLinkedin className="text-4xl sm:text-4xl text-white" />
+</div>
+
+
+
+
+                 <p className="text-left text-xs sm:text-sm text-gray-400 my-5">
+                 We use your LinkedIn to autofill your profile, giving you a better and faster 
+                 experience while saving your time.
+                 </p>
+                 <div
+  className="flex items-center w-full rounded-md text-white overflow-hidden mb-3"
+  style={{ border: '1px solid #B8B8B821' }}
+>
+  <span className="pl-3 py-2 text-sm whitespace-nowrap ">
+    https://www.linkedin.com/in/
+  </span>
+  <input
+    type="text"
+    value={linkedinHandle}
+    onChange={handleInputChange}
+    placeholder="profilename"
+    className="flex-1 px-1 py-2 bg-black text-white text-sm outline-none focus:ring-1 focus:ring-purple-500"
+  />
+</div>
+
 
             {contextError && <p className="text-red-500 text-sm mb-3">{contextError}</p>}
 
             <button
               onClick={handleContinueToSetup}
-              className="mt-5 w-full text-sm sm:text-base bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 active:bg-gray-200 transition-all"
+              className="mt-5 w-full font-inter text-sm sm:text-base bg-white text-black py-2.5 rounded hover:bg-gray-200 active:bg-gray-200 transition-all"
             >
-              Continue to Profile Setup
+              Create flow profile
             </button>
-            <p className="mt-4 text-xs sm:text-sm text-gray-400">
+            <p className="text-left mt-4 text-xs sm:text-sm text-gray-400">
               Not interested in sharing your LinkedIn profile URL?{" "}
               <span className="block lg:inline">
                 <Link
