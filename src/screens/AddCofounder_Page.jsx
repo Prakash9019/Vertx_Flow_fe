@@ -118,7 +118,7 @@ function AddCofounder_Page() {
           <h5 style={{
             color: '#FFF',
             fontFamily: 'Inter',
-            fontSize: '1.25rem',
+            fontSize: '1.5rem',
             fontWeight: 600,
             marginBottom: '0.81rem'
           }}>
@@ -137,7 +137,7 @@ function AddCofounder_Page() {
           </p>
 
           {/* 3. Email input containers */}
-          <div style={{ marginBottom: '0.56rem' }}>
+          <div className="flex flex-col" style={{ marginBottom: '0.56rem' }}>
             {cofounders.map((email, index) => (
               <input
                 key={index}
@@ -171,7 +171,7 @@ function AddCofounder_Page() {
               border: 'none',
               color: '#FFF',
               fontFamily: 'Inter',
-              fontSize: '0.75rem',
+              fontSize: '0.9rem',
               fontWeight: 400,
               display: 'flex',
               alignItems: 'center',
@@ -225,7 +225,7 @@ function AddCofounder_Page() {
                 opacity: isInviting ? 0.5 : 1
               }}
             >
-              or Skip
+              or   skip
             </button>
           </div>
         </div>

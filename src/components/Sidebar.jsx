@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation,useNavigation } from 'react-router-dom';
 
 
 const Sidebar = () => {
+  const navigate = useNavigation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("isVerified");
+    window.location.reload();
+  };
+
   const location = useLocation();
   const path = location.pathname.toLowerCase();
 
@@ -66,7 +75,7 @@ const Sidebar = () => {
         <div className="flex-1 overflow-y-auto">
           <nav className="py-4">
             <ul>
-            <li className={`px-4 py-2 flex items-center justify-between ${isHome ? 'bg-gray-900' : ''} hover:bg-gray-900`}>
+            <li className={`px-4 py-2 flex items-center justify-between ${isHome ? 'bg-gray-900' : ''} hover:bg-gray-900`} onClick={()=>{navigate("/homepage")}}  >
   <span className={`${isHome ? 'text-white' : 'text-[#B8B8B8]'} font-medium text-sm`}>Home</span>
   <img 
     src="../src/assets/home.svg" 
@@ -104,7 +113,7 @@ const Sidebar = () => {
                   <span className="text-[#AD6FDE] text-[8px] font-bold">BETA</span>
                 </div>
               </li>
-              <li className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isEvaluate? 'bg-gray-900' : ''}`}>
+              <li className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isEvaluate? 'bg-gray-900' : ''}`}   onClick={()=>{navigate("/evaluate")}}>
  
                 <img 
                   src="../src/assets/Ellipse23.svg" 
@@ -115,11 +124,12 @@ const Sidebar = () => {
                   <span className={`font-medium text-sm ${isEvaluate ? 'text-white' : 'text-[#B8B8B8]'}`}>Evaluate</span>
               </li>
               
-              {/* Fundraising with collapsible dropdown */}
+              {/* Fundraising with collapsible dropdown /fundraising */}
               <li>
                 <div 
                  className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isEvaluate? 'bg-gray-900' : ''}`}
-                  onClick={handleFundraisingToggle}
+                  // onClick={handleFundraisingToggle}
+                  onClick={()=>{navigate("/fundraising")}}
                 >
                   <img 
                     src="../src/assets/Ellipse 3.svg" 

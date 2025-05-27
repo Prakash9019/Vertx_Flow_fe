@@ -1,5 +1,3 @@
-// revenue Selected modified
-// Vertx_Flow_fe/src/screens/RevenueStatus.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
@@ -18,14 +16,14 @@ const styles = `
       opacity: 1;
     }
   }
-  
-  .dropdown-content::-webkit-scrollbar {
-    display: none;
+
+  .dropdown-container {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
   }
-  
-  .dropdown-content {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+
+  .dropdown-container::-webkit-scrollbar {
+    display: none; /* WebKit */
   }
 `;
 
@@ -42,9 +40,14 @@ const RevenueStatus = () => {
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
   const [currentRevenue, setCurrentRevenue] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
   const selectButtonRef = useRef(null);
 
+  const revenueOptions = [
+    "Pre-revenue", "$2K>", "$2K-$5K", "$5K-$10K", "$10K-$100K", "$100K+",
+  ];
+  
   useEffect(() => {
     setCurrentRevenue(startupData.revenue || "");
   }, [startupData.revenue]);
@@ -65,11 +68,7 @@ const RevenueStatus = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const revenueOptions = [
-    "Pre-revenue", "$2K>", "$2K-$5K", "$5K-$10K", "$10K-$100K", "$100K+",
-  ];
-
-  const handleRevenueChange = (option) => {
+  const handleRevenueSelect = (option) => {
     setCurrentRevenue(option);
     updateStartupField('revenue', option);
     setError(null);
@@ -82,242 +81,296 @@ const RevenueStatus = () => {
     setError(null);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!currentRevenue) {
       setError("Please select your current revenue status.");
       return;
     }
     setError(null);
-    navigate("/profile/industry");
+    setIsLoading(true);
+    
+    // Simulate loading time before navigation
+    setTimeout(() => {
+      navigate("/profile/industry");
+    }, 800);
   };
 
   const handleBack = () => {
     navigate("/profile/raise");
   };
 
+  // Keep constant container height
+  const containerHeight = 22.625;
+
   if (loadingData && !startupData.stage) {
     return <div className="w-screen h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
   }
 
-  // Layout constants
-  const MAIN_CONTENT_WIDTH = '1280px';  const CONTENT_BOX_WIDTH = '720px';
-  const CONTENT_BOX_HEIGHT = '362px';
-  const CONTENT_BOX_PADDING_X = '35px';
-  const circlesAreaTopInBox = 39;
-  const questionLabelMarginTop = 31;
-
-  return (<div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#150718] via-[#1C001E] via-[#14006E] to-[#14006E] opacity-100 z-0"></div>
+  return (
+    <div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">
+      <div className="absolute inset-0  bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
       <div className="relative z-10">
         <Header />
 
-        {/* Centered Main Content Area */}
         <div className="flex justify-center mt-12">
-          <div className="relative" style={{ width: MAIN_CONTENT_WIDTH, height: 'auto' }}>
-            {/* Title Block */}
-            <div style={{ 
-              width: '572px', 
-              color: '#FFFFFF', 
-              marginBottom: '20px', 
-              marginLeft: 'auto', 
-              marginRight: 'auto' 
-            }}>
-              <h2 className="font-inter font-semibold" style={{ 
-                fontSize: '20px', 
-                lineHeight: '24px', 
-                marginBottom: '12px' 
-              }}>
-                Tell us about your startup
-              </h2>
-              <p className="font-inter font-normal" style={{ 
-                fontSize: '14px', 
-                lineHeight: '17px' 
-              }}>
-                We'll use this information to match you with the right investors for your specific needs.
-              </p>
+          <div className="relative" style={{ width: '80rem', height: 'auto' }}>
+            <div style={{ width: '35.75rem', color: '#FFFFFF', marginBottom: '1.25rem', marginLeft: '19rem', marginRight: 'auto' }}>
+              <h2 className="font-inter font-semibold" style={{ fontSize: '1.25rem', lineHeight: '1.5rem', marginBottom: '0.75rem', width: '17.4375rem', height: '1.4375rem' }}>Tell us about your startup</h2>
+              <p className="font-inter font-normal" style={{ fontSize: '0.875rem', lineHeight: '1.0625rem', width: '35.75rem', height: '1.125rem' }}>We'll use this information to match you with the right investors for your specific needs.</p>
             </div>
 
-            {/* Content Box */}
-             <div
-  className="relative w-full max-w-2xl min-h-[362px] mt-8 sm:mt-12 mx-auto"
-  style={{
-    position: 'relative',
-    background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
-    borderRadius: '12px',
-    padding: '2px', // Space for the border
-  }}
->
-    <div 
-    className="w-full h-full flex flex-col" 
-    style={{
-      background: 'black',
-      borderRadius: '10px', // Slightly smaller to show the gradient border
-      height: 'calc(100% - 4px)',
-      padding: '2rem',
-    }}
-  >
-              {/* Progress Steps */}
-              <div style={{ paddingTop: `${circlesAreaTopInBox -27 }px`, boxSizing: 'border-box', width: '100%' }}>
-                <ProfileProgressBar currentStep={3} />
-              </div>
-              
-              {/* Form Elements Area */}
-              <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop}px` }}>
-                <label htmlFor="revenue-dropdown" className="block font-inter font-semibold text-sm mb-2">
-                  What is your current revenue status (MRR)?
-                </label>
-                <p className="font-inter font-normal text-xs text-gray-400 mb-4">
-                  This helps investors understand your traction and growth.
-                </p>
-                
-                {/* New Select Container */}
-                <div style={{ width: '20rem', position: 'relative' }}>
-                  {currentRevenue ? (
-                    <>
-                      <div style={{ 
-                        fontFamily: 'Inter, sans-serif', 
-                        fontStyle: 'normal', 
-                        fontWeight: 400, 
-                        fontSize: '0.75rem', 
-                        lineHeight: '0.9375rem', 
-                        color: '#FFFFFF', 
-                        height: '0.9375rem', 
-                        marginBottom: '0.5rem' 
-                      }}>
-                        Currently selected:
-                      </div>
-                      <div style={{ 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        height: '2rem', 
-                        minWidth: '4.6875rem', 
-                        paddingLeft: '0.625rem', 
-                        paddingRight: '0.625rem', 
-                        background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)', 
-                        borderRadius: '0.25rem', 
-                        boxSizing: 'border-box'
-                      }}>
-                        <span style={{ 
+            <div
+              className="relative w-full max-w-2xl mt-8 sm:mt-12 mx-auto"
+              style={{
+                position: 'relative',
+                background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
+                borderRadius: '0.625rem',
+                padding: '0.125rem',
+                width: '45rem',
+                height: `${containerHeight}rem`
+              }}
+            >
+              <div 
+                className="w-full h-full flex flex-col" 
+                style={{
+                  background: 'black',
+                  borderRadius: '0.625rem',
+                  height: '100%',
+                  padding: '2rem',
+                  paddingTop: '2.5rem',
+                  position: 'relative'
+                }}
+              >
+                <div style={{ boxSizing: 'border-box', width: '100%' }}>
+                  <ProfileProgressBar currentStep={3} />
+                </div>
+
+                <div style={{ color: '#FFFFFF', marginTop: '1.5rem', flex: '1' }}>
+                  <label className="block font-inter font-semibold" style={{ fontSize: '0.875rem', lineHeight: '1.0625rem', marginBottom: '0.5rem' }}>
+                    What is your current revenue status (MRR)?
+                  </label>
+                  <p className="font-inter font-normal text-xs" style={{ fontSize: '0.75rem', lineHeight: '0.9375rem', marginBottom: '2.0rem' }}>
+                    This helps investors understand your traction and growth.
+                  </p>
+                  <div style={{ width: '20rem', position: 'relative' }}>
+                    {currentRevenue ? (
+                      <>
+                        <div style={{ 
                           fontFamily: 'Inter, sans-serif', 
                           fontStyle: 'normal', 
-                          fontWeight: 500, 
+                          fontWeight: 400, 
                           fontSize: '0.75rem', 
                           lineHeight: '0.9375rem', 
                           color: '#FFFFFF', 
-                          marginRight: '0.5rem' 
+                          height: '0.9375rem', 
+                          marginBottom: '0.5rem' 
                         }}>
-                          {currentRevenue}
-                        </span>
-                        <img 
-                          src={CloseIcon} 
-                          alt="Clear selection" 
-                          onClick={clearRevenue} 
-                          className="cursor-pointer" 
-                          style={{ width: '0.75rem', height: '0.75rem' }}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>                      
-                      <div 
-                        ref={selectButtonRef}
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
-                        className="cursor-pointer" 
-                        style={{ 
-                          width: '20rem', 
-                          height: '2.439rem', 
-                          background: '#0F0E16', 
-                          border: '1px solid rgba(184, 184, 184, 0.13)', 
-                          borderRadius: '0.1875rem', 
-                          display: 'flex', 
+                          Currently selected:
+                        </div>
+                        <div style={{ 
+                          display: 'inline-flex', 
                           alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '0 0.9375rem', 
-                          boxSizing: 'border-box' 
-                        }}
-                      >
-                        <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '0.75rem', lineHeight: '0.9375rem', color: '#656565', width: '2.375rem', height: '0.9375rem' }}>
-                          Select
-                        </span>
-                        <svg 
-                          width="1.125rem" 
-                          height="1.125rem" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          style={{ 
-                            transform: isDropdownOpen ? 'rotate(180deg)' : 'none', 
-                            transition: 'transform 0.2s' 
-                          }}
-                        >
-                          <path d="M7 10L12 15L17 10H7Z" fill="#656565"/>
-                        </svg>
-                      </div>
-
-                      {isDropdownOpen && (
+                          height: '2rem', 
+                          minWidth: '4.6875rem', 
+                          paddingLeft: '0.625rem', 
+                          paddingRight: '0.625rem', 
+                          background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)', 
+                          borderRadius: '0.25rem', 
+                          boxSizing: 'border-box'
+                        }}>
+                          <span style={{ 
+                            fontFamily: 'Inter, sans-serif', 
+                            fontStyle: 'normal', 
+                            fontWeight: 500, 
+                            fontSize: '0.75rem', 
+                            lineHeight: '0.9375rem', 
+                            color: '#FFFFFF', 
+                            marginRight: '0.5rem' 
+                          }}>
+                            {currentRevenue}
+                          </span>
+                          <img 
+                            src={CloseIcon} 
+                            alt="Clear selection" 
+                            onClick={clearRevenue} 
+                            className="cursor-pointer" 
+                            style={{ 
+                              width: '0.75rem', 
+                              height: '0.75rem',
+                              opacity: isLoading ? 0.5 : 1,
+                              pointerEvents: isLoading ? 'none' : 'auto'
+                            }}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>                      
                         <div 
-                          ref={dropdownRef}
-                          className="dropdown-content"
+                          ref={selectButtonRef}
+                          onClick={() => !isLoading && setIsDropdownOpen(!isDropdownOpen)} 
+                          className="cursor-pointer" 
                           style={{ 
-                            position: 'absolute', 
-                            top: '100%',
-                            left: '0',
                             width: '20rem', 
-                            background: '#0F0E16', 
+                            height: '2.439rem', 
+                            background: isLoading ? '#1a1a1a' : '#0F0E16', 
                             border: '1px solid rgba(184, 184, 184, 0.13)', 
                             borderRadius: '0.1875rem', 
-                            zIndex: 9999,
-                            marginTop: '0.3125rem',
-                            maxHeight: '12.5rem', 
-                            overflowY: 'auto',
-                            animation: 'slideUp 0.2s ease-in-out'
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between', 
+                            padding: '0 0.9375rem', 
+                            boxSizing: 'border-box',
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
+                            opacity: isLoading ? 0.6 : 1
                           }}
                         >
-                          {revenueOptions.map((option) => ( 
-                            <div 
-                              key={option} 
-                              onClick={() => handleRevenueChange(option)} 
-                              className="cursor-pointer hover:bg-[#6C2BD9]" 
-                              style={{ 
-                                padding: '0.625rem 0.9375rem', 
-                                fontFamily: 'Inter, sans-serif', 
-                                fontStyle: 'normal', 
-                                fontWeight: 400, 
-                                fontSize: '0.75rem', 
-                                lineHeight: '0.9375rem', 
-                                color: '#FFFFFF' 
-                              }}
-                            >
-                              {option}
-                            </div>
-                          ))}
+                          <span style={{ 
+                            fontFamily: 'Inter, sans-serif', 
+                            fontStyle: 'normal', 
+                            fontWeight: 400, 
+                            fontSize: '0.75rem', 
+                            lineHeight: '0.9375rem', 
+                            color: isLoading ? '#888' : '#656565', 
+                            width: '2.375rem', 
+                            height: '0.9375rem' 
+                          }}>
+                            Select
+                          </span>
+                          <svg 
+                            width="1.125rem" 
+                            height="1.125rem" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            style={{ 
+                              transform: isDropdownOpen ? 'rotate(180deg)' : 'none', 
+                              transition: 'transform 0.2s' 
+                            }}
+                          >
+                            <path d="M7 10L12 15L17 10H7Z" fill={isLoading ? "#888" : "#656565"}/>
+                          </svg>
                         </div>
-                      )}
-                    </>
-                  )}
-                  {error && <p className="text-red-500 text-sm mt-2 mb-2">{error}</p>}
-                </div>
-              </div>
 
-              {/* Buttons Container */}
-              <div className="mt-auto pt-6 flex justify-between items-center w-full pb-6">
-                <button 
-                  className="font-inter font-normal text-[14px] text-white" 
-                  onClick={handleBack}
+                        {isDropdownOpen && !isLoading && (
+                          <div 
+                            ref={dropdownRef}
+                            className="dropdown-container"
+                            style={{ 
+                              position: 'absolute', 
+                              top: '100%',
+                              left: '0',
+                              width: '20rem', 
+                              background: '#0F0E16', 
+                              border: '1px solid rgba(184, 184, 184, 0.13)', 
+                              borderRadius: '0.1875rem', 
+                              zIndex: 9999,
+                              marginTop: '0.3125rem',
+                              maxHeight: '12.5rem', 
+                              overflowY: 'auto',
+                              animation: 'slideUp 0.2s ease-in-out'
+                            }}
+                          >
+                            {revenueOptions.map((option) => ( 
+                              <div 
+                                key={option} 
+                                onClick={() => handleRevenueSelect(option)} 
+                                className="cursor-pointer hover:bg-[#6C2BD9]" 
+                                style={{ 
+                                  padding: '0.625rem 0.9375rem', 
+                                  fontFamily: 'Inter, sans-serif', 
+                                  fontStyle: 'normal', 
+                                  fontWeight: 400, 
+                                  fontSize: '0.75rem', 
+                                  lineHeight: '0.9375rem', 
+                                  color: '#FFFFFF' 
+                                }}
+                              >
+                                {option}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {error && <p className="text-red-500 text-sm" style={{ marginTop: '0.5rem', width: '20rem' }}>{error}</p>}
+                  </div>
+                </div>
+
+                {/* Fixed position buttons container */}
+                <div 
+                  className="flex justify-between items-center" 
+                  style={{ 
+                    color: '#FFFFFF', 
+                    position: 'absolute',
+                    bottom: '2rem',
+                    left: '2rem',
+                    width: 'calc(100% - 4rem)',
+                    paddingTop: '2rem'
+                  }}
                 >
-                  Back
-                </button>
-                <button 
-                  className="w-[100px] h-[36px] font-inter text-[14px] font-medium bg-white text-black rounded-[4px]" 
-                  onClick={handleContinue}
-                >
-                  Continue
-                </button>
+                  <button 
+                    className="font-inter font-normal" 
+                    onClick={handleBack} 
+                    disabled={isLoading}
+                    style={{ 
+                      fontSize: '0.875rem', 
+                      lineHeight: '1.0625rem', 
+                      color: isLoading ? '#888' : '#FFF',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      opacity: isLoading ? 0.6 : 1
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button 
+                    className="font-inter font-medium" 
+                    onClick={handleContinue} 
+                    disabled={isLoading}
+                    style={{ 
+                      display: 'inline-flex',
+                      padding: '0.53125rem 1.21875rem 0.65625rem 1.21875rem',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: '0.25rem',
+                      background: isLoading ? '#ccc' : '#FFFFFF', 
+                      color: '#000', 
+                      fontSize: '0.875rem', 
+                      fontWeight: 500,
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      width: '6.4375rem',
+                      height: '2.1875rem'
+                    }}
+                  >
+                    {isLoading ? (
+                      <div 
+                        style={{
+                          width: '1rem',
+                          height: '1rem',
+                          border: '2px solid #666',
+                          borderTop: '2px solid #000',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }}
+                      />
+                    ) : (
+                      'Continue'
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
+      
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 };

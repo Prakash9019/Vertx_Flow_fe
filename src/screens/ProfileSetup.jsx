@@ -1,4 +1,3 @@
-// Vertx_Flow_fe/src/screens/ProfileSetup.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
@@ -9,7 +8,7 @@ import ProfileProgressBar from "../components/ProfileProgressBar";
 const styles = `
   @keyframes slideUp {
     from {
-      transform: translateY(10px);
+      transform: translateY(0.625rem);
       opacity: 0;
     }
     to {
@@ -17,14 +16,14 @@ const styles = `
       opacity: 1;
     }
   }
-  
-  .dropdown-no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+
+  .dropdown-container {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
   }
-  
-  .dropdown-no-scrollbar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+
+  .dropdown-container::-webkit-scrollbar {
+    display: none; /* WebKit */
   }
 `;
 
@@ -37,17 +36,14 @@ const ProfileSetup = () => {
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
   const [currentStage, setCurrentStage] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
   const selectButtonRef = useRef(null);
 
   const stages = ["Pre-seed", "Seed", "Series A", "Series B", "Series B+", "Pre-IPO", "Not Specified"];
-  const stepData = [
-    { id: 1, title: 'Stage' }, { id: 2, title: 'Location' }, { id: 3, title: 'Raise' },
-    { id: 4, title: 'Revenue' }, { id: 5, title: 'Industry' }, { id: 6, title: 'Pitch' },
-  ];
-
-  useEffect(() => { setCurrentStage(startupData.stage || ""); }, [startupData.stage]);
   
+  useEffect(() => { setCurrentStage(startupData.stage || ""); }, [startupData.stage]);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -63,208 +59,292 @@ const ProfileSetup = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleStageSelect = (stage) => { 
+    setCurrentStage(stage); 
+    updateStartupField('stage', stage); 
+    setError(null); 
+    setIsDropdownOpen(false); 
+  };
   
-  const handleStageSelect = (stage) => { setCurrentStage(stage); updateStartupField('stage', stage); setError(null); setIsDropdownOpen(false); };
-  const clearStage = () => { setCurrentStage(""); updateStartupField('stage', ""); setError(null); };
-  const handleContinue = () => { if (!currentStage) { setError("Please select your startup stage."); return; } setError(null); navigate('/profile/location'); };
+  const clearStage = () => { 
+    setCurrentStage(""); 
+    updateStartupField('stage', ""); 
+    setError(null); 
+  };
+  
+  const handleContinue = async () => { 
+    if (!currentStage) { 
+      setError("Please select your startup stage."); 
+      return; 
+    } 
+    setError(null); 
+    setIsLoading(true);
+    
+    // Simulate loading time before navigation
+    setTimeout(() => {
+      navigate('/profile/location');
+    }, 800);
+  };
+  
   const handleBack = () => navigate("/profile");
+
+  // Keep constant container height
+  const containerHeight = 22.625;
 
   if (loadingData && !startupData.pitch && (!startupData || Object.keys(startupData).length === 0)) {
     return <div className="w-screen h-screen flex justify-center items-center bg-black text-white">Loading...</div>;
   }
 
-  // --- Constants for main content positioning (within a centered 1280px block) ---
-  const MAIN_CONTENT_WIDTH = '1280px';
-
-  // ... other coordinate constants for elements inside the content box (circlesAreaTopInBox etc.) ...
-  // These should be calculated relative to CONTENT_BOX_TOP_REL if the content box itself is positioned absolutely
-    const CONTENT_BOX_TOP_ABS_FOR_CALC = 0; // Since these are now relative to content box, its top is 0 for these calculations
-    const CIRCLES_AREA_TOP_PAGE = 324;
-    const LABELS_UNDER_CIRCLES_TOP_PAGE = 362;
-    const QUESTION_LABEL_TOP_PAGE = 408;
-    const HELP_TEXT_TOP_PAGE = 433;
-    const INPUT_ZONE_TOP_PAGE = 471;
-
-    // Recalculate these based on the idea that they are *inside* the absolutely positioned Content Box
-    const circlesAreaTopInBox = CIRCLES_AREA_TOP_PAGE -310; // 39px from top of an imaginary 285px offset content box
-    const circleHeight = 30;
-    const labelUnderCircleHeight = 15;
-    const marginCircleToLabel = LABELS_UNDER_CIRCLES_TOP_PAGE - (CIRCLES_AREA_TOP_PAGE + circleHeight); // 8px
-    const progressBarSectionHeight = circleHeight + marginCircleToLabel + labelUnderCircleHeight; // 53px
-    const progressBarBottomInBox = circlesAreaTopInBox + progressBarSectionHeight; // 39 + 53 = 92px
-
-    const questionLabelTopInBox = QUESTION_LABEL_TOP_PAGE - 285; // 123px
-    const questionLabelMarginTop = questionLabelTopInBox - progressBarBottomInBox; // 123 - 92 = 31px
-
-    const helpTextTopInBox = HELP_TEXT_TOP_PAGE - 285; // 148px
-    const questionLabelHeightApprox = 17;
-    const helpTextMarginTop = helpTextTopInBox - (questionLabelTopInBox + questionLabelHeightApprox); // 8px
-
-    const inputZoneTopInBox = INPUT_ZONE_TOP_PAGE - 285; // 186px
-    const helpTextHeightApprox = 15;
-    const inputZoneMarginTop = inputZoneTopInBox - (helpTextTopInBox + helpTextHeightApprox); // 23px
-
-    const chipHeight = '32px';
-    const chipBorderRadius = '4px';
-    const chipBackground = 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)';
-    const chipMinWidth = '75px';
-    const chipPaddingX = '10px';
-    const chipIconWidth = 12;
-    const chipSpaceBetweenTextAndIcon = '8px';
-    const chipMarginTopFromCurrentlySelectedLabel = (494 - 471) - 15; // 8px
-
-
-  return (    <div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#150718] via-[#1C001E] via-[#14006E] to-[#14006E] opacity-100 z-0"></div>
+  return (
+    <div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">
+      <div className="absolute inset-0  bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
       <div className="relative z-10">
         <Header />
 
-        {/* Centered Main Content Area */}     
-           <div className="flex justify-center mt-12">
-          <div className="relative w-full text-left " >
-            {/* Title Block */}
-            <div className="text-left w-[572px] text-white mb-5 mx-auto">
-  <h2 className="font-inter font-semibold text-[20px] leading-[24px] mb-3">
-    Tell us about your startup
-  </h2>
-  <p className="font-inter font-normal text-[14px] leading-[17px]">
-    We'll use this information to match you with the right investors for your specific needs.
-  </p>
-</div>
-
-
-            {/* Content Box */}
+        <div className="flex justify-center mt-12">
+          <div className="relative" style={{ width: '80rem', height: 'auto' }}>
+            <div style={{ width: '35.75rem', color: '#FFFFFF', marginBottom: '1.25rem', marginLeft: '19rem', marginRight: 'auto' }}>
+              <h2 className="font-inter font-semibold" style={{ fontSize: '1.25rem', lineHeight: '1.5rem', marginBottom: '0.75rem', width: '17.4375rem', height: '1.4375rem' }}>Tell us about your startup</h2>
+              <p className="font-inter font-normal" style={{ fontSize: '0.875rem', lineHeight: '1.0625rem', width: '35.75rem', height: '1.125rem' }}>We'll use this information to match you with the right investors for your specific needs.</p>
+            </div>
 
             <div
-  className="relative w-full max-w-2xl min-h-[362px] mt-8 sm:mt-12 mx-auto"
-  style={{
-    position: 'relative',
-    background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
-    borderRadius: '12px',
-    padding: '2px', // Space for the border
-  }}
->
-    <div 
-    className="w-full h-full flex flex-col" 
-    style={{
-      background: 'black',
-      borderRadius: '10px', // Slightly smaller to show the gradient border
-      height: 'calc(100% - 4px)',
-      padding: '2rem',
-    }}
-  >
-              {/* Progress Steps */}
-              <div style={{ paddingTop: `${circlesAreaTopInBox}px`, boxSizing: 'border-box', width: '100%' }}>
-                <ProfileProgressBar currentStep={0} />
-              </div>
+              className="relative w-full max-w-2xl mt-8 sm:mt-12 mx-auto"
+              style={{
+                position: 'relative',
+                background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)',
+                borderRadius: '0.625rem',
+                padding: '0.125rem',
+                width: '45rem',
+                height: `${containerHeight}rem`
+              }}
+            >
+              <div 
+                className="w-full h-full flex flex-col" 
+                style={{
+                  background: 'black',
+                  borderRadius: '0.625rem',
+                  height: '100%',
+                  padding: '2rem',
+                  paddingTop: '2.5rem',
+                  position: 'relative'
+                }}
+              >
+                <div style={{ boxSizing: 'border-box', width: '100%' }}>
+                  <ProfileProgressBar currentStep={0} />
+                </div>
 
-              {/* Form Elements Area */}
-              <div style={{ color: '#FFFFFF', marginTop: `${questionLabelMarginTop-26}px` }}>
-                <label className="block font-inter font-semibold" style={{ fontSize: '14px', lineHeight: '17px', marginBottom: `${helpTextMarginTop }px`}}>
-                  What stage is your startup at?
-                </label>
-                <p className="font-inter font-normal text-xs" style={{ fontSize: '12px', lineHeight: '15px', marginBottom: `${inputZoneMarginTop}px` }}>
-                  This helps us to match you with the investors who focus on your stage.
-                </p>
-                <div style={{ width: '320px', position: 'relative' }}>
-                  {currentStage ? (
-                    <>
-                      <div style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#FFFFFF', height: '15px', marginBottom: `${chipMarginTopFromCurrentlySelectedLabel}px`}}>
-                        Currently selected:
-                      </div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', height: chipHeight, minWidth: chipMinWidth, paddingLeft: chipPaddingX, paddingRight: chipPaddingX, background: chipBackground, borderRadius: chipBorderRadius, boxSizing: 'border-box'}}>
-                        <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 500, fontSize: '12px', lineHeight: '15px', color: '#FFFFFF', marginRight: chipSpaceBetweenTextAndIcon }}>{currentStage}</span>
-                        <img src={CloseIcon} alt="Clear selection" onClick={clearStage} className="cursor-pointer" style={{ width: `${chipIconWidth}px`, height: `${chipIconWidth}px`}}/>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div 
-                        ref={selectButtonRef}
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
-                        className="cursor-pointer" 
-                        style={{ 
-                          width: '320px', 
-                          height: '39.02px', 
-                          background: '#0F0E16', 
-                          border: '1px solid rgba(184, 184, 184, 0.13)', 
-                          borderRadius: '3px', 
-                          display: 'flex', 
+                <div style={{ color: '#FFFFFF', marginTop: '1.5rem', flex: '1' }}>
+                  <label className="block font-inter font-semibold" style={{ fontSize: '0.875rem', lineHeight: '1.0625rem', marginBottom: '0.5rem' }}>
+                    What stage is your startup at?
+                  </label>
+                  <p className="font-inter font-normal text-xs" style={{ fontSize: '0.75rem', lineHeight: '0.9375rem', marginBottom: '2.0rem' }}>
+                    This helps us to match you with the investors who focus on your stage.
+                  </p>
+                  <div style={{ width: '20rem', position: 'relative' }}>
+                    {currentStage ? (
+                      <>
+                        <div style={{ 
+                          fontFamily: 'Inter, sans-serif', 
+                          fontStyle: 'normal', 
+                          fontWeight: 400, 
+                          fontSize: '0.75rem', 
+                          lineHeight: '0.9375rem', 
+                          color: '#FFFFFF', 
+                          height: '0.9375rem', 
+                          marginBottom: '0.5rem' 
+                        }}>
+                          Currently selected:
+                        </div>
+                        <div style={{ 
+                          display: 'inline-flex', 
                           alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '0 15px', 
-                          boxSizing: 'border-box' 
-                        }}
-                      >
-                        <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '12px', lineHeight: '15px', color: '#656565' }}>Select</span>
-                        <svg 
-                          width="18" 
-                          height="18" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          style={{ 
-                            transform: isDropdownOpen ? 'rotate(180deg)' : 'none', 
-                            transition: 'transform 0.2s' 
-                          }}
-                        >
-                          <path d="M7 10L12 15L17 10H7Z" fill="#656565"/>
-                        </svg>
-                      </div>
-                      
-                      {isDropdownOpen && (
+                          height: '2rem', 
+                          minWidth: '4.6875rem', 
+                          paddingLeft: '0.625rem', 
+                          paddingRight: '0.625rem', 
+                          background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)', 
+                          borderRadius: '0.25rem', 
+                          boxSizing: 'border-box'
+                        }}>
+                          <span style={{ 
+                            fontFamily: 'Inter, sans-serif', 
+                            fontStyle: 'normal', 
+                            fontWeight: 500, 
+                            fontSize: '0.75rem', 
+                            lineHeight: '0.9375rem', 
+                            color: '#FFFFFF', 
+                            marginRight: '0.5rem' 
+                          }}>
+                            {currentStage}
+                          </span>
+                          <img 
+                            src={CloseIcon} 
+                            alt="Clear selection" 
+                            onClick={clearStage} 
+                            className="cursor-pointer" 
+                            style={{ width: '0.75rem', height: '0.75rem' }}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>                      
                         <div 
-                          ref={dropdownRef}
-                          className="dropdown-no-scrollbar"
+                          ref={selectButtonRef}
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+                          className="cursor-pointer" 
                           style={{ 
-                            position: 'absolute',
-                            top: '100%', // ensures it shows below the trigger
-                            left: 0,
-                            width: '320px', 
+                            width: '20rem', 
+                            height: '2.439rem', 
                             background: '#0F0E16', 
                             border: '1px solid rgba(184, 184, 184, 0.13)', 
-                            borderRadius: '3px', 
-                            zIndex: 9999,
-                            marginTop: '4px', // small spacing below trigger
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            animation: 'slideUp 0.2s ease-in-out'
+                            borderRadius: '0.1875rem', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between', 
+                            padding: '0 0.9375rem', 
+                            boxSizing: 'border-box' 
                           }}
                         >
-                          {stages.map((stageOption) => ( 
-                            <div 
-                              key={stageOption} 
-                              onClick={() => handleStageSelect(stageOption)} 
-                              className="cursor-pointer hover:bg-[#6C2BD9]" 
-                              style={{ 
-                                padding: '10px 15px', 
-                                fontFamily: 'Inter, sans-serif', 
-                                fontWeight: 400, 
-                                fontSize: '12px', 
-                                lineHeight: '15px', 
-                                color: '#FFFFFF' 
-                              }}
-                            >
-                              {stageOption === "" ? "Not Specified" : stageOption}
-                            </div>
-                          ))}
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontStyle: 'normal', fontWeight: 400, fontSize: '0.75rem', lineHeight: '0.9375rem', color: '#656565', width: '2.375rem', height: '0.9375rem' }}>
+                            Select
+                          </span>
+                          <svg 
+                            width="1.125rem" 
+                            height="1.125rem" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            style={{ 
+                              transform: isDropdownOpen ? 'rotate(180deg)' : 'none', 
+                              transition: 'transform 0.2s' 
+                            }}
+                          >
+                            <path d="M7 10L12 15L17 10H7Z" fill="#656565"/>
+                          </svg>
                         </div>
-                      )}
-                    </>
-                  )}
-                  {error && <p className="text-red-500 text-sm" style={{ marginTop: '8px', width: '320px' }}>{error}</p>}
-                </div>
-              </div>
 
-              {/* Buttons Container */}
-              <div className="flex justify-between items-center w-full" style={{ color: '#FFFFFF', marginTop: 'auto', paddingTop: '20px', paddingBottom: '20px' }}>
-                <button className="font-inter font-normal" onClick={handleBack} style={{ fontSize: '14px', lineHeight: '17px' }}>Back</button>
-                <button className="font-inter font-medium" onClick={handleContinue} style={{ width: '100px', height: '36px', background: '#FFFFFF', color: '#000000', borderRadius: '4px', fontSize: '14px', lineHeight: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Continue</button>
+                        {isDropdownOpen && (
+                          <div 
+                            ref={dropdownRef}
+                            className="dropdown-container"
+                            style={{ 
+                              position: 'absolute', 
+                              top: '100%',
+                              left: '0',
+                              width: '20rem', 
+                              background: '#0F0E16', 
+                              border: '1px solid rgba(184, 184, 184, 0.13)', 
+                              borderRadius: '0.1875rem', 
+                              zIndex: 9999,
+                              marginTop: '0.3125rem',
+                              maxHeight: '12.5rem', 
+                              overflowY: 'auto',
+                              animation: 'slideUp 0.2s ease-in-out'
+                            }}
+                          >
+                            {stages.map((stageOption) => ( 
+                              <div 
+                                key={stageOption} 
+                                onClick={() => handleStageSelect(stageOption)} 
+                                className="cursor-pointer hover:bg-[#6C2BD9]" 
+                                style={{ 
+                                  padding: '0.625rem 0.9375rem', 
+                                  fontFamily: 'Inter, sans-serif', 
+                                  fontStyle: 'normal', 
+                                  fontWeight: 400, 
+                                  fontSize: '0.75rem', 
+                                  lineHeight: '0.9375rem', 
+                                  color: '#FFFFFF' 
+                                }}
+                              >
+                                {stageOption === "" ? "Not Specified" : stageOption}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {error && <p className="text-red-500 text-sm" style={{ marginTop: '0.5rem', width: '20rem' }}>{error}</p>}
+                  </div>
+                </div>
+
+                {/* Fixed position buttons container */}
+                <div 
+                  className="flex justify-between items-center" 
+                  style={{ 
+                    color: '#FFFFFF', 
+                    position: 'absolute',
+                    bottom: '2rem',
+                    left: '2rem',
+                    width: 'calc(100% - 4rem)',
+                    paddingTop: '2rem'
+                  }}
+                >
+                  <button 
+                    className="font-inter font-normal" 
+                    onClick={handleBack} 
+                    disabled={isLoading}
+                    style={{ 
+                      fontSize: '0.875rem', 
+                      lineHeight: '1.0625rem', 
+                      color: isLoading ? '#888' : '#FFF',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      opacity: isLoading ? 0.6 : 1
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button 
+                    className="font-inter font-medium" 
+                    onClick={handleContinue} 
+                    disabled={isLoading}
+                    style={{ 
+                      display: 'inline-flex',
+                      padding: '0.53125rem 1.21875rem 0.65625rem 1.21875rem',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: '0.25rem',
+                      background: isLoading ? '#ccc' : '#FFFFFF', 
+                      color: '#000', 
+                      fontSize: '0.875rem', 
+                      fontWeight: 500,
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      width: '6.4375rem',
+                      height: '2.1875rem'
+                    }}
+                  >
+                    {isLoading ? (
+                      <div 
+                        style={{
+                          width: '1rem',
+                          height: '1rem',
+                          border: '2px solid #666',
+                          borderTop: '2px solid #000',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }}
+                      />
+                    ) : (
+                      'Continue'
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
+      
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 };

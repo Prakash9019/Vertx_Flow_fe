@@ -50,7 +50,8 @@ function Usage_Page() {
       <div className="relative z-10">
         <Header />
         {/* body  */}
-        <div className="flex justify-center items-center min-h-[70vh]">
+        {/* <div className="flex justify-center items-center min-h-[70vh]"> */}
+        <div style={{ marginLeft: '17rem', marginTop: '9.87rem' }}>
           <div className="px-4 sm:px-0 sm:w-3/4 xl:w-1/2 text-white">
             <h5 className="text-2xl font-semibold mb-2">
               Help us tailor your Vertx trial
@@ -60,22 +61,38 @@ function Usage_Page() {
               <p className="mb-5 mt-9">
                 I am a
                 <button
-                  onClick={() => toggleRole("Founder")}
-                  className={`ml-2 mr-1 px-4 py-1 rounded-md border border-purple-950 text-white ${
-                    selectedRole === "Founder" 
-                      ? "bg-gradient-to-r from-purple-800 to-red-700" 
-                      : "bg-black"
-                  }`}
-                >
-                  Founder
-                </button>
+  onClick={() => toggleRole("Founder")}
+  className={`ml-2 mr-1 px-4 py-1 border border-purple-950 text-white ${
+    selectedRole === "Founder" ? "" : "rounded-md bg-black"
+  }`}
+  style={
+    selectedRole === "Founder"
+      ? {
+          borderRadius: "0.25rem",
+          background:
+            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+        }
+      : {}
+  }
+>
+  Founder
+</button>
                 <button
                   onClick={() => toggleRole("Investor")}
                   className={`mr-2 ml-1 px-4 py-1 rounded-md border border-purple-950 text-white ${
                     selectedRole === "Investor" 
-                      ? "bg-gradient-to-r from-purple-800 to-red-700" 
+                      ? "" 
                       : "bg-black"
                   }`}
+                  style={
+                    selectedRole === "Investor"
+                      ? {
+                          borderRadius: "0.25rem",
+                          background:
+                            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                        }
+                      : {}
+                  }
                 >
                   Investor
                 </button>
@@ -91,9 +108,18 @@ function Usage_Page() {
                     onClick={() => toggleOption(option)}
                     className={`px-4 py-1 rounded border border-purple-950 text-white ${
                       selected.includes(option)
-                        ? "bg-gradient-to-r from-purple-800 to-red-700"
+                        ? ""
                         : "bg-black"
                     }`}
+                    style={
+                      selected.includes(option)
+                        ? {
+                            // borderRadius: "0.25rem",
+                            background:
+                              "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                          }
+                        : {}
+                    }
                   >
                     {option}
                   </button>
