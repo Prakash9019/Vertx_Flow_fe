@@ -3,6 +3,7 @@ import rectangleImage from '../assets/Rectangle 82.png';
 import API_KEY from '../../key';
 
 function AddRoundPopup({ isOpen, onClose, onNext }) {
+  // console.log(isOpen, onClose, onNext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [selectedOption, setSelectedOption] = useState("")
   const [hoveredOption, setHoveredOption] = useState("")
@@ -98,6 +99,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     }
     return ""
   }
+}
 
   // Check if current step is valid for proceeding
   const isStepValid = () => {
@@ -1491,6 +1493,6 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       </div>
     </div>
   )
-}}
+}
 
 export default AddRoundPopup;
