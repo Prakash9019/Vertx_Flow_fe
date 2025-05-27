@@ -6,6 +6,7 @@ import EllipseTwo from "../assets/Ellipse23.svg";
 import EllipseThree from "../assets/Ellipse23.svg";
 import EllipseFour from "../assets/Ellipse4.svg";
 import Ellipse3 from "../assets/Ellipse 3.svg";
+
 import UserAccount from "../assets/account.svg";
 import UserPlan from "../assets/plan.svg";
 import UserFeedback from "../assets/feedback.svg";

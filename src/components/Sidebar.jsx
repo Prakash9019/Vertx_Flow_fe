@@ -3,6 +3,16 @@ import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Logo from "../assets/logo.svg"
 import BackLogo from "../assets/BackIcon.svg"
+import Rocket from "../assets/rocket.svg"
+import Home from "../assets/home.svg"
+import flash from "../assets/flash.jpg"
+import Ellipse from "../assets/Ellipse23.svg"
+import FundraseLogo from "../assets/Ellipse 3.svg"
+import Playground from "../assets/Ellipse4.svg"
+import UserAccount from "../assets/account.svg";
+import UserPlan from "../assets/plan.svg";
+import UserFeedback from "../assets/feedback.svg";
+import LogOut from "../assets/logout.svg";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -80,7 +90,7 @@ const Sidebar = () => {
             <li className={`px-4 py-2 flex items-center justify-between ${isHome ? 'bg-gray-900' : ''} hover:bg-gray-900`} onClick={()=>{navigate("/homepage")}}  >
   <span className={`${isHome ? 'text-white' : 'text-[#B8B8B8]'} font-medium text-sm`}>Home</span>
   <img 
-    src="../assets/home.svg" 
+    src={Home}
     alt="Home" 
     className="w-5 h-5" 
   />
@@ -89,7 +99,7 @@ const Sidebar = () => {
               <li className="px-4 py-2 flex items-center justify-between hover:bg-gray-900">
                 <span className="text-[#B8B8B8] font-medium text-sm">Getting Started</span>
                 <img 
-                  src="../assets/rocket.svg" 
+                  src={Rocket} 
                   alt="Magic" 
                   style={{ width: '1.25rem', height: '1.25rem' }} 
                 />
@@ -105,7 +115,7 @@ const Sidebar = () => {
             <ul>
               <li className="px-4 py-2 flex items-center hover:bg-gray-900">
                 <img 
-                  src="../assets/flash.jpg" 
+                  src={flash}
                   alt="Flash" 
                   className="mr-3" 
                   style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
@@ -118,7 +128,7 @@ const Sidebar = () => {
               <li className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isEvaluate? 'bg-gray-900' : ''}`}   onClick={()=>{navigate("/evaluate")}}>
  
                 <img 
-                  src="../assets/Ellipse23.svg" 
+                  src={Ellipse}
                   alt="Ellipse " 
                   className="mr-3" 
                   style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
@@ -129,12 +139,12 @@ const Sidebar = () => {
               {/* Fundraising with collapsible dropdown /fundraising */}
               <li>
                 <div 
-                 className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isEvaluate? 'bg-gray-900' : ''}`}
+                 className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isFundraising? 'bg-gray-900' : ''}`}
                   // onClick={handleFundraisingToggle}
                   onClick={()=>{handleFundraisingToggle();navigate("/fundraising")}}
                 >
                   <img 
-                    src="../assets/Ellipse 3.svg" 
+                    src={FundraseLogo} 
                     alt="Fundraising" 
                     className="mr-3" 
                     style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
@@ -210,7 +220,7 @@ const Sidebar = () => {
               
               <li className="px-4 py-2 flex items-center hover:bg-gray-900">
                 <img 
-                  src="../assets/Ellipse4.svg" 
+                  src={Playground} 
                   alt="Playground" 
                   className="mr-3" 
                   style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
@@ -233,7 +243,7 @@ const Sidebar = () => {
             <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
               <span className="text-[#B8B8B8] font-medium text-sm">Your account</span>
               <img 
-                src="../assets/account.svg" 
+                src={UserAccount}
                 alt="User" 
                 style={{ width: '1.25rem', height: '1.25rem' }} 
               />
@@ -241,7 +251,7 @@ const Sidebar = () => {
             <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
               <span className="text-[#B8B8B8] font-medium text-sm">Upgrade plan</span>
               <img 
-                src="../assets/plan.svg" 
+                src={UserPlan} 
                 alt="Layers" 
                 style={{ width: '1.25rem', height: '1.25rem' }} 
               />
@@ -249,7 +259,7 @@ const Sidebar = () => {
             <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
               <span className="text-[#B8B8B8] font-medium text-sm">Leave a feedback</span>
               <img 
-                src="../assets/feedback.svg" 
+                src={UserFeedback} 
                 alt="Chat" 
                 style={{ width: '1.25rem', height: '1.25rem' }} 
               />
@@ -257,7 +267,7 @@ const Sidebar = () => {
             <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900" onClick={()=> handleLogout()}>
               <span className="text-[#B8B8B8] font-medium text-sm">Log out</span>
               <img 
-                src="../assets/logout.svg" 
+                src={LogOut} 
                 alt="Logout" 
                 style={{ width: '1.25rem', height: '1.25rem' }} 
               />
