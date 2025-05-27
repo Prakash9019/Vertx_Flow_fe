@@ -18,6 +18,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const [showTooltip, setShowTooltip] = useState(false)
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
+  const [isButtonLoading, setIsButtonLoading] = useState(false)
 
   // Format number with Indian comma system
   const formatIndianNumber = (num) => {
@@ -340,6 +341,11 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       return
     }
 
+    // Set button loading state for all steps except the final API submission
+    if (currentStep !== 18) {
+      setIsButtonLoading(true);
+    }
+
     let currentStepLocalData = {}; // Use a local variable for current step's data
     const getFieldKeyForStep = (step) => {
       // This function maps step number to the backend field key
@@ -490,48 +496,66 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
 
     // Handle special flow for SAFE selection
     if (currentStep === 6) {
-      if (selectedOption === "SAFE") {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        if (selectedOption === "SAFE") {
+          setStepHistory([...stepHistory, currentStep])
+          setCurrentStep(7)
+          setSelectedOption("")
+        } else {
+          setStepHistory([...stepHistory, currentStep])
+          setCurrentStep(10)
+          setSelectedOption("")
+        }
+      }, 800);
+    } else if (currentStep === 7) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
         setStepHistory([...stepHistory, currentStep])
-        setCurrentStep(7)
+        setCurrentStep(8)
         setSelectedOption("")
-      } else {
-        // Continue to date step
+      }, 800);
+    } else if (currentStep === 8) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(9)
+        setSelectedOption("")
+      }, 800);
+    } else if (currentStep === 9) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
         setStepHistory([...stepHistory, currentStep])
         setCurrentStep(10)
         setSelectedOption("")
-      }
-    } else if (currentStep === 7) {
-      setStepHistory([...stepHistory, currentStep])
-      setCurrentStep(8)
-      setSelectedOption("")
-    } else if (currentStep === 8) {
-      setStepHistory([...stepHistory, currentStep])
-      setCurrentStep(9)
-      setSelectedOption("")
-    } else if (currentStep === 9) {
-      setStepHistory([...stepHistory, currentStep])
-      setCurrentStep(10)
-      setSelectedOption("")
+      }, 800);
     } else if (currentStep === 15) {
-      // After Conversion Term, go to Planning step
-      setStepHistory([...stepHistory, currentStep])
-      setCurrentStep(16)
-      setInputAmount("")
-    } else if (currentStep === 16) {
-      // After Planning step, go to investor type step
-      setStepHistory([...stepHistory, currentStep])
-      setCurrentStep(17)
-    } else if (currentStep < 18) {
-      setStepHistory([...stepHistory, currentStep])
-      setCurrentStep(currentStep + 1)
-
-      if (!isInputStep() && !isMultiSelectStep() && !isPlanningStep()) {
-        setSelectedOption("")
-      } else if (isInputStep()) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(16)
         setInputAmount("")
-      } else if (isMultiSelectStep()) {
-        setSelectedMultiOptions([])
-      }
+      }, 800);
+    } else if (currentStep === 16) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(17)
+      }, 800);
+    } else if (currentStep < 18) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(currentStep + 1)
+
+        if (!isInputStep() && !isMultiSelectStep() && !isPlanningStep()) {
+          setSelectedOption("")
+        } else if (isInputStep()) {
+          setInputAmount("")
+        } else if (isMultiSelectStep()) {
+          setSelectedMultiOptions([])
+        }
+      }, 800);
     }
 
     setIsDropdownOpen(false)
@@ -917,582 +941,609 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Dimmed background overlay */}
-      <div className="absolute inset-0 bg-black" style={{ opacity: 0.7 }} onClick={onClose}></div>
-
-      <div
-        className="relative flex flex-col items-center justify-center"
-        style={{
-          width: "43.75rem",
-          height: "35rem",
-          backgroundImage: `url(${rectangleImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Header text */}
-        <div className="text-center" style={{ paddingTop: "2.0rem" }}>
-          <h2
-            className="text-white"
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1.5rem",
-              fontWeight: 600,
-            }}
-          >
-            Let's open a new round.
-          </h2>
-          <p
-            style={{
-              color: "#B8B8B8",
-              textAlign: "center",
-              fontFamily: "Inter",
-              fontSize: "0.75rem",
-              fontWeight: 500,
-              maxWidth: "25rem",
-              margin: "0 auto",
-              marginTop: "0.25rem",
-              lineHeight: "1.1",
-            }}
-          >
-            Your startup stage will update automatically after opening the round. You can review and edit round details
-            anytime.
-          </p>
-        </div>
-
-        {/* Main container */}
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        {/* Dimmed background overlay */}
+        <div className="absolute inset-0 bg-black" style={{ opacity: 0.7 }} onClick={onClose}></div>
+  
         <div
+          className="relative flex flex-col items-center justify-center"
           style={{
-            width: "40rem",
-            height: "14.625rem",
-            borderRadius: "0.3125rem",
-            background: "rgba(0, 0, 0, 0.76)",
-            position: "relative",
-            marginTop: "1.87rem",
+            width: "43.75rem",
+            height: "35rem",
+            backgroundImage: `url(${rectangleImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
-          {/* Question section */}
-          <div style={{ paddingTop: "2rem", paddingLeft: "2rem", paddingRight: "2rem" }}>
-            {isPlanningStep() ? (
-              /* Planning Step Layout */
-              <div className="flex flex-col items-center justify-center text-center" style={{ height: "8rem" }}>
-                <h3
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    marginBottom: "1.5rem",
-                  }}
-                >
-                  {getQuestionText()}
-                </h3>
-
-                <div className="flex gap-4">
-                  <button
-                    className="flex items-center justify-center"
-                    style={{
-                      width: "15.625rem",
-                      height: "2.1875rem",
-                      background: "#305FC4",
-                      borderRadius: "0.125rem",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <img
-                      src="../src/assets/info.svg"
-                      alt="icon"
-                      style={{ marginRight: "0.44rem", width: "16px", height: "16px" }}
-                    />
-                    <span
-                      style={{
-                        color: "#FFF",
-                        textAlign: "center",
-                        fontFamily: "Inter",
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Show me how it is calculated
-                    </span>
-                  </button>
-
-                  <button
-                    className="flex items-center justify-center"
-                    style={{
-                      width: "15.625rem",
-                      height: "2.1875rem",
-                      background: "#5F248D",
-                      borderRadius: "0.125rem",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: "#FFF",
-                        textAlign: "center",
-                        fontFamily: "Inter",
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Fair Dilution
-                    </span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* Regular Step Layout */
-              <>
-                <div className="flex items-center relative">
+          {/* Header text */}
+          <div className="text-center" style={{ paddingTop: "2.0rem" }}>
+            <h2
+              className="text-white"
+              style={{
+                color: "#FFF",
+                fontFamily: "Inter",
+                fontSize: "1.5rem",
+                fontWeight: 600,
+              }}
+            >
+              Let's open a new round.
+            </h2>
+            <p
+              style={{
+                color: "#B8B8B8",
+                textAlign: "center",
+                fontFamily: "Inter",
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                maxWidth: "25rem",
+                margin: "0 auto",
+                marginTop: "0.25rem",
+                lineHeight: "1.1",
+              }}
+            >
+              Your startup stage will update automatically after opening the round. You can review and edit round details
+              anytime.
+            </p>
+          </div>
+  
+          {/* Main container */}
+          <div
+            style={{
+              width: "40rem",
+              height: "14.625rem",
+              borderRadius: "0.3125rem",
+              background: "rgba(0, 0, 0, 0.76)",
+              position: "relative",
+              marginTop: "1.87rem",
+            }}
+          >
+            {/* Question section */}
+            <div style={{ paddingTop: "2rem", paddingLeft: "2rem", paddingRight: "2rem" }}>
+              {isPlanningStep() ? (
+                /* Planning Step Layout */
+                <div className="flex flex-col items-center justify-center text-center" style={{ height: "8rem" }}>
                   <h3
                     style={{
                       color: "#FFF",
                       fontFamily: "Inter",
-                      fontSize: "1rem",
+                      fontSize: "0.875rem",
                       fontWeight: 500,
-                      marginRight: "0.5rem",
+                      marginBottom: "1.5rem",
                     }}
                   >
                     {getQuestionText()}
                   </h3>
-                  {shouldShowInfoIcon() && (
-                    <div
-                      className="relative inline-block"
+  
+                  <div className="flex gap-4">
+                    <button
+                      className="flex items-center justify-center"
                       style={{
-                        width: "1.25rem",
-                        height: "1.25rem",
-                        flexShrink: 0,
+                        width: "15.625rem",
+                        height: "2.1875rem",
+                        background: "#305FC4",
+                        borderRadius: "0.125rem",
+                        border: "none",
+                        cursor: "pointer",
                       }}
-                      onMouseEnter={() => setShowTooltip(true)}
-                      onMouseLeave={() => setShowTooltip(false)}
                     >
                       <img
                         src="../src/assets/info.svg"
-                        alt="info"
-                        className="w-full h-full object-contain cursor-pointer"
+                        alt="icon"
+                        style={{ marginRight: "0.44rem", width: "16px", height: "16px" }}
                       />
-
-{showTooltip && getTooltipContent() && (
-  <div
-    className="absolute z-[9999] pointer-events-none"
-    style={{
-      top: "calc(100% - 1.1rem)", // position below the element
-      transform: "translateX(15%)", // align left with triggering element
-      width: "10.3125rem",
-      maxWidth: "10.3125rem",
-      background: "#0F0E16",
-      borderRadius: "0.25rem",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-      boxShadow:
-        "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-      whiteSpace: "normal",
-      overflowWrap: "break-word",
-      wordBreak: "break-word",
-    }}
-  >
-    <div
-      style={{
-        color: "#B8B8B8",
-        fontFamily: "Inter",
-        fontSize: "0.5rem",
-        fontWeight: 400,
-        padding: "0.81rem 1rem",
-        lineHeight: "1.2",
-      }}
-    >
-      {getTooltipContent()}
-    </div>
-  </div>
-)}
-
-                    </div>
-                  )}
-                </div>
-
-                {/* Subheading */}
-                {getSubheadingText() && (
-                  <p
-                    style={{
-                      color: "#B8B8B8",
-                      fontFamily: "Inter",
-                      fontSize: "0.625rem",
-                      fontWeight: 300,
-                      marginTop: "0.38rem",
-                    }}
-                  >
-                    {getSubheadingText()}
-                  </p>
-                )}
-
-                {/* Input or Dropdown Container */}
-                <div className="relative" style={{ marginTop: getSubheadingText() ? "0.75rem" : "1rem" }}>
-                  {/* Main Container */}
-                  <div
-                    onClick={toggleDropdown}
-                    className={`${!isInputStep() ? "cursor-pointer" : ""} relative rounded-[0.125rem] bg-[rgba(255,255,255,0.11)] px-4 py-2`}
-                    style={{
-                      width: "33.75rem",
-                      height: "2.25rem",
-                    }}
-                  >
-                    <div className="flex items-center justify-between h-full">
-                      {isInputStep() ? (
-                        /* Input Field */
-                        <div className="flex items-center w-full">
-                          {getInputSymbol() && (
-                            <span
-                              style={{
-                                color: isInputFocused || inputAmount ? "#FFF" : "#656565",
-                                fontFamily: "Inter",
-                                fontSize: "0.75rem",
-                                fontWeight: isInputFocused || inputAmount ? 500 : 400,
-                                marginRight: "0.25rem",
-                              }}
-                            >
-                              {getInputSymbol()}
-                            </span>
-                          )}
-                          <input
-                           type={`${currentStep === 10 ? "date":"text"}`}
-                            value={
-                              isAmountStep() && inputAmount
-                                ? formatIndianNumber(Number.parseInt(inputAmount))
-                                : inputAmount
-                            }
-                            onChange={handleInputChange}
-                            onFocus={() => setIsInputFocused(true)}
-                            onBlur={() => setIsInputFocused(false)}
-                            className="bg-transparent text-white outline-none flex-1"
-                            style={{
-                              color: "#FFF",
-                              fontFamily: "Inter",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                            placeholder={getPlaceholderText()}
-                          />
-                        </div>
-                      ) : (
-                        /* Dropdown Display */
-                        <>
-                          <div className="flex items-center flex-wrap gap-1 flex-1">
-                            {isMultiSelectStep() && selectedMultiOptions.length > 0 ? (
-                              selectedMultiOptions.map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center"
-                                  style={{
-                                    borderRadius: "0.125rem",
-                                    background: "#5F248D",
-                                    padding: "0.25rem 0.5rem",
-                                  }}
-                                >
-                                  <span
-                                    style={{
-                                      color: "#FFF",
-                                      fontFamily: "Inter",
-                                      fontSize: "0.625rem",
-                                      fontWeight: 400,
-                                      marginRight: "0.25rem",
-                                    }}
-                                  >
-                                    {option}
-                                  </span>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      removeMultiOption(option)
-                                    }}
-                                    style={{
-                                      width: "0.5rem",
-                                      height: "0.5rem",
-                                      background: "transparent",
-                                      border: "none",
-                                      cursor: "pointer",
-                                      padding: 0,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="8"
-                                      height="8"
-                                      viewBox="0 0 8 8"
-                                      fill="none"
-                                    >
-                                      <path
-                                        d="M2.10011 6.23333L1.78345 5.9L3.67511 4L1.78345 2.08333L2.10011 1.75L4.00845 3.66667L5.90011 1.75L6.21678 2.08333L4.32511 4L6.21678 5.9L5.90011 6.23333L4.00845 4.31667L2.10011 6.23333Z"
-                                        fill="white"
-                                      />
-                                    </svg>
-                                  </button>
-                                </div>
-                              ))
-                            ) : (
-                              <span
-                                style={{
-                                  color: selectedOption || selectedMultiOptions.length > 0 ? "#FFF" : "#656565",
-                                  fontFamily: "Inter",
-                                  fontSize: "0.75rem",
-                                  fontWeight: selectedOption || selectedMultiOptions.length > 0 ? 500 : 400,
-                                }}
-                              >
-                                {isMultiSelectStep() ? "Select options..." : selectedOption || "Select option..."}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Vertical line */}
-                          <div
-                            className="absolute top-1/2 transform -translate-y-1/2"
-                            style={{
-                              right: "2.5rem",
-                              width: "1px",
-                              height: "1rem",
-                              backgroundColor: "#656565",
-                            }}
-                          ></div>
-
-                          {/* Dropdown icon */}
-                          <div
-                            className="absolute top-1/2 transform -translate-y-1/2 pointer-events-none"
-                            style={{ right: "0.6rem" }}
-                          >
-                            <svg
-                              style={{
-                                width: "1.5rem",
-                                height: "1.5rem",
-                                transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                                transition: "transform 0.2s ease",
-                              }}
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                            >
-                              <path
-                                d="M12.025 14.95L6.375 9.29998L7.325 8.34998L12.025 13.05L16.725 8.34998L17.675 9.29998L12.025 14.95Z"
-                                fill="#656565"
-                              />
-                            </svg>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                      <span
+                        style={{
+                          color: "#FFF",
+                          textAlign: "center",
+                          fontFamily: "Inter",
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Show me how it is calculated
+                      </span>
+                    </button>
+  
+                    <button
+                      className="flex items-center justify-center"
+                      style={{
+                        width: "15.625rem",
+                        height: "2.1875rem",
+                        background: "#5F248D",
+                        borderRadius: "0.125rem",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#FFF",
+                          textAlign: "center",
+                          fontFamily: "Inter",
+                          fontSize: "0.875rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Fair Dilution
+                      </span>
+                    </button>
                   </div>
-
-                  {/* Validation Error */}
-                  {isInputStep() && shouldShowError && (
+                </div>
+              ) : (
+                /* Regular Step Layout */
+                <>
+                  <div className="flex items-center relative">
+                    <h3
+                      style={{
+                        color: "#FFF",
+                        fontFamily: "Inter",
+                        fontSize: "1rem",
+                        fontWeight: 500,
+                        marginRight: "0.5rem",
+                      }}
+                    >
+                      {getQuestionText()}
+                    </h3>
+                    {shouldShowInfoIcon() && (
+                      <div
+                        className="relative inline-block"
+                        style={{
+                          width: "1.25rem",
+                          height: "1.25rem",
+                          flexShrink: 0,
+                        }}
+                        onMouseEnter={() => setShowTooltip(true)}
+                        onMouseLeave={() => setShowTooltip(false)}
+                      >
+                        <img
+                          src="../src/assets/info.svg"
+                          alt="info"
+                          className="w-full h-full object-contain cursor-pointer"
+                        />
+  
+                        {showTooltip && getTooltipContent() && (
+                          <div
+                            className="absolute z-[9999] pointer-events-none"
+                            style={{
+                              top: "calc(100% - 1.1rem)", // position below the element
+                              transform: "translateX(15%)", // align left with triggering element
+                              width: "10.3125rem",
+                              maxWidth: "10.3125rem",
+                              background: "#0F0E16",
+                              borderRadius: "0.25rem",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
+                              boxShadow:
+                                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                              whiteSpace: "normal",
+                              overflowWrap: "break-word",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            <div
+                              style={{
+                                color: "#B8B8B8",
+                                fontFamily: "Inter",
+                                fontSize: "0.5rem",
+                                fontWeight: 400,
+                                padding: "0.81rem 1rem",
+                                lineHeight: "1.2",
+                              }}
+                            >
+                              {getTooltipContent()}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+  
+                  {/* Subheading */}
+                  {getSubheadingText() && (
                     <p
                       style={{
-                        color: "#FC4141",
+                        color: "#B8B8B8",
                         fontFamily: "Inter",
                         fontSize: "0.625rem",
                         fontWeight: 300,
-                        marginTop: "0.75rem",
+                        marginTop: "0.38rem",
                       }}
                     >
-                      {!inputAmount ? "This field is required" : validationError}
+                      {getSubheadingText()}
                     </p>
                   )}
-
-                  {/* Dropdown Container */}
-                  {shouldShowDropdown() && isDropdownOpen && (
+  
+                  {/* Input or Dropdown Container */}
+                  <div className="relative" style={{ marginTop: getSubheadingText() ? "0.75rem" : "1rem" }}>
+                    {/* Main Container */}
                     <div
-                      className="absolute top-full left-0 z-10 mt-1"
+                      onClick={toggleDropdown}
+                      className={`${!isInputStep() ? "cursor-pointer" : ""} relative rounded-[0.125rem] bg-[rgba(255,255,255,0.11)] px-4 py-2`}
                       style={{
                         width: "33.75rem",
-                        height: getDropdownHeight(),
-                        borderRadius: "0.125rem",
-                        background: "#000",
-                        overflowY: needsScrolling() ? "scroll" : "visible",
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
+                        height: "2.25rem",
                       }}
                     >
-                      <style>
-                        {`
-                          .dropdown-container::-webkit-scrollbar {
-                            display: none;
-                          }
-                        `}
-                      </style>
-                      <div className="dropdown-container" style={{ height: "100%" }}>
-                        {options.map((option, index) => (
-                          <div
-                            key={option}
-                            onClick={() => handleOptionSelect(option)}
-                            onMouseEnter={() => setHoveredOption(option)}
-                            onMouseLeave={() => setHoveredOption("")}
-                            className="cursor-pointer flex items-center px-4 transition-colors duration-150"
-                            style={{
-                              width: hoveredOption === option ? "33.625rem" : "100%",
-                              height: "2rem",
-                              background: hoveredOption === option ? "#33005C" : "transparent",
-                              marginTop: index === 0 ? "0.71875rem" : "0.4375rem",
-                            }}
-                          >
-                            {/* extra  */}
-                            {isMultiSelectStep() && (
-                          <div 
-                            className="mr-2"
-                            style={{
-                              width: '1rem',
-                              height: '1rem',
-                              border: '1px solid #656565',
-                              borderRadius: '2px',
-                              background: selectedMultiOptions.includes(option) ? '#FFF' : 'transparent',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                          >
-                            {selectedMultiOptions.includes(option) && (
-                              <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                                <path d="M1 4L3 6L7 2" stroke="#000" strokeWidth="1.5" fill="none"/>
-                              </svg>
+                      <div className="flex items-center justify-between h-full">
+                        {isInputStep() ? (
+                          /* Input Field */
+                          <div className="flex items-center w-full">
+                            {getInputSymbol() && (
+                              <span
+                                style={{
+                                  color: isInputFocused || inputAmount ? "#FFF" : "#656565",
+                                  fontFamily: "Inter",
+                                  fontSize: "0.75rem",
+                                  fontWeight: isInputFocused || inputAmount ? 500 : 400,
+                                  marginRight: "0.25rem",
+                                }}
+                              >
+                                {getInputSymbol()}
+                              </span>
                             )}
-                          </div>
-                        )}
-                            <span
+                            <input
+                              type={currentStep === 10 ? "date" : "text"}
+                              value={
+                                isAmountStep() && inputAmount
+                                  ? formatIndianNumber(Number.parseInt(inputAmount))
+                                  : inputAmount
+                              }
+                              onChange={handleInputChange}
+                              onFocus={() => setIsInputFocused(true)}
+                              onBlur={() => setIsInputFocused(false)}
+                              className="bg-transparent text-white outline-none flex-1"
                               style={{
                                 color: "#FFF",
                                 fontFamily: "Inter",
                                 fontSize: "0.75rem",
                                 fontWeight: 500,
                               }}
-                            >
-                              {option}
-                            </span>
+                              placeholder={getPlaceholderText()}
+                            />
                           </div>
-                        ))}
+                        ) : (
+                          /* Dropdown Display */
+                          <>
+                            <div className="flex items-center flex-wrap gap-1 flex-1">
+                              {isMultiSelectStep() && selectedMultiOptions.length > 0 ? (
+                                selectedMultiOptions.map((option) => (
+                                  <div
+                                    key={option}
+                                    className="flex items-center"
+                                    style={{
+                                      borderRadius: "0.125rem",
+                                      background: "#5F248D",
+                                      padding: "0.25rem 0.5rem",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        color: "#FFF",
+                                        fontFamily: "Inter",
+                                        fontSize: "0.625rem",
+                                        fontWeight: 400,
+                                        marginRight: "0.25rem",
+                                      }}
+                                    >
+                                      {option}
+                                    </span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        removeMultiOption(option)
+                                      }}
+                                      style={{
+                                        width: "0.5rem",
+                                        height: "0.5rem",
+                                        background: "transparent",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        padding: 0,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="8"
+                                        height="8"
+                                        viewBox="0 0 8 8"
+                                        fill="none"
+                                      >
+                                        <path
+                                          d="M2.10011 6.23333L1.78345 5.9L3.67511 4L1.78345 2.08333L2.10011 1.75L4.00845 3.66667L5.90011 1.75L6.21678 2.08333L4.32511 4L6.21678 5.9L5.90011 6.23333L4.00845 4.31667L2.10011 6.23333Z"
+                                          fill="white"
+                                        />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                ))
+                              ) : (
+                                <span
+                                  style={{
+                                    color: selectedOption || selectedMultiOptions.length > 0 ? "#FFF" : "#656565",
+                                    fontFamily: "Inter",
+                                    fontSize: "0.75rem",
+                                    fontWeight: selectedOption || selectedMultiOptions.length > 0 ? 500 : 400,
+                                  }}
+                                >
+                                  {isMultiSelectStep() ? "Select options..." : selectedOption || "Select option..."}
+                                </span>
+                              )}
+                            </div>
+  
+                            {/* Vertical line */}
+                            <div
+                              className="absolute top-1/2 transform -translate-y-1/2"
+                              style={{
+                                right: "2.5rem",
+                                width: "1px",
+                                height: "1rem",
+                                backgroundColor: "#656565",
+                              }}
+                            ></div>
+  
+                            {/* Dropdown icon */}
+                            <div
+                              className="absolute top-1/2 transform -translate-y-1/2 pointer-events-none"
+                              style={{ right: "0.6rem" }}
+                            >
+                              <svg
+                                style={{
+                                  width: "1.5rem",
+                                  height: "1.5rem",
+                                  transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                  transition: "transform 0.2s ease",
+                                }}
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                              >
+                                <path
+                                  d="M12.025 14.95L6.375 9.29998L7.325 8.34998L12.025 13.05L16.725 8.34998L17.675 9.29998L12.025 14.95Z"
+                                  fill="#656565"
+                                />
+                              </svg>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Buttons - positioned on right side */}
-          <div
-            className="flex justify-end items-center gap-2"
-            style={{ position: "absolute", right: "4.3rem", bottom: "2.19rem" }}
-          >
-            <button
-              onClick={handleBack}
-              className="text-black transition-colors hover:bg-gray-500"
-              style={{
-                width: "5rem",
-                height: "2rem",
-                background: "rgba(255, 255, 255, 0.20)",
-                borderRadius: "0.125rem",
-              }}
+  
+                    {/* Validation Error */}
+                    {isInputStep() && shouldShowError && (
+                      <p
+                        style={{
+                          color: "#FC4141",
+                          fontFamily: "Inter",
+                          fontSize: "0.625rem",
+                          fontWeight: 300,
+                          marginTop: "0.75rem",
+                        }}
+                      >
+                        {!inputAmount ? "This field is required" : validationError}
+                      </p>
+                    )}
+  
+                    {/* Dropdown Container */}
+                    {shouldShowDropdown() && isDropdownOpen && (
+                      <div
+                        className="absolute top-full left-0 z-10 mt-1 dropdown-container"
+                        style={{
+                          width: "33.75rem",
+                          height: getDropdownHeight(),
+                          borderRadius: "0.125rem",
+                          background: "#000",
+                          overflowY: needsScrolling() ? "scroll" : "visible",
+                          scrollbarWidth: "none",
+                          msOverflowStyle: "none",
+                        }}
+                      >
+                        <div style={{ height: "100%" }}>
+                          {options.map((option, index) => (
+                            <div
+                              key={option}
+                              onClick={() => handleOptionSelect(option)}
+                              onMouseEnter={() => setHoveredOption(option)}
+                              onMouseLeave={() => setHoveredOption("")}
+                              className="cursor-pointer flex items-center px-4 transition-colors duration-150"
+                              style={{
+                                width: hoveredOption === option ? "33.625rem" : "100%",
+                                height: "2rem",
+                                background: hoveredOption === option ? "#33005C" : "transparent",
+                                marginTop: index === 0 ? "0.71875rem" : "0.4375rem",
+                              }}
+                            >
+                              {/* Checkbox for multi-select */}
+                              {isMultiSelectStep() && (
+                                <div 
+                                  className="mr-2"
+                                  style={{
+                                    width: '1rem',
+                                    height: '1rem',
+                                    border: '1px solid #656565',
+                                    borderRadius: '2px',
+                                    background: selectedMultiOptions.includes(option) ? '#FFF' : 'transparent',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                  }}
+                                >
+                                  {selectedMultiOptions.includes(option) && (
+                                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                                      <path d="M1 4L3 6L7 2" stroke="#000" strokeWidth="1.5" fill="none"/>
+                                    </svg>
+                                  )}
+                                </div>
+                              )}
+                              <span
+                                style={{
+                                  color: "#FFF",
+                                  fontFamily: "Inter",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {option}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+  
+            {/* Buttons - positioned on right side */}
+            <div
+              className="flex justify-end items-center gap-2"
+              style={{ position: "absolute", right: "4.3rem", bottom: "2.19rem" }}
             >
-              <span
+              <button
+                onClick={handleBack}
+                disabled={isButtonLoading || isLoading}
+                className="text-black transition-colors hover:bg-gray-500"
                 style={{
-                  width: "2.125rem",
-                  height: "0.9375rem",
-                  flexShrink: 0,
-                  color: "#0F0E16",
-                  textAlign: "center",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
+                  width: "5rem",
+                  height: "2rem",
+                  background: "rgba(255, 255, 255, 0.20)",
+                  borderRadius: "0.125rem",
+                  cursor: (isButtonLoading || isLoading) ? 'not-allowed' : 'pointer',
+                  opacity: (isButtonLoading || isLoading) ? 0.6 : 1
                 }}
               >
-                Back
-              </span>
-            </button>
-
-            <button
-              onClick={handleNext}
-              className="transition-colors hover:bg-gray-100"
-              style={{
-                width: "5rem",
-                height: "2rem",
-                borderRadius: "0.125rem",
-                background: "#FFF",
-              }}
-            >
-              <span
+                <span
+                  style={{
+                    width: "2.125rem",
+                    height: "0.9375rem",
+                    flexShrink: 0,
+                    color: "#0F0E16",
+                    textAlign: "center",
+                    fontFamily: "Inter",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  Back
+                </span>
+              </button>
+  
+              <button
+                onClick={handleNext}
+                disabled={isButtonLoading || isLoading}
+                className="transition-colors hover:bg-gray-100"
                 style={{
-                  width: "2.125rem",
-                  height: "0.9375rem",
-                  color: "#000",
-                  textAlign: "center",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
+                  width: "5rem",
+                  height: "2rem",
+                  borderRadius: "0.125rem",
+                  background: (isButtonLoading || isLoading) ? "#ccc" : "#FFF",
+                  cursor: (isButtonLoading || isLoading) ? 'not-allowed' : 'pointer',
                 }}
               >
-                Next
-              </span>
-            </button>
+                {isButtonLoading ? (
+                  <div
+                    style={{
+                      width: '1rem',
+                      height: '1rem',
+                      border: '2px solid #666',
+                      borderTop: '2px solid #000',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto'
+                    }}
+                  />
+                ) : (
+                  <span
+                    style={{
+                      width: "2.125rem",
+                      height: "0.9375rem",
+                      color: "#000",
+                      textAlign: "center",
+                      fontFamily: "Inter",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Next
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Bottom text */}
-        <div className="text-center" style={{ marginTop: "2.12rem" }}>
-          <p
-            style={{
-              color: "#FFF",
-              textAlign: "center",
-              fontFamily: "Inter",
-              fontSize: "0.75rem",
-              fontWeight: 400,
-              maxWidth: "26.5rem",
-              margin: "0 auto",
-              lineHeight: "1.1",
-            }}
-          >
-            Not sure how to structure your round? Let an expert help.{" "}
-            <span
-              className="underline cursor-pointer hover:text-gray-200"
+  
+          {/* Bottom text */}
+          <div className="text-center" style={{ marginTop: "2.12rem" }}>
+            <p
               style={{
                 color: "#FFF",
+                textAlign: "center",
                 fontFamily: "Inter",
                 fontSize: "0.75rem",
-                fontWeight: 600,
-                lineHeight: "normal",
+                fontWeight: 400,
+                maxWidth: "26.5rem",
+                margin: "0 auto",
+                lineHeight: "1.1",
               }}
             >
-              Book a free call
-            </span>{" "}
-            to see if you qualify for our premium services.
-          </p>
-        </div>
-        {error && (
-          <div 
-            style={{
-              position: 'absolute',
-              top: '1rem',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              backgroundColor: 'rgba(252, 65, 65, 0.9)',
-              padding: '0.75rem 1rem',
-              borderRadius: '0.25rem',
-              color: '#FFF',
-              fontFamily: 'Inter',
-              fontSize: '0.875rem',
-              maxWidth: '80%',
-              textAlign: 'center'
-            }}
-          >
-            {error}
+              Not sure how to structure your round? Let an expert help.{" "}
+              <span
+                className="underline cursor-pointer hover:text-gray-200"
+                style={{
+                  color: "#FFF",
+                  fontFamily: "Inter",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  lineHeight: "normal",
+                }}
+              >
+                Book a free call
+              </span>{" "}
+              to see if you qualify for our premium services.
+            </p>
           </div>
-        )}
+          
+          {/* Error display */}
+          {error && (
+            <div 
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: 'rgba(252, 65, 65, 0.9)',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.25rem',
+                color: '#FFF',
+                fontFamily: 'Inter',
+                fontSize: '0.875rem',
+                maxWidth: '80%',
+                textAlign: 'center'
+              }}
+            >
+              {error}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          .dropdown-container::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
+    </>
   )
 }
-
 export default AddRoundPopup;
