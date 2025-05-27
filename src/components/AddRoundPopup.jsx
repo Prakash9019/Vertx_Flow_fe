@@ -610,7 +610,7 @@ if (showSuccess) {
                         </span>
                       )}
                       <input
-                        type="text"
+                        type={`${currentStep === 10 ? "date": "text"}`}
                         value={isAmountStep() && inputAmount ? formatIndianNumber(parseInt(inputAmount)) : inputAmount}
                         onChange={handleInputChange}
                         onFocus={() => setIsInputFocused(true)}

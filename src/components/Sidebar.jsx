@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useLocation,useNavigation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 const Sidebar = () => {
-  const navigate = useNavigation();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -129,7 +130,7 @@ const Sidebar = () => {
                 <div 
                  className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isEvaluate? 'bg-gray-900' : ''}`}
                   // onClick={handleFundraisingToggle}
-                  onClick={()=>{navigate("/fundraising")}}
+                  onClick={()=>{handleFundraisingToggle();navigate("/fundraising")}}
                 >
                   <img 
                     src="../src/assets/Ellipse 3.svg" 
@@ -182,6 +183,7 @@ const Sidebar = () => {
                           fontSize: '0.75rem', 
                           fontWeight: 500 
                         }}
+                        onClick={()=>{navigate("/fundraising/raise")}}
                       >
                         Raise
                       </span>
@@ -251,7 +253,7 @@ const Sidebar = () => {
                 style={{ width: '1.25rem', height: '1.25rem' }} 
               />
             </li>
-            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
+            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900" onClick={()=> handleLogout()}>
               <span className="text-[#B8B8B8] font-medium text-sm">Log out</span>
               <img 
                 src="../src/assets/logout.svg" 

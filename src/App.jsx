@@ -55,7 +55,7 @@ function App() {
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     { path: "/fundraising", element: <FundraisingPage /> },
-    { path: "/fundraising/1", element: <FundraisingManagePage /> },
+    { path: "/fundraising/raise", element: <FundraisingManagePage /> },
     { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,
     {path:"/flow/pipeline", element:<Pipeline /> },
