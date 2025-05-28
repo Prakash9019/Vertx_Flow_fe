@@ -10,6 +10,8 @@ function Evaluate_Page() {
   const [showUploader, setShowUploader] = useState(false);
   const [evaluation, setEvaluation] = useState(false);
   const [evaluationError, setEvaluationError] = useState(false);
+  const [evaluationComplete, setEvaluationComplete] = useState(false);
+  const [reportData, setReportData] = useState(null);
 
   const navigate = useNavigate();
 
@@ -113,11 +115,9 @@ function Evaluate_Page() {
       console.log("data of pdf :-", pdfFiles);
       setTimeout(() => {
         setEvaluation(false);
+        setEvaluationComplete(true);
+        setReportData(response.data);
       }, 1000);
-      // send to next page
-      navigate("/evaluate/report", {
-        state: { reportData: response.data, pdfFiles: pdfFiles },
-      });
     } catch (error) {
       console.log("Error", error);
       setEvaluationError(true);
@@ -128,8 +128,35 @@ function Evaluate_Page() {
     }
   };
 
+  const handleAccessReport = () => {
+    navigate("/evaluate/report", {
+      state: { reportData: reportData, pdfFiles: pdfFiles },
+    });
+  };
+
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white">
+      {/* Add CSS for scanning effect */}
+      <style jsx>{`
+        .scanning-line {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, transparent, #AD6FDE, transparent);
+          animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(10.125rem);
+          }
+        }
+      `}</style>
     
       <div className="md:col-span-3 bg-black text-white">
         <Sidebar />
@@ -439,7 +466,7 @@ function Evaluate_Page() {
                 >
                   {/* PDF thumbnail */}
                   <div 
-                    className="rounded mb-4 overflow-hidden"
+                    className="rounded mb-4 overflow-hidden relative"
                     style={{
                       width: '18.75rem',
                       height: '10.125rem',
@@ -468,6 +495,51 @@ function Evaluate_Page() {
                         Loading preview...
                       </div>
                     )}
+                    
+                    {/* Evaluation Complete Overlay */}
+                    {evaluationComplete && (
+                      <div 
+                        className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center"
+                        style={{
+                          backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                        }}
+                      >
+                        <div
+                          style={{
+                            color: '#FFF',
+                            fontFamily: 'Inter',
+                            fontSize: '1.75rem',
+                            fontWeight: 300,
+                            marginBottom: '-0.5rem',
+                            marginTop:'1rem'
+                          }}
+                        >
+                          SATISFACTORY
+                        </div>
+                        <div
+                          style={{
+                            color: '#FFF',
+                            fontFamily: 'Inter',
+                            fontSize: '2.5rem',
+                            fontWeight: 600
+                          }}
+                        >
+                          73.1
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Loading Scanning Effect */}
+                    {evaluation && (
+                      <div 
+                        className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center"
+                        style={{
+                          backgroundColor: 'rgba(0, 0, 0, 0.6)'
+                        }}
+                      >
+                        <div className="scanning-line"></div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-left">
@@ -491,14 +563,24 @@ function Evaluate_Page() {
                         marginBottom: '1rem'
                       }}
                     >
-                      {evaluation === true
-                        ? "Evaluation will be ready with in a minute."
+                      {evaluationComplete 
+                        ? (
+                          <span style={{
+                            color: '#FFF',
+                            textAlign: 'center',
+                            fontFamily: 'Inter',
+                            fontSize: '0.625rem',
+                            fontWeight: 400
+                          }}>
+                            Evaluation report is ready and you can access now.
+                          </span>
+                        )
                         : `${new Date().toLocaleDateString()}`}
                     </p>
                   </div>
 
                   <button
-                    onClick={handleEvaluation}
+                    onClick={evaluationComplete ? handleAccessReport : handleEvaluation}
                     style={{
                       width: '18.625rem',
                       height: '2.75rem',
@@ -518,6 +600,8 @@ function Evaluate_Page() {
                       ? "Initializing..."
                       : evaluationError === true
                       ? "Failed to evaluate"
+                      : evaluationComplete === true
+                      ? "Access Report"
                       : "Evaluate"}
                   </button>
                 </div>
