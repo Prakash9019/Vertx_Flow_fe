@@ -8,6 +8,7 @@ function Header() {
 
   const handleSignout = () => {
     localStorage.removeItem("isVerified");
+    localStorage.removeItem("authToken");
     navigate("/");
   };
 

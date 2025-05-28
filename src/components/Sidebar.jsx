@@ -21,7 +21,7 @@ const Sidebar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
     localStorage.removeItem("isVerified");
-    window.location.reload();
+    navigate("/")
   };
 
   const location = useLocation();

@@ -21,7 +21,7 @@ export const StartupProfileProvider = ({ children }) => {
   const [isSubmitting, setIsSubmitting] = useState(false); // For form submission
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-
+  const [userid,setUserid]=useState('');
   const getToken = () => localStorage.getItem('authToken');
   // console.log(getToken)
   // Function to fetch existing startup data
@@ -48,6 +48,7 @@ export const StartupProfileProvider = ({ children }) => {
       });
       if (response.data && response.data.data) {
         const fetchedData = response.data.data;
+        setUserid(fetchedData.userId)
         setStartupData({
           stage: fetchedData.stage || '',
           location: fetchedData.location || '',
@@ -57,6 +58,7 @@ export const StartupProfileProvider = ({ children }) => {
           industry: Array.isArray(fetchedData.industry) ? fetchedData.industry : (fetchedData.industry ? [fetchedData.industry] : []),
           pitch: fetchedData.pitch || ''
         });
+        console.log(fetchedData);
       } else {
          // No existing profile, initialize with defaults (already done by useState)
         setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
@@ -150,6 +152,7 @@ export const StartupProfileProvider = ({ children }) => {
     <StartupProfileContext.Provider value={{
       startupData,
       loadingData,
+      userid,
       isSubmitting,
       error,
       successMessage,

@@ -89,6 +89,7 @@ function EvaluateReportComponent({ data }) {
               key={index}
               className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-300 py-2 border-b border-gray-700 text-sm"
             >
+              {console.log(breakdownData)}
               <span className="sm:w-1/3 mb-1 sm:mb-0">
                 {breakdownData.label}
               </span>
@@ -97,11 +98,11 @@ function EvaluateReportComponent({ data }) {
                   className={`${
                     breakdownData.score === 0
                       ? "bg-red-700"
-                      : data.score < 28
+                      : breakdownData.score < 28
                       ? "bg-orange-700"
-                      : data.score < 30
+                      : breakdownData.score < 30
                       ? "bg-yellow-700"
-                      : data.score < 36
+                      : breakdownData.score < 36
                       ? "bg-green-700"
                       : "bg-purple-700"
                   } px-3 py-2 rounded-full text-center inline-block`}

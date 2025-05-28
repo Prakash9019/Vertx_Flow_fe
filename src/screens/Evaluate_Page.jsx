@@ -3,6 +3,7 @@ import Background2 from "../assets/background2.jpg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import { useStartupProfile } from "../context/StartupProfileContext";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -12,7 +13,7 @@ function Evaluate_Page() {
   const [evaluationError, setEvaluationError] = useState(false);
   const [evaluationComplete, setEvaluationComplete] = useState(false);
   const [reportData, setReportData] = useState(null);
-
+  const {userId } =useStartupProfile();
   const navigate = useNavigate();
 
   const handleAddNowClick = () => setShowUploader(true);
@@ -99,7 +100,7 @@ function Evaluate_Page() {
     setEvaluation(true);
     const formData = new FormData();
     formData.append("file", pdfFiles[0]);
-    console.log("hiiiiiii.....")
+    formData.append("userId",userId);
     try {
       const response = await axios.post(
         "https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/",
@@ -580,30 +581,31 @@ function Evaluate_Page() {
                   </div>
 
                   <button
-                    onClick={evaluationComplete ? handleAccessReport : handleEvaluation}
-                    style={{
-                      width: '18.625rem',
-                      height: '2.75rem',
-                      borderRadius: '0.375rem',
-                      background: '#FFF',
-                      color: '#000',
-                      textAlign: 'center',
-                      fontFamily: 'Inter',
-                      fontSize: '0.875rem',
-                      fontWeight: 400,
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                    className="hover:bg-gray-200 transition duration-200"
-                  >
-                    {evaluation === true
-                      ? "Initializing..."
-                      : evaluationError === true
-                      ? "Failed to evaluate"
-                      : evaluationComplete === true
-                      ? "Access Report"
-                      : "Evaluate"}
-                  </button>
+  onClick={evaluationComplete ? handleAccessReport : handleEvaluation}
+  style={{
+    width: '18.625rem',
+    height: '2.75rem',
+    borderRadius: '0.375rem',
+    background:
+      evaluation === true ? '#D1D5DB' : '#FFFFFF', // gray-200 or white
+    color: '#000',
+    textAlign: 'center',
+    fontFamily: 'Inter',
+    fontSize: '0.875rem',
+    fontWeight: 400,
+    border: 'none',
+    cursor: 'pointer'
+  }}
+>
+  {evaluation === true
+    ? "Initializing..."
+    : evaluationError === true
+    ? "Failed to evaluate"
+    : evaluationComplete === true
+    ? "Access Report"
+    : "Evaluate"}
+</button>
+
                 </div>
               ))}
             </div>
