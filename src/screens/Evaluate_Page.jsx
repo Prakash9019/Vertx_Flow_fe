@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Background2 from "../assets/background2.jpg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
+  const [pdfThumbnails, setPdfThumbnails] = useState({}); // Store thumbnails by file name
   const [showUploader, setShowUploader] = useState(false);
   const [evaluation, setEvaluation] = useState(false);
   const [evaluationError, setEvaluationError] = useState(false);
@@ -14,7 +15,56 @@ function Evaluate_Page() {
 
   const handleAddNowClick = () => setShowUploader(true);
 
-  const handlePdfUpload = (e) => {
+  // Function to generate PDF thumbnail
+  const generatePdfThumbnail = async (file) => {
+    try {
+      // Dynamically import pdfjs-dist
+      const pdfjsLib = await import('pdfjs-dist');
+      
+      // Set worker source
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+
+      const fileReader = new FileReader();
+      
+      return new Promise((resolve, reject) => {
+        fileReader.onload = async function() {
+          try {
+            const typedarray = new Uint8Array(this.result);
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            const page = await pdf.getPage(1); // Get first page
+            
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+            
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+            const imageDataUrl = canvas.toDataURL();
+            resolve(imageDataUrl);
+          } catch (error) {
+            console.error('Error rendering PDF:', error);
+            reject(error);
+          }
+        };
+        
+        fileReader.onerror = reject;
+        fileReader.readAsArrayBuffer(file);
+      });
+    } catch (error) {
+      console.error('Error loading PDF.js:', error);
+      return null;
+    }
+  };
+
+  const handlePdfUpload = async (e) => {
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
 
@@ -22,6 +72,19 @@ function Evaluate_Page() {
       if (file.size < maxSize) {
         setPdfFiles([...pdfFiles, file]);
         setShowUploader(false); // Close popup after upload
+        
+        // Generate thumbnail for the uploaded PDF
+        try {
+          const thumbnail = await generatePdfThumbnail(file);
+          if (thumbnail) {
+            setPdfThumbnails(prev => ({
+              ...prev,
+              [file.name]: thumbnail
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to generate thumbnail:', error);
+        }
       } else {
         alert("File size exceeds 10MB. Please upload a smaller file.");
       }
@@ -376,13 +439,36 @@ function Evaluate_Page() {
                 >
                   {/* PDF thumbnail */}
                   <div 
-                    className="bg-gray-500 rounded mb-4"
+                    className="rounded mb-4 overflow-hidden"
                     style={{
                       width: '18.75rem',
                       height: '10.125rem',
-                      borderRadius: '0.375rem'
+                      borderRadius: '0.375rem',
+                      backgroundColor: pdfThumbnails[file.name] ? 'transparent' : '#6B7280'
                     }}
-                  />
+                  >
+                    {pdfThumbnails[file.name] ? (
+                      <img 
+                        src={pdfThumbnails[file.name]} 
+                        alt={`${file.name} preview`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    ) : (
+                      <div 
+                        className="flex items-center justify-center h-full"
+                        style={{
+                          color: '#FFF',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        Loading preview...
+                      </div>
+                    )}
+                  </div>
 
                   <div className="text-left">
                     <p 
