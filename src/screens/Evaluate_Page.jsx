@@ -13,7 +13,7 @@ function Evaluate_Page() {
   const [evaluationError, setEvaluationError] = useState(false);
   const [evaluationComplete, setEvaluationComplete] = useState(false);
   const [reportData, setReportData] = useState(null);
-  const {userId } =useStartupProfile();
+  const {user_id } =useStartupProfile();
   const navigate = useNavigate();
 
   const handleAddNowClick = () => setShowUploader(true);
@@ -100,7 +100,7 @@ function Evaluate_Page() {
     setEvaluation(true);
     const formData = new FormData();
     formData.append("file", pdfFiles[0]);
-    formData.append("userId",userId);
+    formData.append("userId",user_id);
     try {
       const response = await axios.post(
         "https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/",
@@ -587,7 +587,7 @@ function Evaluate_Page() {
     height: '2.75rem',
     borderRadius: '0.375rem',
     background:
-      evaluation === true ? '#D1D5DB' : '#FFFFFF', // gray-200 or white
+      evaluation === true ? 'black' : '#FFFFFF', // gray-200 or white
     color: '#000',
     textAlign: 'center',
     fontFamily: 'Inter',

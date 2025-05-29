@@ -21,7 +21,7 @@ export const StartupProfileProvider = ({ children }) => {
   const [isSubmitting, setIsSubmitting] = useState(false); // For form submission
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  const [userid,setUserid]=useState('');
+  const [user_id,setUserid]=useState('');
   const getToken = () => localStorage.getItem('authToken');
   // console.log(getToken)
   // Function to fetch existing startup data
@@ -152,7 +152,7 @@ export const StartupProfileProvider = ({ children }) => {
     <StartupProfileContext.Provider value={{
       startupData,
       loadingData,
-      userid,
+      user_id,
       isSubmitting,
       error,
       successMessage,
