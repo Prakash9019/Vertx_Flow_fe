@@ -32,7 +32,7 @@ function ProfileSetup_Page() {
   const handleContinueToSetup = () => {
     // Navigate to the first actual data collection step.
     // Assumes context has loaded/initialized startupData.
-    navigate("/profile/setup"); // This should be the "Stage" selection page
+    navigate("/profile/stage"); // This should be the "Stage" selection page
   };
 
   if (loadingData) {

@@ -106,7 +106,7 @@ function Login_Page() {
           // Optional: call invite processing API
         }
 
-        navigate("/profile");
+        navigate("/linkedin");
         setOtpFormDisplay(false);
         setOtp(["", "", "", "", "", ""]);
         setErrorMessage("");

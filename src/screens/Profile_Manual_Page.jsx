@@ -22,7 +22,7 @@ function Profile_Manual_Page() {
       }, 1000);
 
       setTimeout(() => {
-        navigate("/profile/setup");
+        navigate("/profile/stage");
       }, 1000);
     } else {
       setErrorMessage(true);

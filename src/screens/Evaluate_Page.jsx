@@ -6,7 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useStartupProfile } from "../context/StartupProfileContext";
-
+import API_KEY from "../../key";
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [pdfThumbnails, setPdfThumbnails] = useState({}); // Store thumbnails by file name
@@ -15,11 +15,41 @@ function Evaluate_Page() {
   const [evaluationError, setEvaluationError] = useState(false);
   const [evaluationComplete, setEvaluationComplete] = useState(false);
   const [reportData, setReportData] = useState(null);
+  const [analysisData, setAnalysisData] = useState([]);
+  const [score,setScore]=useState(0);
   const {user_id } =useStartupProfile();
   const navigate = useNavigate();
 
   const handleAddNowClick = () => setShowUploader(true);
+   
+  useEffect(() => {
+    if (!user_id) return;
+  
+    const fetchAnalysis = async () => {
+      try {
+        const response = await axios.get(`${API_KEY}/api/analysis/${user_id}`);
+        setAnalysisData(response.data);
+  
+        // ✅ If previous analysis exists, show uploader directly
+        if (response.data.length > 0) {
+          setShowUploader(false); // hide popup
+          setPdfFiles([{ name: response.data[0].file_name }]); // dummy file just for display
+          setEvaluationComplete(true);
+          setScore((response.data[0].result.score.value / 800) * 100);
+          setReportData(response.data[0]); // preload report
+        }
+      } catch (err) {
+        console.error('Error fetching analysis:', err);
+        setError(err.response?.data?.message || 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchAnalysis();
+  }, [user_id]);
 
+  
   // Function to generate PDF thumbnail
   const generatePdfThumbnail = async (file) => {
     try {
@@ -70,6 +100,7 @@ function Evaluate_Page() {
   };
 
   const handlePdfUpload = async (e) => {
+    console.log(user_id)
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
 
@@ -102,10 +133,10 @@ function Evaluate_Page() {
     setEvaluation(true);
     const formData = new FormData();
     formData.append("file", pdfFiles[0]);
-    formData.append("userId",user_id);
+    // formData.append("userId",user_id);
     try {
       const response = await axios.post(
-        "https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/",
+        `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?user_id=${user_id}`,
         formData,
         {
           headers: {
@@ -115,6 +146,7 @@ function Evaluate_Page() {
       );
 
       console.log("data:-", response.data);
+      setScore((response.data.breakdown.score/ 800) * 100 )
       console.log("data of pdf :-", pdfFiles);
       setTimeout(() => {
         setEvaluation(false);
@@ -192,7 +224,7 @@ function Evaluate_Page() {
           </div>
 
           {/* Content with responsive specifications */}
-          {!showUploader && pdfFiles.length === 0 && (
+          {!showUploader && pdfFiles.length === 0 && analysisData.length === 0 && (
             <div className="text-center mt-12 sm:mt-16 md:mt-20 lg:mt-24 xl:mt-[4.94rem] px-4">
               <p className="text-[#B8B8B8] font-inter text-sm sm:text-base font-normal mb-3 xl:mb-[0.81rem]">
                 You haven't added any deck yet, add one to evaluate now
@@ -385,7 +417,7 @@ function Evaluate_Page() {
             SATISFACTORY
           </div>
           <div className="text-white font-inter text-2xl sm:text-3xl md:text-4xl xl:text-[2.5rem] font-semibold">
-            73.1
+           {score}
           </div>
         </div>
       )}
@@ -430,20 +462,9 @@ function Evaluate_Page() {
 
                   <button
   onClick={evaluationComplete ? handleAccessReport : handleEvaluation}
-  style={{
-    width: '18.625rem',
-    height: '2.75rem',
-    borderRadius: '0.375rem',
-    background:
-      evaluation === true ? 'black' : '#FFFFFF', // gray-200 or white
-    color: '#000',
-    textAlign: 'center',
-    fontFamily: 'Inter',
-    fontSize: '0.875rem',
-    fontWeight: 400,
-    border: 'none',
-    cursor: 'pointer'
-  }}
+  className={`w-[18.625rem] h-11 rounded-md text-sm font-normal cursor-pointer transition duration-200 ${
+    evaluation === true ? 'bg-gray-500 text-white' : 'bg-white text-black'
+  }`}
 >
   {evaluation === true
     ? "Initializing..."
@@ -453,6 +474,7 @@ function Evaluate_Page() {
     ? "Access Report"
     : "Evaluate"}
 </button>
+
 
                 </div>
               ))}
