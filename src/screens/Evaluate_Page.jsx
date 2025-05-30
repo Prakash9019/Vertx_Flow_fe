@@ -29,6 +29,7 @@ function Evaluate_Page() {
       try {
         const response = await axios.get(`${API_KEY}/api/pitch/analysis/${user_id}`);
         setAnalysisData(response.data);
+
         console.log(response.data)
         // ✅ If previous analysis exists, show uploader directly
         if (response.data.length > 0) {
@@ -103,7 +104,7 @@ function Evaluate_Page() {
     console.log(user_id)
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-
+    setShowUploader(false);
     if (file && file.type === "application/pdf") {
       if (file.size < maxSize) {
         // Reset all evaluation states when new file is uploaded
@@ -130,7 +131,6 @@ function Evaluate_Page() {
             }));
           }
           // const status = evaluationStatus[file.name] || {};
-
         } catch (error) {
           console.error('Failed to generate thumbnail:', error);
         }
@@ -221,9 +221,9 @@ function Evaluate_Page() {
   };
 
   
-  const handleAccessReport = () => {
+  const handleAccessReport = (status) => {
     navigate("/evaluate/report", {
-      state: { reportData: reportData, pdfFiles: pdfFiles },
+      state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },
     });
   };
 
@@ -376,8 +376,14 @@ function Evaluate_Page() {
 {(analysisData.length > 0 || pdfFiles.length > 0) && (
             <div className="flex flex-col mt-8 sm:mt-10 xl:mt-[2.56rem] mx-3 sm:mx-4 xl:mx-[0.94rem] mb-32">
               {/* Cards Container with Upload Box included */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32">
-                {/* Upload Box as first card */}
+              <div
+      className={`${
+        analysisData.length === 0 && pdfFiles.length === 0
+          ? "flex justify-center"
+          : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      } max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32`}
+    >
+         {/* Upload Box as first card */}
                 {!showUploader && (
                   <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
                     <label className="cursor-pointer flex flex-col items-center h-full">
@@ -455,7 +461,7 @@ function Evaluate_Page() {
                     </div>
                     <button
                       onClick={() => navigate("/evaluate/report", {
-                        state: { reportData: item, pdfFiles: [item.file_name] }
+                        state: { reportData: item.result, pdfFiles: [item.file_name] }
                       })}
                       className="mt-auto bg-white text-black w-full py-2 rounded text-sm font-medium hover:bg-gray-200"
                     >
@@ -524,7 +530,7 @@ function Evaluate_Page() {
                     </div>
 
                     <button
-                     onClick={status.complete ? handleAccessReport(file) : () => handleEvaluation(file)}
+                     onClick={status.complete ? () => handleAccessReport(status) : () => handleEvaluation(file)}
                       className={`w-full py-2 rounded text-sm font-medium cursor-pointer transition duration-200 ${
                         status.evaluating ? 'bg-gray-500 text-white' : 'bg-white text-black hover:bg-gray-200'
                       }`}
