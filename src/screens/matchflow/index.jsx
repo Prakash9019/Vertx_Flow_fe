@@ -244,7 +244,7 @@ function Step2({ cb }) {
   const [load, setLoad] = useState(false);
 
   const preload = async() => {
-    const response = await axios.get(API_KEY + "/auth/founder", {headers: {token: window.localStorage.getItem("token")}}).catch((e) => e.response);
+    const response = await axios.get(API_KEY + "/auth/founder", {headers: {token: window.localStorage.getItem("authToken")}}).catch((e) => e.response);
     console.log(Object.keys(response?.data?.msg || {}));
     if(response?.status === 200){
       setProduct("Vertxai");
@@ -286,23 +286,47 @@ function Step2({ cb }) {
     }
   }, [description, sectors]);
 
-  const startFlow = async() => {
+  const startFlow = async () => {
     setLoad(true);
+  
     const data = {
-      name: "John Doe",
-      description,
+      founder_name: "Surya",             // You may want to make this dynamic
       company_name: company,
-      verticals: sectors,
-      industry,
+      what_building: description,           // Map appropriately
+      industry: industry,
+      sectors: sectors,
+      product_stage: productionStage,
+      target_countries: countries,
+      required_funding: raise,     //2
+      co_builder: cofounders,
+      best_contact: contacts,
+      show_me_what_you_build: build,
+      professnal_presence: presense,
+      best_description: description,
+      current_traction: traction,     //1 
+      previous_funding: previousFunding   //3
     };
-    // API call commented out
-     const response = await axios.post(
-       "https://founder-to-investor-model-427457295403.us-central1.run.app", data
-     ).catch((e) => e.response);
-    
-    setLoad(false);
-    cb();
+  
+    try {
+      const response = await axios.post(
+        "https://founder-to-investor-model-427457295403.us-central1.run.app/",
+        data
+      );
+  
+      console.log("✅ API Response:", response.data);
+  
+      // Optional: Handle match_id or matches returned
+      // setMatches(response.data.matches);
+      // setMatchId(response.data.match_id);
+  
+      cb(); // proceed to next UI step
+    } catch (e) {
+      console.error("❌ API Error:", e.response?.data || e.message);
+    } finally {
+      setLoad(false);
+    }
   };
+  
 
   return (
     <div className="w-full h-full overflow-y-auto">
@@ -658,7 +682,7 @@ function Step3() {
     ] 
 
   const getMatches = async() => {
-    // const resp = await axios.get(API_KEY + "/match/matches", {headers: {token: window.localStorage.getItem("token")}}).catch(e => e.response);
+    // const resp = await axios.get(API_KEY + "/match/matches", {headers: {token: window.localStorage.getItem("authToken")}}).catch(e => e.response);
     // console.log(resp.data);
     // if(resp.status == 200){
     //   setMatches(resp.data.msg);
@@ -674,7 +698,7 @@ function Step3() {
   const startPipe = async() => {
     navigate("/flow/outbound")
     // setLoad(true)
-    // const resp = await axios.patch(API_KEY + "/match/update", {names: selected}, {headers: {token: window.localStorage.getItem("token")}}).catch(e => e.response).finally(() => {
+    // const resp = await axios.patch(API_KEY + "/match/update", {names: selected}, {headers: {token: window.localStorage.getItem("authToken")}}).catch(e => e.response).finally(() => {
     //   setLoad(false);
     //   if(response.status === 200){
     //     navigate("/flow/outbound")
@@ -759,7 +783,7 @@ function Step3() {
 
 export default function Matchflow() {
   const [step, setStep] = useState(window.localStorage.getItem("step") || 0);
-  const token = window.localStorage.getItem("token");
+  const token = window.localStorage.getItem("authToken");
   const navigate = useNavigate();
   
   useEffect(() => {

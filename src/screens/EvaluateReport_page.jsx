@@ -12,9 +12,11 @@ function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const fileName = location?.state?.pdfFiles?.[0]?.name || "filename.pdf";
-  const incomingData = location?.state?.reportData;
-
+  const fileName = location?.state?.pdfFiles|| "filename.pdf";
+  const incomingData = location?.state?.reportData?.result;
+  console.log(location?.state?.pdfFiles);
+  console.log(fileName)
+  console.log(incomingData)
   const [reportData, setReportData] = useState(null);
   const [activeTab, setActiveTab] = useState("Analysis");
 
