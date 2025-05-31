@@ -11,10 +11,13 @@ import Sidebar from "../components/Sidebar";
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const fileName = location?.state?.pdfFiles?.[0]?.name || "filename.pdf";
+   console.log("helloooooooo...");
+   console.log(location?.state)
+  const fileName = location?.state?.pdfFiles|| "filename.pdf";
   const incomingData = location?.state?.reportData;
-
+  console.log(location?.state?.pdfFiles);
+  console.log(fileName)
+  console.log(incomingData)
   const [reportData, setReportData] = useState(null);
   const [activeTab, setActiveTab] = useState("Analysis");
 
@@ -27,7 +30,6 @@ function EvaluateReport_page() {
   }, [incomingData, navigate]);
 
   const companyName = reportData?.overview?.company_name;
-
   const tabsArray = ["Analysis", "Overview", "Capital", "Suggestions"];
 
   return (
@@ -70,7 +72,7 @@ function EvaluateReport_page() {
         {/* Tab Content */}
         <div className="px-4 sm:px-6 md:px-12">
           {activeTab === "Analysis" && reportData && (
-            <EvaluateReportComponent data={reportData} />
+            <EvaluateReportComponent data={Array.isArray(reportData.breakdown) ? reportData.breakdown[0] : reportData.breakdown} />
           )}
           {activeTab === "Overview" && reportData && (
             <EvaluateReportOverview data={reportData.overview} />

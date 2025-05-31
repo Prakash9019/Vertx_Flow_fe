@@ -96,7 +96,7 @@ const Sidebar = () => {
   />
 </li>
 
-              <li className="px-4 py-2 flex items-center justify-between hover:bg-gray-900">
+              <li className="px-4 py-2 flex items-center justify-between hover:bg-gray-900"  onClick={()=>{navigate("/flow/match flow")}} >
                 <span className="text-[#B8B8B8] font-medium text-sm">Getting Started</span>
                 <img 
                   src={Rocket} 

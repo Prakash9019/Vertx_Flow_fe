@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import Background2 from "../assets/background2.jpg";
 import axios from "axios";
@@ -17,6 +15,8 @@ function Evaluate_Page() {
   const [reportData, setReportData] = useState(null);
   const [analysisData, setAnalysisData] = useState([]);
   const [score,setScore]=useState(0);
+  const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
+
   const {user_id } =useStartupProfile();
   const navigate = useNavigate();
 
@@ -27,22 +27,23 @@ function Evaluate_Page() {
   
     const fetchAnalysis = async () => {
       try {
-        const response = await axios.get(`${API_KEY}/api/analysis/${user_id}`);
+        const response = await axios.get(`${API_KEY}/api/pitch/analysis/${user_id}`);
         setAnalysisData(response.data);
-  
+
+        console.log(response.data)
         // ✅ If previous analysis exists, show uploader directly
         if (response.data.length > 0) {
           setShowUploader(false); // hide popup
-          setPdfFiles([{ name: response.data[0].file_name }]); // dummy file just for display
+          // setPdfFiles([{ name: response.data[0].file_name }]); // dummy file just for display
           setEvaluationComplete(true);
-          setScore((response.data[0].result.score.value / 800) * 100);
+          // setScore((response.data[0].result.score.value / 800) * 100);
           setReportData(response.data[0]); // preload report
         }
       } catch (err) {
         console.error('Error fetching analysis:', err);
-        setError(err.response?.data?.message || 'Failed to fetch data');
+        // setError(err.response?.data?.message || 'Failed to fetch data');
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
   
@@ -103,11 +104,22 @@ function Evaluate_Page() {
     console.log(user_id)
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-
+    setShowUploader(false);
     if (file && file.type === "application/pdf") {
       if (file.size < maxSize) {
+        // Reset all evaluation states when new file is uploaded
+        setEvaluation(false);
+        setEvaluationComplete(false);
+        setEvaluationError(false);
+        setScore(0);
+        setReportData(null);
+        setEvaluationStatus(prev => ({
+          ...prev,
+          [file.name]: { evaluating: false, complete: false, error: false, score: 0 }
+        }));
+        
+        // Add the new file
         setPdfFiles([...pdfFiles, file]);
-        setShowUploader(false); // Close popup after upload
         
         // Generate thumbnail for the uploaded PDF
         try {
@@ -118,6 +130,7 @@ function Evaluate_Page() {
               [file.name]: thumbnail
             }));
           }
+          // const status = evaluationStatus[file.name] || {};
         } catch (error) {
           console.error('Failed to generate thumbnail:', error);
         }
@@ -129,43 +142,88 @@ function Evaluate_Page() {
     }
   };
 
-  const handleEvaluation = async () => {
-    setEvaluation(true);
+  // const handleEvaluation = async () => {
+  //   setEvaluation(true);
+  //   setEvaluationComplete(false); // Reset completion state
+  //   setEvaluationError(false); // Reset error state
+  //   setScore(0); // Reset score
+    
+  //   const formData = new FormData();
+  //   formData.append("file", pdfFiles[pdfFiles.length - 1]); // Get the most recently uploaded file
+    
+  //   try {
+  //     const response = await axios.post(
+  //       `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?user_id=${user_id}`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
+
+  //     console.log("data:-", response.data);
+  //     setScore((response.data.breakdown.score/ 800) * 100);
+  //     console.log("data of pdf :-", pdfFiles);
+      
+  //     setTimeout(() => {
+  //       setEvaluation(false);
+  //       setEvaluationComplete(true);
+  //       setReportData(response.data);
+  //     }, 1000);
+  //   } catch (error) {
+  //     console.log("Error", error);
+  //     setEvaluationError(true);
+  //     setTimeout(() => {
+  //       setEvaluationError(false);
+  //     }, 2000);
+  //     setEvaluation(false);
+  //   }
+  // };
+
+  const handleEvaluation = async (file) => {
+    const fileName = file.name;
+    setEvaluationStatus(prev => ({
+      ...prev,
+      [fileName]: { evaluating: true, complete: false, error: false, score: 0 }
+    }));
+  
     const formData = new FormData();
-    formData.append("file", pdfFiles[0]);
-    // formData.append("userId",user_id);
+    formData.append("file", file);
+  
     try {
       const response = await axios.post(
         `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?user_id=${user_id}`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-
-      console.log("data:-", response.data);
-      setScore((response.data.breakdown.score/ 800) * 100 )
-      console.log("data of pdf :-", pdfFiles);
-      setTimeout(() => {
-        setEvaluation(false);
-        setEvaluationComplete(true);
-        setReportData(response.data);
-      }, 1000);
-    } catch (error) {
-      console.log("Error", error);
-      setEvaluationError(true);
-      setTimeout(() => {
-        setEvaluationError(false);
-      }, 2000);
-      setEvaluation(false);
+  
+      const newScore = (response.data.breakdown.score.value / 800) * 100;
+      setEvaluationStatus(prev => ({
+        ...prev,
+        [fileName]: {
+          evaluating: false,
+          complete: true,
+          error: false,
+          score: newScore,
+          data: response.data,
+        }
+      }));
+      console.log(evaluationStatus);
+    } catch (err) {
+      setEvaluationStatus(prev => ({
+        ...prev,
+        [fileName]: { evaluating: false, complete: false, error: true, score: 0 }
+      }));
     }
   };
 
-  const handleAccessReport = () => {
+  
+  const handleAccessReport = (status) => {
     navigate("/evaluate/report", {
-      state: { reportData: reportData, pdfFiles: pdfFiles },
+      state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },
     });
   };
 
@@ -315,169 +373,180 @@ function Evaluate_Page() {
             </div>
           )}
 
-          {pdfFiles.length > 0 && (
-            <div className="flex flex-col lg:flex-row mt-8 sm:mt-10 xl:mt-[2.56rem] mx-3 sm:mx-4 xl:mx-[0.94rem] gap-4 lg:gap-0">
-              {/* Upload Box */}
-              <div className="border-dashed flex flex-col text-center relative w-full lg:w-80 xl:w-[20.625rem] h-64 sm:h-72 md:h-80 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
-                <label className="cursor-pointer flex flex-col items-center">
-                  {/* SVG Icon with responsive gap from top */}
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="30" 
-                    height="30" 
-                    viewBox="0 0 30 30" 
-                    fill="none"
-                    className="w-6 h-6 sm:w-7 sm:h-7 xl:w-[1.875rem] xl:h-[1.875rem] mt-16 sm:mt-20 md:mt-24 xl:mt-[5.63rem]"
-                  >
-                    <path 
-                      d="M13.75 16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75V16.25Z" 
-                      fill="url(#paint0_linear_262_227)"
-                    />
-                    <defs>
-                      <linearGradient 
-                        id="paint0_linear_262_227" 
-                        x1="15" 
-                        y1="7" 
-                        x2="15" 
-                        y2="35" 
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stopColor="#AD6FDE"/>
-                        <stop offset="1" stopColor="#0077B7"/>
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  
-                  {/* Upload PDF Text with responsive gap from icon */}
-                  <p
-                    className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem]"
-                    style={{
-                      background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
-                    Upload PDF
-                  </p>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handlePdfUpload}
-                    className="hidden"
-                  />
-                </label>
-                
-                {/* Max file size text - responsive gap from bottom of container */}
-                <div className="text-center absolute bottom-0 left-0 right-0 mb-6 sm:mb-7 xl:mb-[1.75rem]">
-                  <span className="text-white font-inter text-xs font-normal">
-                    Max file size: {' '}
-                  </span>
-                  <span className="text-white font-inter text-xs font-semibold">
-                    10MB
-                  </span>
-                </div>
-              </div>
-
-{/* Uploaded PDF Cards */}
-{pdfFiles.map((file, index) => (
-  <div
-    key={index}
-    className="flex flex-col w-full lg:w-80 xl:w-[20.625rem] h-64 sm:h-72 md:h-80 xl:h-[18.75rem] rounded-lg border-2 border-white bg-black p-3 sm:p-4 xl:p-[0.94rem] lg:ml-4 xl:ml-[0.94rem]"
-  >
-    {/* PDF thumbnail */}
-    <div 
-      className="rounded mb-3 sm:mb-4 overflow-hidden relative w-full h-32 sm:h-36 md:h-40 xl:h-[10.125rem] xl:w-[18.75rem] xl:rounded-[0.375rem]"
-      style={{
-        backgroundColor: pdfThumbnails[file.name] ? 'transparent' : '#6B7280'
-      }}
+{(analysisData.length > 0 || pdfFiles.length > 0) && (
+            <div className="flex flex-col mt-8 sm:mt-10 xl:mt-[2.56rem] mx-3 sm:mx-4 xl:mx-[0.94rem] mb-32">
+              {/* Cards Container with Upload Box included */}
+              <div
+      className={`${
+        analysisData.length === 0 && pdfFiles.length === 0
+          ? "flex justify-center"
+          : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      } max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32`}
     >
-      {pdfThumbnails[file.name] ? (
-        <img 
-          src={pdfThumbnails[file.name]} 
-          alt={`${file.name} preview`}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div className="flex items-center justify-center h-full text-white text-sm">
-          Loading preview...
-        </div>
-      )}
-      
-      {/* Loading Scanning Effect */}
-      {evaluation && !evaluationComplete && (
-        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-          <div className="scanning-line"></div>
-        </div>
-      )}
-      
-      {/* Evaluation Complete Overlay */}
-      {evaluationComplete && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <div className="text-white font-inter text-lg sm:text-xl md:text-2xl xl:text-[1.75rem] font-light mb-[-0.5rem] mt-2 sm:mt-4 xl:mt-[1rem]">
-            SATISFACTORY
-          </div>
-          <div className="text-white font-inter text-2xl sm:text-3xl md:text-4xl xl:text-[2.5rem] font-semibold">
-           {score}
-          </div>
-        </div>
-      )}
-    </div>
-
-                  <div className="text-left">
-                    <p 
-                      style={{
-                        color: '#FFF',
-                        fontFamily: 'Inter',
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        marginBottom: '0.25rem'
-                      }}
-                    >
-                      {file.name}
-                    </p>
-                    <p 
-                      style={{
-                        color: '#FFF',
-                        fontFamily: 'Inter',
-                        fontSize: '0.75rem',
-                        fontWeight: 400,
-                        marginBottom: '1rem'
-                      }}
-                    >
-                      {evaluationComplete 
-                        ? (
-                          <span style={{
-                            color: '#FFF',
-                            textAlign: 'center',
-                            fontFamily: 'Inter',
-                            fontSize: '0.625rem',
-                            fontWeight: 400
-                          }}>
-                            Evaluation report is ready and you can access now.
-                          </span>
-                        )
-                        : `${new Date().toLocaleDateString()}`}
-                    </p>
+         {/* Upload Box as first card */}
+                {!showUploader && (
+                  <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
+                    <label className="cursor-pointer flex flex-col items-center h-full">
+                      {/* SVG Icon with responsive gap from top */}
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="30" 
+                        height="30" 
+                        viewBox="0 0 30 30" 
+                        fill="none"
+                        className="w-6 h-6 sm:w-7 sm:h-7 xl:w-[1.875rem] xl:h-[1.875rem] mt-16 sm:mt-20 md:mt-24 xl:mt-[5.63rem]"
+                      >
+                        <path 
+                          d="M13.75 16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75V16.25Z" 
+                          fill="url(#paint0_linear_262_227)"
+                        />
+                        <defs>
+                          <linearGradient 
+                            id="paint0_linear_262_227" 
+                            x1="15" 
+                            y1="7" 
+                            x2="15" 
+                            y2="35" 
+                            gradientUnits="userSpaceOnUse"
+                          >
+                            <stop stopColor="#AD6FDE"/>
+                            <stop offset="1" stopColor="#0077B7"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      
+                      {/* Upload PDF Text with responsive gap from icon */}
+                      <p
+                        className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem]"
+                        style={{
+                          background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                        }}
+                      >
+                        Upload PDF
+                      </p>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handlePdfUpload}
+                        className="hidden"
+                      />
+                    </label>
+                    
+                    {/* Max file size text - responsive gap from bottom of container */}
+                    <div className="text-center absolute bottom-0 left-0 right-0 mb-6 sm:mb-7 xl:mb-[1.75rem]">
+                      <span className="text-white font-inter text-xs font-normal">
+                        Max file size: {' '}
+                      </span>
+                      <span className="text-white font-inter text-xs font-semibold">
+                        10MB
+                      </span>
+                    </div>
                   </div>
+                )}
 
-                  <button
-  onClick={evaluationComplete ? handleAccessReport : handleEvaluation}
-  className={`w-[18.625rem] h-11 rounded-md text-sm font-normal cursor-pointer transition duration-200 ${
-    evaluation === true ? 'bg-gray-500 text-white' : 'bg-white text-black'
-  }`}
->
-  {evaluation === true
+                {/* Previous History Cards */}
+                {analysisData && analysisData.map((item, idx) => (
+                  <div key={`old-${idx}`} className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4">
+                    <div className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center">
+                      <span className="text-white font-light text-lg">SATISFACTORY</span>
+                      <span className="text-white font-bold text-2xl">
+                        {((item.result.breakdown[0].score.value / 800) * 100).toFixed(0)}
+                      </span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
+                      <p className="text-white text-sm mb-3">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
+                    </div>
+                    <button
+                      onClick={() => navigate("/evaluate/report", {
+                        state: { reportData: item.result, pdfFiles: [item.file_name] }
+                      })}
+                      className="mt-auto bg-white text-black w-full py-2 rounded text-sm font-medium hover:bg-gray-200"
+                    >
+                      Access Report
+                    </button>
+                  </div>
+                ))}
+
+                {/* Uploaded PDF Cards - Only show when a file is selected */}
+                {pdfFiles && pdfFiles.length > 0 && pdfFiles.map((file, index) => {
+  const status = evaluationStatus[file.name] || {}; // ✅ Place this line here
+ console.log(status);
+  return (
+                  
+                  <div
+                    key={index}
+                    // className="flex flex-col w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] rounded-lg border-2 border-white bg-black p-3 sm:p-4 xl:p-[0.94rem]"
+                    className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4"
+                  >
+                    {/* PDF thumbnail */}
+                    <div 
+                      className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center"
+                      style={{
+                        backgroundColor: pdfThumbnails[file.name] ? 'transparent' : '#6B7280'
+                      }}
+                    >
+                      {pdfThumbnails[file.name] ? (
+                        <img 
+                          src={pdfThumbnails[file.name]} 
+                          alt={`${file.name} preview`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-white text-sm">
+                          Loading preview...
+                        </div>
+                      )}
+                      
+                      {/* Loading Scanning Effect */}
+                      { status.evaluating && !status.complete && (
+                        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                          <div className="scanning-line"></div>
+                        </div>
+                      )}
+                      
+                      {/* Evaluation Complete Overlay */}
+                      {status.complete && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                          <div className="text-white font-inter text-lg sm:text-xl md:text-2xl xl:text-[1.75rem] font-light mb-[-0.5rem] mt-2 sm:mt-4 xl:mt-[1rem]">
+                            SATISFACTORY
+                          </div>
+                          <div className="text-white font-inter text-2xl sm:text-3xl md:text-4xl xl:text-[2.5rem] font-semibold">
+                            {status.score}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-left">
+                      <p className="text-white font-semibold text-base mb-1">{file.name}</p>
+                      <p className="text-white text-sm mb-3">
+                        {status.complete  
+                          ? "Evaluation report is ready and you can access now."
+                          : `${new Date().toLocaleDateString()}`}
+                      </p>
+                    </div>
+
+                    <button
+                     onClick={status.complete ? () => handleAccessReport(status) : () => handleEvaluation(file)}
+                      className={`w-full py-2 rounded text-sm font-medium cursor-pointer transition duration-200 ${
+                        status.evaluating ? 'bg-gray-500 text-white' : 'bg-white text-black hover:bg-gray-200'
+                      }`}
+                    >
+                       {status.evaluating
     ? "Initializing..."
-    : evaluationError === true
+    : status.error
     ? "Failed to evaluate"
-    : evaluationComplete === true
+    : status.complete
     ? "Access Report"
     : "Evaluate"}
-</button>
-
-
-                </div>
-              ))}
+                    </button>
+                  </div>
+                );
+                })}
+              </div>
             </div>
           )}
         </div>
