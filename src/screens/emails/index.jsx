@@ -1,3 +1,4 @@
+
 import "./style.css";
 import Navigation from "../../components/navigation/component";
 import templates from "./templates.json";
@@ -66,7 +67,7 @@ export default function GenerateEmail() {
     const body = editRef.current.innerHTML;
 
     try {
-      const response = await fetch("https://email-automation-427457295403.us-central1.run.app/", {
+      const response = await fetch("https://email-automation-427457295403.us-central1.run.app/generate_email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -184,3 +185,4 @@ export default function GenerateEmail() {
     </div>
   );
 }
+

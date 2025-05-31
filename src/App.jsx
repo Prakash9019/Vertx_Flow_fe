@@ -1,3 +1,5 @@
+// Vertx_Flow_fe/src/App.jsx
+// Ensure all imported components are correctly named (PascalCase)
 
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
@@ -14,8 +16,6 @@ import RaiseFunds from "./screens/RaiseFunds"; // Raise input
 import RevenueStatus from "./screens/RevenueStatus"; // Revenue input (ensure component name matches if it's RevenueStaus.jsx)
 import InvestorsIndustry from "./screens/InvestorsIndustry"; // Industry input
 import InvestorsPitch from "./screens/InvestorsPitch"; // Pitch input
-
-
 import GenerateEmail from "./screens/emails";
 import Pipeline from "./screens/events";
 import Matchflow from "./screens/matchflow";
@@ -34,16 +34,16 @@ import Evaluate_Page from "./screens/Evaluate_Page";
 import EvaluateReport_page from "./screens/EvaluateReport_page";
 import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
-import FundraisingManagePage from "./components/fundraising";
+import Login from './components/Login';
 
 function App() {
   const authToken = localStorage.getItem("authToken");
 
   
   const streamlinedProtectedRoutes = [
-    { path: "/linkedin", element: <ProfileSetup_Page /> },
+    { path: "/profile", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
-    { path: "/profile/stage", element: <ProfileSetup /> }, // Stage input
+    { path: "/profile/setup", element: <ProfileSetup /> }, // Stage input
     { path: "/profile/location", element: <LocationSetup /> }, // Location input
     { path: "/profile/raise", element: <RaiseFunds /> }, // Raise input
     { path: "/profile/revenue", element: <RevenueStatus /> }, // Revenue input
@@ -55,11 +55,11 @@ function App() {
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     { path: "/fundraising", element: <FundraisingPage /> },
-    { path: "/fundraising/raise", element: <FundraisingManagePage /> },
+   // { path: "/fundraising/raise", element: <FundraisingManagePage /> },
+     {path: "/", element: <Login />},
     { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,
     {path:"/flow/pipeline", element:<Pipeline /> },
-
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //
@@ -79,7 +79,7 @@ function App() {
           <Route
             key={path}
             path={path}
-            element={element}
+            element={<PrivateRoute>{element}</PrivateRoute>}
           />
         ))}
       </Routes>
