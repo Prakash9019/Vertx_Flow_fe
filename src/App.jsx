@@ -34,7 +34,7 @@ import Evaluate_Page from "./screens/Evaluate_Page";
 import EvaluateReport_page from "./screens/EvaluateReport_page";
 import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
-import Login from './components/Login';
+//import Login from './components/Login';
 
 function App() {
   const authToken = localStorage.getItem("authToken");
@@ -55,8 +55,8 @@ function App() {
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     { path: "/fundraising", element: <FundraisingPage /> },
-   // { path: "/fundraising/raise", element: <FundraisingManagePage /> },
-     {path: "/", element: <Login />},
+   
+    
     { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,
     {path:"/flow/pipeline", element:<Pipeline /> },
