@@ -21,26 +21,27 @@ export default function GenerateEmail() {
 
   const loginAndFetchTemplates = async () => {
     try {
-      const loginRes = await fetch("https://email-automation-427457295403.us-central1.run.app/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "test@example.com", // replace with actual email
-          password: "test1234",      // replace with actual password
-        }),
-      });
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get("token"); // Note the spelling 'tocken'
 
-      const loginData = await loginRes.json();
+      let token = localStorage.getItem("authToken");
 
-      if (!loginRes.ok) {
-        throw new Error("Login failed");
+      if (tokenFromUrl) {
+        localStorage.setItem("authToken", tokenFromUrl);
+        token = tokenFromUrl;
+        // Remove the token from the URL to prevent re-processing on refresh
+        urlParams.delete("tocken");
+        window.history.replaceState({}, document.title, `${window.location.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`);
       }
 
-      const token = loginData.token;
-      localStorage.setItem("authToken", token);
+      if (!token) {
+        // Redirect for OAuth to get Gmail API token if no token is found in localStorage or URL
+        window.location.href = "https://email-automation-427457295403.us-central1.run.app/login?user_id=user123";
+        return; // Stop execution after redirection
+      }
 
       // Use token to fetch templates
-      const emailRes = await fetch("https://email-automation-427457295403.us-central1.run.app/generate_email", {
+      const emailRes = await fetch("https://email-automation-427457295403.us-central1.run.app/generate_email?user_id=user123", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +176,7 @@ export default function GenerateEmail() {
 
         <div className="flex-1 p-5 -mt-5 w-full max-w-[1000px] mx-auto">
           <div className="w-full border border-[#222222] rounded-[15px] overflow-hidden bg-[#090909]">
-            <div className="w-full h-[50px] border-b border-[#171717] bg-[#121212] flex justify-between items-center px-5 pr-0">
+            <div className="w-full h-[50px] border-b border-[rgb(23,23,23)] bg-[#121212] flex justify-between items-center px-5 pr-0">
               <p className="text-white">{template?.varient}</p>
               <button className="w-[50px] h-[50px] border-none border-l border-[#222222] flex justify-center items-center text-white bg-[#222] text-[27px] text-[#9a9a9a] cursor-pointer">
                 <ion-icon name="close-outline"></ion-icon>
