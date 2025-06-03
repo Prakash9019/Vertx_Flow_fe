@@ -18,7 +18,11 @@ import InvestorsIndustry from "./screens/InvestorsIndustry"; // Industry input
 import InvestorsPitch from "./screens/InvestorsPitch"; // Pitch input
 import GenerateEmail from "./screens/emails";
 import Pipeline from "./screens/events";
-import Matchflow from "./screens/matchflow";
+import Matchflow from "./screens/matchflow"; 
+
+
+//Screens for fundraising
+import FundraisingManagePage from "./components/fundraising"
 
 // Intermediate "Selected" pages (if you decide to keep them)
 import StartupLocation from "./screens/StartupLocation"; // Stage Selected confirmation
@@ -59,7 +63,11 @@ function App() {
     
     { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,
-    {path:"/flow/pipeline", element:<Pipeline /> },
+    {path:"/flow/pipeline", element:<Pipeline /> }, 
+    {path:"/fundraising/raise", element:<FundraisingManagePage /> },
+
+
+
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //
@@ -79,7 +87,7 @@ function App() {
           <Route
             key={path}
             path={path}
-            element={<PrivateRoute>{element}</PrivateRoute>}
+            element={element}
           />
         ))}
       </Routes>
