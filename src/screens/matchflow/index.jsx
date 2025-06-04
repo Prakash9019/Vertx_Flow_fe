@@ -5,9 +5,11 @@ import axios from "axios";
 import API_KEY from "../../../key.js";
 import { useNavigate } from "react-router";
 import gify from "../gify.gif";
+import { useStartupProfile } from "../../context/StartupProfileContext";
 // import Sidebar from "../../components/Sidebar"; 
 import Sidebar2 from "../../components/Sidebar.jsx";
 import "./style.css";
+
 
 function Step1({ cb }) {
   return (
@@ -245,14 +247,13 @@ function Step2({ cb }) {
 
   const preload = async() => {
     const response = await axios.get(API_KEY + "/auth/founder", {headers: {token: window.localStorage.getItem("authToken")}}).catch((e) => e.response);
-    console.log(Object.keys(response?.data?.msg || {}));
     if(response?.status === 200){
       setProduct("Vertxai");
       setCofound("Surya,Tharun");
       setContact("team@govertx.com");
       setBuilds("Investor Matchmaking , Pitch Deck Analysis and Generation, Email Outbounding,");
       setStage("Beta - Actively onboarding early-stage startups and investors");
-      setDescription("VertexAI is a smart founder's companion – a unified platform that helps early-stage startups validate ideas, build pitch decks, track investor interactions, and connect with relevant VCs. It combines AI matchmaking, fundraising insights, and learning modules into one powerful ecosystem.");
+      setDescription("VertexAI is a smart founder's companion - a unified platform that helps early-stage startups validate ideas, build pitch decks, track investor interactions, and connect with relevant VCs. It combines AI matchmaking, fundraising insights, and learning modules into one powerful ecosystem.");
       setPresence("Global");
       setIndustry("Technology, SaaS, EdTech, Fintech, Startup Ecosystem");
       setSectors(["Startup Enablement", "Fundraising", "Venture Capital", "Learning & Development"]);
@@ -297,28 +298,65 @@ function Step2({ cb }) {
       sectors: sectors,
       product_stage: productionStage,
       target_countries: countries,
-      required_funding: raise,     //2
+      required_funding: reqFunding,     //2
       co_builder: cofounders,
       best_contact: contacts,
       show_me_what_you_build: build,
       professnal_presence: presense,
       best_description: description,
       current_traction: traction,     //1 
-      previous_funding: previousFunding   //3
+      previous_funding: prevFunding   //3
     };
-  
+    const {user_id } =useStartupProfile();
     try {
-      const response = await axios.post(
-        "https://founder-to-investor-model-427457295403.us-central1.run.app/",
-        data
-      );
+      console.log(data);
+      // const response = await axios.post(
+      //   "https://founder-to-investor-model-427457295403.us-central1.run.app/",
+      //   data
+      // );
   
-      console.log("✅ API Response:", response.data);
+      // console.log("✅ API Response:", response.data);
   
       // Optional: Handle match_id or matches returned
       // setMatches(response.data.matches);
       // setMatchId(response.data.match_id);
+      
+     // model output
+      // {
+      //   "founder": "Surya..",
+      //   "matches": [
+      //       {
+      //           "name": "Energy Capital Ventures",
+      //           "matching_score": 92.25,
+      //           "reason": "Energy Capital Ventures invests in energy and climate tech companies in the USA, UK, and Germany, aligning with GreenTech Solutions' focus and geographic presence.  Their investment range also fits GreenTech Solutions' funding needs."
+      //       },
+      //       {
+      //           "name": "Greenlight Re Innovations",
+      //           "matching_score": 89.12,
+      //           "reason": "While Greenlight Re Innovations focuses on Insurtech, their investment in early-stage companies and their presence in the USA makes them a potential fit for GreenTech Solutions' seed stage and US operations."
+      //       },
+      // const response = await axios.post(
+      //   `https://founder-to-investor-model-427457295403.us-central1.run.app/${user_id}`, data
+      // ).catch((e) => e.response);
+      // console.log(response.data)
+
+      const token = window.localStorage.getItem("token");
+
+      const response = await axios.post(API_KEY +  "/auth/founder/match",  // call your own backend
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
   
+      if (response.status === 200) {
+        console.log("Investor matches:", response.data.matches);
+        // Optionally display in UI
+      }
+      setLoad(false);
+
       cb(); // proceed to next UI step
     } catch (e) {
       console.error("❌ API Error:", e.response?.data || e.message);
@@ -678,7 +716,6 @@ function Step3() {
       "Industry":"HEALTH",
       "Cheque_Size":"$1M - $5M", "score":"85"
   },
-
     ] 
 
   const getMatches = async() => {
@@ -733,13 +770,13 @@ function Step3() {
         {matches?.map((match) => (
           <div className="row">
             <td className="data">
-              <p className="tit">{match.Investor_name}</p>
-              <p className="sub">{match.Investor_type}</p>
+              <p className="tit">{match.name}</p>
+              {/* <p className="sub">{match.Investor_type}</p> */}
             </td>
-            <td className="data">{match.Investment_thesis}</td>
-            <td className="data">{match.Country}</td>
+            <td className="data">{match.resaon}</td>
+            {/* <td className="data">{match.Country}</td> */}
             <td className="data">
-              <div className="tag ok">{match.score}%</div>
+              <div className="tag ok">{match.matching_score}%</div>
             </td>
             <td className="data">
               <input

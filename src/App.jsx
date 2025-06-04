@@ -65,9 +65,6 @@ function App() {
     { path:"/flow/match flow", element:<Matchflow />} ,
     {path:"/flow/pipeline", element:<Pipeline /> }, 
     {path:"/fundraising/raise", element:<FundraisingManagePage /> },
-
-
-
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //

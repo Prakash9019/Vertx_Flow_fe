@@ -5,6 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import Button from "../../components/button/component";
 import { useNavigate } from "react-router";
 import Sidebar2 from "../../components/Sidebar";
+import API_KEY from "../../../key";
 
 export default function GenerateEmail() {
   const [template, setTemplate] = useState();
@@ -21,46 +22,62 @@ export default function GenerateEmail() {
 
   const loginAndFetchTemplates = async () => {
     try {
-      const loginRes = await fetch("https://email-automation-427457295403.us-central1.run.app/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "test@example.com", // replace with actual email
-          password: "test1234",      // replace with actual password
-        }),
-      });
-
-      const loginData = await loginRes.json();
-
-      if (!loginRes.ok) {
-        throw new Error("Login failed");
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get("token"); 
+      
+      let token = tokenFromUrl;
+      console.log(token);
+      if (tokenFromUrl) {
+        localStorage.setItem("authToken", tokenFromUrl);
+        urlParams.delete("token");
+        window.history.replaceState({}, document.title, `${window.location.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`);
       }
-
-      const token = loginData.token;
-      localStorage.setItem("authToken", token);
-
-      // Use token to fetch templates
-      const emailRes = await fetch("https://email-automation-427457295403.us-central1.run.app/generate_email", {
+  
+      if (!tokenFromUrl && !localStorage.getItem("authToken")) {
+        console.log("hellloooooo..")
+        window.location.href = "https://email-automation-427457295403.us-central1.run.app/login";
+        return;
+      }
+  
+      const data = {
+        founder_name: "John Doe",
+        building: "AI-driven e-commerce platform",
+        co_builders: "Jane Smith, Alan Turing",
+        best_contact: "john.doe@example.com",
+        show_built: "https://example.com/product",
+        professional_presence: "LinkedIn: john-doe",
+        industry: "E-commerce",
+        company_name: "TechCo",
+        description: "A platform that uses AI to personalize the shopping experience for consumers.",
+        sectors: "E-commerce AI",
+        traction: "Revenue grew 20% last quarter, 500 active users",
+        required_funding: "$500,000",
+        previous_funding: "$200,000 seed round",
+        target_countries: "USA,Canada,UK",
+        product_stage: "MVP"
+      };
+      
+      // const token = localStorage.getItem("authToken");
+      
+      const res = await fetch(API_KEY + "/api/email/templates", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ fetchTemplates: true }), // use specific flag or empty body if needed
+        body: JSON.stringify(data)
       });
-
-      if (!emailRes.ok) {
-        throw new Error("Failed to fetch email templates");
-      }
-
-      const emailData = await emailRes.json();
-      setTemplates(emailData.templates || []); // adapt based on actual response format
-
+      
+      if (!res.ok) throw new Error("Failed to fetch email templates");
+  
+      const data1 = await res.json();
+      setTemplates(data1.templates || []);
     } catch (err) {
-      console.error("Auth or fetch error:", err);
-      alert("Authentication or fetch failed. See console.");
+      console.error("Template fetch error:", err);
+      // alert("Authentication or fetch failed. See console.");
     }
   };
+  
 
   useEffect(() => {
     loginAndFetchTemplates();
@@ -108,13 +125,19 @@ export default function GenerateEmail() {
       }
     }
   };
+ 
+  const handleLogout = async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+  };
+  
 
   const handleSubmit = async () => {
     const body = editRef.current.innerHTML;
     const token = localStorage.getItem("authToken");
-
+  
     try {
-      const response = await fetch("https://email-automation-427457295403.us-central1.run.app/generate_email", {
+      const res = await fetch(API_KEY + "/api/email/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,22 +145,24 @@ export default function GenerateEmail() {
         },
         body: JSON.stringify({ from, to, subject, body }),
       });
-
-      if (response.ok) {
+  
+      if (res.ok) {
         alert("Email processed successfully!");
         navigate("/flow/pipeline");
       } else {
         alert("Failed to process email.");
       }
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Submit error:", err);
       alert("Error while processing email.");
     }
   };
+  
 
   return (
     <div className="w-full h-screen bg-black flex overflow-hidden">
       <Sidebar2 />
+      <button onClick={()=> handleLogout()} className="text-6xl bg-blue text-white"> log outt.....</button>
       <div className="w-full h-full flex flex-col text-white font-['Manrope'] overflow-y-auto">
         <div className="w-full p-5 bg-[#090909]">
           <p className="mb-4 font-bold">Select your template</p>
@@ -175,7 +200,7 @@ export default function GenerateEmail() {
 
         <div className="flex-1 p-5 -mt-5 w-full max-w-[1000px] mx-auto">
           <div className="w-full border border-[#222222] rounded-[15px] overflow-hidden bg-[#090909]">
-            <div className="w-full h-[50px] border-b border-[#171717] bg-[#121212] flex justify-between items-center px-5 pr-0">
+            <div className="w-full h-[50px] border-b border-[rgb(23,23,23)] bg-[#121212] flex justify-between items-center px-5 pr-0">
               <p className="text-white">{template?.varient}</p>
               <button className="w-[50px] h-[50px] border-none border-l border-[#222222] flex justify-center items-center text-white bg-[#222] text-[27px] text-[#9a9a9a] cursor-pointer">
                 <ion-icon name="close-outline"></ion-icon>
