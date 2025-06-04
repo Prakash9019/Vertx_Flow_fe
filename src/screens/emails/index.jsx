@@ -201,6 +201,7 @@ export default function GenerateEmail() {
         <div className="flex-1 p-5 -mt-5 w-full max-w-[1000px] mx-auto">
           <div className="w-full border border-[#222222] rounded-[15px] overflow-hidden bg-[#090909]">
             <div className="w-full h-[50px] border-b border-[rgb(23,23,23)] bg-[#121212] flex justify-between items-center px-5 pr-0">
+            <div className="w-full h-[50px] border-b border-[rgb(23,23,23)] bg-[#121212] flex justify-between items-center px-5 pr-0">
               <p className="text-white">{template?.varient}</p>
               <button className="w-[50px] h-[50px] border-none border-l border-[#222222] flex justify-center items-center text-white bg-[#222] text-[27px] text-[#9a9a9a] cursor-pointer">
                 <ion-icon name="close-outline"></ion-icon>
@@ -240,6 +241,7 @@ export default function GenerateEmail() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
