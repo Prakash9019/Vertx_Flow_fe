@@ -40,7 +40,7 @@ export default function GenerateEmail() {
       }
   
       const data = {
-        founder_name: "John Doe",
+        founder_name: "Surya Prakash",
         building: "AI-driven e-commerce platform",
         co_builders: "Jane Smith, Alan Turing",
         best_contact: "john.doe@example.com",
@@ -63,15 +63,25 @@ export default function GenerateEmail() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${tokenFromUrl}`
         },
         body: JSON.stringify(data)
       });
-      
-      if (!res.ok) throw new Error("Failed to fetch email templates");
+      console.log("helllooooo")
+      console.log(res.data)
+      // if (!res.ok) throw new Error("Failed to fetch email templates");
   
       const data1 = await res.json();
-      setTemplates(data1.templates || []);
+
+// Convert object to array with 'varient' included
+const formattedTemplates = Object.entries(data1).map(([key, value]) => ({
+  varient: key,
+  subject: value.subject,
+  body: value.body
+}));
+
+setTemplates(formattedTemplates);
+
     } catch (err) {
       console.error("Template fetch error:", err);
       // alert("Authentication or fetch failed. See console.");
@@ -129,6 +139,7 @@ export default function GenerateEmail() {
   const handleLogout = async () => {
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
+    alert("this is sdfhsdfhdslf");
   };
   
 
