@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from "react"
 import rectangleImage from "../../assets/Rectangle 82.png"
+import QRIcon from '../../assets/QRIcon.svg';
+import BackIcon from '../../assets/BackButton.svg';
+import LockIcon from '../../assets/LockIcon.svg';
+import DropdownIcon from '../../assets/DropdownIcon.svg';
+import EarthIcon from '../../assets/EarthIcon.svg';
+import CopyIcon from '../../assets/CopyIcon.svg';
+import InfoIcon from '../../assets/info.svg';
 
 function InviteAndCollab({ isOpen, onClose }) {
   const [showTooltip, setShowTooltip] = useState(false)
@@ -124,35 +131,18 @@ function InviteAndCollab({ isOpen, onClose }) {
           {/* QR Code View */}
           {currentView === 'qr' && (
             <div className="flex flex-col items-center justify-center h-full">
-              <div className="mb-6">
-                {/* QR Code */}
-                <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width: "9.375rem", height: "9.375rem"}}>
-                  {/* Outer squares */}
-                  <rect x="15" y="15" width="45" height="45" stroke="white" strokeWidth="6" fill="none"/>
-                  <rect x="90" y="15" width="45" height="45" stroke="white" strokeWidth="6" fill="none"/>
-                  <rect x="15" y="90" width="45" height="45" stroke="white" strokeWidth="6" fill="none"/>
-                  
-                  {/* Inner squares */}
-                  <rect x="26.25" y="26.25" width="22.5" height="22.5" fill="white"/>
-                  <rect x="101.25" y="26.25" width="22.5" height="22.5" fill="white"/>
-                  <rect x="26.25" y="101.25" width="22.5" height="22.5" fill="white"/>
-                  
-                  {/* Random pattern blocks */}
-                  <rect x="75" y="75" width="15" height="15" fill="white"/>
-                  <rect x="105" y="105" width="15" height="15" fill="white"/>
-                  <rect x="120" y="75" width="15" height="15" fill="white"/>
-                  <rect x="75" y="120" width="15" height="15" fill="white"/>
-                  <rect x="90" y="90" width="15" height="15" fill="white"/>
-                  
-                  {/* Additional pattern elements */}
-                  <rect x="67.5" y="37.5" width="7.5" height="7.5" fill="white"/>
-                  <rect x="82.5" y="37.5" width="7.5" height="7.5" fill="white"/>
-                  <rect x="67.5" y="52.5" width="7.5" height="7.5" fill="white"/>
-                  <rect x="37.5" y="67.5" width="7.5" height="7.5" fill="white"/>
-                  <rect x="52.5" y="67.5" width="7.5" height="7.5" fill="white"/>
-                  <rect x="37.5" y="82.5" width="7.5" height="7.5" fill="white"/>
-                </svg>
-              </div>
+
+
+<div className="mb-6">
+  {/* QR Code */}
+  <img
+    src={QRIcon}
+    alt="QR Code"
+    className="w-[150px] h-[150px]"
+    style={{ width: "9.375rem", height: "9.375rem" }}
+  />
+</div>
+
               <p
                 style={{
                   color: "#FFF",
@@ -172,18 +162,23 @@ function InviteAndCollab({ isOpen, onClose }) {
             <div style={{ paddingTop: "1.5rem", paddingLeft: "2rem", paddingRight: "2rem" }}>
               {/* Back button and title */}
               <div className="flex items-center mb-3">
-                <button
-                  onClick={handleBackToMain}
-                  className="flex items-center text-white hover:opacity-80 transition-opacity mr-3"
-                  style={{
-                    width: "1.5rem",
-                    height: "1.5rem",
-                  }}
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" fill="none"/>
-                  </svg>
-                </button>
+
+
+<button
+  onClick={handleBackToMain}
+  className="flex items-center text-white hover:opacity-80 transition-opacity mr-3"
+  style={{
+    width: "1.5rem",
+    height: "1.5rem",
+  }}
+>
+  <img
+    src={BackIcon}
+    alt="Back"
+    className="w-full h-full"
+  />
+</button>
+
                 <h3
                   style={{
                     color: "#FFF",
@@ -238,25 +233,35 @@ function InviteAndCollab({ isOpen, onClose }) {
                       border: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
                   >
-                    <div className="flex items-center">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2" style={{width: "1.25rem", height: "1.25rem"}}>
-                        <rect x="3" y="8" width="14" height="9" rx="1" stroke="#FFF" fill="none"/>
-                        <rect x="6" y="4" width="8" height="6" rx="1" stroke="#FFF" fill="none"/>
-                      </svg>
-                      <span
-                        style={{
-                          color: "#FFF",
-                          fontFamily: "Inter",
-                          fontSize: "0.625rem",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {selectedAccess}
-                      </span>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width: "1rem", height: "1rem"}}>
-                      <path d="M4 6L8 10L12 6" stroke="#FFF" strokeWidth="1" fill="none"/>
-                    </svg>
+
+
+<div className="flex items-center">
+  <img
+    src={LockIcon}
+    alt="Lock"
+    className="mr-2"
+    style={{ width: "1.25rem", height: "1.25rem" }}
+  />
+  <span
+    style={{
+      color: "#FFF",
+      fontFamily: "Inter",
+      fontSize: "0.625rem",
+      fontWeight: 400,
+    }}
+  >
+    {selectedAccess}
+  </span>
+</div>
+
+
+
+<img
+  src={DropdownIcon}
+  alt="Dropdown"
+  style={{ width: "1rem", height: "1rem" }}
+/>
+
                   </div>
 
                   {/* Dropdown */}
@@ -287,10 +292,15 @@ function InviteAndCollab({ isOpen, onClose }) {
                         onMouseEnter={(e) => e.target.style.background = "#33005C"}
                         onMouseLeave={(e) => e.target.style.background = "transparent"}
                       >
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2" style={{width: "1.25rem", height: "1.25rem"}}>
-                          <circle cx="10" cy="7" r="3" stroke="#FFF" fill="none"/>
-                          <path d="M4 18c0-4 2.7-6 6-6s6 2 6 6" stroke="#FFF" fill="none"/>
-                        </svg>
+
+
+<img
+  src={EarthIcon}
+  alt="Earth"
+  className="mr-2"
+  style={{ width: "1.25rem", height: "1.25rem" }}
+/>
+
                         <span
                           style={{
                             color: "#FFF",
@@ -313,10 +323,14 @@ function InviteAndCollab({ isOpen, onClose }) {
                         onMouseEnter={(e) => e.target.style.background = "#33005C"}
                         onMouseLeave={(e) => e.target.style.background = "transparent"}
                       >
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2" style={{width: "1.25rem", height: "1.25rem"}}>
-                          <rect x="3" y="8" width="14" height="9" rx="1" stroke="#FFF" fill="none"/>
-                          <rect x="6" y="4" width="8" height="6" rx="1" stroke="#FFF" fill="none"/>
-                        </svg>
+
+<img
+  src={LockIcon}
+  alt="Lock"
+  className="mr-2"
+  style={{ width: "1.25rem", height: "1.25rem" }}
+/>
+
                         <span
                           style={{
                             color: "#FFF",
@@ -436,10 +450,15 @@ function InviteAndCollab({ isOpen, onClose }) {
                   onMouseEnter={() => setShowTooltip(true)}
                   onMouseLeave={() => setShowTooltip(false)}
                 >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="cursor-pointer">
-                    <circle cx="10" cy="10" r="9" stroke="#B8B8B8" strokeWidth="1"/>
-                    <path d="M9 9h2v6H9V9zm0-4h2v2H9V5z" fill="#B8B8B8"/>
-                  </svg>
+
+
+<img
+  src={InfoIcon}
+  alt="Info"
+  className="cursor-pointer"
+  style={{ width: "20px", height: "20px" }}
+/>
+
 
                   {showTooltip && (
                     <div
@@ -498,21 +517,25 @@ function InviteAndCollab({ isOpen, onClose }) {
                     </span>
                     
                     {/* Copy icon */}
-                    <button
-                      className="flex items-center justify-center hover:bg-opacity-80 transition-colors"
-                      style={{
-                        width: "1.125rem",
-                        height: "1.125rem",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="5" y="5" width="8" height="8" rx="1" stroke="#FFF" strokeWidth="1" fill="none"/>
-                        <rect x="2" y="2" width="8" height="8" rx="1" stroke="#FFF" strokeWidth="1" fill="none"/>
-                      </svg>
-                    </button>
+                 
+
+<button
+  className="flex items-center justify-center hover:bg-opacity-80 transition-colors"
+  style={{
+    width: "1.125rem",
+    height: "1.125rem",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+  }}
+>
+  <img
+    src={CopyIcon}
+    alt="Copy"
+    style={{ width: "1.125rem", height: "1.125rem" }}
+  />
+</button>
+
                   </div>
                 </div>
 
@@ -529,16 +552,14 @@ function InviteAndCollab({ isOpen, onClose }) {
                     cursor: "pointer",
                   }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width: "1rem", height: "1rem"}}>
-                    <rect x="1" y="1" width="6" height="6" stroke="#FFF" fill="none"/>
-                    <rect x="9" y="1" width="6" height="6" stroke="#FFF" fill="none"/>
-                    <rect x="1" y="9" width="6" height="6" stroke="#FFF" fill="none"/>
-                    <rect x="3" y="3" width="2" height="2" fill="#FFF"/>
-                    <rect x="11" y="3" width="2" height="2" fill="#FFF"/>
-                    <rect x="3" y="11" width="2" height="2" fill="#FFF"/>
-                    <rect x="9" y="9" width="2" height="2" fill="#FFF"/>
-                    <rect x="13" y="11" width="2" height="2" fill="#FFF"/>
-                  </svg>
+
+
+<img
+  src={QRIcon}
+  alt="QR Icon"
+  style={{ width: "1rem", height: "1rem" }}
+/>
+
                   <span
                     style={{
                       color: "#B8B8B8",
@@ -610,23 +631,28 @@ function InviteAndCollab({ isOpen, onClose }) {
                   className="flex items-center justify-between cursor-pointer hover:bg-opacity-80 transition-colors rounded"
                   style={{ padding: "0.5rem 0" }}
                 >
-                  <div className="flex items-center">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2" style={{width: "1.25rem", height: "1.25rem"}}>
-                      <rect x="3" y="8" width="14" height="9" rx="1" stroke="#FFF" fill="none"/>
-                      <rect x="6" y="4" width="8" height="6" rx="1" stroke="#FFF" fill="none"/>
-                    </svg>
-                    <span
-                      style={{
-                        color: "#FFF",
-                        textAlign: "center",
-                        fontFamily: "Inter",
-                        fontSize: "0.875rem",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Only those invited
-                    </span>
-                  </div>
+
+
+<div className="flex items-center">
+  <img
+    src={LockIcon}
+    alt="Lock"
+    className="mr-2"
+    style={{ width: "1.25rem", height: "1.25rem" }}
+  />
+  <span
+    style={{
+      color: "#FFF",
+      textAlign: "center",
+      fontFamily: "Inter",
+      fontSize: "0.875rem",
+      fontWeight: 500,
+    }}
+  >
+    Only those invited
+  </span>
+</div>
+
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width: "1rem", height: "1rem"}}>
                     <path d="M6 4L10 8L6 12" stroke="#FFF" strokeWidth="1" fill="none"/>
                   </svg>

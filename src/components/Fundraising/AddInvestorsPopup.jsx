@@ -1,6 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState } from "react" 
+
+import BackButton from '../../assets/BackButton.svg';
+import SearchIcon from '../../assets/SearchIcon.svg';
+import CloseIcon from '../../assets/close_icon.svg';
+
+import LinkedIn from '../../assets/LinkedIn.svg';
+import LinkIcon from '../../assets/link.svg';
+import MailIcon from '../../assets/mail.svg';
+import TwitterIcon from '../../assets/twitter.svg';
+import WorkIcon from '../../assets/workIcon.svg'; // replace with actual path to your SVG or PNG
+import LocationIcon from '../../assets/LocationIcon.svg';
+import DollarIcon from '../../assets/DollarIcon.svg';
+
 
 function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -348,21 +361,25 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
           }`}
         >
           {/* Back button positioned absolutely */}
-          <button
-            onClick={handleClose}
-            className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-5 md:left-6 xl:top-6 xl:left-8 flex items-center gap-1 sm:gap-2 xl:gap-3 hover:opacity-80 transition-opacity text-white z-10 whitespace-nowrap"
-          >
-            <svg
-              className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6 flex-shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-            <span className="font-inter text-xs sm:text-sm xl:text-base font-medium">Back</span>
-          </button>
+
+
+<button
+  onClick={handleClose}
+  className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-5 md:left-6 xl:top-6 xl:left-8 flex items-center gap-1 sm:gap-2 xl:gap-3 hover:opacity-80 transition-opacity text-white z-10 whitespace-nowrap"
+>
+  <img
+    src={BackButton}
+    alt="Back"
+    className="flex-shrink-0"
+    style={{
+      width: "1.3rem", // w-4
+      height: "1.3rem", // h-4
+      // Adjust sizes for sm and xl via CSS or tailwind as needed
+    }}
+  />
+  <span className="font-inter text-xs sm:text-sm xl:text-base font-medium">Back</span>
+</button>
+
 
           {!showResults ? (
             // Original layout when no search results
@@ -379,21 +396,22 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                 </div>
 
                 <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md xl:max-w-[500px]">
-                  <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 xl:pl-4 flex items-center pointer-events-none">
-                    <svg
-                      className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6 text-[#B8B8B8] flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
+
+
+<div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 xl:pl-4 flex items-center pointer-events-none">
+  <img
+    src={SearchIcon}
+    alt="Search"
+    className="text-[#B8B8B8] flex-shrink-0"
+    style={{
+      width: "1.3rem",   // w-4
+      height: "1.3rem",  // h-4
+      // For sm and xl sizes, add responsive CSS if needed
+      color: "#B8B8B8", // fallback for stroke color, but for img it won’t affect
+    }}
+  />
+</div>
+
                   <input
                     type="text"
                     placeholder="Search..."
@@ -417,16 +435,11 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                 <div className="absolute inset-0 bg-black bg-opacity-30 rounded-sm sm:rounded-md"></div>
 
                 <div className="absolute bottom-2 sm:bottom-3 xl:bottom-6 left-1/2 transform -translate-x-1/2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 sm:w-8 md:w-10 xl:w-[46px] h-1 sm:h-2 xl:h-[10px]"
-                    viewBox="0 0 46 10"
-                    fill="none"
-                  >
-                    <circle cx="5" cy="5" r="5" fill="white" />
-                    <circle cx="23" cy="5" r="5" fill="white" fillOpacity="0.13" />
-                    <circle cx="41" cy="5" r="5" fill="white" fillOpacity="0.13" />
-                  </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
+  <circle cx="5" cy="5" r="5" fill="white"/>
+  <circle cx="23" cy="5" r="5" fill="white" fill-opacity="0.13"/>
+  <circle cx="41" cy="5" r="5" fill="white" fill-opacity="0.13"/>
+</svg>
                 </div>
               </div>
             </div>
@@ -445,21 +458,22 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                 </div>
 
                 <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md xl:max-w-[500px]">
-                  <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 xl:pl-4 flex items-center pointer-events-none">
-                    <svg
-                      className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6 text-[#B8B8B8] flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
+
+
+<div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 xl:pl-4 flex items-center pointer-events-none">
+  <img
+    src={SearchIcon}
+    alt="Search"
+    className="text-[#B8B8B8] flex-shrink-0"
+    style={{
+      width: "1.3rem",   // w-4
+      height: "1.3rem",  // h-4
+      // For sm and xl sizes, add responsive CSS if needed
+      color: "#B8B8B8", // fallback for stroke color, but for img it won’t affect
+    }}
+  />
+</div>
+
                   <input
                     type="text"
                     placeholder="Search..."
@@ -472,9 +486,14 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                       onClick={() => setSearchTerm("")}
                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+
+
+<img
+  src={CloseIcon}
+  alt="Close Icon"
+  className="w-3 h-3"
+/>
+
                     </button>
                   )}
                 </div>
@@ -513,50 +532,39 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                                 {investor.name}
                               </h3>
                               <div className="flex items-center gap-1">
-                                <svg
-                                  className="text-[#0077B5]"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                  style={{ width: "1.25rem", height: "1.25rem" }}
-                                >
-                                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                                </svg>
-                                <svg
-                                  className="text-gray-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  style={{ width: "1.25rem", height: "1.25rem" }}
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                                  />
-                                </svg>
-                                <svg
-                                  className="text-gray-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  style={{ width: "1.25rem", height: "1.25rem" }}
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                  />
-                                </svg>
-                                <svg
-                                  className="text-gray-400"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                  style={{ width: "1.25rem", height: "1.25rem" }}
-                                >
-                                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                                </svg>
+
+<img
+  src={LinkedIn}
+  alt="LinkedIn"
+  style={{ width: "1.25rem", height: "1.25rem" }}
+  className="text-[#0077B5]"
+/>
+
+
+
+<img
+  src={LinkIcon}
+  alt="Link Icon"
+  className="text-gray-400"
+  style={{ width: "1.25rem", height: "1.25rem" }}
+/>
+
+
+
+<img
+  src={MailIcon}
+  alt="Mail Icon"
+  className="text-gray-400"
+  style={{ width: "1.25rem", height: "1.25rem" }}
+/>
+
+<img
+  src={TwitterIcon}
+  alt="Twitter Icon"
+  className="text-gray-400"
+  style={{ width: "1.25rem", height: "1.25rem" }}
+/>
+
                               </div>
                             </div>
                             <p className="text-white font-inter font-normal mb-1" style={{ fontSize: "0.75rem" }}>
@@ -612,115 +620,72 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                         {selectedInvestor.name}
                       </h2>
                       <div className="flex justify-center gap-3 mb-6">
-                        <svg
-                          className="text-[#0077B5] cursor-pointer hover:opacity-80"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.25rem", height: "1.25rem" }}
-                        >
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                        </svg>
-                        <svg
-                          className="text-gray-400 cursor-pointer hover:opacity-80"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.25rem", height: "1.25rem" }}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                          />
-                        </svg>
-                        <svg
-                          className="text-gray-400 cursor-pointer hover:opacity-80"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.25rem", height: "1.25rem" }}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <svg
-                          className="text-gray-400 cursor-pointer hover:opacity-80"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.25rem", height: "1.25rem" }}
-                        >
-                          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                        </svg>
+                      <img
+    src={LinkedIn}
+    alt="LinkedIn"
+    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+    className="text-[#0077B5] hover:opacity-80"
+  />
+                      <img
+    src={LinkIcon}
+    alt="Link"
+    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+    className="text-gray-400 hover:opacity-80"
+  />
+                        <img
+    src={MailIcon}
+    alt="Mail"
+    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+    className="text-gray-400 hover:opacity-80"
+  />
+                      <img
+    src={TwitterIcon}
+    alt="Twitter"
+    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+    className="text-gray-400 hover:opacity-80"
+  />
                       </div>
                     </div>
 
                     <div className="space-y-4 flex-1">
-                      <div className="flex items-center justify-center gap-3 text-white">
-                        <svg
-                          className="text-gray-400 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.87306rem", height: "1.87306rem" }}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"
-                          />
-                        </svg>
-                        <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
-                          {selectedInvestor.company}
-                        </span>
-                      </div>
+                    
+
+<div className="flex items-center justify-center gap-3 text-white">
+  <img
+    src={WorkIcon}
+    alt="Work"
+    style={{ width: "1.87306rem", height: "1.87306rem" }}
+    className="text-gray-400 flex-shrink-0"
+  />
+  <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
+    {selectedInvestor.company}
+  </span>
+</div>
+
 
                       <div className="flex items-center justify-center gap-3 text-white">
-                        <svg
-                          className="text-gray-400 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.87306rem", height: "1.87306rem" }}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
+                    
+
+<img
+  src={LocationIcon}
+  alt="Location Icon"
+  className="text-gray-400 flex-shrink-0"
+  style={{ width: "1.87306rem", height: "1.87306rem" }}
+/>
+
                         <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
                           {selectedInvestor.location}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-center gap-3 text-white">
-                        <svg
-                          className="text-gray-400 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{ width: "1.87306rem", height: "1.87306rem" }}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                          />
-                        </svg>
+                      <img
+  src={DollarIcon}
+  alt="Dollar Icon"
+  className="text-gray-400 flex-shrink-0"
+  style={{ width: "1.87306rem", height: "1.87306rem" }}
+/>
+
                         <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
                           {selectedInvestor.investment}
                         </span>
@@ -759,16 +724,11 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                     >
                       <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg"></div>
                       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-[46px] h-[10px]"
-                          viewBox="0 0 46 10"
-                          fill="none"
-                        >
-                          <circle cx="5" cy="5" r="5" fill="white" />
-                          <circle cx="23" cy="5" r="5" fill="white" fillOpacity="0.13" />
-                          <circle cx="41" cy="5" r="5" fill="white" fillOpacity="0.13" />
-                        </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
+  <circle cx="5" cy="5" r="5" fill="white"/>
+  <circle cx="23" cy="5" r="5" fill="white" fill-opacity="0.13"/>
+  <circle cx="41" cy="5" r="5" fill="white" fill-opacity="0.13"/>
+</svg>
                       </div>
                     </div>
                   </div>
