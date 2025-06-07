@@ -67,7 +67,6 @@ export default function GenerateEmail() {
         },
         body: JSON.stringify(data)
       });
-      console.log("helllooooo")
       console.log(res.data)
       // if (!res.ok) throw new Error("Failed to fetch email templates");
   
@@ -93,6 +92,43 @@ setTemplates(formattedTemplates);
     loginAndFetchTemplates();
   }, []);
 
+  useEffect(() => {
+    const fetchSavedTemplates = async () => {
+      const token = localStorage.getItem("authToken");
+  
+      try {
+        const res = await fetch(API_KEY + "/api/email/templates", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          }
+        });
+  
+        if (!res.ok) {
+          console.warn("No saved templates or fetch failed.");
+          return;
+        }
+  
+        const data = await res.json();
+        console.log("Saved templates:", data);
+  
+        const formattedTemplates = Object.entries(data).map(([key, value]) => ({
+          varient: key,
+          subject: value.subject,
+          body: value.body
+        }));
+  
+        setTemplates(formattedTemplates);
+      } catch (error) {
+        console.error("GET template fetch error:", error);
+      }
+    };
+  
+    fetchSavedTemplates();
+  }, []);
+
+  
   useEffect(() => {
     editRef.current.innerText = template?.body || "";
     setSubject(template?.subject || "");
@@ -173,7 +209,7 @@ setTemplates(formattedTemplates);
   return (
     <div className="w-full h-screen bg-black flex overflow-hidden">
       <Sidebar2 />
-      <button onClick={()=> handleLogout()} className="text-6xl bg-blue text-white"> log outt.....</button>
+      {/* <button onClick={()=> handleLogout()} className="text-6xl bg-blue text-white"> log outt.....</button> */}
       <div className="w-full h-full flex flex-col text-white font-['Manrope'] overflow-y-auto">
         <div className="w-full p-5 bg-[#090909]">
           <p className="mb-4 font-bold">Select your template</p>
