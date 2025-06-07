@@ -4,9 +4,9 @@
 
 import { useState } from "react"
 import Sidebar from "../Sidebar"
-import AddRoundPopup from "../AddRoundPopup"
+import AddRoundPopup from "./AddRoundPopup"
 import FindInvestors from "./FindInvestors"
-import Target from "../Target"
+import Target from "./Target"
 import { useStartupProfile } from "../../context/StartupProfileContext";
 
 function FundraisingManagePage() {

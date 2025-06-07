@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import rectangleImage from '../assets/Rectangle 82.png';
-import API_KEY from '../../key';
+import rectangleImage from '../../assets/Rectangle 82.png';
+import API_KEY from '../../../key';
 
 function AddRoundPopup({ isOpen, onClose, onNext }) {
   // console.log(isOpen, onClose, onNext);
