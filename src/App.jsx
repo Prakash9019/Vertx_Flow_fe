@@ -47,7 +47,7 @@ function App() {
   const streamlinedProtectedRoutes = [
     { path: "/linkedin", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
-    { path: "/profile/setup", element: <ProfileSetup /> }, // Stage input
+    { path: "/profile/stage", element: <ProfileSetup /> }, // Stage input
     { path: "/profile/location", element: <LocationSetup /> }, // Location input
     { path: "/profile/raise", element: <RaiseFunds /> }, // Raise input
     { path: "/profile/revenue", element: <RevenueStatus /> }, // Revenue input
@@ -58,7 +58,7 @@ function App() {
     { path: "/homepage", element: <HomePage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
-    { path: "/fundraising", element: <FundraisingPage /> },
+    // { path: "/fundraising", element: <FundraisingPage /> },
    
     
     { path:"/flow/outbound", element:<GenerateEmail />},

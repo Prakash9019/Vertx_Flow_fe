@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import API_KEY from "../../key";
+
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [pdfThumbnails, setPdfThumbnails] = useState({}); // Store thumbnails by file name
@@ -17,7 +18,7 @@ function Evaluate_Page() {
   const [score,setScore]=useState(0);
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
 
-  const {user_id } =useStartupProfile();
+  const {profileData,user_id } =useStartupProfile();
   const navigate = useNavigate();
 
   const handleAddNowClick = () => setShowUploader(true);
@@ -276,7 +277,7 @@ function Evaluate_Page() {
 
               {/* Heading with responsive positioning */}
               <h4 className="relative z-10 text-white font-inter text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-[2rem] font-semibold ml-4 sm:ml-8 md:ml-12 lg:ml-16 xl:ml-[6rem] px-2">
-                Company Pitch Deck Evaluator
+             {  profileData ? profileData.companyName+ " Pitch Deck Evaluator": "Company Pitch Deck Evaluator" }
               </h4>
             </div>
           </div>

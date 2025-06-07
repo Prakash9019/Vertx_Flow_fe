@@ -24,8 +24,8 @@ function GoogleAuthCallback() {
         // localStorage.removeItem('cofounderInviteToken');
       }
 
-      console.log("Google Auth Successful, token received, navigating to /linkedin");
-      navigate('/linkedin'); // Or a specific "welcome cofounder" page
+      console.log("Google Auth Successful, token received, navigating to /profile/manual");
+      navigate('/profile/manual'); // Or a specific "welcome cofounder" page
     } else {
       console.error("Google Auth Callback Error: Main auth token not found in URL.");
       navigate('/');

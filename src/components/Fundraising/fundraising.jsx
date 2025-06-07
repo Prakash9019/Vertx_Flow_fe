@@ -7,8 +7,11 @@ import Sidebar from "../Sidebar"
 import AddRoundPopup from "../AddRoundPopup"
 import FindInvestors from "./FindInvestors"
 import Target from "../Target"
+import { useStartupProfile } from "../../context/StartupProfileContext";
 
 function FundraisingManagePage() {
+  
+  const { profileData } = useStartupProfile();
   const [activeTab, setActiveTab] = useState("Manage")
   const [activeSubTab, setActiveSubTab] = useState("Current Round")
   const [isPopupOpen, setIsPopupOpen] = useState(false)
@@ -79,13 +82,13 @@ function FundraisingManagePage() {
                   className="text-white font-semibold mb-2"
                   style={{ fontFamily: "Inter", fontSize: "2rem", fontWeight: 600 }}
                 >
-                  Company
+                 { profileData ? profileData.companyName :  "Company"}
                 </h1>
                 <p className="text-white mb-2" style={{ fontFamily: "Inter", fontSize: "0.75rem", fontWeight: 600 }}>
-                  This company helps A to solve B by addition of C and D.
+                { profileData ? profileData.companyName :  "This company"}   helps A to solve B by addition of C and D.
                 </p>
                 <p className="text-white mb-4" style={{ fontFamily: "Inter", fontSize: "0.625rem", fontWeight: 500 }}>
-                  www.companyname.com
+                { profileData ? profileData.companyWebsite :  "www.companyname.com"} 
                 </p>
               </div>
             </div>

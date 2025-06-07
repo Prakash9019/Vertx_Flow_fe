@@ -13,8 +13,10 @@ import UserAccount from "../assets/account.svg";
 import UserPlan from "../assets/plan.svg";
 import UserFeedback from "../assets/feedback.svg";
 import LogOut from "../assets/logout.svg";
+import { useStartupProfile } from "../context/StartupProfileContext";
 
 const Sidebar = () => {
+  const { profileData } = useStartupProfile();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -72,9 +74,9 @@ const Sidebar = () => {
         <div className="py-3 px-4 flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-7.5 h-7.5 bg-[#33005C] flex items-center justify-center rounded-sm mr-3">
-              <span className="text-white text-sm font-semibold">C</span>
+              <span className="text-white text-sm font-semibold">{profileData ? profileData.companyName[0] : "C"}</span>
             </div>
-            <div className="text-white text-sm font-medium">Company Name</div>
+            <div className="text-white text-sm font-medium">{profileData ? profileData.companyName : "Company Name"}</div>
           </div>
           <button className="text-[#656565] hover:text-white">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -141,7 +143,7 @@ const Sidebar = () => {
                 <div 
                  className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isFundraising? 'bg-gray-900' : ''}`}
                   // onClick={handleFundraisingToggle}
-                  onClick={()=>{handleFundraisingToggle();navigate("/fundraising")}}
+                  onClick={()=>{navigate("/fundraising/raise")}}
                 >
                   <img 
                     src={FundraseLogo} 
@@ -150,7 +152,7 @@ const Sidebar = () => {
                     style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
                   />
                    <span className={`font-medium text-sm ${isFundraising ? 'text-white' : 'text-[#B8B8B8]'}`}>Fundraising</span>
-                  <div className="ml-auto">
+                  <div className="ml-auto" onClick={()=> handleFundraisingToggle()}>
                     <svg 
                       width="5" 
                       height="9" 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import rectangleImage from '../assets/Rectangle 82.png';
 import API_KEY from '../../key';
 
@@ -31,6 +32,53 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     }
     return lastThreeDigits;
   };
+
+  function triggerConfetti() {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 }
+    };
+  
+    function fire(particleRatio, opts) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
+      });
+    }
+  
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+    fire(0.2, {
+      spread: 60,
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  }
+
+  
+  useEffect(() => {
+    if (showSuccess) {
+      triggerConfetti();
+    }
+  }, [showSuccess]);
+
+  
 
   // Add this validation function after other utility functions
   const isValidDate = (dateStr) => {
@@ -670,255 +718,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
             </svg>
           </button>
 
-          {/* Static confetti elements positioned to match the image */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Pink squares */}
-            <div
-              className="absolute"
-              style={{
-                left: "8%",
-                top: "30%",
-                width: "12px",
-                height: "12px",
-                backgroundColor: "#FF1493",
-                transform: "rotate(15deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                left: "12%",
-                top: "65%",
-                width: "16px",
-                height: "16px",
-                backgroundColor: "#FF69B4",
-                transform: "rotate(45deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "15%",
-                top: "25%",
-                width: "10px",
-                height: "10px",
-                backgroundColor: "#FF1493",
-                transform: "rotate(30deg)",
-              }}
-            ></div>
-
-            {/* Blue squares */}
-            <div
-              className="absolute"
-              style={{
-                left: "20%",
-                top: "75%",
-                width: "8px",
-                height: "8px",
-                backgroundColor: "#0066FF",
-                transform: "rotate(60deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "25%",
-                top: "70%",
-                width: "12px",
-                height: "12px",
-                backgroundColor: "#4169E1",
-                transform: "rotate(90deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "8%",
-                bottom: "30%",
-                width: "14px",
-                height: "14px",
-                backgroundColor: "#0066FF",
-                transform: "rotate(120deg)",
-              }}
-            ></div>
-
-            {/* Cyan/Teal squares */}
-            <div
-              className="absolute"
-              style={{
-                left: "25%",
-                bottom: "35%",
-                width: "20px",
-                height: "20px",
-                backgroundColor: "#00FFFF",
-                transform: "rotate(45deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "12%",
-                bottom: "45%",
-                width: "16px",
-                height: "16px",
-                backgroundColor: "#20B2AA",
-                transform: "rotate(75deg)",
-              }}
-            ></div>
-
-            {/* Green squares */}
-            <div
-              className="absolute"
-              style={{
-                left: "30%",
-                bottom: "40%",
-                width: "14px",
-                height: "14px",
-                backgroundColor: "#00FF7F",
-                transform: "rotate(30deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "20%",
-                top: "45%",
-                width: "18px",
-                height: "18px",
-                backgroundColor: "#32CD32",
-                transform: "rotate(60deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "5%",
-                bottom: "25%",
-                width: "12px",
-                height: "12px",
-                backgroundColor: "#00FF7F",
-                transform: "rotate(90deg)",
-              }}
-            ></div>
-
-            {/* Purple squares */}
-            <div
-              className="absolute"
-              style={{
-                right: "10%",
-                top: "40%",
-                width: "16px",
-                height: "16px",
-                backgroundColor: "#8A2BE2",
-                transform: "rotate(45deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "3%",
-                top: "20%",
-                width: "20px",
-                height: "20px",
-                backgroundColor: "#9370DB",
-                transform: "rotate(135deg)",
-              }}
-            ></div>
-
-            {/* Orange/Red squares */}
-            <div
-              className="absolute"
-              style={{
-                right: "30%",
-                bottom: "50%",
-                width: "10px",
-                height: "10px",
-                backgroundColor: "#FF4500",
-                transform: "rotate(15deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "35%",
-                bottom: "35%",
-                width: "12px",
-                height: "12px",
-                backgroundColor: "#FF6347",
-                transform: "rotate(105deg)",
-              }}
-            ></div>
-
-            {/* Yellow squares */}
-            <div
-              className="absolute"
-              style={{
-                left: "35%",
-                top: "20%",
-                width: "8px",
-                height: "8px",
-                backgroundColor: "#FFD700",
-                transform: "rotate(75deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "40%",
-                top: "30%",
-                width: "10px",
-                height: "10px",
-                backgroundColor: "#FFFF00",
-                transform: "rotate(45deg)",
-              }}
-            ></div>
-
-            {/* Additional small squares for density */}
-            <div
-              className="absolute"
-              style={{
-                left: "15%",
-                top: "50%",
-                width: "4px",
-                height: "4px",
-                backgroundColor: "#FF1493",
-                transform: "rotate(90deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                left: "40%",
-                top: "60%",
-                width: "6px",
-                height: "6px",
-                backgroundColor: "#00FFFF",
-                transform: "rotate(30deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                right: "45%",
-                top: "55%",
-                width: "5px",
-                height: "5px",
-                backgroundColor: "#32CD32",
-                transform: "rotate(60deg)",
-              }}
-            ></div>
-            <div
-              className="absolute"
-              style={{
-                left: "50%",
-                top: "80%",
-                width: "7px",
-                height: "7px",
-                backgroundColor: "#9370DB",
-                transform: "rotate(120deg)",
-              }}
-            ></div>
-          </div>
+        
 
           <div className="text-center relative z-10">
             <h2
