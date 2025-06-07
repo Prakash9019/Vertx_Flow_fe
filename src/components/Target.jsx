@@ -1,331 +1,42 @@
 "use client"
 
 import { useState } from "react"
-import AddInvestorsPopup from './AddInvestorsPopup'
+import NewListPopup from "./Fundraising/new-list-popup"
+import ThreeDotsMenu from "./Fundraising/three-dots-menu"
+import AddInvestorsPopup from "./Fundraising/AddInvestorsPopup"
+import InviteAndCollab from "./Fundraising/InviteAndCollab"
+import { MoreVertical } from "lucide-react"
+import Rectangle119 from "../assets/Rectangle 119.png"
+import BackButton from "../assets/BackButton.svg"
+import ShareIcon from "../assets/ShareIcon.svg"
+import AddIcon from "../assets/AddIcon.svg"
+import MoreIcon from "../assets/MoreIcon.svg"
+import SettingsIcon from "../assets/SettingsIcon.svg"
+import InfoIcon from "../assets/Info.svg"
+import CopyIcon from "../assets/CopyIcon.svg"
+import QRIcon from "../assets/QRIcon.svg"
+import LockIcon from "../assets/LockIcon.svg"
+import DropdownIcon from "../assets/DropdownIcon.svg"
+import LinkedIn from "../assets/LinkedIn.svg"
+import Link from "../assets/link.svg"
+import Mail from "../assets/mail.svg"
+import Twitter from "../assets/twitter.svg"
+import SearchIcon from "../assets/SearchIcon.svg"
 
-
-// SOLUTION 1: Proper ES6 import (recommended)
-import rectangleImage from "../assets/Rectangle 82.png"
-import rectangleImage2 from "../assets/Rectangle 119.png"
-
-// Alternative if above doesnAddInvestorsPopup
-// const rectangleImage = require("../assets/Rectangle 82.png");
-
-function NewListPopup({ isOpen, onClose, onSave }) {
-  const [listName, setListName] = useState("")
-  const [selectedCover, setSelectedCover] = useState("")
-
-  const coverOptions = [
-    { id: "default", color: "#0F0E16", border: "1px dashed #5F248D" },
-    { id: "purple", color: "linear-gradient(180deg, #6C04BF 0%, #456BBD 100%)" },
-    { id: "orange", color: "linear-gradient(0deg, #AF4F00 0%, #CC8D03 100%)" },
-    { id: "pink", color: "linear-gradient(180deg, #FC6848 0%, #AD6FDE 100%)" },
-    { id: "red", color: "linear-gradient(180deg, #AF4F00 0%, #FC4141 100%)" },
-  ]
-
-  const handleSave = () => {
-    if (listName.trim()) {
-      onSave({ name: listName, cover: selectedCover })
-      setListName("")
-      setSelectedCover("")
-      onClose()
-    }
-  }
-
-  const handleCancel = () => {
-    setListName("")
-    setSelectedCover("")
-    onClose()
-  }
-
-  if (!isOpen) return null
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Dimmed background overlay */}
-      <div className="absolute inset-0 bg-black" style={{ opacity: 0.7 }} onClick={handleCancel}></div>
-
-      <div
-        className="relative flex flex-col items-center justify-center"
-        style={{
-          width: "43.75rem",
-          height: "35rem",
-          backgroundImage: `url(${rectangleImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        {/* Header text */}
-        <div className="text-center" style={{ paddingTop: "2.0rem" }}>
-          <h2
-            className="text-white"
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1.5rem",
-              fontWeight: 600,
-              marginBottom: "0.5rem",
-            }}
-          >
-            Let's create a new target list.
-          </h2>
-          <p
-            style={{
-              color: "#B8B8B8",
-              textAlign: "center",
-              fontFamily: "Inter",
-              fontSize: "0.75rem",
-              fontWeight: 400,
-              maxWidth: "25rem",
-              margin: "0 auto",
-              lineHeight: "1.4",
-            }}
-          >
-            A target list is a curated set of investors for your fundraise.
-            <br />
-            You can edit and share it anytime, unless it was created by Vertx.
-          </p>
-        </div>
-
-        {/* Main container */}
-        <div
-          style={{
-            width: "40rem",
-            height: "18.75rem",
-            borderRadius: "0.3125rem",
-            background: "rgba(0, 0, 0, 0.76)",
-            position: "relative",
-            marginTop: "1.87rem",
-            padding: "2rem",
-          }}
-        >
-          {/* Name the target list section */}
-          <div style={{ marginBottom: "2rem" }}>
-            <h3
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 500,
-                marginBottom: "1rem",
-              }}
-            >
-              Name the target list
-            </h3>
-
-            <input
-              type="text"
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-              placeholder="Enter the name of the target list..."
-              className="w-full bg-transparent text-white outline-none rounded-[0.125rem] px-4 py-2"
-              style={{
-                width: "36rem",
-                height: "2.25rem",
-                background: "rgba(255, 255, 255, 0.11)",
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.75rem",
-                fontWeight: 400,
-                border: "none",
-                "::placeholder": {
-                  color: "#656565",
-                  fontFamily: "Inter",
-                  fontSize: "0.75rem",
-                  fontWeight: 400,
-                },
-              }}
-            />
-            <style jsx>{`
-              input::placeholder {
-                color: #656565 !important;
-                font-family: Inter !important;
-                font-size: 0.75rem !important;
-                font-weight: 400 !important;
-              }
-            `}</style>
-          </div>
-
-          {/* Choose the cover section */}
-          <div style={{ marginBottom: "2rem" }}>
-            <h3
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 500,
-                marginBottom: "1rem",
-              }}
-            >
-              Choose the cover
-            </h3>
-
-            <div className="flex gap-3">
-              {coverOptions.map((option) => (
-                <div
-                  key={option.id}
-                  onClick={() => setSelectedCover(option.id)}
-                  className="cursor-pointer transition-transform hover:scale-105"
-                  style={{
-                    width: "2.5rem",
-                    height: "2.5rem",
-                    borderRadius: "0.125rem",
-                    background: option.color,
-                    border:
-                      option.id === "default" ? option.border : selectedCover === option.id ? "2px solid #FFF" : "",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {option.id === "default" && (
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M8 4V12M4 8H12" stroke="#5F248D" strokeWidth="1" strokeLinecap="round" />
-                    </svg>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Buttons - positioned on right side */}
-          <div
-            className="flex justify-end items-center gap-2"
-            style={{ position: "absolute", right: "2rem", bottom: "2rem" }}
-          >
-            <button
-              onClick={handleCancel}
-              className="text-white transition-colors hover:bg-gray-500"
-              style={{
-                width: "5rem",
-                height: "2rem",
-                background: "rgba(255, 255, 255, 0.20)",
-                borderRadius: "0.125rem",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              <span
-                style={{
-                  color: "#FFF",
-                  textAlign: "center",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                }}
-              >
-                Cancel
-              </span>
-            </button>
-
-            <button
-              onClick={handleSave}
-              disabled={!listName.trim()}
-              className="transition-colors hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                width: "5rem",
-                height: "2rem",
-                borderRadius: "0.125rem",
-                background: "#FFF",
-                border: "none",
-                cursor: listName.trim() ? "pointer" : "not-allowed",
-              }}
-            >
-              <span
-                style={{
-                  color: "#000",
-                  textAlign: "center",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                }}
-              >
-                Save
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated = false }) {
-  const menuOptions = [
-    { id: "edit", label: "Edit name", icon: "✏️" },
-    { id: "delete", label: "Delete target list", icon: "🗑️" },
-    { id: "share", label: "Share target list", icon: "📤", disabled: false },
-    { id: "reach", label: "Add list to Reach", icon: "➕", disabled: false },
-    { id: "pipeline", label: "Add to pipeline", icon: "💰", disabled: false },
-  ]
-
-  if (!isOpen) return null
-
-  return (
-    <div
-      className="absolute z-50"
-      style={{
-        top: "100%",
-        right: "0",
-        marginTop: "0.5rem",
-        width: "8.0625rem",
-        height: "7.75rem",
-        borderRadius: "0.25rem",
-        border: "1px solid #0F0E16",
-        background: "#000",
-        padding: "0.25rem",
-      }}
-    >
-      {menuOptions.map((option) => (
-        <div
-          key={option.id}
-          className={`flex items-center gap-2 px-2 py-1 cursor-pointer transition-all ${option.disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-900"}`}
-          style={{
-            width: "7.9375rem",
-            height: "1.25rem",
-            color: "#B8B8B8",
-            fontFamily: "Inter",
-            fontSize: "0.5rem",
-            fontWeight: 400,
-            borderRadius: "0.125rem",
-          }}
-          onMouseEnter={(e) => {
-            if (!option.disabled) {
-              e.target.style.color = "#FFF"
-              e.target.style.background = "#33005C"
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!option.disabled) {
-              e.target.style.color = "#B8B8B8"
-              e.target.style.background = "transparent"
-            }
-          }}
-          onClick={() => {
-            if (!option.disabled) {
-              console.log(`${option.label} clicked for list ${listId}`)
-              onClose()
-            }
-          }}
-        >
-          <svg width="8" height="8" viewBox="0 0 16 16" fill="currentColor">
-            <rect width="16" height="16" rx="2" />
-          </svg>
-          <span>{option.label}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function Target({ onListSelect }) {
+export default function Target({ onListSelect }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false)
-  const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false) // Add this state
+  const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false)
   const [userTargetLists, setUserTargetLists] = useState([])
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [selectedList, setSelectedList] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [activeDropdown, setActiveDropdown] = useState(null)
+  const itemsPerPage = 10
+  const [showSettings, setShowSettings] = useState(false)
+  const [showInviteCollab, setShowInviteCollab] = useState(false)
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editedName, setEditedName] = useState("")
 
   const coverOptions = {
     default: "#0F0E16",
@@ -348,6 +59,7 @@ function Target({ onListSelect }) {
       createdDate: new Date().toLocaleDateString("en-GB"),
       updatedDate: "Updated today",
       investorCount: 0,
+      investors: [],
     }
 
     setUserTargetLists((prev) => [...prev, newList])
@@ -361,10 +73,12 @@ function Target({ onListSelect }) {
 
   const closeMenu = () => {
     setActiveMenuId(null)
+    setActiveDropdown(null)
   }
 
   const handleListClick = (list) => {
     setSelectedList(list)
+    setCurrentPage(1)
     if (onListSelect) {
       onListSelect(true)
     }
@@ -372,399 +86,671 @@ function Target({ onListSelect }) {
 
   const handleBackClick = () => {
     setSelectedList(null)
+    setIsEditingName(false)
     if (onListSelect) {
       onListSelect(false)
     }
   }
 
-  // Add this handler for the Add Investors button
   const handleAddInvestorsClick = () => {
     setIsAddInvestorsPopupOpen(true)
   }
 
-  const getCurrentDate = () => {
-    const today = new Date()
-    return today.toLocaleDateString("en-GB")
+  const handleInvestorsAdded = (newInvestors) => {
+    if (selectedList && newInvestors.length > 0) {
+      const updatedList = {
+        ...selectedList,
+        investors: [...(selectedList.investors || []), ...newInvestors],
+        investorCount: (selectedList.investorCount || 0) + newInvestors.length,
+        updatedDate: "Updated today",
+      }
+
+      setSelectedList(updatedList)
+      setUserTargetLists((prev) => prev.map((list) => (list.id === selectedList.id ? updatedList : list)))
+    }
+  }
+
+  const handleEditNameClick = () => {
+    setIsEditingName(true)
+    setEditedName(selectedList.name)
+    setActiveMenuId(null)
+  }
+
+  const handleCancelEdit = () => {
+    if (editedName !== selectedList.name && editedName.trim()) {
+      if (window.confirm("You have unsaved changes. Are you sure you want to cancel?")) {
+        setIsEditingName(false)
+        setEditedName("")
+      }
+    } else {
+      setIsEditingName(false)
+      setEditedName("")
+    }
+  }
+
+  const handleSaveEdit = () => {
+    const trimmedName = editedName.trim()
+
+    if (!trimmedName) {
+      alert("Please enter a valid name")
+      return
+    }
+
+    if (trimmedName.length > 50) {
+      alert("Name must be 50 characters or less")
+      return
+    }
+
+    if (trimmedName === selectedList.name) {
+      // No changes made
+      setIsEditingName(false)
+      setEditedName("")
+      return
+    }
+
+    const updatedList = {
+      ...selectedList,
+      name: trimmedName,
+      updatedDate: "Updated today",
+    }
+
+    setSelectedList(updatedList)
+    setUserTargetLists((prev) => prev.map((list) => (list.id === selectedList.id ? updatedList : list)))
+    setIsEditingName(false)
+    setEditedName("")
+  }
+
+  const getMatchColor = (matchValue) => {
+    if (matchValue >= 0 && matchValue <= 49) return "#DE2D2D"
+    if (matchValue >= 50 && matchValue <= 67) return "#AF4F00"
+    if (matchValue >= 68 && matchValue <= 85) return "#CC8D03"
+    if (matchValue >= 86 && matchValue <= 100) return "#0E8D07"
+    return "#DE2D2D"
+  }
+
+  const investors = selectedList?.investors || []
+  const totalPages = Math.ceil(investors.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentInvestors = investors.slice(startIndex, endIndex)
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1)
+    }
   }
 
   // If a list is selected, show the detail view
   if (selectedList) {
+    const hasInvestors = investors.length > 0
+
     return (
-      <div style={{ paddingTop: "3rem", minHeight: "calc(100vh - 4rem)", background: "#000", paddingBottom: "1rem"}}>
+      <div className="pt-12 min-h-[calc(100vh-4rem)] bg-black pb-4" onClick={closeMenu}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8" style={{ paddingLeft: '4rem', paddingRight: '4rem' }}>
-          <div className="flex flex-col">
-            <button
-              onClick={handleBackClick}
-              className="flex items-center gap-2 transition-colors hover:text-gray-300 mb-4"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 500,
-                alignSelf: "flex-start",
-                marginLeft: "-2rem", // This creates the 2rem gap from left edge
+        <div className="flex items-center justify-between mb-8 px-16">
+  <div className="flex flex-col flex-1">
+    <button
+      onClick={showSettings ? () => setShowSettings(false) : handleBackClick}
+      className="flex items-center gap-2 transition-colors hover:text-gray-300 mb-4 bg-none border-none cursor-pointer text-white font-['Inter'] text-base font-medium self-start -ml-8"
+    >
+      <img src={BackButton || "/placeholder.svg"} alt="Back Icon" className="w-6 h-6" />
+      {showSettings ? "Settings" : "Back"}
+    </button>
+
+    <div className="flex items-center justify-between w-full">
+      {isEditingName ? (
+        <div className="flex items-center gap-3 w-full">
+          <div className="flex flex-col relative flex-1">
+            <input
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  handleSaveEdit()
+                } else if (e.key === "Escape") {
+                  e.preventDefault()
+                  handleCancelEdit()
+                }
               }}
+              className="text-[#B8B8B8] font-['Inter'] text-[1.25rem] font-normal m-0 bg-transparent border-none outline-none pr-4 w-full"
+              autoFocus
+              maxLength={50}
+            />
+            <div className="absolute bottom-[-2px] left-0 right-0 h-0 border-b border-[#B8B8B8]"></div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <h1 className="text-white font-['Inter'] text-2xl font-semibold m-0">{selectedList.name}</h1>
+          <div className="flex items-center justify-center w-21 h-[1.3125rem] rounded-[6.25rem] bg-[#33005C] text-white font-['Inter'] text-[0.5rem] font-semibold">
+            {selectedList.investorCount || 0} INVESTORS
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Action Buttons and Three Dots Menu */}
+  <div className="flex mt-9 items-center gap-4">
+    {isEditingName ? (
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleCancelEdit}
+          className="flex items-center justify-center text-center w-20 h-8 rounded-[0.125rem] bg-[#DE2D2D] border-none cursor-pointer hover:bg-[#c02626] transition-colors"
+        >
+          <span className="text-white text-center font-['Inter'] text-[0.875rem]  font-medium">Cancel</span>
+        </button>
+        <button
+          onClick={handleSaveEdit}
+          disabled={!editedName.trim()}
+          className={`flex items-center justify-center text-center w-20 h-8 rounded-[0.125rem] border-none cursor-pointer transition-colors ${
+            editedName.trim() ? "bg-white hover:bg-gray-100" : "bg-gray-300 cursor-not-allowed"
+          }`}
+        >
+          <span
+            className={`text-center font-['Inter'] text-[0.875rem] font-medium ${
+              editedName.trim() ? "text-black" : "text-gray-500"
+            }`}
+          >
+            Save
+          </span>
+        </button>
+      </div>
+    ) : (
+      <>
+        {hasInvestors && !showSettings && (
+          <>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 h-10 rounded bg-white border-none cursor-pointer px-4"
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                style={{ width: "1.5rem", height: "1.5rem" }}
-              >
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-              Back
+              <img
+                src={SettingsIcon || "/placeholder.svg"}
+                alt="Settings Icon"
+                className="w-[1.125rem] h-[1.125rem]"
+              />
+              <span className="text-black font-['Inter'] text-sm font-medium">Settings</span>
             </button>
 
-            <div className="flex items-center gap-3">
-              <h1
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "1.5rem",
-                  fontWeight: 600,
-                  margin: 0,
-                }}
-              >
-                {selectedList.name}
-              </h1>
-              <div
-                className="flex items-center justify-center"
-                style={{
-                  width: "5.25rem",
-                  height: "1.3125rem",
-                  borderRadius: "6.25rem",
-                  background: "#33005C",
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "0.5rem",
-                  fontWeight: 600,
-                }}
-              >
-                {selectedList.investorCount} INVESTORS
-              </div>
-            </div>
-          </div>
+            <button
+              onClick={handleAddInvestorsClick}
+              className="flex items-center justify-center gap-2 transition-colors hover:bg-purple-700 h-10 rounded bg-[#5F248D] border-none cursor-pointer px-4"
+            >
+              <img src={AddIcon || "/placeholder.svg"} alt="Add Icon" className="w-[1.125rem] h-[1.125rem]" />
+              <span className="text-white font-['Inter'] text-sm font-medium">Add Investors</span>
+            </button>
+          </>
+        )}
 
-          {/* Three dots menu */}
+        {(!hasInvestors || hasInvestors) && !showSettings && (
           <div className="relative">
             <button
               onClick={(e) => handleThreeDotsClick(e, selectedList.id)}
-              className="p-2 hover:bg-gray-700 rounded transition-colors"
-              style={{ color: "#B8B8B8" }}
+              className="p-2 hover:bg-gray-700 rounded transition-colors text-[#B8B8B8]"
             >
-              <svg width="28" height="28" viewBox="0 0 16 16" fill="currentColor" style={{ width: "1.75rem", height: "1.75rem" }}>
-                <circle cx="8" cy="2" r="1.5" />
-                <circle cx="8" cy="8" r="1.5" />
-                <circle cx="8" cy="14" r="1.5" />
-              </svg>
+              <img src={MoreIcon || "/placeholder.svg"} alt="More Icon" className="w-7 h-7" />
             </button>
             <ThreeDotsMenu
               isOpen={activeMenuId === selectedList.id}
               onClose={closeMenu}
               listId={selectedList.id}
               isVertxCreated={selectedList.createdBy === "VERTX"}
+              onEditName={handleEditNameClick}
             />
           </div>
-        </div>
+        )}
+      </>
+    )}
+  </div>
+</div>
 
         {/* Main Content Area */}
-        <div
-          style={{
-            width: "calc(100% - 8rem)",
-            height: "calc(100vh - 14rem)",
-            borderRadius: "0.5rem",
-            background: "#0F0E16",
-            position: "relative",
-            padding: "2.5rem",
-            marginLeft: "4rem",
-            marginRight: "4rem",
-          }}
-        >
-{/* Image Placeholder */}
-<div
-  style={{
-    width: "100%",
-    height: "calc(100% - 6rem)",
-    backgroundImage: `url(${rectangleImage2})`,
-    backgroundSize: "100% 100%", // ✅ Stretch in both directions
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    borderRadius: "0.5rem",
-    marginBottom: "4.5rem",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "2rem",
-  }}
->
+        <div className="w-[calc(100%-8rem)] h-[calc(100vh-14rem)] rounded-lg bg-[#0F0E16] relative p-10 mx-16 flex flex-col">
+          {showSettings ? (
+            // Settings Content
+            <div className="space-y-6">
+              {/* Invite Link Section */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <h3 className="text-white font-['Inter'] text-base font-medium">Invite link</h3>
+                  <img src={InfoIcon || "/placeholder.svg"} alt="Info Icon" className="w-5 h-5 text-[#B8B8B8]" />
+                </div>
 
-            {/* Empty State Message */}
-            <h2
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1.25rem",
-                fontWeight: 600,
-                margin: 0,
-              }}
-            >
-              No investors are in this list.
-            </h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex-1 flex items-center justify-between bg-black px-4 rounded relative h-9 rounded-[0.125rem]">
+                    <input
+                      type="text"
+                      value="https://flow.govertx.com/targetlist/invite/abc123efgyurfhrvg"
+                      readOnly
+                      className="bg-transparent text-white border-none outline-none flex-1 font-['Inter'] text-xs font-normal"
+                    />
+                    <img
+                      src={CopyIcon || "/placeholder.svg"}
+                      alt="Copy Icon"
+                      className="w-[1.125rem] h-[1.125rem] text-[#B8B8B8]"
+                    />
+                  </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleAddInvestorsClick} // Updated to use the new handler
-                className="flex items-center justify-center gap-2 transition-colors hover:bg-purple-700"
-                style={{
-                  width: "10rem",
-                  height: "2.5rem",
-                  borderRadius: "0.25rem",
-                  background: "#5F248D",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  style={{ width: "1.125rem", height: "1.125rem" }}
-                >
-                  <path d="M9 4.5V13.5M4.5 9H13.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                  }}
-                >
-                  Add Investors
-                </span>
-              </button>
+                  <button className="flex items-center justify-center gap-2 bg-black text-gray-400 hover:text-white transition-colors w-[6.75rem] h-9 rounded-[0.125rem]">
+                    <img src={QRIcon || "/placeholder.svg"} alt="QR Icon" className="w-4 h-4" />
+                    <span className="text-[#B8B8B8] font-['Inter'] text-[0.625rem] font-normal">Generate QR</span>
+                  </button>
+                </div>
 
-              <button
-                className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100"
-                style={{
-                  width: "11.25rem",
-                  height: "2.5rem",
-                  borderRadius: "0.25rem",
-                  background: "#FFF",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  style={{ width: "1.125rem", height: "1.125rem" }}
-                >
-                  <path
-                    d="M11.8125 6.1875L14.625 9L11.8125 11.8125M14.625 9H3.375"
-                    stroke="#000"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    placeholder="Emails, comma separated"
+                    className="flex-1 bg-black text-white px-4 border-none outline-none placeholder-gray-400 h-9 rounded-[0.125rem] font-['Inter'] text-xs font-normal"
                   />
-                </svg>
-                <span
-                  style={{
-                    color: "#000",
-                    fontFamily: "Inter",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                  }}
+                  <button className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center w-[6.75rem] h-9 rounded-[0.125rem] font-['Inter'] text-sm font-medium text-center">
+                    Invite
+                  </button>
+                </div>
+              </div>
+
+              {/* Access Section */}
+              <div>
+                <h3 className="mb-4 text-white font-['Inter'] text-base font-medium">Access</h3>
+
+                <div className="mb-3">
+                  <div className="flex items-center justify-between bg-black p-4 rounded flex-1 h-9 px-4">
+                    <div className="flex items-center gap-3">
+                      <img src={LockIcon || "/placeholder.svg"} alt="Lock Icon" className="w-5 h-5" />
+                      <span className="text-white font-['Inter'] text-xs font-normal">Only invited people</span>
+                    </div>
+                    <img
+                      src={DropdownIcon || "/placeholder.svg"}
+                      alt="Dropdown Icon"
+                      className="w-4 h-4 text-[#B8B8B8]"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[#B8B8B8] font-['Inter'] text-[0.625rem] font-normal leading-[1.4]">
+                  Only people you've directly invited can access this list.
+                </p>
+              </div>
+
+              {/* Additional Settings Section */}
+              <div>
+                <h3 className="mb-4 text-white font-['Inter'] text-base font-medium">Additional settings</h3>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-['Inter'] text-sm font-normal">
+                    People can edit and share this target list
+                  </span>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      id="editToggle"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const toggle = e.target.nextElementSibling
+                        const circle = toggle.firstElementChild
+                        if (e.target.checked) {
+                          toggle.style.background = "#5F248D"
+                          circle.style.transform = "translateX(0.75rem)"
+                        } else {
+                          toggle.style.background = "#FFF"
+                          circle.style.transform = "translateX(0)"
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="editToggle"
+                      className="bg-white rounded-full p-1 cursor-pointer flex transition-colors w-[1.875rem] h-5"
+                    >
+                      <div className="w-3 h-3 bg-gray-400 rounded-full transition-transform duration-200"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end pt-4">
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center rounded-[0.125rem] w-20 h-8 text-center font-['Inter'] text-sm font-medium"
                 >
-                  Invite and Collab
-                </span>
-              </button>
+                  Save
+                </button>
+              </div>
             </div>
-          </div>
+          ) : !hasInvestors ? (
+            // Empty State
+            <>
+              <div
+                className="w-full h-[calc(100%-6rem)] bg-[length:100%_100%] bg-center bg-no-repeat rounded-md mb-[4.5rem] flex flex-col items-center justify-center gap-8"
+                style={{
+                  backgroundImage: `url(${Rectangle119})`,
+                }}
+              >
+                <h2 className="text-white font-['Inter'] text-xl font-semibold m-0">No investors are in this list.</h2>
 
-          {/* Bottom Info and Pagination Container */}
-          <div className="flex items-center justify-between ">
-            {/* Bottom Info Container */}
-            <div
-              className="flex items-center justify-center"
-              style={{
-                width: "8.43944rem",
-                height: "1.875rem",
-                borderRadius: "0.125rem",
-                background: "#000",
-                color: "#B8B8B8",
-                fontFamily: "Inter",
-                fontSize: "0.5rem",
-                fontWeight: 400,
-              }}
-            >
-              0 results found | 10 per page
-            </div>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={handleAddInvestorsClick}
+                    className="flex items-center justify-center gap-2 transition-colors hover:bg-purple-700 w-40 h-10 rounded bg-[#5F248D] border-none cursor-pointer"
+                  >
+                    <img src={AddIcon || "/placeholder.svg"} alt="Add Icon" className="w-[1.125rem] h-[1.125rem]" />
+                    <span className="text-white font-['Inter'] text-sm font-medium">Add Investors</span>
+                  </button>
 
-            {/* Pagination */}
-            <div
-              className="flex items-center gap-2"
-              style={{
-                color: "#B8B8B8",
-                fontFamily: "Inter",
-                fontSize: "0.5rem",
-                fontWeight: 400,
-              }}
-            >
-              <button
-                style={{
-                  width: "1.02081rem",
-                  height: "1rem",
-                  borderRadius: "0.125rem",
-                  background: "rgba(51, 0, 92, 0.35)",
-                  border: "none",
-                  color: "#353535",
-                  fontFamily: "Inter",
-                  fontSize: "0.5rem",
-                  fontWeight: 700,
-                  cursor: "not-allowed",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                &lt;
-              </button>
-              <span>Page</span>
-              <span
-                style={{
-                  width: "1.40363rem",
-                  height: "1rem",
-                  borderRadius: "0.125rem",
-                  background: "#33005C",
-                  color: "#AD6FDE",
-                  fontFamily: "Inter",
-                  fontSize: "0.5rem",
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                000
-              </span>
-              <span>of 0</span>
-              <button
-                style={{
-                  width: "1.02081rem",
-                  height: "1rem",
-                  borderRadius: "0.125rem",
-                  background: "rgba(51, 0, 92, 0.35)",
-                  border: "none",
-                  color: "#353535",
-                  fontFamily: "Inter",
-                  fontSize: "0.5rem",
-                  fontWeight: 700,
-                  cursor: "not-allowed",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                &gt;
-              </button>
-            </div>
-          </div>
+                  <button
+                    onClick={() => setShowInviteCollab(true)}
+                    className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 w-[11.25rem] h-10 rounded bg-white border-none cursor-pointer"
+                  >
+                    <img src={ShareIcon || "/placeholder.svg"} alt="Share Icon" className="w-[1.125rem] h-[1.125rem]" />
+                    <span className="text-black font-['Inter'] text-sm font-medium">Invite and Collab</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Info and Pagination Container for Empty State */}
+              <div className="flex items-center justify-between mt-auto pt-6">
+                <div className="flex items-center justify-center w-[8.43944rem] h-[1.875rem] rounded-[0.125rem] bg-black text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal">
+                  0 results found | 10 per page
+                </div>
+
+                <div className="flex items-center gap-2 text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal">
+                  <button className="w-[1.02081rem] h-4 rounded-[0.125rem] bg-[rgba(51,0,92,0.35)] border-none text-[#353535] font-['Inter'] text-[0.5rem] font-bold cursor-not-allowed flex items-center justify-center">
+                    &lt;
+                  </button>
+                  <span>Page</span>
+                  <span className="w-[1.40363rem] h-4 rounded-[0.125rem] bg-[#33005C] text-[#AD6FDE] font-['Inter'] text-[0.5rem] font-bold flex items-center justify-center">
+                    000
+                  </span>
+                  <span>of 0</span>
+                  <button className="w-[1.02081rem] h-4 rounded-[0.125rem] bg-[rgba(51,0,92,0.35)] border-none text-[#353535] font-['Inter'] text-[0.5rem] font-bold cursor-not-allowed flex items-center justify-center">
+                    &gt;
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            // Investor List View
+            <>
+              {/* Table Header */}
+              <div className="flex items-center py-4 px-4 xl:px-6">
+                <div className="w-[17rem] flex-shrink-0">
+                  <div className="text-white font-semibold text-xs uppercase tracking-wider font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    INVESTOR NAME
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0">
+                  <div className="flex justify-center flex-shrink-0 w-12">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                      CHECK SIZE
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center flex-shrink-0 w-16">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                      STAGE
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center flex-shrink-0 w-16">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                      INDUSTRY
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center flex-shrink-0 w-16">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                      GEOGRAPHY
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center flex-shrink-0 w-12">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                      MATCH
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center flex-shrink-0 w-16">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                      SUBMIT DECK
+                    </div>
+                  </div>
+
+                  <div className="flex-shrink-0 w-6"></div>
+                </div>
+              </div>
+
+              {/* Scrollable Investor List */}
+              <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide">
+                {currentInvestors.map((investor) => (
+                  <div
+                    key={investor.id}
+                    className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
+                  >
+                    <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
+                      <img
+                        src={investor.avatar || "/placeholder.svg"}
+                        alt={investor.name}
+                        className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
+                      />
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-normal text-base truncate font-['Inter']">
+                            {investor.name}
+                          </span>
+
+                          <div className="flex gap-1">
+                            <img
+                              src={LinkedIn || "/placeholder.svg"}
+                              alt="LinkedIn"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-[#0077B5]"
+                            />
+                            <img
+                              src={Link || "/placeholder.svg"}
+                              alt="Link"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                            />
+                            <img
+                              src={Mail || "/placeholder.svg"}
+                              alt="Mail"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                            />
+                            <img
+                              src={Twitter || "/placeholder.svg"}
+                              alt="Twitter"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 overflow-hidden">
+                          <span className="text-white text-xs truncate max-w-[5rem] font-['Inter'] text-[0.625rem]">
+                            {investor.company}
+                          </span>
+                          <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0 font-['Inter']">
+                            {investor.type === "ACCELERATOR" ? "ACC" : "VC"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-12 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
+                        {investor.checkSize}
+                      </div>
+
+                      <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.stage}
+                        </div>
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.stageCount}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.industry}
+                        </div>
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.industryCount}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
+                          <div className="w-5 h-3 flex items-center justify-center">
+                            <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
+                          </div>
+                        </div>
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.geography}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ background: getMatchColor(investor.matchValue) }}
+                        ></div>
+                        <span className="text-white text-base font-semibold font-['Inter']">{investor.match}</span>
+                      </div>
+
+                      <button
+                        className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem]"
+                        style={{
+                          background:
+                            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                        }}
+                      >
+                        Submit
+                      </button>
+
+                      <div className="relative flex-shrink-0">
+                        <button
+                          className="hover:opacity-70 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveDropdown(activeDropdown === investor.id ? null : investor.id)
+                          }}
+                        >
+                          <MoreVertical className="w-6 h-6 text-gray-400" />
+                        </button>
+
+                        {activeDropdown === investor.id && (
+                          <div className="absolute right-0 top-8 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black">
+                            <div className="py-1">
+                              {[
+                                { text: "Add to pipeline", icon: "💰" },
+                                { text: "Remove from list", icon: "🗑️" },
+                                { text: "Report an error", icon: "⚠️" },
+                              ].map((item, index) => (
+                                <button
+                                  key={index}
+                                  className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                                >
+                                  <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                                    {item.icon}
+                                  </div>
+                                  {item.text}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom Info and Pagination Container for Investor List */}
+              <div className="flex items-center justify-between mt-auto pt-6">
+                <div className="flex items-center justify-center w-[9.375rem] h-[1.875rem] rounded-[0.125rem] bg-black text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal">
+                  {investors.length} results found | 10 per page
+                </div>
+
+                <div className="flex items-center gap-2 text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal">
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className="w-[1.02081rem] h-4 rounded-[0.125rem] border-none font-['Inter'] text-[0.5rem] font-bold flex items-center justify-center"
+                    style={{
+                      background: currentPage === 1 ? "rgba(51, 0, 92, 0.35)" : "#33005C",
+                      color: currentPage === 1 ? "#353535" : "#AD6FDE",
+                      cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    &lt;
+                  </button>
+                  <span>Page</span>
+                  <span className="w-[1.40363rem] h-4 rounded-[0.125rem] bg-[#33005C] text-[#AD6FDE] font-['Inter'] text-[0.5rem] font-bold flex items-center justify-center">
+                    {currentPage.toString().padStart(3, "0")}
+                  </span>
+                  <span>of {totalPages || 1}</span>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className="w-[1.02081rem] h-4 rounded-[0.125rem] border-none font-['Inter'] text-[0.5rem] font-bold flex items-center justify-center"
+                    style={{
+                      background: currentPage === totalPages || totalPages === 0 ? "rgba(51, 0, 92, 0.35)" : "#33005C",
+                      color: currentPage === totalPages || totalPages === 0 ? "#353535" : "#AD6FDE",
+                      cursor: currentPage === totalPages || totalPages === 0 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    &gt;
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Add Investors Popup */}
         <AddInvestorsPopup
           isOpen={isAddInvestorsPopupOpen}
           onClose={() => setIsAddInvestorsPopupOpen(false)}
+          onInvestorsAdded={handleInvestorsAdded}
         />
+        <InviteAndCollab isOpen={showInviteCollab} onClose={() => setShowInviteCollab(false)} />
       </div>
     )
   }
 
   return (
-    <div style={{ paddingTop: "3rem" }} onClick={closeMenu}>
+    <div className="pt-12" onClick={closeMenu}>
       {/* Header Section */}
       <div className="mb-8">
         {/* Search and New List Section */}
-        <div className="flex justify-between items-center" style={{ marginBottom: "2.5rem" }}>
+        <div className="flex justify-between items-center mb-10">
           {/* Search Bar */}
-          <div className="relative" style={{ width: "20rem" }}>
+          <div className="relative w-80">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
-                style={{ width: "1rem", height: "1rem" }}
-                className="text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <img src={SearchIcon || "/placeholder.svg"} alt="Search Icon" className="w-4 h-4 text-gray-400" />
             </div>
+
             <input
               type="text"
               placeholder="Search target list..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 bg-transparent focus:outline-none"
-              style={{
-                width: "20rem",
-                height: "2.5rem",
-                borderRadius: "0.25rem",
-                border: "2px solid #000",
-                background: "#0F0E16",
-                fontFamily: "Inter",
-                fontSize: "0.75rem",
-                fontWeight: 400,
-                color: "#B8B8B8",
-              }}
+              className="w-80 h-10 rounded border-2 border-black bg-[#0F0E16] pl-10 pr-4 bg-transparent focus:outline-none font-['Inter'] text-xs font-normal text-[#B8B8B8]"
             />
           </div>
 
           {/* New List Button */}
           <button
             onClick={handleNewListClick}
-            className="flex items-center justify-center transition-colors hover:bg-purple-700"
-            style={{
-              width: "7.5rem",
-              height: "2.5rem",
-              borderRadius: "0.25rem",
-              background: "#5F248D",
-              gap: "0.5rem",
-            }}
+            className="flex items-center justify-center transition-colors hover:bg-purple-700 w-30 h-10 rounded bg-[#5F248D] gap-2"
           >
-            <span
-              style={{
-                width: "1.125rem",
-                height: "1.125rem",
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M8.25 9.75H3.75V8.25H8.25V3.75H9.75V8.25H14.25V9.75H9.75V14.25H8.25V9.75Z" fill="white" />
-              </svg>
-            </span>
-            <span style={{ color: "#FFF", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 500 }}>New list</span>
+            <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem]" />
+            <span className="text-white font-['Inter'] text-sm font-medium">New list</span>
           </button>
         </div>
 
@@ -773,30 +759,14 @@ function Target({ onListSelect }) {
           <div
             key={list.id}
             onClick={() => handleListClick(list)}
-            className="rounded-lg cursor-pointer transition-all hover:bg-opacity-80 mb-4 relative"
-            style={{
-              width: "100%",
-              height: "11.125rem",
-              borderRadius: "0.5rem",
-              background: "#0F0E16",
-              padding: "2rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "2rem",
-            }}
+            className="rounded-lg cursor-pointer transition-all hover:bg-opacity-80 mb-4 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-8 flex items-center gap-8"
           >
             {/* Profile Cover */}
             <div
+              className="w-30 h-30 rounded flex-shrink-0 flex items-center justify-center"
               style={{
-                width: "7.5rem",
-                height: "7.5rem",
-                borderRadius: "0.25rem",
                 background: list.cover === "default" ? "#0F0E16" : coverOptions[list.cover],
                 border: list.cover === "default" ? "1px dashed #5F248D" : "none",
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
             >
               {list.cover === "default" && (
@@ -808,68 +778,44 @@ function Target({ onListSelect }) {
 
             {/* Content */}
             <div className="flex-1">
-              <h3
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "1.5rem",
-                  fontWeight: 600,
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {list.name}
-              </h3>
+              <h3 className="text-white font-['Inter'] text-2xl font-semibold mb-2">{list.name}</h3>
 
-              <div className="flex items-center gap-2 mb-2" style={{ fontSize: "0.625rem" }}>
-                <span style={{ fontFamily: "Inter", fontWeight: 400, color: "#FFF" }}>Created by {list.createdBy}</span>
-                <div
-                  style={{ width: "0.1875rem", height: "0.1875rem", backgroundColor: "#AD6FDE", borderRadius: "50%" }}
-                ></div>
-                <span style={{ fontFamily: "Inter", fontWeight: 400, color: "#FFF" }}>{list.createdDate}</span>
-                <div
-                  style={{ width: "0.1875rem", height: "0.1875rem", backgroundColor: "#AD6FDE", borderRadius: "50%" }}
-                ></div>
-                <span style={{ fontFamily: "Inter", fontWeight: 400, color: "#FFF" }}>{list.updatedDate}</span>
+              <div className="flex items-center gap-2 mb-2 text-[0.625rem]">
+                <span className="font-['Inter'] font-normal text-white">Created by {list.createdBy}</span>
+                <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
+                <span className="font-['Inter'] font-normal text-white">{list.createdDate}</span>
+                <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
+                <span className="font-['Inter'] font-normal text-white">{list.updatedDate}</span>
               </div>
 
               {/* Investor Count Badge */}
-              <div
-                className="flex items-center justify-center"
-                style={{
-                  width: "5.25rem",
-                  height: "1.3125rem",
-                  borderRadius: "6.25rem",
-                  background: "#33005C",
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "0.5rem",
-                  fontWeight: 600,
-                }}
-              >
+              <div className="flex items-center justify-center w-21 h-[1.3125rem] rounded-[6.25rem] bg-[#33005C] text-white font-['Inter'] text-[0.5rem] font-semibold">
                 {list.investorCount} INVESTORS
               </div>
             </div>
 
-            {/* Three Dots Menu */}
-            <div className="relative">
-              <button
-                onClick={(e) => handleThreeDotsClick(e, list.id)}
-                className="p-2 hover:bg-gray-700 rounded transition-colors"
-                style={{ color: "#B8B8B8" }}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <circle cx="8" cy="2" r="1.5" />
-                  <circle cx="8" cy="8" r="1.5" />
-                  <circle cx="8" cy="14" r="1.5" />
-                </svg>
-              </button>
-              <ThreeDotsMenu
-                isOpen={activeMenuId === list.id}
-                onClose={closeMenu}
-                listId={list.id}
-                isVertxCreated={false}
-              />
-            </div>
+            {/* Three Dots Menu - Only show if list has investors */}
+            {list.investorCount > 0 && (
+              <div className="relative">
+                <button
+                  onClick={(e) => handleThreeDotsClick(e, list.id)}
+                  className="p-2 hover:bg-gray-700 rounded transition-colors text-[#B8B8B8]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <circle cx="8" cy="2" r="1.5" />
+                    <circle cx="8" cy="8" r="1.5" />
+                    <circle cx="8" cy="14" r="1.5" />
+                  </svg>
+                </button>
+                <ThreeDotsMenu
+                  isOpen={activeMenuId === list.id}
+                  onClose={closeMenu}
+                  listId={list.id}
+                  isVertxCreated={false}
+                  onEditName={handleEditNameClick}
+                />
+              </div>
+            )}
           </div>
         ))}
 
@@ -884,71 +830,28 @@ function Target({ onListSelect }) {
               createdDate: "28/05/2025",
               updatedDate: "Updated 1 day ago",
               investorCount: 0,
+              investors: [],
             })
           }
-          className="rounded-lg cursor-pointer transition-all hover:bg-opacity-80 relative"
-          style={{
-            width: "100%",
-            height: "11.125rem",
-            borderRadius: "0.5rem",
-            background: "#0F0E16",
-            padding: "2rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "2rem",
-          }}
+          className="rounded-lg cursor-pointer transition-all hover:bg-opacity-80 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-8 flex items-center gap-8"
         >
           {/* Profile Placeholder */}
-          <div
-            style={{
-              width: "7.5rem",
-              height: "7.5rem",
-              borderRadius: "0.25rem",
-              background: "linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)",
-              flexShrink: 0,
-            }}
-          ></div>
+          <div className="w-30 h-30 rounded flex-shrink-0 bg-gradient-to-br from-purple-600 to-blue-500"></div>
 
           {/* Content */}
           <div className="flex-1">
-            <h3
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1.5rem",
-                fontWeight: 600,
-                marginBottom: "0.5rem",
-              }}
-            >
-              Matched Investors for you
-            </h3>
+            <h3 className="text-white font-['Inter'] text-2xl font-semibold mb-2">Matched Investors for you</h3>
 
-            <div className="flex items-center gap-2 mb-2" style={{ fontSize: "0.625rem" }}>
-              <span style={{ fontFamily: "Inter", fontWeight: 400, color: "#FFF" }}>Created by VERTX</span>
-              <div
-                style={{ width: "0.1875rem", height: "0.1875rem", backgroundColor: "#AD6FDE", borderRadius: "50%" }}
-              ></div>
-              <span style={{ fontFamily: "Inter", fontWeight: 400, color: "#FFF" }}>28/05/2025</span>
-              <div
-                style={{ width: "0.1875rem", height: "0.1875rem", backgroundColor: "#AD6FDE", borderRadius: "50%" }}
-              ></div>
-              <span style={{ fontFamily: "Inter", fontWeight: 400, color: "#FFF" }}>Updated 1 day ago</span>
+            <div className="flex items-center gap-2 mb-2 text-[0.625rem]">
+              <span className="font-['Inter'] font-normal text-white">Created by VERTX</span>
+              <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
+              <span className="font-['Inter'] font-normal text-white">28/05/2025</span>
+              <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
+              <span className="font-['Inter'] font-normal text-white">Updated 1 day ago</span>
             </div>
 
             {/* Investor Count Badge */}
-            <div
-              className="flex items-center justify-center"
-              style={{
-                width: "5.25rem",
-                height: "1.3125rem",
-                borderRadius: "6.25rem",
-                background: "#33005C",
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.5rem",
-                fontWeight: 600,
-              }}
-            >
+            <div className="flex items-center justify-center w-21 h-[1.3125rem] rounded-[6.25rem] bg-[#33005C] text-white font-['Inter'] text-[0.5rem] font-semibold">
               10 INVESTORS
             </div>
           </div>
@@ -957,8 +860,7 @@ function Target({ onListSelect }) {
           <div className="relative">
             <button
               onClick={(e) => handleThreeDotsClick(e, "matched-investors")}
-              className="p-2 hover:bg-gray-700 rounded transition-colors"
-              style={{ color: "#B8B8B8" }}
+              className="p-2 hover:bg-gray-700 rounded transition-colors text-[#B8B8B8]"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                 <circle cx="8" cy="2" r="1.5" />
@@ -971,6 +873,7 @@ function Target({ onListSelect }) {
               onClose={closeMenu}
               listId="matched-investors"
               isVertxCreated={true}
+              onEditName={handleEditNameClick}
             />
           </div>
         </div>
@@ -985,5 +888,3 @@ function Target({ onListSelect }) {
     </div>
   )
 }
-export default Target
- 

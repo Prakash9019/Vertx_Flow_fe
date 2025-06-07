@@ -3,10 +3,10 @@
 // updated page with Target component
 
 import { useState } from "react"
-import Sidebar from "./Sidebar"
-import AddRoundPopup from "./AddRoundPopup"
+import Sidebar from "../Sidebar"
+import AddRoundPopup from "../AddRoundPopup"
 import FindInvestors from "./FindInvestors"
-import Target from "./Target"
+import Target from "../Target"
 
 function FundraisingManagePage() {
   const [activeTab, setActiveTab] = useState("Manage")

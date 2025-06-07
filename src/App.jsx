@@ -22,7 +22,7 @@ import Matchflow from "./screens/matchflow";
 
 
 //Screens for fundraising
-import FundraisingManagePage from "./components/fundraising"
+import FundraisingManagePage from "./components/Fundraising/fundraising"
 
 // Intermediate "Selected" pages (if you decide to keep them)
 import StartupLocation from "./screens/StartupLocation"; // Stage Selected confirmation

@@ -185,7 +185,7 @@ const Sidebar = () => {
                     </li>
                     <li 
                       className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
-                      onClick={() => handleFundraisingOptionClick('Raise')}
+                      onClick={() => {handleFundraisingOptionClick('Raise'); navigate("/fundraising/raise")}}
                     >
                       <span 
                         className={`font-medium ${selectedFundraisingOption === 'Raise' ? 'text-white' : 'text-[#B8B8B8]'}`}
@@ -194,7 +194,6 @@ const Sidebar = () => {
                           fontSize: '0.75rem', 
                           fontWeight: 500 
                         }}
-                        onClick={()=>{navigate("/fundraising/raise")}}
                       >
                         Raise
                       </span>
