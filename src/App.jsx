@@ -45,7 +45,7 @@ function App() {
 
   
   const streamlinedProtectedRoutes = [
-    { path: "/profile", element: <ProfileSetup_Page /> },
+    { path: "/linkedin", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
     { path: "/profile/setup", element: <ProfileSetup /> }, // Stage input
     { path: "/profile/location", element: <LocationSetup /> }, // Location input
