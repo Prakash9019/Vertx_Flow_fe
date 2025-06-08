@@ -1,6 +1,6 @@
 "use client"
 
-// updated page with Target component
+// updated page with Target component - converted to responsive Tailwind
 
 import { useState } from "react"
 import Sidebar from "../Sidebar"
@@ -82,13 +82,13 @@ function FundraisingManagePage() {
                   className="text-white font-semibold mb-2"
                   style={{ fontFamily: "Inter", fontSize: "2rem", fontWeight: 600 }}
                 >
-                 { profileData ? profileData.companyName :  "Company"}
+                  {profileData ? profileData.companyName : "Company"}
                 </h1>
                 <p className="text-white mb-2" style={{ fontFamily: "Inter", fontSize: "0.75rem", fontWeight: 600 }}>
-                { profileData ? profileData.companyName :  "This company"}   helps A to solve B by addition of C and D.
+                  {profileData ? profileData.companyName : "This company"} helps A to solve B by addition of C and D.
                 </p>
                 <p className="text-white mb-4" style={{ fontFamily: "Inter", fontSize: "0.625rem", fontWeight: 500 }}>
-                { profileData ? profileData.companyWebsite :  "www.companyname.com"} 
+                  {profileData ? profileData.companyWebsite : "www.companyname.com"}
                 </p>
               </div>
             </div>
@@ -130,61 +130,43 @@ function FundraisingManagePage() {
           }}
         >
           {activeTab === "Manage" && (
-            <div style={{ paddingTop: "3rem" }}>
+            <div className="pt-12">
               <div className="mb-8">
                 <div className="flex items-center mb-8">
-                  <div className="bg-purple-500 mr-2" style={{ width: "0.3125rem", height: "1.75rem" }}></div>
-                  <h2 className="text-white" style={{ fontFamily: "Inter", fontSize: "1.5rem", fontWeight: 600 }}>
+                  <div className="bg-purple-500 mr-2 w-[0.3125rem] h-7"></div>
+                  <h2 className="text-white text-lg sm:text-xl md:text-2xl xl:text-[1.5rem] font-semibold font-inter">
                     Manage your fundraising
                   </h2>
                 </div>
 
                 {/* Sub Navigation */}
-                <div className="flex" style={{ gap: "5.12rem" }}>
-                  <div className="relative" style={{ paddingLeft: "1.19rem" }}>
+                <div className="flex gap-8 sm:gap-12 md:gap-16 lg:gap-20 xl:gap-[5.12rem]">
+                  <div className="relative pl-5">
                     <button
                       onClick={() => setActiveSubTab("Current Round")}
-                      className="pb-2 transition-colors"
+                      className="pb-2 transition-colors font-inter text-sm sm:text-base font-medium"
                       style={{
                         color: activeSubTab === "Current Round" ? "#FFF" : "#B8B8B8",
-                        fontFamily: "Inter",
-                        fontSize: "1rem",
-                        fontWeight: 500,
                       }}
                     >
                       Current Round
                     </button>
                     {activeSubTab === "Current Round" && (
-                      <div
-                        className="absolute bottom-0"
-                        style={{
-                          left: "1.19rem",
-                          width: "7.0rem",
-                          height: "0.25rem",
-                          borderRadius: "6.25rem",
-                          background: "#AD6FDE",
-                        }}
-                      ></div>
+                      <div className="absolute bottom-0 left-5 w-28 h-1 rounded-full bg-[#AD6FDE]"></div>
                     )}
                   </div>
                   <div className="relative">
                     <button
                       onClick={() => setActiveSubTab("History")}
-                      className="pb-2 transition-colors"
+                      className="pb-2 transition-colors font-inter text-sm sm:text-base font-medium"
                       style={{
                         color: activeSubTab === "History" ? "#FFF" : "#B8B8B8",
-                        fontFamily: "Inter",
-                        fontSize: "1rem",
-                        fontWeight: 500,
                       }}
                     >
                       History
                     </button>
                     {activeSubTab === "History" && (
-                      <div
-                        className="absolute bottom-0 left-0"
-                        style={{ width: "3.5rem", height: "0.25rem", borderRadius: "6.25rem", background: "#AD6FDE" }}
-                      ></div>
+                      <div className="absolute bottom-0 left-0 w-14 h-1 rounded-full bg-[#AD6FDE]"></div>
                     )}
                   </div>
                 </div>
@@ -193,57 +175,22 @@ function FundraisingManagePage() {
                 <div className="w-full">
                   {hasActiveRound ? (
                     // Active Round Display
-                    <div
-                      className="rounded-lg"
-                      style={{
-                        width: "100%",
-                        height: "18.75rem",
-                        borderRadius: "0.625rem",
-                        backgroundColor: "#0F0E16",
-                        paddingLeft: "3.13rem",
-                        paddingRight: "3.13rem",
-                        paddingTop: "2.75rem",
-                        paddingBottom: "2.75rem",
-                      }}
-                    >
+                    <div className="rounded-lg bg-[#0F0E16] h-[18.75rem] px-6 sm:px-8 md:px-12 xl:px-[3.13rem] py-8 sm:py-10 xl:py-[2.75rem]">
                       {/* Header with title and buttons */}
-                      <div className="flex justify-between items-center" style={{ marginBottom: "3.44rem" }}>
-                        <h3
-                          className="text-white"
-                          style={{ fontFamily: "Inter", fontSize: "1.25rem", fontWeight: 600, color: "#FFF" }}
-                        >
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-[3.44rem]">
+                        <h3 className="text-white text-lg sm:text-xl xl:text-[1.25rem] font-semibold font-inter">
                           Angel 2 Bridge Round
                         </h3>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full sm:w-auto">
                           <button
                             onClick={handleUpdateRound}
-                            className="transition-colors hover:bg-purple-700"
-                            style={{
-                              width: "8.5rem",
-                              height: "2.25rem",
-                              borderRadius: "0.1875rem",
-                              backgroundColor: "#5F248D",
-                              color: "#FFF",
-                              fontFamily: "Inter",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                            }}
+                            className="transition-colors hover:bg-purple-700 h-9 px-4 rounded-sm bg-[#5F248D] text-white font-inter text-sm font-medium flex-1 sm:flex-none sm:w-[8.5rem]"
                           >
                             Update Round
                           </button>
                           <button
                             onClick={handleCloseRound}
-                            className="transition-colors hover:bg-red-600"
-                            style={{
-                              width: "8.5rem",
-                              height: "2.25rem",
-                              borderRadius: "0.1875rem",
-                              backgroundColor: "#DE2D2D",
-                              color: "#FFF",
-                              fontFamily: "Inter",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                            }}
+                            className="transition-colors hover:bg-red-600 h-9 px-4 rounded-sm bg-[#DE2D2D] text-white font-inter text-sm font-medium flex-1 sm:flex-none sm:w-[8.5rem]"
                           >
                             Close Round
                           </button>
@@ -251,131 +198,60 @@ function FundraisingManagePage() {
                       </div>
 
                       {/* Progress section */}
-                      <div style={{ marginBottom: "0.56rem" }}>
+                      <div className="mb-2">
                         <div className="flex justify-between items-center">
-                          <span
-                            className="text-white"
-                            style={{ fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 700, color: "#FFF" }}
-                          >
+                          <span className="text-white font-inter text-sm font-bold">
                             $10,000
                           </span>
-                          <span
-                            className="text-white"
-                            style={{ fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 700, color: "#FFF" }}
-                          >
+                          <span className="text-white font-inter text-sm font-bold">
                             10% raised of 100K target
                           </span>
                         </div>
                       </div>
 
                       {/* Progress bar */}
-                      <div
-                        className="w-full bg-gray-600 rounded-full"
-                        style={{
-                          width: "100%",
-                          height: "0.8125rem",
-                          borderRadius: "6.25rem",
-                          background: "rgba(184, 184, 184, 0.13)",
-                          marginBottom: "2.81rem",
-                        }}
-                      >
-                        <div
-                          className="bg-blue-500 rounded-full"
-                          style={{
-                            width: "8.25rem",
-                            height: "0.8125rem",
-                            borderRadius: "6.25rem",
-                            backgroundColor: "#305FC4",
-                          }}
-                        ></div>
+                      <div className="w-full h-[0.8125rem] rounded-full bg-white bg-opacity-13 mb-8 sm:mb-[2.81rem]">
+                        <div className="w-32 sm:w-[8.25rem] h-[0.8125rem] rounded-full bg-[#305FC4]"></div>
                       </div>
 
                       {/* Bottom stats */}
-                      <div className="flex justify-between mr-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                         {/* Amount to raise */}
-                        <div style={{ textAlign: "center" }}>
-                          <p
-                            className="text-gray-400"
-                            style={{
-                              fontFamily: "Inter",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                              color: "#B8B8B8",
-                              marginBottom: "0.44rem",
-                            }}
-                          >
+                        <div className="text-center">
+                          <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Amount to raise
                           </p>
-                          <p
-                            className="text-white"
-                            style={{ fontFamily: "Inter", fontSize: "1.25rem", fontWeight: 600, color: "#FFF" }}
-                          >
+                          <p className="text-white font-inter text-lg sm:text-xl font-semibold">
                             $90,000
                           </p>
                         </div>
 
                         {/* Closing in */}
-                        <div style={{ textAlign: "center" }}>
-                          <p
-                            className="text-gray-400"
-                            style={{
-                              fontFamily: "Inter",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                              color: "#B8B8B8",
-                              marginBottom: "0.44rem",
-                            }}
-                          >
+                        <div className="text-center">
+                          <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Closing in
                           </p>
-                          <p
-                            className="text-white"
-                            style={{ fontFamily: "Inter", fontSize: "1.25rem", fontWeight: 600, color: "#FFF" }}
-                          >
+                          <p className="text-white font-inter text-lg sm:text-xl font-semibold">
                             130 days
                           </p>
                         </div>
 
                         {/* Lead Investor */}
-                        <div style={{ textAlign: "center" }}>
-                          <p
-                            className="text-gray-400"
-                            style={{
-                              fontFamily: "Inter",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                              color: "#B8B8B8",
-                              marginBottom: "0.44rem",
-                            }}
-                          >
+                        <div className="text-center">
+                          <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Lead Investor
                           </p>
-                          <p
-                            className="text-white"
-                            style={{ fontFamily: "Inter", fontSize: "1.25rem", fontWeight: 600, color: "#FFF" }}
-                          >
+                          <p className="text-white font-inter text-lg sm:text-xl font-semibold">
                             Secured
                           </p>
                         </div>
 
                         {/* Term Sheet */}
-                        <div style={{ textAlign: "center" }}>
-                          <p
-                            className="text-gray-400"
-                            style={{
-                              fontFamily: "Inter",
-                              fontSize: "0.875rem",
-                              fontWeight: 500,
-                              color: "#B8B8B8",
-                              marginBottom: "0.44rem",
-                            }}
-                          >
+                        <div className="text-center">
+                          <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Term Sheet
                           </p>
-                          <p
-                            className="text-white"
-                            style={{ fontFamily: "Inter", fontSize: "1.25rem", fontWeight: 600, color: "#FFF" }}
-                          >
+                          <p className="text-white font-inter text-lg sm:text-xl font-semibold">
                             Signed
                           </p>
                         </div>
@@ -383,55 +259,18 @@ function FundraisingManagePage() {
                     </div>
                   ) : (
                     // No Active Round Display
-                    <div
-                      className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative"
-                      style={{ width: "100%", height: "15rem", borderRadius: "0.625rem", backgroundColor: "#0F0E16" }}
-                    >
-                      <h3
-                        className="text-white absolute"
-                        style={{
-                          top: "5.44rem",
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          fontFamily: "Inter",
-                          fontSize: "0.875rem",
-                          fontWeight: 600,
-                        }}
-                      >
+                    <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16]">
+                      <h3 className="text-white absolute top-20 left-1/2 transform -translate-x-1/2 font-inter text-sm font-semibold text-center px-4">
                         No fundraising round is currently open.
                       </h3>
-                      <p
-                        className="absolute max-w-2xl"
-                        style={{
-                          top: "6.81rem",
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          color: "#B8B8B8",
-                          fontFamily: "Inter",
-                          fontSize: "0.75rem",
-                          fontWeight: 400,
-                          textAlign: "center",
-                        }}
-                      >
+                      <p className="absolute top-[6.81rem] left-1/2 transform -translate-x-1/2 text-[#B8B8B8] font-inter text-xs font-normal text-center max-w-2xl px-4">
                         Open a new round to add the fundraising information and track progress.
                       </p>
                       <button
                         onClick={handleAddRoundClick}
-                        className="transition-colors flex items-center justify-center absolute hover:bg-purple-700"
-                        style={{
-                          top: "9.06rem",
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          width: "5.625rem",
-                          height: "1.875rem",
-                          borderRadius: "0.25rem",
-                          backgroundColor: "#33005C",
-                        }}
+                        className="transition-colors flex items-center justify-center absolute top-36 left-1/2 transform -translate-x-1/2 w-[5.625rem] h-[1.875rem] rounded bg-[#33005C] hover:bg-purple-700"
                       >
-                        <span
-                          className="text-white"
-                          style={{ fontFamily: "Inter", fontSize: "0.625rem", fontWeight: 600 }}
-                        >
+                        <span className="text-white font-inter text-[0.625rem] font-semibold">
                           + Add Round
                         </span>
                       </button>
@@ -441,7 +280,7 @@ function FundraisingManagePage() {
               </div>
             </div>
           )}
-
+          
           {activeTab === "Find" && <FindInvestors />}
 
           {activeTab === "Target" && <Target onListSelect={setIsTargetListSelected} />}
