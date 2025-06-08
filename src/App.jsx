@@ -77,6 +77,7 @@ function App() {
         {/* <Route path="/" element={<Login_Page />} /> */}
         {/* <Route path="/" element={<FundraisingPage />} /> */}
         <Route path="/" element={<Login_Page />} />
+        <Route path="/login" element={<Login_Page />} />
 
         <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
 

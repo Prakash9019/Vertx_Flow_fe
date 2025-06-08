@@ -25,12 +25,10 @@ function Login_Page() {
       console.log("Invite Token found in URL:", inviteTokenFromUrl);
       localStorage.setItem("cofounderInviteToken", inviteTokenFromUrl);
 
-      // Optional: decode JWT and prefill email (skipped for simplicity)
-
-      // Clean URL
-      navigate(location.pathname, { replace: true, state: location.state });
+      // Don't clean the URL immediately to avoid redirection issues
+      // We'll clean it after successful login
     }
-  }, [location, navigate]);
+  }, [location]);
 
   // Handle email submit and OTP send
   const handleEmail = async () => {
@@ -97,16 +95,33 @@ function Login_Page() {
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("isVerified", "true");
 
+        // Clean URL after successful login
+        const cleanUrl = location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+
         const inviteToken = localStorage.getItem("cofounderInviteToken");
         if (inviteToken) {
           console.log(
-            "Invite token exists, consider processing it:",
+            "Processing cofounder invitation token:",
             inviteToken
           );
-          // Optional: call invite processing API
+          // Process the invitation token before redirecting
+          try {
+            // Optional: Add API call to process the invitation token
+            // For now, just navigate to the homepage
+            navigate("/homepage");
+          } catch (inviteError) {
+            console.error("Error processing invitation:", inviteError);
+            navigate("/linkedin");
+          } finally {
+            // Clear the token after processing
+            localStorage.removeItem("cofounderInviteToken");
+          }
+        } else {
+          // Normal login flow
+          navigate("/linkedin");
         }
-
-        navigate("/linkedin");
+        
         setOtpFormDisplay(false);
         setOtp(["", "", "", "", "", ""]);
         setErrorMessage("");

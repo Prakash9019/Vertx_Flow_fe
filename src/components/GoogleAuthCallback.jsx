@@ -6,31 +6,50 @@ function GoogleAuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const googleAuthToken = params.get('token'); // This is the cofounder's own authToken from Google login
-        console.log("Google Auth Token:", googleAuthToken);
-        console.log("Google Auth Callback URL:", location.search);
-    if (googleAuthToken) {
-      localStorage.setItem('authToken', googleAuthToken);
-      localStorage.setItem('isVerified', 'true');
-
-      // Check if a cofounderInviteToken was stored before the Google redirect
-      const cofounderInviteToken = localStorage.getItem('cofounderInviteToken');
-      if (cofounderInviteToken) {
-        console.log("Google Login successful for cofounder, invite token is present:", cofounderInviteToken);
-        // NEXT STEP (Future): Call backend API to process this inviteToken using the new googleAuthToken
-        // For example: await processInvite(cofounderInviteToken, googleAuthToken);
-        // After processing, you might want to remove it:
-        // localStorage.removeItem('cofounderInviteToken');
+    const fetchUserData = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (token) {
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('isVerified', 'true');
+          
+          // Clean URL after successful login
+          const cleanUrl = location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+          
+          // Check if there's a cofounder invitation token
+          const inviteToken = localStorage.getItem('cofounderInviteToken');
+          if (inviteToken) {
+            console.log('Processing cofounder invitation after Google login:', inviteToken);
+            // Process the invitation token
+            try {
+              // Optional: Add API call to process the invitation token
+              // For now, just navigate to the homepage
+              navigate('/homepage');
+            } catch (inviteError) {
+              console.error('Error processing invitation:', inviteError);
+              navigate('/profile/manual');
+            } finally {
+              // Clear the token after processing
+              localStorage.removeItem('cofounderInviteToken');
+            }
+          } else {
+            // Normal login flow
+            navigate('/profile/manual');
+          }
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error in Google Auth callback:', error);
+        navigate('/');
       }
+    };
 
-      console.log("Google Auth Successful, token received, navigating to /profile/manual");
-      navigate('/profile/manual'); // Or a specific "welcome cofounder" page
-    } else {
-      console.error("Google Auth Callback Error: Main auth token not found in URL.");
-      navigate('/');
-    }
-  }, [location, navigate]);
+    fetchUserData();
+  }, [navigate]);
 
   return (
     <div style={{
