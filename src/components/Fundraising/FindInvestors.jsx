@@ -22,7 +22,6 @@ function FindInvestors() {
     'Australia'
   ];
 
-
   // Mock investor data
   const investorData = [
     {
@@ -40,15 +39,242 @@ function FindInvestors() {
       matchColor: "#DE2D2D",
       matchValue: 23
     },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    {
+      id: 1,
+      name: "Alex Bogusky",
+      company: "Batshit Crazy Ventures",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
+      checkSize: "$500K",
+      stage: "Pre-Seed",
+      stageCount: "+3",
+      industry: "AI/ML",
+      industryCount: "+10",
+      geography: "+18",
+      match: "23%",
+      matchColor: "#DE2D2D",
+      matchValue: 23
+    },
+    
+
   ];
 
   // Function to get match color based on percentage
   const getMatchColor = (matchValue) => {
-    if (matchValue >= 0 && matchValue <= 49) return "#DE2D2D";
-    if (matchValue >= 50 && matchValue <= 67) return "#AF4F00";
-    if (matchValue >= 68 && matchValue <= 85) return "#CC8D03";
-    if (matchValue >= 86 && matchValue <= 100) return "#0E8D07";
-    return "#DE2D2D";
+    if (matchValue >= 0 && matchValue <= 49) return "bg-[#DE2D2D]";
+    if (matchValue >= 50 && matchValue <= 67) return "bg-[#AF4F00]";
+    if (matchValue >= 68 && matchValue <= 85) return "bg-[#CC8D03]";
+    if (matchValue >= 86 && matchValue <= 100) return "bg-[#0E8D07]";
+    return "bg-[#DE2D2D]";
   };
 
   // Pagination calculations
@@ -82,7 +308,7 @@ function FindInvestors() {
   };
 
   return (
-    <div className="pt-12" onClick={() => {
+    <div className="pt-12 font-inter" onClick={() => {
       setActiveDropdown(null);
       setGeographyDropdownOpen(false);
     }}>
@@ -92,21 +318,18 @@ function FindInvestors() {
           <div key={tab} className="relative">
             <button 
               onClick={() => setActiveFindTab(tab)}
-              className="pb-2 transition-colors font-medium text-base"
-              style={{
-                color: activeFindTab === tab ? '#FFF' : '#B8B8B8',
-                fontFamily: 'Inter'
-              }}
+              className={`pb-2 transition-colors font-medium text-base ${
+                activeFindTab === tab ? 'text-white' : 'text-[#B8B8B8]'
+              }`}
             >
               {tab}
             </button>
             {activeFindTab === tab && (
               <div 
-                className="absolute bottom-0 left-0 h-1 rounded-full"
-                style={{ 
-                  width: tab === "Venture Firms" ? '7.5rem' : tab === "Investors" ? '4.5rem' : '4rem',
-                  background: '#AD6FDE' 
-                }}
+                className={`absolute bottom-0 left-0 h-1 rounded-full bg-[#AD6FDE] ${
+                  tab === "Venture Firms" ? 'w-[7.5rem]' : 
+                  tab === "Investors" ? 'w-[4.5rem]' : 'w-[4rem]'
+                }`}
               ></div>
             )}
           </div>
@@ -115,48 +338,30 @@ function FindInvestors() {
 
       {activeFindTab === "Investors" && (
         <div className="mb-12">
-          <div className="rounded-lg bg-black p-6" style={{ background: '#0F0E16', borderRadius: '0.625rem', padding: '1.5rem 1.24rem' }}>
-            {/* Search and Filters - Fixed to respect padding constraints */}
-            <div className="flex items-center justify-between mb-6" style={{ minWidth: '0' }}>
-              <div className="relative flex-shrink-0" style={{ width: '12.5rem' }}>
+          <div className="rounded-lg bg-[#0F0E16] p-6 rounded-[0.625rem]">
+            {/* Search and Filters */}
+            <div className="flex items-center justify-between mb-6 min-w-0">
+              <div className="relative flex-shrink-0 w-[12.5rem]">
                 <Search 
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
-                  style={{ width: '0.875rem', height: '0.875rem' }}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-[0.875rem] h-[0.875rem]" 
                 />
                 <input
                   type="text"
                   placeholder="Search database..."
-                  className="w-full h-8 rounded-sm bg-black text-gray-400 font-normal text-xs pl-8 pr-2 border-none outline-none"
-                  style={{
-                    width: '12.5rem',
-                    height: '1.875rem',
-                    borderRadius: '0.1875rem',
-                    fontFamily: 'Inter',
-                    fontSize: '0.625rem'
-                  }}
+                  className="w-full h-[1.875rem] rounded-[0.1875rem] bg-black text-gray-400 font-normal text-[0.625rem] pl-8 pr-2 border-none outline-none"
                 />
               </div>
               
-              <div className="flex ml-6 gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 " style={{ minWidth: '0' }}>
-                {['Type', 'Stage', 'Industry'].map((label, index) => (
+              <div className="flex ml-6 gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+                {['Type', 'Stage', 'Industry'].map((label) => (
                   <div className="relative flex-shrink-0" key={label}>
                     <select 
-                      className="bg-black text-left text-gray-400 font-normal text-xs border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-sm"
-                      style={{
-                        fontFamily: 'Inter',
-                        fontSize: '0.625rem',
-                        height: '1.75rem',
-                      }}
+                      className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem]"
                     >
                       <option>{label}</option>
                     </select>
                     <ChevronDown 
-                      className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
-                      style={{
-                        width: '0.75rem',
-                        height: '0.75rem',
-                        color: '#B8B8B8',
-                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none w-[0.75rem] h-[0.75rem] text-[#B8B8B8]"
                     />
                   </div>
                 ))}
@@ -168,63 +373,27 @@ function FindInvestors() {
                       e.stopPropagation();
                       setGeographyDropdownOpen(!geographyDropdownOpen);
                     }}
-                    className="bg-black text-left text-gray-400 font-normal text-xs border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-sm flex items-center"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.625rem',
-                      height: '1.75rem',
-                    }}
+                    className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem] flex items-center"
                   >
                     Geography
                     <ChevronDown 
-                      className="ml-2"
-                      style={{
-                        width: '0.75rem',
-                        height: '0.75rem',
-                        color: '#B8B8B8',
-                      }}
+                      className="ml-2 w-[0.75rem] h-[0.75rem] text-[#B8B8B8]"
                     />
                   </button>
 
                   {/* Geography Dropdown Menu */}
                   {geographyDropdownOpen && (
                     <div 
-                      className="absolute left-0 top-8 border"
-                      style={{
-                        width: '7.4375rem',
-                        height: '10.25rem',
-                        borderRadius: '0.25rem',
-                        border: '1px solid #0F0E16',
-                        background: '#000',
-                        zIndex: 9999,
-                        position: 'absolute'
-                      }}
+                      className="absolute left-0 top-8 border border-[#0F0E16] w-[7.4375rem] h-[10.25rem] rounded-[0.25rem] bg-black z-50"
                     >
-                                              <div className="py-1 px-1 overflow-y-auto h-full">
+                      <div className="py-1 px-1 overflow-y-auto h-full">
                         {geographyOptions.map((geography, index) => (
                           <button
                             key={index}
-                            className="w-full flex items-center justify-between px-2 py-1 text-left transition-colors rounded-sm"
-                            style={{
-                              color: '#FFF',
-                              fontFamily: 'Inter',
-                              fontSize: '0.5rem',
-                              fontWeight: 500,
-                              height: '1.0625rem'
-                            }}
+                            className="w-full flex items-center justify-between px-2 py-1 text-left transition-colors rounded-[0.1875rem] text-white text-[0.5rem] font-medium h-[1.0625rem] hover:bg-[#33005C] hover:w-[7.3125rem]"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleGeographyToggle(geography);
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.background = '#33005C';
-                              e.target.style.width = '7.3125rem';
-                              e.target.style.height = '1.0625rem';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.background = 'transparent';
-                              e.target.style.width = '100%';
-                              e.target.style.height = '1.0625rem';
                             }}
                           >
                             <span>{geography}</span>
@@ -250,23 +419,12 @@ function FindInvestors() {
                         
                         {/* Divider Line */}
                         <div 
-                          className="mx-auto my-2"
-                          style={{
-                            width: '6.5rem',
-                            height: '0.0625rem',
-                            background: '#333'
-                          }}
+                          className="mx-auto my-2 w-[6.5rem] h-[0.0625rem] bg-[#333]"
                         ></div>
                         
                         {/* Reset All Button */}
                         <button
-                          className="w-full text-center py-1"
-                          style={{
-                            color: '#AD6FDE',
-                            fontFamily: 'Inter',
-                            fontSize: '0.375rem',
-                            fontWeight: 500
-                          }}
+                          className="w-full text-center py-1 text-[#AD6FDE] text-[0.375rem] font-medium"
                           onClick={(e) => {
                             e.stopPropagation();
                             resetAllGeographies();
@@ -281,371 +439,267 @@ function FindInvestors() {
 
                 <button 
                   onClick={() => setAdvancedFiltersOn(!advancedFiltersOn)}
-                  className="flex items-center gap-2 bg-black text-gray-400 font-normal text-xs border-none rounded-sm outline-none px-3 py-1 flex-shrink-0"
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '0.625rem',
-                    height: '1.75rem',
-                  }}
+                  className="flex items-center gap-2 bg-black text-gray-400 font-normal text-[0.625rem] border-none rounded-[0.1875rem] outline-none px-3 py-1 flex-shrink-0 h-[1.75rem]"
                 >
                   Advanced Filters
                   <div className="relative w-7 h-4">
                     <div 
-                      className="absolute inset-0 rounded-full transition-colors"
-                      style={{ backgroundColor: advancedFiltersOn ? '#9333EA' : '#374151' }}
+                      className={`absolute inset-0 rounded-full transition-colors ${
+                        advancedFiltersOn ? 'bg-[#9333EA]' : 'bg-[#374151]'
+                      }`}
                     ></div>
                     <div 
-                      className="absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform"
-                      style={{ left: advancedFiltersOn ? '0.95rem' : '0.125rem' }}
+                      className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
+                        advancedFiltersOn ? 'translate-x-[0.825rem]' : 'translate-x-0.5'
+                      }`}
                     ></div>
                   </div>
                 </button>
               </div>
             </div>
 
-            {/* Table Header - Made Responsive with overflow behavior matching content */}
+            {/* Table Header */}
             <div className="flex items-center py-4 px-4 xl:px-6">
-              {/* Fixed Width Container for Investor Name Header - matches content */}
+              {/* Fixed Width Container for Investor Name Header */}
               <div className="w-[17rem] flex-shrink-0">
-                <div 
-                  className="text-white font-semibold text-xs uppercase tracking-wider"
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '0.5rem',
-                    letterSpacing: '0.05em'
-                  }}
-                >
+                <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em]">
                   INVESTOR NAME
                 </div>
               </div>
 
-              {/* Details Headers Section - matches content flex layout, stops responsiveness and hides from end when content does */}
-              <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden" style={{ minWidth: '0' }}>
+              {/* Details Headers Section */}
+              <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0">
                 {/* Check Size Header */}
-                <div className="flex justify-center flex-shrink-0" style={{ width: '3rem' }}>
-                  <div 
-                    className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
+                <div className="flex justify-center flex-shrink-0 w-[3rem]">
+                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     CHECK SIZE
                   </div>
                 </div>
 
                 {/* Stage Header */}
-                <div className="flex justify-center flex-shrink-0" style={{ width: '4rem' }}>
-                  <div 
-                    className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
+                <div className="flex justify-center flex-shrink-0 w-[4rem]">
+                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     STAGE
                   </div>
                 </div>
 
                 {/* Industry Header */}
-                <div className="flex justify-center flex-shrink-0" style={{ width: '4rem' }}>
-                  <div 
-                    className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
+                <div className="flex justify-center flex-shrink-0 w-[4rem]">
+                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     INDUSTRY
                   </div>
                 </div>
 
                 {/* Geography Header */}
-                <div className="flex justify-center flex-shrink-0" style={{ width: '4rem' }}>
-                  <div 
-                    className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
+                <div className="flex justify-center flex-shrink-0 w-[4rem]">
+                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     GEOGRAPHY
                   </div>
                 </div>
 
                 {/* Match Header */}
-                <div className="flex justify-center flex-shrink-0" style={{ width: '3rem' }}>
-                  <div 
-                    className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
+                <div className="flex justify-center flex-shrink-0 w-[3rem]">
+                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     MATCH
                   </div>
                 </div>
 
                 {/* Submit Deck Header */}
-                <div className="flex justify-center flex-shrink-0" style={{ width: '4rem' }}>
-                  <div 
-                    className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap"
-                    style={{
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
+                <div className="flex justify-center flex-shrink-0 w-[4rem]">
+                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     SUBMIT DECK
                   </div>
                 </div>
 
-                {/* Options Header (for the three dots) */}
-                <div className="flex-shrink-0" style={{ width: '1.5rem' }}></div>
+                {/* Options Header */}
+                <div className="flex-shrink-0 w-[1.5rem]"></div>
               </div>
             </div>
 
-{/* Scrollable Investor List */}
-<div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide">
-  {currentInvestors.map((investor) => (
-    <div 
-      key={investor.id}
-      className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
-    >
-      {/* Fixed Width Container for Avatar + Name + Links */}
-      <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
-        <img 
-          src={investor.avatar} 
-          alt={investor.name}
-          className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
-        />
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
-            <span className="text-white font-normal text-base truncate" style={{ fontFamily: 'Inter' }}>
-              {investor.name}
-            </span>
-            <div className="flex gap-1">
-              <img src="../src/assets/LinkedIn.svg" alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
-              <img src="../src/assets/link.svg" alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
-              <img src="../src/assets/mail.svg" alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
-              <img src="../src/assets/twitter.svg" alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 mt-1 overflow-hidden">
-            <span className="text-white text-xs truncate max-w-[5rem]" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-              {investor.company}
-            </span>
-            <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0" style={{ fontFamily: 'Inter' }}>
-              VC
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Details Section */}
-      <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10" style={{ minWidth: '0' }}>
-        {/* Check Size */}
-        <div className="bg-[#18002C] text-white text-xs font-semibold w-12 h-6 rounded-sm flex items-center justify-center flex-shrink-0" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-          {investor.checkSize}
-        </div>
-
-        {/* Stage */}
-        <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-          <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-            {investor.stage}
-          </div>
-          <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-            {investor.stageCount}
-          </div>
-        </div>
-
-        {/* Industry */}
-        <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-          <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-            {investor.industry}
-          </div>
-          <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-            {investor.industryCount}
-          </div>
-        </div>
-
-        {/* Geography */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
-            <div className="w-5 h-3 flex items-center justify-center">
-              <img src="../src/assets/IndiaFlag.png" alt="Flag" />
-            </div>
-          </div>
-          <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: '0.625rem' }}>
-            {investor.geography}
-          </div>
-        </div>
-
-        {/* Match Score */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: getMatchColor(investor.matchValue) }}></div>
-          <span className="text-white text-base font-semibold" style={{ fontFamily: 'Inter' }}>{investor.match}</span>
-        </div>
-
-        {/* Submit Button */}
-        <button className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0" style={{
-          fontFamily: 'Inter',
-          fontSize: '0.625rem',
-          background: 'linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)'
-        }}>
-          Submit
-        </button>
-
-        {/* Options */}
-        <div className="relative flex-shrink-0">
-          <button 
-            className="hover:opacity-70 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
-            }}
-          >
-            <MoreVertical className="w-6 h-6 text-gray-400" />
-          </button>
-          
-          {/* Dropdown Menu */}
-          {activeDropdown === investor.id && (
-            <div 
-              className="absolute right-0 top-8 z-50 border"
-              style={{
-                width: '8.0625rem',
-                height: '5.125rem',
-                borderRadius: '0.25rem',
-                border: '1px solid #0F0E16',
-                background: '#000'
-              }}
-            >
-              <div className="py-1">
-                {[
-                  { text: 'Add to pipeline', icon: '💰' },
-                  { text: 'Add to target list', icon: '📋' },
-                  { text: 'Report an error', icon: '⚠️' }
-                ].map((item, index) => (
-                  <button
-                    key={index}
-                    className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors"
-                    style={{
-                      color: '#B8B8B8',
-                      fontFamily: 'Inter',
-                      fontSize: '0.5rem',
-                      fontWeight: 400,
-                      height: '1.25rem'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.color = '#FFF';
-                      e.target.style.background = '#33005C';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.color = '#B8B8B8';
-                      e.target.style.background = 'transparent';
-                    }}
-                  >
-                    <div 
-                      className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs"
-                      style={{
-                        width: '0.75rem',
-                        height: '0.75rem'
-                      }}
-                    >
-                      {item.icon}
+            {/* Scrollable Investor List */}
+            <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide">
+              {currentInvestors.map((investor) => (
+                <div 
+                  key={investor.id}
+                  className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
+                >
+                  {/* Fixed Width Container for Avatar + Name + Links */}
+                  <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
+                    <img 
+                      src={investor.avatar} 
+                      alt={investor.name}
+                      className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
+                    />
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-normal text-base truncate">
+                          {investor.name}
+                        </span>
+                        <div className="flex gap-1">
+                          <img src="../src/assets/LinkedIn.svg" alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                          <img src="../src/assets/link.svg" alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                          <img src="../src/assets/mail.svg" alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                          <img src="../src/assets/twitter.svg" alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 overflow-hidden">
+                        <span className="text-white text-[0.625rem] truncate max-w-[5rem]">
+                          {investor.company}
+                        </span>
+                        <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0">
+                          VC
+                        </span>
+                      </div>
                     </div>
-                    {item.text}
-                  </button>
-                ))}
-              </div>
+                  </div>
+
+                  {/* Details Section */}
+                  <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+                    {/* Check Size */}
+                    <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-12 h-6 rounded-[0.1875rem] flex items-center justify-center flex-shrink-0">
+                      {investor.checkSize}
+                    </div>
+
+                    {/* Stage */}
+                    <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                      <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                        {investor.stage}
+                      </div>
+                      <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                        {investor.stageCount}
+                      </div>
+                    </div>
+
+                    {/* Industry */}
+                    <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                      <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                        {investor.industry}
+                      </div>
+                      <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                        {investor.industryCount}
+                      </div>
+                    </div>
+
+                    {/* Geography */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1 bg-[#18002C] rounded-[0.1875rem] px-1 py-0.5">
+                        <div className="w-5 h-3 flex items-center justify-center">
+                          <img src="../src/assets/IndiaFlag.png" alt="Flag" />
+                        </div>
+                      </div>
+                      <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                        {investor.geography}
+                      </div>
+                    </div>
+
+                    {/* Match Score */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className={`w-2.5 h-2.5 rounded-full ${getMatchColor(investor.matchValue)}`}></div>
+                      <span className="text-white text-base font-semibold">{investor.match}</span>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+  className="text-white text-[0.625rem] font-medium rounded w-15 h-7 flex-shrink-0"
+  style={{
+    background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
+  }}
+>
+  Submit
+</button>
+
+
+                    {/* Options */}
+                    <div className="relative flex-shrink-0">
+                      <button 
+                        className="hover:opacity-70 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                        }}
+                      >
+                        <MoreVertical className="w-6 h-6 text-gray-400" />
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      {activeDropdown === investor.id && (
+                        <div 
+                          className="absolute right-0 top-8 z-50 border border-[#0F0E16] w-[8.0625rem] h-[5.125rem] rounded-[0.25rem] bg-black"
+                        >
+                          <div className="py-1">
+                            {[
+                              { text: 'Add to pipeline', icon: '💰' },
+                              { text: 'Add to target list', icon: '📋' },
+                              { text: 'Report an error', icon: '⚠️' }
+                            ].map((item, index) => (
+                              <button
+                                key={index}
+                                className="w-full flex items-center gap-2 px-2 py-1 text-left text-[#B8B8B8] hover:text-white transition-colors text-[0.5rem] font-normal h-[1.25rem] hover:bg-[#33005C]"
+                              >
+                                <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-[0.75rem] h-[0.75rem]">
+                                  {item.icon}
+                                </div>
+                                {item.text}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-      </div>
+
+           {/* Pagination */}
+<div className="flex items-center justify-between mt-12 pb-12">
+  {/* Left Side: Results Count */}
+  <div className="flex items-center justify-center bg-black text-gray-400 font-normal text-[0.5rem] rounded-sm w-[9.375rem] h-[1.875rem] font-inter">
+    {investorData.length} results found | 10 per page
+  </div>
+
+  {/* Right Side: Pagination Controls */}
+  <div className="flex items-center justify-between bg-black rounded-sm px-2 w-[9rem] h-[1.875rem]">
+    
+    {/* Previous Button */}
+    <button
+      onClick={handlePrevPage}
+      disabled={currentPage === 1}
+      className={`flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-4 h-4 font-inter 
+        ${currentPage === 1 
+          ? 'bg-[rgba(51,0,92,0.35)] text-[rgba(173,111,222,0.35)] cursor-not-allowed' 
+          : 'bg-[#33005C] text-[#AD6FDE] cursor-pointer'}`}
+    >
+      &lt;
+    </button>
+
+    {/* Page Info */}
+    <div className="flex items-center gap-2">
+      <span className="text-gray-400 font-normal text-[0.5rem] font-inter">
+        Page
+      </span>
+      <span className="flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-[1.375rem] h-4 bg-[#33005C] text-[#AD6FDE] font-inter">
+        {currentPage.toString().padStart(3, '0')}
+      </span>
+      <span className="text-gray-400 font-normal text-[0.5rem] font-inter">
+        of {totalPages.toString().padStart(3, '0')}
+      </span>
     </div>
-  ))}
+
+    {/* Next Button */}
+    <button
+      onClick={handleNextPage}
+      disabled={currentPage === totalPages}
+      className={`flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-4 h-4 font-inter 
+        ${currentPage === totalPages 
+          ? 'bg-[rgba(51,0,92,0.35)] text-[rgba(173,111,222,0.35)] cursor-not-allowed' 
+          : 'bg-[#33005C] text-[#AD6FDE] cursor-pointer'}`}
+    >
+      &gt;
+    </button>
+  </div>
 </div>
 
-            {/* Pagination - Fixed */}
-            <div className="flex items-center justify-between mt-12 pb-12">
-              <div className="flex items-center justify-center bg-black text-gray-400 font-normal text-xs rounded-sm"
-                   style={{ 
-                     width: '9.375rem',
-                     height: '1.875rem',
-                     fontFamily: 'Inter',
-                     fontSize: '0.5rem'
-                   }}>
-                {investorData.length} results found | 10 per page
-              </div>
-              <div className="flex items-center justify-between bg-black rounded-sm px-2"
-                   style={{
-                     width: '9rem',
-                     height: '1.875rem'
-                   }}>
-                <button 
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1}
-                  className="flex items-center justify-center border-none cursor-pointer rounded-sm text-purple-400 font-bold text-xs"
-                  style={{
-                    width: '1rem',
-                    height: '1rem',
-                    background: currentPage === 1 ? 'rgba(51, 0, 92, 0.35)' : '#33005C',
-                    color: currentPage === 1 ? 'rgba(173, 111, 222, 0.35)' : '#AD6FDE',
-                    fontFamily: 'Inter',
-                    fontSize: '0.5rem',
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                  }}>
-                  &lt;
-                </button>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 font-normal text-xs"
-                        style={{ 
-                          fontFamily: 'Inter',
-                          fontSize: '0.5rem'
-                        }}>
-                    Page
-                  </span>
-                  <span className="flex items-center justify-center bg-purple-900 rounded-sm text-purple-400 font-bold text-xs"
-                        style={{
-                          width: '1.375rem',
-                          height: '1rem',
-                          background: '#33005C',
-                          color: '#AD6FDE',
-                          fontFamily: 'Inter',
-                          fontSize: '0.5rem'
-                        }}>
-                    {currentPage.toString().padStart(3, '0')}
-                  </span>
-                  <span className="text-gray-400 font-normal text-xs"
-                        style={{ 
-                          fontFamily: 'Inter',
-                          fontSize: '0.5rem'
-                        }}>
-                    of {totalPages.toString().padStart(3, '0')}
-                  </span>
-                </div>
-                <button 
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                  className="flex items-center justify-center border-none cursor-pointer rounded-sm text-purple-400 font-bold text-xs"
-                  style={{
-                    width: '1rem',
-                    height: '1rem',
-                    background: currentPage === totalPages ? 'rgba(51, 0, 92, 0.35)' : '#33005C',
-                    color: currentPage === totalPages ? 'rgba(173, 111, 222, 0.35)' : '#AD6FDE',
-                    fontFamily: 'Inter',
-                    fontSize: '0.5rem',
-                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                  }}>
-                  &gt;
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

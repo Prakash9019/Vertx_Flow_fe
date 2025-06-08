@@ -27,7 +27,6 @@ function InviteAndCollab({ isOpen, onClose }) {
 
   const handleGenerateQR = () => {
     setCurrentView('qr')
-    // After 3 seconds, show the settings view
     setTimeout(() => {
       setCurrentView('settings')
     }, 500)
@@ -39,9 +38,9 @@ function InviteAndCollab({ isOpen, onClose }) {
 
   const getContainerHeight = () => {
     switch (currentView) {
-      case 'qr': return "20.6rem"
-      case 'settings': return "21.8rem"
-      default: return "17.5rem"
+      case 'qr': return "h-[20.6rem]"
+      case 'settings': return "h-[21.8rem]"
+      default: return "h-[17.5rem]"
     }
   }
 
@@ -55,28 +54,16 @@ function InviteAndCollab({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Dimmed background overlay */}
-      <div className="absolute inset-0 bg-black" style={{ opacity: 0.7 }} onClick={onClose}></div>
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.7)]" onClick={onClose}></div>
 
       <div
-        className="relative flex flex-col items-center justify-center"
-        style={{
-          width: "43.75rem",
-          height: "35rem",
-          backgroundImage: `url(${rectangleImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="relative flex flex-col items-center justify-center w-[43.75rem] h-[35rem] bg-cover bg-center"
+        style={{ backgroundImage: `url(${rectangleImage})` }}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute cursor-pointer hover:opacity-80"
-          style={{
-            top: "2rem",
-            right: "2rem",
-            width: "2rem",
-            height: "2rem",
-          }}
+          className="absolute cursor-pointer hover:opacity-80 w-8 h-8 top-8 right-8"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
             <path
@@ -87,71 +74,30 @@ function InviteAndCollab({ isOpen, onClose }) {
         </button>
 
         {/* Header text */}
-        <div className="text-center" style={{ paddingTop: "2.0rem" }}>
-          <h2
-            className="text-white"
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1.5rem",
-              fontWeight: 600,
-            }}
-          >
+        <div className="text-center pt-8">
+          <h2 className="text-white text-2xl font-semibold font-inter">
             Your target list invite link is here
           </h2>
-          <p
-            style={{
-              color: "#B8B8B8",
-              textAlign: "center",
-              fontFamily: "Inter",
-              fontSize: "0.75rem",
-              fontWeight: 500,
-              maxWidth: "25rem",
-              margin: "0 auto",
-              marginTop: "0.25rem",
-              lineHeight: "1.1",
-            }}
-          >
+          <p className="text-[#B8B8B8] text-center text-xs font-medium font-inter max-w-[25rem] mx-auto mt-1 leading-snug">
             You can share this link with anyone, even if they're not on Vertx yet.
           </p>
         </div>
 
         {/* Main container */}
         <div
-          style={{
-            width: "40rem",
-            height: getContainerHeight(),
-            borderRadius: "0.3125rem",
-            background: "rgba(0, 0, 0, 0.76)",
-            position: "relative",
-            marginTop: "1.87rem",
-            transition: "height 0.3s ease-in-out",
-          }}
+          className={`w-[40rem] ${getContainerHeight()} rounded-[0.3125rem] bg-[rgba(0,0,0,0.76)] relative mt-7 transition-all duration-300`}
         >
           {/* QR Code View */}
           {currentView === 'qr' && (
             <div className="flex flex-col items-center justify-center h-full">
-
-
-<div className="mb-6">
-  {/* QR Code */}
-  <img
-    src={QRIcon}
-    alt="QR Code"
-    className="w-[150px] h-[150px]"
-    style={{ width: "9.375rem", height: "9.375rem" }}
-  />
-</div>
-
-              <p
-                style={{
-                  color: "#FFF",
-                  textAlign: "center",
-                  fontFamily: "Inter",
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                }}
-              >
+              <div className="mb-6">
+                <img
+                  src={QRIcon}
+                  alt="QR Code"
+                  className="w-[9.375rem] h-[9.375rem]"
+                />
+              </div>
+              <p className="text-white text-center text-xs font-medium font-inter">
                 Scan this QR to access target link
               </p>
             </div>
@@ -159,186 +105,66 @@ function InviteAndCollab({ isOpen, onClose }) {
 
           {/* Settings View */}
           {currentView === 'settings' && (
-            <div style={{ paddingTop: "1.5rem", paddingLeft: "2rem", paddingRight: "2rem" }}>
+            <div className="pt-6 px-8">
               {/* Back button and title */}
               <div className="flex items-center mb-3">
-
-
-<button
-  onClick={handleBackToMain}
-  className="flex items-center text-white hover:opacity-80 transition-opacity mr-3"
-  style={{
-    width: "1.5rem",
-    height: "1.5rem",
-  }}
->
-  <img
-    src={BackIcon}
-    alt="Back"
-    className="w-full h-full"
-  />
-</button>
-
-                <h3
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "1rem",
-                    fontWeight: 500,
-                  }}
+                <button
+                  onClick={handleBackToMain}
+                  className="flex items-center text-white hover:opacity-80 transition-opacity mr-3 w-6 h-6"
                 >
+                  <img src={BackIcon} alt="Back" className="w-full h-full" />
+                </button>
+                <h3 className="text-white text-base font-medium font-inter">
                   Invite settings
                 </h3>
               </div>
 
-              <p
-                style={{
-                  color: "#B8B8B8",
-                  fontFamily: "Inter",
-                  fontSize: "0.625rem",
-                  fontWeight: 400,
-                  marginBottom: "1.5rem",
-                  lineHeight: "1.3",
-                  textAlign: "left",
-                  paddingLeft:'2.2rem'
-                }}
-              >
+              <p className="text-[#B8B8B8] text-[0.625rem] font-normal font-inter mb-6 leading-[1.3] text-left pl-9">
                 These settings won't apply to the people directly invited, or the members of company, who currently have access.
               </p>
 
               {/* Who has access section */}
               <div className="mb-4">
-                <h4
-                  style={{
-                    color: "#FFF",
-                    textAlign: "left",
-                    fontFamily: "Inter",
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    marginBottom: "0.75rem",
-                  }}
-                >
+                <h4 className="text-white text-left text-xs font-medium font-inter mb-3">
                   Who has access
                 </h4>
                 
                 <div className="relative">
                   <div
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="flex items-center justify-between cursor-pointer hover:bg-opacity-10 hover:bg-white transition-colors"
-                    style={{
-                      height: "2.25rem",
-                      padding: "0 0.75rem",
-                      background: "rgba(255, 255, 255, 0.1)",
-                      borderRadius: "0.125rem",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                    }}
+                    className="flex items-center justify-between cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition-colors h-9 px-3 bg-[rgba(255,255,255,0.1)] rounded-[0.125rem] border border-[rgba(255,255,255,0.2)]"
                   >
-
-
-<div className="flex items-center">
-  <img
-    src={LockIcon}
-    alt="Lock"
-    className="mr-2"
-    style={{ width: "1.25rem", height: "1.25rem" }}
-  />
-  <span
-    style={{
-      color: "#FFF",
-      fontFamily: "Inter",
-      fontSize: "0.625rem",
-      fontWeight: 400,
-    }}
-  >
-    {selectedAccess}
-  </span>
-</div>
-
-
-
-<img
-  src={DropdownIcon}
-  alt="Dropdown"
-  style={{ width: "1rem", height: "1rem" }}
-/>
-
+                    <div className="flex items-center">
+                      <img
+                        src={LockIcon}
+                        alt="Lock"
+                        className="mr-2 w-5 h-5"
+                      />
+                      <span className="text-white text-[0.625rem] font-normal font-inter">
+                        {selectedAccess}
+                      </span>
+                    </div>
+                    <img src={DropdownIcon} alt="Dropdown" className="w-4 h-4" />
                   </div>
 
                   {/* Dropdown */}
                   {showDropdown && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        height: "5.4375rem",
-                        borderRadius: "0.125rem",
-                        background: "#000",
-                        zIndex: 10,
-                        marginTop: "0.25rem",
-                        paddingTop: "0.375rem",
-                        paddingBottom: "0.375rem",
-                      }}
-                    >
+                    <div className="absolute top-full left-0 right-0 h-[5.4375rem] rounded-[0.125rem] bg-black z-10 mt-1 py-1.5">
                       <div
                         onClick={() => handleAccessSelect('Anyone')}
-                        className="flex items-center cursor-pointer transition-colors"
-                        style={{
-                          height: "2rem",
-                          padding: "0 0.75rem",
-                          background: "transparent",
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = "#33005C"}
-                        onMouseLeave={(e) => e.target.style.background = "transparent"}
+                        className="flex items-center cursor-pointer transition-colors h-8 px-3 hover:bg-[#33005C]"
                       >
-
-
-<img
-  src={EarthIcon}
-  alt="Earth"
-  className="mr-2"
-  style={{ width: "1.25rem", height: "1.25rem" }}
-/>
-
-                        <span
-                          style={{
-                            color: "#FFF",
-                            fontFamily: "Inter",
-                            fontSize: "0.625rem",
-                            fontWeight: 400,
-                          }}
-                        >
+                        <img src={EarthIcon} alt="Earth" className="mr-2 w-5 h-5" />
+                        <span className="text-white text-[0.625rem] font-normal font-inter">
                           Anyone
                         </span>
                       </div>
                       <div
                         onClick={() => handleAccessSelect('Only invited people')}
-                        className="flex items-center cursor-pointer transition-colors"
-                        style={{
-                          height: "2rem",
-                          padding: "0 0.75rem",
-                          background: "transparent",
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = "#33005C"}
-                        onMouseLeave={(e) => e.target.style.background = "transparent"}
+                        className="flex items-center cursor-pointer transition-colors h-8 px-3 hover:bg-[#33005C]"
                       >
-
-<img
-  src={LockIcon}
-  alt="Lock"
-  className="mr-2"
-  style={{ width: "1.25rem", height: "1.25rem" }}
-/>
-
-                        <span
-                          style={{
-                            color: "#FFF",
-                            fontFamily: "Inter",
-                            fontSize: "0.625rem",
-                            fontWeight: 400,
-                          }}
-                        >
+                        <img src={LockIcon} alt="Lock" className="mr-2 w-5 h-5" />
+                        <span className="text-white text-[0.625rem] font-normal font-inter">
                           Only invited people
                         </span>
                       </div>
@@ -346,62 +172,31 @@ function InviteAndCollab({ isOpen, onClose }) {
                   )}
                 </div>
 
-                <p
-                  style={{
-                    color: "#B8B8B8",
-                    fontFamily: "Inter",
-                    fontSize: "0.625rem",
-                    fontWeight: 400,
-                    marginTop: "0.5rem",
-                  }}
-                >
+                <p className="text-[#B8B8B8] text-[0.625rem] font-normal font-inter mt-2">
                   Only people you've directly invited can access this list.
                 </p>
               </div>
 
               {/* Additional settings */}
               <div className="mb-4">
-                <h4
-                  style={{
-                    color: "#FFF",
-                    textAlign: "left",
-                    fontFamily: "Inter",
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    marginBottom: "0.75rem",
-                  }}
-                >
+                <h4 className="text-white text-left text-xs font-medium font-inter mb-3">
                   Additional settings
                 </h4>
                 
                 <div className="flex items-center justify-between">
-                  <span
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "Inter",
-                      fontSize: "0.625rem",
-                      fontWeight: 400,
-                    }}
-                  >
+                  <span className="text-white text-[0.625rem] font-normal font-inter">
                     People can edit and share this target list
                   </span>
                   <button
                     onClick={() => setAllowEdit(!allowEdit)}
-                    className={`relative inline-flex items-center rounded-full transition-colors ${
+                    className={`relative inline-flex items-center rounded-full transition-colors w-6 h-3 ${
                       allowEdit ? 'bg-[#5F248D]' : 'bg-gray-600'
                     }`}
-                    style={{
-                      width: "1.5rem",
-                      height: "0.75rem",
-                    }}
                   >
                     <span
-                      className={`inline-block rounded-full bg-white transition-transform`}
-                      style={{
-                        width: "0.5rem",
-                        height: "0.5rem",
-                        transform: allowEdit ? 'translateX(0.875rem)' : 'translateX(0.125rem)',
-                      }}
+                      className={`inline-block rounded-full bg-white transition-transform w-2 h-2 ${
+                        allowEdit ? 'translate-x-[0.875rem]' : 'translate-x-[0.125rem]'
+                      }`}
                     />
                   </button>
                 </div>
@@ -411,12 +206,7 @@ function InviteAndCollab({ isOpen, onClose }) {
               <div className="flex justify-end">
                 <button
                   onClick={handleBackToMain}
-                  className="px-6 py-2 bg-white text-black rounded hover:bg-opacity-90 transition-colors"
-                  style={{
-                    fontFamily: "Inter",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                  }}
+                  className="px-6 py-2 bg-white text-black rounded hover:bg-opacity-90 transition-colors text-sm font-medium font-inter"
                 >
                   Save
                 </button>
@@ -426,68 +216,23 @@ function InviteAndCollab({ isOpen, onClose }) {
 
           {/* Main Content View */}
           {currentView === 'main' && (
-            <div style={{ paddingTop: "2rem", paddingLeft: "2rem", paddingRight: "2rem" }}>
+            <div className="pt-8 px-8">
               {/* Question with info icon */}
               <div className="flex items-center relative mb-4">
-                <h3
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "1rem",
-                    fontWeight: 500,
-                    marginRight: "0.5rem",
-                  }}
-                >
+                <h3 className="text-white text-base font-medium font-inter mr-2">
                   Target list invite link
                 </h3>
                 <div
-                  className="relative inline-block"
-                  style={{
-                    width: "1.25rem",
-                    height: "1.25rem",
-                    flexShrink: 0,
-                  }}
+                  className="relative inline-block w-5 h-5 flex-shrink-0"
                   onMouseEnter={() => setShowTooltip(true)}
                   onMouseLeave={() => setShowTooltip(false)}
                 >
-
-
-<img
-  src={InfoIcon}
-  alt="Info"
-  className="cursor-pointer"
-  style={{ width: "20px", height: "20px" }}
-/>
-
-
+                  <img src={InfoIcon} alt="Info" className="cursor-pointer w-5 h-5" />
                   {showTooltip && (
                     <div
-                      className="absolute z-[9999] pointer-events-none"
-                      style={{
-                        top: "calc(100% - 1.1rem)",
-                        transform: "translateX(15%)",
-                        width: "12rem",
-                        maxWidth: "12rem",
-                        background: "#0F0E16",
-                        borderRadius: "0.25rem",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        boxShadow:
-                          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                        whiteSpace: "normal",
-                        overflowWrap: "break-word",
-                        wordBreak: "break-word",
-                      }}
+                      className="absolute z-[9999] pointer-events-none top-[calc(100%-1.1rem)] translate-x-[15%] w-48 max-w-48 bg-[#0F0E16] rounded border border-[rgba(255,255,255,0.1)] shadow-md whitespace-normal overflow-wrap-break-word word-break-break-word"
                     >
-                      <div
-                        style={{
-                          color: "#B8B8B8",
-                          fontFamily: "Inter",
-                          fontSize: "0.5rem",
-                          fontWeight: 400,
-                          padding: "0.81rem 1rem",
-                          lineHeight: "1.2",
-                        }}
-                      >
+                      <div className="text-[#B8B8B8] text-[0.5rem] font-normal font-inter px-4 py-[0.81rem] leading-[1.2]">
                         Your target list, invite link, investor details, and related information are private. They'll only be visible if you share your InviteLink.
                       </div>
                     </div>
@@ -497,77 +242,26 @@ function InviteAndCollab({ isOpen, onClose }) {
 
               {/* URL Input Container */}
               <div className="relative mb-4 flex gap-2">
-                <div
-                  className="relative rounded-[0.125rem] bg-[rgba(255,255,255,0.11)] px-4 py-2 flex-1"
-                  style={{
-                    height: "2.25rem",
-                  }}
-                >
+                <div className="relative rounded-[0.125rem] bg-[rgba(255,255,255,0.11)] px-4 py-2 flex-1 h-9">
                   <div className="flex items-center justify-between h-full">
-                    <span
-                      style={{
-                        color: "#FFF",
-                        fontFamily: "Inter",
-                        fontSize: "0.75rem",
-                        fontWeight: 400,
-                        flex: 1,
-                      }}
-                    >
+                    <span className="text-white text-xs font-normal font-inter flex-1">
                       https://flow.govertx.com/targetlist/invite/abc123efgyurfhrvg
                     </span>
                     
                     {/* Copy icon */}
-                 
-
-<button
-  className="flex items-center justify-center hover:bg-opacity-80 transition-colors"
-  style={{
-    width: "1.125rem",
-    height: "1.125rem",
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-  }}
->
-  <img
-    src={CopyIcon}
-    alt="Copy"
-    style={{ width: "1.125rem", height: "1.125rem" }}
-  />
-</button>
-
+                    <button className="flex items-center justify-center hover:opacity-80 transition-colors w-[1.125rem] h-[1.125rem] bg-transparent border-none cursor-pointer">
+                      <img src={CopyIcon} alt="Copy" className="w-[1.125rem] h-[1.125rem]" />
+                    </button>
                   </div>
                 </div>
 
                 {/* Generate QR button */}
                 <button
                   onClick={handleGenerateQR}
-                  className="flex items-center justify-center gap-1 hover:bg-opacity-80 transition-colors"
-                  style={{
-                    width: "7rem",
-                    height: "2.25rem",
-                    background: "rgba(255, 255, 255, 0.11)",
-                    borderRadius: "0.125rem",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
+                  className="flex items-center justify-center gap-1 hover:opacity-80 transition-colors w-28 h-9 bg-[rgba(255,255,255,0.11)] rounded-[0.125rem] border-none cursor-pointer"
                 >
-
-
-<img
-  src={QRIcon}
-  alt="QR Icon"
-  style={{ width: "1rem", height: "1rem" }}
-/>
-
-                  <span
-                    style={{
-                      color: "#B8B8B8",
-                      fontFamily: "Inter",
-                      fontSize: "0.625rem",
-                      fontWeight: 400,
-                    }}
-                  >
+                  <img src={QRIcon} alt="QR Icon" className="w-4 h-4" />
+                  <span className="text-[#B8B8B8] text-[0.625rem] font-normal font-inter">
                     Generate QR
                   </span>
                 </button>
@@ -578,36 +272,12 @@ function InviteAndCollab({ isOpen, onClose }) {
                 <input
                   type="text"
                   placeholder="Emails, comma separated"
-                  className="flex-1 px-4 py-2 rounded-[0.125rem] border-none outline-none"
-                  style={{
-                    height: "2.25rem",
-                    background: "rgba(255, 255, 255, 0.11)",
-                    color: "#B8B8B8",
-                    fontFamily: "Inter",
-                    fontSize: "0.75rem",
-                    fontWeight: 400,
-                  }}
+                  className="flex-1 px-4 py-2 rounded-[0.125rem] border-none outline-none h-9 bg-[rgba(255,255,255,0.11)] text-[#B8B8B8] text-xs font-normal font-inter"
                 />
                 <button
-                  className="flex items-center justify-center hover:bg-opacity-80 transition-colors"
-                  style={{
-                    width: "7rem",
-                    height: "2.25rem",
-                    background: "#FFF",
-                    borderRadius: "0.125rem",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
+                  className="flex items-center justify-center hover:opacity-80 transition-colors w-28 h-9 bg-white rounded-[0.125rem] border-none cursor-pointer"
                 >
-                  <span
-                    style={{
-                      color: "#000",
-                      textAlign: "center",
-                      fontFamily: "Inter",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                  >
+                  <span className="text-black text-center text-sm font-medium font-inter">
                     Invite
                   </span>
                 </button>
@@ -615,45 +285,17 @@ function InviteAndCollab({ isOpen, onClose }) {
 
               {/* Who has access section */}
               <div>
-                <h4
-                  style={{
-                    color: "#B8B8B8",
-                    textAlign: "left",
-                    fontFamily: "Inter",
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    marginBottom: "0.5rem",
-                  }}
-                >
+                <h4 className="text-[#B8B8B8] text-left text-xs font-medium font-inter mb-2">
                   Who has access
                 </h4>
-                <div
-                  className="flex items-center justify-between cursor-pointer hover:bg-opacity-80 transition-colors rounded"
-                  style={{ padding: "0.5rem 0" }}
-                >
-
-
-<div className="flex items-center">
-  <img
-    src={LockIcon}
-    alt="Lock"
-    className="mr-2"
-    style={{ width: "1.25rem", height: "1.25rem" }}
-  />
-  <span
-    style={{
-      color: "#FFF",
-      textAlign: "center",
-      fontFamily: "Inter",
-      fontSize: "0.875rem",
-      fontWeight: 500,
-    }}
-  >
-    Only those invited
-  </span>
-</div>
-
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{width: "1rem", height: "1rem"}}>
+                <div className="flex items-center justify-between cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition-colors rounded py-2">
+                  <div className="flex items-center">
+                    <img src={LockIcon} alt="Lock" className="mr-2 w-5 h-5" />
+                    <span className="text-white text-center text-sm font-medium font-inter">
+                      Only those invited
+                    </span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4">
                     <path d="M6 4L10 8L6 12" stroke="#FFF" strokeWidth="1" fill="none"/>
                   </svg>
                 </div>
