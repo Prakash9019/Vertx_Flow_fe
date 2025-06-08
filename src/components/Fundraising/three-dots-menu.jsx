@@ -1,12 +1,18 @@
+import EditIcon from "../../assets/EditIcon.svg";
+import DeleteIcon from "../../assets/DeleteIcon.svg";
+import ShareIcon from "../../assets/ShareIcon.svg";
+import AddIcon from "../../assets/AddIcon.svg";
+import DollarIcon2 from "../../assets/DollarIcon2.svg";
+
 "use client"
 
 export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated = false, onEditName }) {
   const menuOptions = [
-    { id: "edit", label: "Edit name", icon: "✏️" },
-    { id: "delete", label: "Delete target list", icon: "🗑️" },
-    { id: "share", label: "Share target list", icon: "📤", disabled: false },
-    { id: "reach", label: "Add list to Reach", icon: "➕", disabled: false },
-    { id: "pipeline", label: "Add to pipeline", icon: "💰", disabled: false },
+    { id: "edit", label: "Edit name" },
+    { id: "delete", label: "Delete target list" },
+    { id: "share", label: "Share target list", disabled: false },
+    { id: "reach", label: "Add list to Reach", disabled: false },
+    { id: "pipeline", label: "Add to pipeline", disabled: false },
   ]
 
   const handleOptionClick = (optionId) => {
@@ -51,7 +57,7 @@ export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated 
       {menuOptions.map((option) => (
         <div
           key={option.id}
-          className={`flex items-center gap-2 px-2 py-1 cursor-pointer transition-all w-[7.9375rem] h-5 text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal rounded-[0.125rem] ${
+          className={`group flex items-center gap-2 px-2 py-1 cursor-pointer transition-all w-[7.9375rem] h-5 text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal rounded-[0.125rem] ${
             option.disabled
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-[#33005C] hover:text-white focus:bg-[#33005C] focus:text-white"
@@ -73,9 +79,43 @@ export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated 
           role="menuitem"
           aria-disabled={option.disabled}
         >
-          <svg width="8" height="8" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <rect width="16" height="16" rx="2" />
-          </svg>
+          {/* Icon with hover effect */}
+          {option.id === "edit" && (
+            <img 
+              src={EditIcon} 
+              alt="Edit" 
+              className="w-4 h-4 transition-all brightness-0 invert-[0.72] group-hover:brightness-0 group-hover:invert group-focus:brightness-0 group-focus:invert" 
+            />
+          )}
+          {option.id === "delete" && (
+            <img 
+              src={DeleteIcon} 
+              alt="Delete" 
+              className="w-4 h-4 transition-all brightness-0 invert-[0.72] group-hover:brightness-0 group-hover:invert group-focus:brightness-0 group-focus:invert" 
+            />
+          )}
+          {option.id === "share" && (
+            <img 
+              src={ShareIcon} 
+              alt="Share" 
+              className="w-4 h-4  transition-all brightness-0 invert-[0.72] group-hover:brightness-0 group-hover:invert group-focus:brightness-0 group-focus:invert" 
+            />
+          )}
+          {option.id === "reach" && (
+            <img 
+              src={AddIcon} 
+              alt="Reach" 
+              className="w-4 h-4 transition-all brightness-0 invert-[0.72] group-hover:brightness-0 group-hover:invert group-focus:brightness-0 group-focus:invert" 
+            />
+          )}
+          {option.id === "pipeline" && (
+            <img 
+              src={DollarIcon2} 
+              alt="Pipeline" 
+              className="w-4 h-4 transition-all brightness-0 invert-[0.72] group-hover:brightness-0 group-hover:invert group-focus:brightness-0 group-focus:invert" 
+            />
+          )}
+
           <span>{option.label}</span>
         </div>
       ))}
