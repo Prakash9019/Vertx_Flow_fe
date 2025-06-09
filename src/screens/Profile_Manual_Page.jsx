@@ -69,21 +69,32 @@ function Profile_Manual_Page() {
       <div className="relative z-10">
         <Header />
 
+        {/* Success Notification Popup */}
+        <div
+          className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+            message ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">Profile created successfully!</span>
+          </div>
+        </div>
+
+        {/* Error Notification Popup */}
+        <div
+          className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+            errorMessage ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">Failed to create profile.</span>
+          </div>
+        </div>
+
         {/* Centered Form */}
         <div className="flex justify-center items-center min-h-[70vh]">
           <div className="bg-opacity-60 p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-lg">
             <div className="w-full sm:w-85 sm:mx-auto">
-              {message && (
-                <p className="bg-green-700 text-center font-semibold py-1 rounded-md mb-1">
-                  Profile created successfully!
-                </p>
-              )}
-              {errorMessage && (
-                <p className="bg-red-700 text-center font-semibold py-1 rounded-md mb-1">
-                  {" "}
-                  Failed to created profile.
-                </p>
-              )}
               <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center sm:text-left">
                 Enter Details to Create Account
               </h2>
