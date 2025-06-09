@@ -20,17 +20,10 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false)
-
-  // Format number with Indian comma system
-  const formatIndianNumber = (num) => {
+  // Format number with US comma system
+  const formatUSNumber = (num) => {
     const numStr = num.toString()
-    const lastThreeDigits = numStr.substring(numStr.length - 3)
-    const otherNumbers = numStr.substring(0, numStr.length - 3)
-    if (otherNumbers !== "") {
-      const formattedOtherNumbers = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",")
-      return formattedOtherNumbers + "," + lastThreeDigits
-    }
-    return lastThreeDigits;
+    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   };
 
   function triggerConfetti() {
@@ -106,17 +99,88 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       setInputAmount(value);
       setShowValidationError(false);
     }
-  }
-  // Get validation error message
+  }  // Get validation error message
   const getValidationError = () => {
     if (!inputAmount) return ""
+    
     if (isAmountStep()) {
       const amount = Number.parseInt(inputAmount)
-      if (amount < 10000) {
-        return "Must be at least $ 10,000"
+      
+      if (currentStep === 4) {
+        // Step 4: Planning to raise amount
+        const isBridgeRound = formData.isBridgeRound;
+        if (isBridgeRound) {
+          // Bridge round: $10,000 to $100,000
+          if (amount < 10000) {
+            return "Must be at least $10,000"
+          }
+          if (amount > 100000) {
+            return "Cannot be greater than $100,000"
+          }
+        } else {
+          // Primary round: $10,000 to $1,000,000
+          if (amount < 10000) {
+            return "Must be at least $10,000"
+          }
+          if (amount > 1000000) {
+            return "Cannot be greater than $1,000,000"
+          }
+        }
+      } else if (currentStep === 5) {
+        // Step 5: Amount wired/committed - max $5,000,000
+        if (amount < 0) {
+          return "Cannot be negative"
+        }
+        if (amount > 5000000) {
+          return "Cannot be greater than $5,000,000"
+        }
+      } else if (currentStep === 11) {
+        // Step 11: Valuation Cap - general validation
+        if (amount < 10000) {
+          return "Must be at least $10,000"
+        }
+        if (amount > 100000000) {
+          return "Cannot be greater than $100,000,000"
+        }
       }
-      if (amount > 5000000) {
-        return "Cannot be greater than $ 50,00,000"
+    } else if ([13, 14].includes(currentStep)) {
+      // Percentage validations for discount and interest rates
+      const percentage = Number.parseFloat(inputAmount)
+      
+      if (currentStep === 13) {
+        // Discount Rate: 15% to 25%
+        if (percentage < 15) {
+          return "Must be at least 15%"
+        }
+        if (percentage > 25) {
+          return "Cannot be greater than 25%"
+        }
+      } else if (currentStep === 14) {
+        // Interest Rate: 4% to 8%
+        if (percentage < 4) {
+          return "Must be at least 4%"
+        }
+        if (percentage > 8) {
+          return "Cannot be greater than 8%"
+        }
+      }
+    } else if (currentStep === 15) {
+      // Conversion Term: 12 to 14 months
+      const months = Number.parseInt(inputAmount)
+      if (months < 12) {
+        return "Must be at least 12 months"
+      }
+      if (months > 14) {
+        return "Cannot be greater than 14 months"
+      }
+    } else if (currentStep === 18) {
+      // Target runway: 3 to 6 months
+      const runway = Number.parseInt(inputAmount)
+      if (runway < 3) {
+        return "Must be at least 3 months"
+      }
+      if (runway > 6) {
+        return "Cannot be greater than 6 months"
       }
     } else if (isDateStep()) {
       if (!isValidDate(inputAmount)) {
@@ -124,18 +188,16 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       }
     }
     return ""
-  }
-  // Check if current step is valid for proceeding
+  }  // Check if current step is valid for proceeding
   const isStepValid = () => {
     if (isInputStep()) {
-      if (isAmountStep()) {
-        const amount = Number.parseInt(inputAmount)
-        return inputAmount && amount >= 10000 && amount <= 5000000
-      } else if (isDateStep()) {
-        return inputAmount && isValidDate(inputAmount)
-      } else {
-        return inputAmount.trim() !== ""
+      if (!inputAmount || inputAmount.trim() === "") {
+        return false;
       }
+      
+      // Use the same validation logic as getValidationError
+      const validationError = getValidationError();
+      return validationError === "";
     } else if (isMultiSelectStep()) {
       return selectedMultiOptions.length > 0
     } else if (isPlanningStep()) {
@@ -172,21 +234,22 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
           } else {
             return ["Bridge 1", "Bridge 2", "Bridge 3", "Bridge 4"]
           }        } else {
-          // Non-bridge round options - show numbered rounds for the current round type
+          // Non-bridge round options - show next round progression based on last primary round
           if (lastRound === "Angel") {
-            return ["Angel 1", "Angel 2", "Angel 3", "Angel 4"]
+            return ["Pre-Seed", "Seed", "Series A", "Series B"]
           } else if (lastRound === "Pre-Seed") {
-            return ["Pre-Seed 1", "Pre-Seed 2", "Pre-Seed 3", "Pre-Seed 4"]
+            return ["Seed", "Series A", "Series B"]
           } else if (lastRound === "Seed") {
-            return ["Seed 1", "Seed 2", "Seed 3", "Seed 4"]
+            return ["Series A", "Series B"]
           } else if (lastRound === "Series A") {
-            return ["Series A 1", "Series A 2", "Series A 3", "Series A 4"]
+            return ["Series B"]
           } else if (lastRound === "Series B") {
-            return ["Series B 1", "Series B 2", "Series B 3", "Series B 4"]
+            return ["Series C"] // Or whatever comes after Series B
           } else {
-            return ["Round 1", "Round 2", "Round 3", "Round 4"]
+            // Fallback for unknown last round
+            return ["Pre-Seed", "Seed", "Series A", "Series B"]
           }
-        }      case 6:
+        }case 6:
         return ["To Be Determined", "Priced Round (Preferred)", "Priced Round (Common)", "Convertible Note", "SAFE"]
       case 7:
         const selectedInstrument = formData.fundraisingInstrument;
@@ -277,21 +340,19 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       default:
         return "";
     }
-  };
-  // Get subheading text
+  };  // Get subheading text
   const getSubheadingText = () => {
     switch (currentStep) {
       case 4:
         const isBridgeRound = formData.isBridgeRound;
-        const lastRound = formData.lastPrimaryRoundType;
         
         if (isBridgeRound) {
           return "The average Bridge round amount is between $10,000 and $100,000"
         } else {
-          return "The average round amount is between $10,000 and $10,00,000"
+          return "The average round amount is between $10,000 and $1,000,000"
         }
       case 5:
-        return "Do not include amounts that have been soft-committed, such as investors telling you a verbal 'yes' or 'maybe'"
+        return "Do not include amounts that have been soft-committed, such as investors telling you a verbal 'yes' or 'maybe'. Maximum amount: $5,000,000"
       case 12:
         return "Post-Money is most common and is more investor-friendly."
       case 13:
@@ -301,11 +362,9 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       case 15:
         return "Typically between 12 and 14 months"
       case 17:
-        return "The usual Angel Bridge round primarily targets and Individual Angels"
+        return "The usual Angel Bridge round primarily targets Individual Angels"
       case 18:
-        return "The usual Angel Bridge round should provide at least 3 to 6 months of runway"
-      case 19:
-        return "The usual Angel Bridge round should provide at least 3 to 6 months of runway"
+        return "The usual round should provide at least 3 to 6 months of runway"
       default:
         return ""
     }
@@ -690,13 +749,26 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
         setStepHistory([...stepHistory, currentStep])
         setCurrentStep(9)
         setSelectedOption("")
-      }, 800);
-    } else if (currentStep === 9) {
+      }, 800);    } else if (currentStep === 9) {
       setTimeout(() => {
         setIsButtonLoading(false);
         setStepHistory([...stepHistory, currentStep])
         setCurrentStep(10)
         setSelectedOption("")
+      }, 800);
+    } else if (currentStep === 10) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        // Check if fundraising instrument is "To Be Determined"
+        if (formData.fundraisingInstrument === "To Be Determined") {
+          // Skip valuation cap questions and go directly to investor types
+          setCurrentStep(17)
+        } else {
+          // Normal flow - go to step 11 (valuation cap)
+          setCurrentStep(11)
+        }
+        setInputAmount("")
       }, 800);
     } else if (currentStep === 15) {
       setTimeout(() => {
@@ -1100,11 +1172,10 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                                 {getInputSymbol()}
                               </span>
                             )}                            <input
-                              type={isDateStep() ? "date" : "text"}
-                              value={
+                              type={isDateStep() ? "date" : "text"}                              value={
                                 isDateStep() ? inputAmount : 
                                 isAmountStep() && inputAmount
-                                  ? formatIndianNumber(Number.parseInt(inputAmount))
+                                  ? formatUSNumber(Number.parseInt(inputAmount))
                                   : inputAmount
                               }
                               onChange={handleInputChange}
