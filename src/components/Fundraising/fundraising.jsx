@@ -2,12 +2,13 @@
 
 // updated page with Target component - converted to responsive Tailwind
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Sidebar from "../Sidebar"
 import AddRoundPopup from "./AddRoundPopup"
 import FindInvestors from "./FindInvestors"
 import Target from "./Target"
 import { useStartupProfile } from "../../context/StartupProfileContext";
+import API_KEY from "../../../key";
 
 function FundraisingManagePage() {
   
@@ -18,8 +19,110 @@ function FundraisingManagePage() {
   const [hasActiveRound, setHasActiveRound] = useState(false)
   const [roundData, setRoundData] = useState(null)
   const [isTargetListSelected, setIsTargetListSelected] = useState(false)
+  const [fundingRounds, setFundingRounds] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const tabsArray = ["Manage", "Find", "Target", "Network"]
+
+  // Fetch funding rounds on component mount
+  useEffect(() => {
+    fetchFundingRounds();
+  }, []);
+  const fetchFundingRounds = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${API_KEY}/api/funding-rounds`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          // 404 could mean no funding rounds exist, which is normal
+          setFundingRounds([]);
+          setHasActiveRound(false);
+          setRoundData(null);
+          return;
+        }
+        throw new Error(`Failed to fetch funding rounds: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setFundingRounds(data);
+      
+      // Check if there are any active rounds
+      if (data && data.length > 0) {
+        setHasActiveRound(true);
+        setRoundData(data[0]); // Use the most recent round (sorted by createdAt desc)
+      } else {
+        setHasActiveRound(false);
+        setRoundData(null);
+      }
+    } catch (err) {
+      console.error('Error fetching funding rounds:', err);
+      setError(err.message);
+      // If there's an error, assume no rounds and show the add button
+      setHasActiveRound(false);
+      setRoundData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to calculate days until close date
+  const calculateDaysToClose = (plannedCloseDate) => {
+    if (!plannedCloseDate) return "TBD";
+    
+    const closeDate = new Date(plannedCloseDate);
+    const today = new Date();
+    const diffTime = closeDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return "Overdue";
+    if (diffDays === 0) return "Today";
+    return `${diffDays} days`;
+  };
+
+  // Helper function to format currency
+  const formatCurrency = (amount) => {
+    if (!amount) return "$0";
+    
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(0)}K`;
+    } else {
+      return `$${amount.toLocaleString()}`;
+    }
+  };
+
+  // Helper function to calculate progress percentage
+  const calculateProgress = (raised, target) => {
+    if (!target || target === 0) return 0;
+    return Math.min((raised / target) * 100, 100);
+  };
+
+  // Helper function to get round type display
+  const getRoundTypeDisplay = (roundData) => {
+    if (!roundData) return "Current Round";
+    
+    if (roundData.isBridgeRound) {
+      return `${roundData.lastPrimaryRoundType} ${roundData.bridgeOrExtensionType}`;
+    } else {
+      return roundData.bridgeOrExtensionType || roundData.lastPrimaryRoundType || "Current Round";
+    }
+  };
 
   const handleAddRoundClick = () => {
     setIsPopupOpen(true)
@@ -28,11 +131,12 @@ function FundraisingManagePage() {
   const handleClosePopup = () => {
     setIsPopupOpen(false)
   }
-
   const handleNextClick = (data) => {
     setRoundData(data)
     setHasActiveRound(true)
     setIsPopupOpen(false)
+    // Refresh funding rounds after adding a new one
+    fetchFundingRounds();
   }
 
   const handleUpdateRound = () => {
@@ -173,13 +277,12 @@ function FundraisingManagePage() {
 
                 {/* Main Card */}
                 <div className="w-full">
-                  {hasActiveRound ? (
+                  {hasActiveRound && roundData ? (
                     // Active Round Display
                     <div className="rounded-lg bg-[#0F0E16] h-[18.75rem] px-6 sm:px-8 md:px-12 xl:px-[3.13rem] py-8 sm:py-10 xl:py-[2.75rem]">
                       {/* Header with title and buttons */}
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-[3.44rem]">
-                        <h3 className="text-white text-lg sm:text-xl xl:text-[1.25rem] font-semibold font-inter">
-                          Angel 2 Bridge Round
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 sm:mb-[3.44rem]">                        <h3 className="text-white text-lg sm:text-xl xl:text-[1.25rem] font-semibold font-inter">
+                          {getRoundTypeDisplay(roundData)}
                         </h3>
                         <div className="flex gap-2 w-full sm:w-auto">
                           <button
@@ -195,67 +298,70 @@ function FundraisingManagePage() {
                             Close Round
                           </button>
                         </div>
-                      </div>
-
-                      {/* Progress section */}
+                      </div>                      {/* Progress section */}
                       <div className="mb-2">
                         <div className="flex justify-between items-center">
                           <span className="text-white font-inter text-sm font-bold">
-                            $10,000
+                            {formatCurrency(roundData?.amountWiredOrCommitted || 0)}
                           </span>
                           <span className="text-white font-inter text-sm font-bold">
-                            10% raised of 100K target
+                            {Math.round(calculateProgress(roundData?.amountWiredOrCommitted || 0, roundData?.plannedRaiseAmount || 0))}% raised of {formatCurrency(roundData?.plannedRaiseAmount || 0)} target
                           </span>
                         </div>
-                      </div>
-
-                      {/* Progress bar */}
+                      </div>                      {/* Progress bar */}
                       <div className="w-full h-[0.8125rem] rounded-full bg-white bg-opacity-13 mb-8 sm:mb-[2.81rem]">
-                        <div className="w-32 sm:w-[8.25rem] h-[0.8125rem] rounded-full bg-[#305FC4]"></div>
+                        <div 
+                          className="h-[0.8125rem] rounded-full bg-[#305FC4]" 
+                          style={{ 
+                            width: `${calculateProgress(roundData?.amountWiredOrCommitted || 0, roundData?.plannedRaiseAmount || 0)}%`,
+                            minWidth: calculateProgress(roundData?.amountWiredOrCommitted || 0, roundData?.plannedRaiseAmount || 0) > 0 ? '8px' : '0'
+                          }}
+                        ></div>
                       </div>
 
                       {/* Bottom stats */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-                        {/* Amount to raise */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">                        {/* Amount to raise */}
                         <div className="text-center">
                           <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Amount to raise
                           </p>
                           <p className="text-white font-inter text-lg sm:text-xl font-semibold">
-                            $90,000
+                            {formatCurrency(roundData?.plannedRaiseAmount || 0)}
                           </p>
-                        </div>
-
-                        {/* Closing in */}
+                        </div>                        {/* Closing in */}
                         <div className="text-center">
                           <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Closing in
                           </p>
                           <p className="text-white font-inter text-lg sm:text-xl font-semibold">
-                            130 days
+                            {calculateDaysToClose(roundData?.plannedCloseDate)}
                           </p>
-                        </div>
-
-                        {/* Lead Investor */}
+                        </div>                        {/* Lead Investor */}
                         <div className="text-center">
                           <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Lead Investor
                           </p>
                           <p className="text-white font-inter text-lg sm:text-xl font-semibold">
-                            Secured
+                            {roundData?.isLeadInvestorCommitted ? "Secured" : "Pending"}
                           </p>
-                        </div>
-
-                        {/* Term Sheet */}
+                        </div>                        {/* Term Sheet */}
                         <div className="text-center">
                           <p className="text-[#B8B8B8] font-inter text-sm font-medium mb-2">
                             Term Sheet
                           </p>
                           <p className="text-white font-inter text-lg sm:text-xl font-semibold">
-                            Signed
+                            {roundData?.isTermSheetSigned ? "Signed" : "Pending"}
                           </p>
                         </div>
-                      </div>
+                      </div>                    </div>
+                  ) : isLoading ? (
+                    // Loading state
+                    <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16] flex items-center justify-center">
+                      <div className="text-white font-inter text-sm">Loading funding rounds...</div>                    </div>
+                  ) : isLoading ? (
+                    // Loading state
+                    <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16] flex items-center justify-center">
+                      <div className="text-white font-inter text-sm">Loading funding rounds...</div>
                     </div>
                   ) : (
                     // No Active Round Display

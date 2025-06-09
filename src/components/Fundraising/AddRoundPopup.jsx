@@ -20,17 +20,10 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false)
-
-  // Format number with Indian comma system
-  const formatIndianNumber = (num) => {
+  // Format number with US comma system
+  const formatUSNumber = (num) => {
     const numStr = num.toString()
-    const lastThreeDigits = numStr.substring(numStr.length - 3)
-    const otherNumbers = numStr.substring(0, numStr.length - 3)
-    if (otherNumbers !== "") {
-      const formattedOtherNumbers = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",")
-      return formattedOtherNumbers + "," + lastThreeDigits
-    }
-    return lastThreeDigits;
+    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   };
 
   function triggerConfetti() {
@@ -79,28 +72,17 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   }, [showSuccess]);
 
   
-
   // Add this validation function after other utility functions
   const isValidDate = (dateStr) => {
     if (!dateStr) return false;
     
-    // Check format
-    if (!/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return false;
-    
-    const [day, month, year] = dateStr.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-    
-    // Check if date is valid and not in the past
+    // For HTML date input, the format is YYYY-MM-DD
+    const date = new Date(dateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    return date instanceof Date && !isNaN(date) && 
-           date.getDate() === day && 
-           date.getMonth() === month - 1 && 
-           date.getFullYear() === year &&
-           date >= today;
+    return date instanceof Date && !isNaN(date) && date >= today;
   };
-
   // Update handleInputChange function
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -110,55 +92,112 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       setInputAmount(numericValue);
       setShowValidationError(false);
     } else if (isDateStep()) {
-      // Allow typing the date format
-      if (value.length <= 10) {
-        // Auto-format date as user types
-        const cleaned = value.replace(/[^0-9]/g, '');
-        let formatted = cleaned;
-        
-        if (cleaned.length > 4) {
-          formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2, 4)}-${cleaned.slice(4)}`;
-        } else if (cleaned.length > 2) {
-          formatted = `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
-        }
-        
-        setInputAmount(formatted);
-        setShowValidationError(false);
-      }
+      // For date input, store the YYYY-MM-DD format directly
+      setInputAmount(value);
+      setShowValidationError(false);
     } else {
       setInputAmount(value);
       setShowValidationError(false);
     }
-  }
-
-  // Get validation error message
+  }  // Get validation error message
   const getValidationError = () => {
     if (!inputAmount) return ""
+    
     if (isAmountStep()) {
       const amount = Number.parseInt(inputAmount)
-      if (amount < 10000) {
-        return "Must be at least $ 10,000"
+      
+      if (currentStep === 4) {
+        // Step 4: Planning to raise amount
+        const isBridgeRound = formData.isBridgeRound;
+        if (isBridgeRound) {
+          // Bridge round: $10,000 to $100,000
+          if (amount < 10000) {
+            return "Must be at least $10,000"
+          }
+          if (amount > 100000) {
+            return "Cannot be greater than $100,000"
+          }
+        } else {
+          // Primary round: $10,000 to $1,000,000
+          if (amount < 10000) {
+            return "Must be at least $10,000"
+          }
+          if (amount > 1000000) {
+            return "Cannot be greater than $1,000,000"
+          }
+        }
+      } else if (currentStep === 5) {
+        // Step 5: Amount wired/committed - max $5,000,000
+        if (amount < 0) {
+          return "Cannot be negative"
+        }
+        if (amount > 5000000) {
+          return "Cannot be greater than $5,000,000"
+        }
+      } else if (currentStep === 11) {
+        // Step 11: Valuation Cap - general validation
+        if (amount < 10000) {
+          return "Must be at least $10,000"
+        }
+        if (amount > 100000000) {
+          return "Cannot be greater than $100,000,000"
+        }
       }
-      if (amount > 5000000) {
-        return "Cannot be greater than $ 50,00,000"
+    } else if ([13, 14].includes(currentStep)) {
+      // Percentage validations for discount and interest rates
+      const percentage = Number.parseFloat(inputAmount)
+      
+      if (currentStep === 13) {
+        // Discount Rate: 15% to 25%
+        if (percentage < 15) {
+          return "Must be at least 15%"
+        }
+        if (percentage > 25) {
+          return "Cannot be greater than 25%"
+        }
+      } else if (currentStep === 14) {
+        // Interest Rate: 4% to 8%
+        if (percentage < 4) {
+          return "Must be at least 4%"
+        }
+        if (percentage > 8) {
+          return "Cannot be greater than 8%"
+        }
+      }
+    } else if (currentStep === 15) {
+      // Conversion Term: 12 to 14 months
+      const months = Number.parseInt(inputAmount)
+      if (months < 12) {
+        return "Must be at least 12 months"
+      }
+      if (months > 14) {
+        return "Cannot be greater than 14 months"
+      }
+    } else if (currentStep === 18) {
+      // Target runway: 3 to 6 months
+      const runway = Number.parseInt(inputAmount)
+      if (runway < 3) {
+        return "Must be at least 3 months"
+      }
+      if (runway > 6) {
+        return "Cannot be greater than 6 months"
       }
     } else if (isDateStep()) {
       if (!isValidDate(inputAmount)) {
-        return 'Please enter a valid future date in DD-MM-YYYY format';
+        return 'Please select a valid future date';
+      }
     }
     return ""
-  }
-}
-
-  // Check if current step is valid for proceeding
+  }  // Check if current step is valid for proceeding
   const isStepValid = () => {
     if (isInputStep()) {
-      if (isAmountStep()) {
-        const amount = Number.parseInt(inputAmount)
-        return inputAmount && amount >= 10000 && amount <= 5000000
-      } else {
-        return inputAmount.trim() !== ""
+      if (!inputAmount || inputAmount.trim() === "") {
+        return false;
       }
+      
+      // Use the same validation logic as getValidationError
+      const validationError = getValidationError();
+      return validationError === "";
     } else if (isMultiSelectStep()) {
       return selectedMultiOptions.length > 0
     } else if (isPlanningStep()) {
@@ -166,21 +205,62 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     } else {
       return selectedOption !== ""
     }
-  }
-
-  // Define options for each step
+  }// Define options for each step
   const getOptionsForStep = () => {
-    switch (currentStep) {
-      case 1:
+    switch (currentStep) {      case 1:
         return ["Yes", "No"]
       case 2:
-        return ["Angel", "Pre-Seed", "Seed", "Series A", "Series B"]
-      case 3:
-        return ["Angel 1 Bridge", "Angel 2 Bridge", "Angel 3 Bridge", "Angel 4 Bridge"]
-      case 6:
+        const baseOptions = ["Angel", "Pre-Seed", "Seed", "Series A", "Series B"];
+        // For non-bridge rounds, filter out the previously selected round if any
+        if (!formData.isBridgeRound && formData.lastPrimaryRoundType) {
+          return baseOptions.filter(option => option !== formData.lastPrimaryRoundType);
+        }
+        return baseOptions;      case 3:
+        // Get options based on whether it's a bridge round or not
+        const lastRound = formData.lastPrimaryRoundType;
+        
+        if (formData.isBridgeRound) {
+          // Bridge round options
+          if (lastRound === "Angel") {
+            return ["Angel 1 Bridge", "Angel 2 Bridge", "Angel 3 Bridge", "Angel 4 Bridge"]
+          } else if (lastRound === "Pre-Seed") {
+            return ["Pre-Seed 1 Bridge", "Pre-Seed 2 Bridge", "Pre-Seed 3 Bridge", "Pre-Seed 4 Bridge"]
+          } else if (lastRound === "Seed") {
+            return ["Seed 1 Bridge", "Seed 2 Bridge", "Seed 3 Bridge", "Seed 4 Bridge"]
+          } else if (lastRound === "Series A") {
+            return ["Series A 1 Bridge", "Series A 2 Bridge", "Series A 3 Bridge", "Series A 4 Bridge"]
+          } else if (lastRound === "Series B") {
+            return ["Series B 1 Bridge", "Series B 2 Bridge", "Series B 3 Bridge", "Series B 4 Bridge"]
+          } else {
+            return ["Bridge 1", "Bridge 2", "Bridge 3", "Bridge 4"]
+          }        } else {
+          // Non-bridge round options - show next round progression based on last primary round
+          if (lastRound === "Angel") {
+            return ["Pre-Seed", "Seed", "Series A", "Series B"]
+          } else if (lastRound === "Pre-Seed") {
+            return ["Seed", "Series A", "Series B"]
+          } else if (lastRound === "Seed") {
+            return ["Series A", "Series B"]
+          } else if (lastRound === "Series A") {
+            return ["Series B"]
+          } else if (lastRound === "Series B") {
+            return ["Series C"] // Or whatever comes after Series B
+          } else {
+            // Fallback for unknown last round
+            return ["Pre-Seed", "Seed", "Series A", "Series B"]
+          }
+        }case 6:
         return ["To Be Determined", "Priced Round (Preferred)", "Priced Round (Common)", "Convertible Note", "SAFE"]
       case 7:
-        return ["Capped", "Uncapped"]
+        const selectedInstrument = formData.fundraisingInstrument;
+        if (selectedInstrument === "Convertible Note") {
+          return ["Capped", "Uncapped"];
+        } else if (selectedInstrument === "SAFE") {
+          return ["Capped", "Uncapped"];
+        } else {
+          // Default to SAFE options
+          return ["Capped", "Uncapped"];
+        }
       case 8:
         return ["Yes", "No"]
       case 9:
@@ -194,59 +274,85 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       default:
         return []
     }
-  }
-
-  // Get question text for current step
+  }  // Get question text for current step
   const getQuestionText = () => {
     switch (currentStep) {
       case 1:
         return "Are you raising a bridge or an extension round?"
       case 2:
-        return "What was the last primary round you raised?"
+        // Filter out the last primary round from options
+        const isBridgeRound = formData.isBridgeRound;
+        if (isBridgeRound) {
+          return "What was the last primary round you raised?"
+        } else {
+          return "What was the last primary round you raised?"
+        }
       case 3:
-        return "Which Bridge or Extension are you raising?"
+        const isBridge = formData.isBridgeRound;
+        if (isBridge) {
+          return "Which Bridge or Extension are you raising?"        } else {
+          return "Which round are you raising?";
+        }
       case 4:
-        return "How much money are you planning to raise for this bridge round?"
+        const isBridgeForAmount = formData.isBridgeRound;
+        if (isBridgeForAmount) {
+          return "How much money are you planning to raise for this bridge round?";
+        } else {
+          return "How much money are you planning to raise for this round?";
+        }
       case 5:
-        return "How much money has already been wired or committed?"
+        return "How much money has already been wired or committed?";
       case 6:
-        return "What fundraising instrument do you plan to use?"
+        return "What fundraising instrument do you plan to use?";
       case 7:
-        return "What type of SAFE do you plan to use?"
+        const selectedInstrument = formData.fundraisingInstrument;
+        if (selectedInstrument === "SAFE") {
+          return "What type of SAFE do you plan to use?";
+        } else if (selectedInstrument === "Convertible Note") {
+          return "What type of Convertible Note do you plan to use?";
+        } else if (selectedInstrument && selectedInstrument !== "To Be Determined") {
+          return `What type of ${selectedInstrument} do you plan to use?`;
+        } else {
+          return "What type of SAFE do you plan to use?";
+        }
       case 8:
-        return "Has a lead investor formally committed?"
+        return "Has a lead investor formally committed?";
       case 9:
-        return "Have you signed a term sheet?"
+        return "Have you signed a term sheet?";
       case 10:
-        return "When are you planning to close this round by?"
+        return "When are you planning to close this round by?";
       case 11:
-        return "Valuation Cap?"
+        return "Valuation Cap?";
       case 12:
-        return "Valuation Cap Type?"
+        return "Valuation Cap Type?";
       case 13:
-        return "Discount Rate?"
+        return "Discount Rate?";
       case 14:
-        return "Interest Rate?"
+        return "Interest Rate?";
       case 15:
-        return "Conversion Term"
+        return "Conversion Term";
       case 16:
-        return "Planning to sell around NN% of your company at this round"
+        return "Planning to sell around NN% of your company at this round";
       case 17:
-        return "What type of investors are you aiming to get into this round?"
+        return "What type of investors are you aiming to get into this round?";
       case 18:
-        return "What is your target runway for this round?"
+        return "What is your target runway for this round?";
       default:
-        return ""
+        return "";
     }
-  }
-
-  // Get subheading text
+  };  // Get subheading text
   const getSubheadingText = () => {
     switch (currentStep) {
       case 4:
-        return "The average Angel Bridge round is between $10,000 and $100,000"
+        const isBridgeRound = formData.isBridgeRound;
+        
+        if (isBridgeRound) {
+          return "The average Bridge round amount is between $10,000 and $100,000"
+        } else {
+          return "The average round amount is between $10,000 and $1,000,000"
+        }
       case 5:
-        return "Do not include amounts that have been soft-committed, such as investors telling you a verbal 'yes' or 'maybe'"
+        return "Do not include amounts that have been soft-committed, such as investors telling you a verbal 'yes' or 'maybe'. Maximum amount: $5,000,000"
       case 12:
         return "Post-Money is most common and is more investor-friendly."
       case 13:
@@ -256,11 +362,9 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       case 15:
         return "Typically between 12 and 14 months"
       case 17:
-        return "The usual Angel Bridge round primarily targets and Individual Angels"
+        return "The usual Angel Bridge round primarily targets Individual Angels"
       case 18:
-        return "The usual Angel Bridge round should provide at least 3 to 6 months of runway"
-      case 19:
-        return "The usual Angel Bridge round should provide at least 3 to 6 months of runway"
+        return "The usual round should provide at least 3 to 6 months of runway"
       default:
         return ""
     }
@@ -268,9 +372,8 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
 
   // Get tooltip content for current step
   const getTooltipContent = () => {
-    switch (currentStep) {
-      case 1:
-        return "A bridge round is a smaller financing round between two main funding stages, such as Pre-Seed, Seed, Series A, or Series B."
+    switch (currentStep) {      case 1:
+        return "Answer 'Yes' if you're raising a bridge or extension round (smaller financing between main stages). Answer 'No' if you're raising a primary round (main funding stages like Angel, Pre-Seed, Seed, Series A, etc.)."
       case 3:
         return "Angel 1 Bridge means you're raising your first bridge round at the Angel stage. If you've already raised one, select the next number."
       case 6:
@@ -304,19 +407,43 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const isMultiSelectStep = () => {
     return currentStep === 17
   }
-
   // Determine if this is the planning step
   const isPlanningStep = () => {
     return currentStep === 16
+  }
+  // Get the current round name for dynamic messages
+  const getCurrentRoundName = () => {
+    if (formData.isBridgeRound && formData.bridgeOrExtensionType) {
+      return formData.bridgeOrExtensionType;
+    } else if (!formData.isBridgeRound && formData.lastPrimaryRoundType) {
+      // For non-bridge rounds, we need to determine the next round number
+      // Since we don't have historical data, we'll use a default increment pattern
+      const roundType = formData.lastPrimaryRoundType;
+      
+      // Generate a round number (in real app, this would come from backend)
+      // For now, we'll use a simple pattern based on round type
+      const roundNumbers = {
+        'Angel': '2', // Assuming they've done Angel 1
+        'Pre-Seed': '2',
+        'Seed': '2', 
+        'Series A': '2',
+        'Series B': '2'
+      };
+      
+      const roundNumber = roundNumbers[roundType] || '2';
+      return `${roundType} ${roundNumber}`;
+    }
+    return "Round";
   }
 
   // Determine if dropdown should show
   const shouldShowDropdown = () => {
     return [1, 2, 3, 6, 7, 8, 9, 12, 17].includes(currentStep)
   }
-
   // Get dropdown height based on step
   const getDropdownHeight = () => {
+    if (currentStep === 6) return "11rem"; // 5 options * 2.2rem each
+    if (currentStep === 2 || currentStep === 3) return "11rem"; // 5 options each
     return "5.4375rem"
   }
 
@@ -331,10 +458,9 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     if ([13, 14].includes(currentStep)) return "%"
     return ""
   }
-
   // Get placeholder text
   const getPlaceholderText = () => {
-    if (currentStep === 10) return "DD-MM-YYYY"
+    if (currentStep === 10) return "Select date"
     return ""
   }
 
@@ -364,11 +490,11 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       setIsDropdownOpen(!isDropdownOpen)
     }
   }
-
   const formatDateForAPI = (dateStr) => {
     if (!dateStr) return null;
-    const [day, month, year] = dateStr.split('-');
-    return new Date(year, month - 1, day).toISOString();
+    // dateStr is already in YYYY-MM-DD format from HTML date input
+    const date = new Date(dateStr);
+    return date.toISOString();
   };
 
   // Add this function to get the auth token
@@ -403,9 +529,8 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
         case 2: return 'lastPrimaryRoundType';
         case 3: return 'bridgeOrExtensionType';
         case 4: return 'plannedRaiseAmount';
-        case 5: return 'amountWiredOrCommitted';
-        case 6: return 'fundraisingInstrument';
-        case 7: return 'safeType';
+        case 5: return 'amountWiredOrCommitted';        case 6: return 'fundraisingInstrument';
+        case 7: return 'instrumentType';
         case 8: return 'isLeadInvestorCommitted';
         case 9: return 'isTermSheetSigned';
         case 10: return 'plannedCloseDate';
@@ -432,9 +557,11 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
         valueForStep = inputAmount; // Keep as string for dates, terms, runway etc.
       }
     } else if (isMultiSelectStep()) { // Step 17
-      valueForStep = selectedMultiOptions;
-    } else { // Dropdown single select steps (1,2,3,6,7,8,9,12,16)
-      if (selectedOption === 'Yes') {
+      valueForStep = selectedMultiOptions;    } else { // Dropdown single select steps (1,2,3,6,7,8,9,12,16)
+      if (currentStep === 1) {
+        // Step 1: Handle "Yes" (bridge/extension) vs "No" (primary round)
+        valueForStep = selectedOption === 'Yes';
+      } else if (selectedOption === 'Yes') {
         valueForStep = true;
       } else if (selectedOption === 'No') {
         valueForStep = false;
@@ -467,9 +594,8 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
           lastPrimaryRoundType: updatedFormData.lastPrimaryRoundType,
           bridgeOrExtensionType: updatedFormData.bridgeOrExtensionType,
           plannedRaiseAmount: parseFloat(updatedFormData.plannedRaiseAmount),
-          amountWiredOrCommitted: parseFloat(updatedFormData.amountWiredOrCommitted),
-          fundraisingInstrument: updatedFormData.fundraisingInstrument,
-          safeType: updatedFormData.safeType,
+          amountWiredOrCommitted: parseFloat(updatedFormData.amountWiredOrCommitted),          fundraisingInstrument: updatedFormData.fundraisingInstrument,
+          instrumentType: updatedFormData.instrumentType,
           // Make sure these required fields are always included
           isLeadInvestorCommitted: updatedFormData.isLeadInvestorCommitted ?? false,
           isTermSheetSigned: updatedFormData.isTermSheetSigned ?? false,
@@ -537,24 +663,78 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
         setIsLoading(false);
         setError(error.message);
         console.error('Error in handleNext:', error);
-      }
-
-      return;
-    }
-
-    // Handle special flow for SAFE selection
+      }      return;
+    }    
+      // Handle special flow for round type selection (step 1)
+    if (currentStep === 1) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        if (selectedOption === "No") {
+          // Skip step 3 (bridge/extension type) for primary rounds
+          setCurrentStep(2)
+        } else {
+          // Go to step 2 for bridge/extension rounds
+          setCurrentStep(2)
+        }
+        setSelectedOption("")
+      }, 800);
+    } else if (currentStep === 2) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        if (formData.isBridgeRound) {
+          // Go to step 3 for bridge/extension rounds
+          setCurrentStep(3)
+        } else {
+          // Skip step 3 for primary rounds
+          setCurrentStep(4)
+        }
+        setSelectedOption("")
+      }, 800);
+    } else if (currentStep === 3) {
+      // Bridge/extension type selection - always go to step 4 next
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(4)
+        setSelectedOption("")
+      }, 800);
+    } else if (currentStep === 4) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(5)
+        setInputAmount("")
+      }, 800);
+    }    // Handle special flow for fundraising instrument selection
     if (currentStep === 6) {
       setTimeout(() => {
         setIsButtonLoading(false);
-        if (selectedOption === "SAFE") {
+        if (selectedOption === "To Be Determined") {
+          // Skip directly to date for "To Be Determined"
+          setStepHistory([...stepHistory, currentStep])
+          setCurrentStep(10)
+          setSelectedOption("")
+        } else if (selectedOption === "SAFE" || selectedOption === "Convertible Note") {
+          // Go through instrument-specific flow for both SAFE and Convertible Note
           setStepHistory([...stepHistory, currentStep])
           setCurrentStep(7)
           setSelectedOption("")
         } else {
+          // For other instruments (Priced Round), go to step 8
           setStepHistory([...stepHistory, currentStep])
-          setCurrentStep(10)
+          setCurrentStep(8)
           setSelectedOption("")
         }
+      }, 800);
+    } else if (currentStep === 5) {
+      // After step 5 (amount wired/committed), go to step 6 (fundraising instrument)
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        setCurrentStep(6)
+        setInputAmount("")
       }, 800);
     } else if (currentStep === 7) {
       setTimeout(() => {
@@ -569,13 +749,26 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
         setStepHistory([...stepHistory, currentStep])
         setCurrentStep(9)
         setSelectedOption("")
-      }, 800);
-    } else if (currentStep === 9) {
+      }, 800);    } else if (currentStep === 9) {
       setTimeout(() => {
         setIsButtonLoading(false);
         setStepHistory([...stepHistory, currentStep])
         setCurrentStep(10)
         setSelectedOption("")
+      }, 800);
+    } else if (currentStep === 10) {
+      setTimeout(() => {
+        setIsButtonLoading(false);
+        setStepHistory([...stepHistory, currentStep])
+        // Check if fundraising instrument is "To Be Determined"
+        if (formData.fundraisingInstrument === "To Be Determined") {
+          // Skip valuation cap questions and go directly to investor types
+          setCurrentStep(17)
+        } else {
+          // Normal flow - go to step 11 (valuation cap)
+          setCurrentStep(11)
+        }
+        setInputAmount("")
       }, 800);
     } else if (currentStep === 15) {
       setTimeout(() => {
@@ -664,8 +857,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                 width: "1.5rem",
                 height: "1.5rem",
               }}
-            ></div>
-            <span
+            ></div>            <span
               style={{
                 color: "#FFF",
                 textAlign: "center",
@@ -675,7 +867,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                 marginLeft: "1.38rem",
               }}
             >
-              Opening a New Angel 2 Bridge Round...
+              Opening a New {getCurrentRoundName()}...
             </span>
           </div>
         </div>
@@ -720,8 +912,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
 
         
 
-          <div className="text-center relative z-10">
-            <h2
+          <div className="text-center relative z-10">            <h2
               style={{
                 width: "30.75rem",
                 color: "#FFF",
@@ -732,7 +923,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                 margin: "0 auto",
               }}
             >
-              Angel 2 Bridge Round is now live.
+              {getCurrentRoundName()} is now live.
             </h2>
           </div>
         </div>
@@ -980,12 +1171,11 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                               >
                                 {getInputSymbol()}
                               </span>
-                            )}
-                            <input
-                              type={currentStep === 10 ? "date" : "text"}
-                              value={
+                            )}                            <input
+                              type={isDateStep() ? "date" : "text"}                              value={
+                                isDateStep() ? inputAmount : 
                                 isAmountStep() && inputAmount
-                                  ? formatIndianNumber(Number.parseInt(inputAmount))
+                                  ? formatUSNumber(Number.parseInt(inputAmount))
                                   : inputAmount
                               }
                               onChange={handleInputChange}
@@ -1126,12 +1316,10 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                       >
                         {!inputAmount ? "This field is required" : validationError}
                       </p>
-                    )}
-  
-                    {/* Dropdown Container */}
+                    )}                    {/* Dropdown Container */}
                     {shouldShowDropdown() && isDropdownOpen && (
                       <div
-                        className="absolute top-full left-0 z-10 mt-1 dropdown-container"
+                        className="absolute top-full left-0 mt-1 dropdown-container"
                         style={{
                           width: "33.75rem",
                           height: getDropdownHeight(),
@@ -1140,6 +1328,8 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                           overflowY: needsScrolling() ? "scroll" : "visible",
                           scrollbarWidth: "none",
                           msOverflowStyle: "none",
+                          zIndex: 9999,
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
                         }}
                       >
                         <div style={{ height: "100%" }}>
