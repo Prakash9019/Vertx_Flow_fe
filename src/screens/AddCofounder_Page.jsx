@@ -41,6 +41,7 @@ function AddCofounder_Page() {
     if (emailsToInvite.length === 0) {
       setInviteError("Please enter at least one valid cofounder email address.");
       setInviteSuccessMsg("");
+      setTimeout(() => setInviteError(""), 3000);
       return;
     }
 
@@ -52,6 +53,7 @@ function AddCofounder_Page() {
     if (!token) {
       setInviteError("Authentication error. Please log in again.");
       setIsInviting(false);
+      setTimeout(() => setInviteError(""), 3000);
       return;
     }
 
@@ -79,9 +81,11 @@ function AddCofounder_Page() {
 
     if (errorMessages.length > 0) {
       setInviteError(errorMessages.join(" \n "));
+      setTimeout(() => setInviteError(""), 5000);
     }
     if (successMessages.length > 0) {
       setInviteSuccessMsg(successMessages.join(" \n "));
+      setTimeout(() => setInviteSuccessMsg(""), 3000);
     }
 
     if (allSucceeded) {
@@ -99,21 +103,30 @@ function AddCofounder_Page() {
       <div className="relative z-10">
         <Header />
         
+        {/* Success Notification Popup */}
+        <div
+          className={`fixed top-4 right-4 z-[100] transition-all duration-1000 ease-in-out ${
+            inviteSuccessMsg ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-pre-line rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">{inviteSuccessMsg}</span>
+          </div>
+        </div>
+
+        {/* Error Notification Popup */}
+        <div
+          className={`fixed top-4 right-4 z-[100] transition-all duration-1000 ease-in-out ${
+            inviteError ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-pre-line rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">{inviteError}</span>
+          </div>
+        </div>
+
         {/* Content positioned with exact specifications */}
         <div style={{ marginLeft: '17rem', marginTop: '9.87rem' }}>
-          {/* API Feedback Messages */}
-          {inviteSuccessMsg && !inviteError && ( // Show success only if no errors
-            <div className="bg-green-600 text-white px-4 py-3 mb-4 rounded-md border border-green-700 shadow-md whitespace-pre-line text-sm">
-              {inviteSuccessMsg}
-            </div>
-          )}
-          {inviteError && (
-            <div className="bg-red-600 text-white px-4 py-3 mb-4 rounded-md border border-red-700 shadow-md whitespace-pre-line text-sm">
-              {inviteError}
-            </div>
-          )}
-          {/* End API Feedback Messages */}
-          
           {/* 1. Main heading */}
           <h5 style={{
             color: '#FFF',
