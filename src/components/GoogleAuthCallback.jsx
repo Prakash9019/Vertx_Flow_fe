@@ -12,6 +12,9 @@ function GoogleAuthCallback() {
         const token = urlParams.get('token');
         
         if (token) {
+          console.log('Google Auth Token:', token);
+          console.log('Google Auth Callback URL:', window.location.search);
+          
           localStorage.setItem('authToken', token);
           localStorage.setItem('isVerified', 'true');
           
@@ -19,33 +22,30 @@ function GoogleAuthCallback() {
           const cleanUrl = location.pathname;
           window.history.replaceState({}, document.title, cleanUrl);
           
-          // Check if there's a stored redirect URL (set during login)
-          const redirectUrl = localStorage.getItem('postLoginRedirect') || '/homepage';
-          
           // Check if there's a cofounder invitation token
           const inviteToken = localStorage.getItem('cofounderInviteToken');
+          
           if (inviteToken) {
-            console.log('Processing cofounder invitation after Google login:', inviteToken);
-            // Process the invitation token
+            console.log('Google Login successful for cofounder, invite token is present:', inviteToken);
+            // This is a cofounder login with invitation token
             try {
-              // Optional: Add API call to process the invitation token
-              // Always navigate to the homepage for cofounders
+              // Always navigate cofounders to homepage
+              console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
               navigate('/homepage');
             } catch (inviteError) {
               console.error('Error processing invitation:', inviteError);
-              // Always redirect to homepage even if there's an error processing the invitation
+              // Still redirect to homepage on error
               navigate('/homepage');
             } finally {
-              // Clear the tokens after processing
               localStorage.removeItem('cofounderInviteToken');
-              localStorage.removeItem('postLoginRedirect');
             }
           } else {
-            // Normal login flow - redirect to the stored redirect URL or homepage
-            navigate(redirectUrl);
-            localStorage.removeItem('postLoginRedirect');
+            // This is a regular user login (not a cofounder)
+            console.log('Google Auth Successful, token received, navigating to /profile/manual');
+            navigate('/profile/manual');
           }
         } else {
+          console.log('No token received in Google Auth callback, redirecting to login');
           navigate('/');
         }
       } catch (error) {

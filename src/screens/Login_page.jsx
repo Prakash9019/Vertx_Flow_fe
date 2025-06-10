@@ -82,8 +82,12 @@ function Login_Page() {
 
   // Google Login
   const handleLoginWithGoogle = () => {
-    // Store the intended redirect URL before Google login
-    localStorage.setItem('postLoginRedirect', '/homepage');
+    // Check if this is a cofounder login (has invite token)
+    const hasInviteToken = localStorage.getItem("cofounderInviteToken");
+    // Only set homepage redirect for cofounders
+    if (hasInviteToken) {
+      localStorage.setItem('postLoginRedirect', '/homepage');
+    }
     const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
     window.location.href = backendGoogleAuthUrl;
   };
@@ -124,8 +128,8 @@ function Login_Page() {
             localStorage.removeItem("cofounderInviteToken");
           }
         } else {
-          // Normal login flow - always redirect to homepage
-          navigate("/homepage");
+          // Normal login flow - redirect to profile setup for new users
+          navigate("/profile/manual");
         }
         
         setOtpFormDisplay(false);
