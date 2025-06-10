@@ -32,6 +32,7 @@ const Sidebar = () => {
   const isHome = path.includes('homepage');
   const isEvaluate = path.includes('evaluate');
   const isFundraising = path.includes('fundraising');
+  const isPlayground = path.includes('playground');
   const [collapsed, setCollapsed] = useState(false);
   const [fundraisingExpanded, setFundraisingExpanded] = useState(false);
   const [selectedFundraisingOption, setSelectedFundraisingOption] = useState('');
@@ -219,14 +220,14 @@ const Sidebar = () => {
                 )}
               </li>
               
-              <li className="px-4 py-2 flex items-center hover:bg-gray-900">
+              <li className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isPlayground ? 'bg-gray-900' : ''}`} onClick={()=>{navigate("/playground")}}>
                 <img 
                   src={Playground} 
                   alt="Playground" 
                   className="mr-3" 
                   style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }} 
                 />
-                <span className="text-[#B8B8B8] font-medium text-sm">Playground</span>
+                <span className={`font-medium text-sm ${isPlayground ? 'text-white' : 'text-[#B8B8B8]'}`}>Playground</span>
                 <div className="ml-2 w-[33px] h-[17px] bg-[#33005C] rounded flex items-center justify-center">
                   <span className="text-[#AD6FDE] text-[8px] font-bold">BETA</span>
                 </div>
