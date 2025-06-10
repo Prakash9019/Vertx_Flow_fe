@@ -80,6 +80,14 @@ function Login_Page() {
     }
   };
 
+  // Google Login
+  const handleLoginWithGoogle = () => {
+    // Store the intended redirect URL before Google login
+    localStorage.setItem('postLoginRedirect', '/homepage');
+    const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
+    window.location.href = backendGoogleAuthUrl;
+  };
+
   // Submit OTP
   const handleOtpSubmit = async () => {
     const fullOtp = otp.join("");
@@ -105,21 +113,19 @@ function Login_Page() {
             "Processing cofounder invitation token:",
             inviteToken
           );
-          // Process the invitation token before redirecting
           try {
-            // Optional: Add API call to process the invitation token
-            // For now, just navigate to the homepage
+            // Always redirect to homepage after successful login
             navigate("/homepage");
           } catch (inviteError) {
             console.error("Error processing invitation:", inviteError);
-            navigate("/linkedin");
+            // Still redirect to homepage even if there's an error processing the invite
+            navigate("/homepage");
           } finally {
-            // Clear the token after processing
             localStorage.removeItem("cofounderInviteToken");
           }
         } else {
-          // Normal login flow
-          navigate("/linkedin");
+          // Normal login flow - always redirect to homepage
+          navigate("/homepage");
         }
         
         setOtpFormDisplay(false);
@@ -138,12 +144,6 @@ function Login_Page() {
         setErrorMessage("");
       }, 3000);
     }
-  };
-
-  // Google Login
-  const handleLoginWithGoogle = () => {
-    const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
-    window.location.href = backendGoogleAuthUrl;
   };
 
   return (

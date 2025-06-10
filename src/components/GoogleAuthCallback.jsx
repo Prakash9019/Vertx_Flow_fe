@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 function GoogleAuthCallback() {
@@ -19,6 +19,9 @@ function GoogleAuthCallback() {
           const cleanUrl = location.pathname;
           window.history.replaceState({}, document.title, cleanUrl);
           
+          // Check if there's a stored redirect URL (set during login)
+          const redirectUrl = localStorage.getItem('postLoginRedirect') || '/homepage';
+          
           // Check if there's a cofounder invitation token
           const inviteToken = localStorage.getItem('cofounderInviteToken');
           if (inviteToken) {
@@ -26,18 +29,21 @@ function GoogleAuthCallback() {
             // Process the invitation token
             try {
               // Optional: Add API call to process the invitation token
-              // For now, just navigate to the homepage
+              // Always navigate to the homepage for cofounders
               navigate('/homepage');
             } catch (inviteError) {
               console.error('Error processing invitation:', inviteError);
-              navigate('/profile/manual');
+              // Always redirect to homepage even if there's an error processing the invitation
+              navigate('/homepage');
             } finally {
-              // Clear the token after processing
+              // Clear the tokens after processing
               localStorage.removeItem('cofounderInviteToken');
+              localStorage.removeItem('postLoginRedirect');
             }
           } else {
-            // Normal login flow
-            navigate('/profile/manual');
+            // Normal login flow - redirect to the stored redirect URL or homepage
+            navigate(redirectUrl);
+            localStorage.removeItem('postLoginRedirect');
           }
         } else {
           navigate('/');
