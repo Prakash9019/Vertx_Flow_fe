@@ -22,27 +22,60 @@ function GoogleAuthCallback() {
           const cleanUrl = location.pathname;
           window.history.replaceState({}, document.title, cleanUrl);
           
-          // Check if there's a cofounder invitation token
-          const inviteToken = localStorage.getItem('cofounderInviteToken');
+          // Check URL parameters for cofounder status
+          const searchParams = new URLSearchParams(location.search);
+          const isCofounder = searchParams.get('cofounder');
+          const startupId = searchParams.get('startupId');
           
-          if (inviteToken) {
-            console.log('Google Login successful for cofounder, invite token is present:', inviteToken);
-            // This is a cofounder login with invitation token
+          if (isCofounder === 'true' && startupId) {
+            console.log('Google Login successful for cofounder, startupId:', startupId);
+            
             try {
+              // Make API call to associate user with startup as cofounder
+              const response = await fetch('/api/startups/join-as-cofounder', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ startupId })
+              });
+              
+              if (!response.ok) {
+                throw new Error('Failed to join as cofounder');
+              }
+              
               // Always navigate cofounders to homepage
               console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
               navigate('/homepage');
-            } catch (inviteError) {
-              console.error('Error processing invitation:', inviteError);
+            } catch (error) {
+              console.error('Error processing cofounder status:', error);
               // Still redirect to homepage on error
               navigate('/homepage');
-            } finally {
-              localStorage.removeItem('cofounderInviteToken');
             }
           } else {
-            // This is a regular user login (not a cofounder)
-            console.log('Google Auth Successful, token received, navigating to /profile/manual');
-            navigate('/profile/manual');
+            // Check if there's a legacy cofounder invitation token
+            const inviteToken = localStorage.getItem('cofounderInviteToken');
+            
+            if (inviteToken) {
+              console.log('Google Login successful for cofounder, invite token is present:', inviteToken);
+              // This is a cofounder login with invitation token
+              try {
+                // Always navigate cofounders to homepage
+                console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
+                navigate('/homepage');
+              } catch (inviteError) {
+                console.error('Error processing invitation:', inviteError);
+                // Still redirect to homepage on error
+                navigate('/homepage');
+              } finally {
+                localStorage.removeItem('cofounderInviteToken');
+              }
+            } else {
+              // This is a regular user login (not a cofounder)
+              console.log('Google Auth Successful, token received, navigating to /profile/manual');
+              navigate('/profile/manual');
+            }
           }
         } else {
           console.log('No token received in Google Auth callback, redirecting to login');
@@ -55,7 +88,7 @@ function GoogleAuthCallback() {
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [navigate, location]);
 
   return (
     <div style={{
