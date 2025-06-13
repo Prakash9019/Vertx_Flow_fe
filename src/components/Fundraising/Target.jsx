@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import API_KEY from "../../../key"
 import NewListPopup from "./new-list-popup"
 import ThreeDotsMenu from "./three-dots-menu"
 import AddInvestorsPopup from "./AddInvestorsPopup"
@@ -28,6 +29,7 @@ export default function Target({ onListSelect }) {
   const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false)
   const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false)
   const [userTargetLists, setUserTargetLists] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [selectedList, setSelectedList] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -46,24 +48,111 @@ export default function Target({ onListSelect }) {
     red: "linear-gradient(180deg, #AF4F00 0%, #FC4141 100%)",
   }
 
+  // Fetch user target lists on component mount
+  useEffect(() => {
+    const fetchLists = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          console.error('Authentication required');
+          return;
+        }
+        
+        const response = await fetch(`${API_KEY}/api/list`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch lists: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        // Map backend lists to frontend format
+        const mappedLists = result.lists.map(list => ({
+          id: list._id,
+          name: list.name,
+          cover: list.coverColor,
+          createdBy: "Company",
+          createdDate: new Date(list.createdAt).toLocaleDateString("en-GB"),
+          updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
+          investorCount: 0,
+          investors: [],
+        }));
+        
+        setUserTargetLists(mappedLists);
+      } catch (error) {
+        console.error("Error fetching lists:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLists();
+  }, []);
+
   const handleNewListClick = () => {
     setIsNewListPopupOpen(true)
   }
 
-  const handleNewListSave = (listData) => {
-    const newList = {
-      id: Date.now(),
-      name: listData.name,
-      cover: listData.cover,
-      createdBy: "Company",
-      createdDate: new Date().toLocaleDateString("en-GB"),
-      updatedDate: "Updated today",
-      investorCount: 0,
-      investors: [],
-    }
+  const handleNewListSave = async (listData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      
+      // Map frontend color names to backend allowed colors
+      const colorMap = {
+        'default': 'blue',
+        'purple': 'purple',
+        'orange': 'orange',
+        'pink': 'red',  // Map pink to red since backend doesn't have pink
+        'red': 'red'
+      };
+      
+      const backendColor = colorMap[listData.cover] || 'purple';
+      
+      const response = await fetch(`${API_KEY}/api/list/new`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: listData.name,
+          coverColor: backendColor
+        })
+      });
 
-    setUserTargetLists((prev) => [...prev, newList])
-    console.log("New list created:", newList)
+      if (!response.ok) {
+        throw new Error(`Failed to create list: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      const newList = {
+        id: result.list._id,
+        name: result.list.name,
+        cover: listData.cover, // Keep original frontend color for UI
+        createdBy: "Company",
+        createdDate: new Date().toLocaleDateString("en-GB"),
+        updatedDate: "Updated today",
+        investorCount: 0,
+        investors: [],
+      }
+
+      setUserTargetLists((prev) => [...prev, newList]);
+      console.log("New list created:", newList);
+    } catch (error) {
+      console.error("Error creating new list:", error);
+      alert("Failed to create new list. Please try again.");
+    }
   }
 
   const handleThreeDotsClick = (e, listId) => {
@@ -754,8 +843,15 @@ export default function Target({ onListSelect }) {
           </button>
         </div>
 
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="w-full h-20 flex items-center justify-center">
+            <div className="text-white">Loading lists...</div>
+          </div>
+        )}
+        
         {/* User Created Target Lists */}
-        {userTargetLists.map((list) => (
+        {!isLoading && userTargetLists.map((list) => (
           <div
             key={list.id}
             onClick={() => handleListClick(list)}

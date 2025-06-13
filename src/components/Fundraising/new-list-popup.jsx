@@ -4,7 +4,8 @@ import Rectangle82 from "../../assets/Rectangle 82.png"
 
 export default function NewListPopup({ isOpen, onClose, onSave }) {
   const [listName, setListName] = useState("")
-  const [selectedCover, setSelectedCover] = useState("")
+  const [selectedCover, setSelectedCover] = useState("purple")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const coverOptions = [
     { id: "default", color: "#0F0E16", border: "1px dashed #5F248D" },
@@ -14,18 +15,25 @@ export default function NewListPopup({ isOpen, onClose, onSave }) {
     { id: "red", color: "linear-gradient(180deg, #AF4F00 0%, #FC4141 100%)" },
   ]
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (listName.trim()) {
-      onSave({ name: listName, cover: selectedCover })
-      setListName("")
-      setSelectedCover("")
-      onClose()
+      setIsSubmitting(true)
+      try {
+        await onSave({ name: listName, cover: selectedCover })
+        setListName("")
+        setSelectedCover("purple")
+        onClose()
+      } catch (error) {
+        console.error("Error saving list:", error)
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
   const handleCancel = () => {
     setListName("")
-    setSelectedCover("")
+    setSelectedCover("purple")
     onClose()
   }
 
@@ -106,13 +114,15 @@ export default function NewListPopup({ isOpen, onClose, onSave }) {
 
             <button
               onClick={handleSave}
-              disabled={!listName.trim()}
+              disabled={!listName.trim() || isSubmitting}
               className="w-20 h-8 rounded-[0.125rem] bg-white border-none transition-colors hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                cursor: listName.trim() ? "pointer" : "not-allowed",
+                cursor: listName.trim() && !isSubmitting ? "pointer" : "not-allowed",
               }}
             >
-              <span className="text-black text-center font-['Inter'] text-sm font-medium">Save</span>
+              <span className="text-black text-center font-['Inter'] text-sm font-medium">
+                {isSubmitting ? "Saving..." : "Save"}
+              </span>
             </button>
           </div>
         </div>
