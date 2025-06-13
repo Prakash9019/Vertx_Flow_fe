@@ -20,9 +20,11 @@ import GenerateEmail from "./screens/emails";
 import Pipeline from "./screens/events";
 import Matchflow from "./screens/matchflow"; 
 
-
 //Screens for fundraising
 import FundraisingManagePage from "./components/Fundraising/fundraising"
+
+// Invite acceptance page
+import InviteAcceptPage from "./components/InviteAcceptPage";
 
 // Intermediate "Selected" pages (if you decide to keep them)
 import StartupLocation from "./screens/StartupLocation"; // Stage Selected confirmation
@@ -66,9 +68,9 @@ function App() {
    
     
     { path:"/flow/outbound", element:<GenerateEmail />},
-    { path:"/flow/match flow", element:<Matchflow />} ,
-    {path:"/flow/pipeline", element:<Pipeline /> }, 
+    { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> }, 
     {path:"/fundraising/raise", element:<FundraisingManagePage /> },
+    {path:"/invite/:inviteId", element:<InviteAcceptPage /> },
    
 
   ];

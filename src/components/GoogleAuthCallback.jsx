@@ -70,11 +70,22 @@ function GoogleAuthCallback() {
                 navigate('/homepage');
               } finally {
                 localStorage.removeItem('cofounderInviteToken');
+              }            } else {
+              // Check if we should redirect to homepage after target list invite
+              const shouldRedirectToHome = localStorage.getItem("redirectToHomeAfterLogin") === "true";
+              const pendingInviteId = localStorage.getItem("pendingInviteId");
+              
+              if (shouldRedirectToHome || pendingInviteId) {
+                console.log('Google Auth Successful, target list invite detected, navigating to /homepage');
+                // Clear the flags after use
+                localStorage.removeItem("redirectToHomeAfterLogin");
+                localStorage.removeItem("pendingInviteId");
+                navigate('/homepage');
+              } else {
+                // This is a regular user login (not a cofounder)
+                console.log('Google Auth Successful, token received, navigating to /profile/manual');
+                navigate('/profile/manual');
               }
-            } else {
-              // This is a regular user login (not a cofounder)
-              console.log('Google Auth Successful, token received, navigating to /profile/manual');
-              navigate('/profile/manual');
             }
           }
         } else {

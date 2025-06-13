@@ -111,7 +111,9 @@ function Login_Page() {
         const cleanUrl = location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
 
-        const inviteToken = localStorage.getItem("cofounderInviteToken");
+        const inviteToken = localStorage.getItem("cofounderInviteToken");        const shouldRedirectToHome = localStorage.getItem("redirectToHomeAfterLogin") === "true";
+        const pendingInviteId = localStorage.getItem("pendingInviteId");
+
         if (inviteToken) {
           console.log(
             "Processing cofounder invitation token:",
@@ -127,7 +129,16 @@ function Login_Page() {
           } finally {
             localStorage.removeItem("cofounderInviteToken");
           }
-        } else {
+        } 
+        // Check for target list invite redirect flag
+        else if (shouldRedirectToHome || pendingInviteId) {
+          console.log("Redirecting to homepage after target list invite login");
+          // Clear the flags after use
+          localStorage.removeItem("redirectToHomeAfterLogin");
+          localStorage.removeItem("pendingInviteId");
+          navigate("/homepage");
+        } 
+        else {
           // Normal login flow - redirect to profile setup for new users
           navigate("/profile/manual");
         }

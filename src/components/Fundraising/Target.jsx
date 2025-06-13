@@ -807,7 +807,11 @@ export default function Target({ onListSelect }) {
           onClose={() => setIsAddInvestorsPopupOpen(false)}
           onInvestorsAdded={handleInvestorsAdded}
         />
-        <InviteAndCollab isOpen={showInviteCollab} onClose={() => setShowInviteCollab(false)} />
+        <InviteAndCollab 
+          isOpen={showInviteCollab} 
+          onClose={() => setShowInviteCollab(false)} 
+          listId={selectedList?.id}
+        />
       </div>
     )
   }
