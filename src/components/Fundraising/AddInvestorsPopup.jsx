@@ -10,20 +10,236 @@ import LinkedIn from '../../assets/LinkedIn.svg';
 import LinkIcon from '../../assets/link.svg';
 import MailIcon from '../../assets/mail.svg';
 import TwitterIcon from '../../assets/twitter.svg';
-import WorkIcon from '../../assets/workIcon.svg'; // replace with actual path to your SVG or PNG
+import WorkIcon from '../../assets/workIcon.svg';
 import LocationIcon from '../../assets/LocationIcon.svg';
 import DollarIcon from '../../assets/DollarIcon.svg';
+import IndiaFlag from '../../assets/IndiaFlag.png';
 
 
 import API_KEY from "../../../key.js"
+
+// InvestorCard component for consistent investor display
+const InvestorCard = ({ investor, isSelected, onClick }) => {
+  // Log the full investor data to help debug
+  console.log("Rendering investor card for:", investor);
+  
+  // Function to get match color based on percentage (copied from FindInvestors)
+  const getMatchColor = (matchValue) => {
+    if (!matchValue) return "bg-[#DE2D2D]";
+    const value = parseInt(matchValue);
+    if (value >= 0 && value <= 49) return "bg-[#DE2D2D]";
+    if (value >= 50 && value <= 67) return "bg-[#AF4F00]";
+    if (value >= 68 && value <= 85) return "bg-[#CC8D03]";
+    if (value >= 86 && value <= 100) return "bg-[#0E8D07]";
+    return "bg-[#DE2D2D]";
+  };
+  
+  // Helper function to extract data from investor object considering different field names
+  const getInvestorData = (investor) => {
+    return {
+      id: investor.id || investor._id,
+      name: investor.name || "Unnamed Investor",
+      company: investor.company || investor.firm || investor.fund || "Company not specified",
+      avatar: investor.profile_image || investor.avatar || "https://via.placeholder.com/75?text=Investor",
+      checkSize: investor.checkSize || investor.check_size || 
+                (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
+                  investor.check_size_ranges[0] : "$N/A"),
+      stage: investor.stage || 
+             (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
+              investor.invests_in_rounds[0] : "N/A"),
+      stageCount: investor.stageCount || 
+                 (investor.invests_in_rounds ? 
+                  `+${investor.invests_in_rounds.length - 1}` : "+0"),
+      industry: investor.industry || 
+               (investor.sectors && investor.sectors.length > 0 ? 
+                investor.sectors[0] : "N/A"),
+      industryCount: investor.industryCount || 
+                    (investor.sectors ? 
+                     `+${investor.sectors.length - 1}` : "+0"),
+      geography: investor.geography || 
+                (investor.geographies && investor.geographies.length > 0 ? 
+                 `+${investor.geographies.length}` : "+0"),
+      match: investor.match || "0%",
+      matchValue: investor.matchValue || 0,
+      type: investor.type || investor.title || "VC",
+      contacts: investor.contacts || {}
+    };
+  };
+    return (
+    <div
+      onClick={onClick}
+      className={`flex items-center hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6 ${
+        isSelected ? "bg-[#18002C]" : "bg-black"
+      }`}
+    >
+      {/* Get normalized investor data */}
+      {(() => {
+        const investorData = getInvestorData(investor);
+        
+        // Extract contacts
+        const contacts = investor.contacts || {};
+        
+        return (
+          <>
+            {/* Left side - Name, Company, Social Icons */}
+            <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
+              <img
+                src={investorData.avatar}
+                alt={investorData.name}
+                className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/75?text=Investor";
+                }}
+              />
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-normal text-base truncate">
+                    {investorData.name}
+                  </span>
+                  <div className="flex gap-1">
+                    {contacts.linkedin && (
+                      <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                    )}
+                    {contacts.website && (
+                      <img src={LinkIcon} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                    )}
+                    {contacts.email && (
+                      <img src={MailIcon} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                    )}
+                    {contacts.twitter && (
+                      <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                    )}
+                    {/* If no contacts, show default icons */}
+                    {!contacts.linkedin && !contacts.website && !contacts.email && !contacts.twitter && (
+                      <>
+                        <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
+                        <img src={LinkIcon} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
+                        <img src={MailIcon} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
+                        <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-1 overflow-hidden">
+                  <span className="text-white text-[0.625rem] truncate max-w-[5rem]">
+                    {investorData.company}
+                  </span>
+                  <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0">
+                    {(investorData.type === "ACCELERATOR") ? "ACC" : "VC"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side - Details Section */}
+            <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+              {/* Check Size */}
+              <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-12 h-6 rounded-[0.1875rem] flex items-center justify-center flex-shrink-0">
+                {investorData.checkSize}
+              </div>
+
+              {/* Stage */}
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.stage}
+                </div>
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.stageCount}
+                </div>
+              </div>
+
+              {/* Industry */}
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center overflow-hidden text-ellipsis">
+                  {investorData.industry}
+                </div>
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.industryCount}
+                </div>
+              </div>
+
+              {/* Geography */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <div className="flex items-center gap-1 bg-[#18002C] rounded-[0.1875rem] px-1 py-0.5">
+                  <div className="w-5 h-3 flex items-center justify-center">
+                    {investor.location && investor.location.includes("India") ? (
+                      <img src={IndiaFlag} alt="Flag" />
+                    ) : (
+                      <div className="w-5 h-3 bg-blue-800 rounded-sm flex items-center justify-center text-[0.4rem] text-white overflow-hidden">
+                        {investor.location ? investor.location.substring(0, 3).toUpperCase() : "INT"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.geography}
+                </div>
+              </div>
+
+              {/* Match Score */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <div className={`w-2.5 h-2.5 rounded-full ${getMatchColor(investorData.matchValue)}`}></div>
+                <span className="text-white text-base font-semibold">{investorData.match}</span>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                className="text-white text-[0.625rem] font-medium rounded w-15 h-7 flex-shrink-0"
+                style={{
+                  background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
+                }}
+              >
+                Submit
+              </button>
+            </div>
+          </>
+        );
+      })()}
+    </div>
+  );
+};
 
 function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedInvestor, setSelectedInvestor] = useState(null)
   const [addedInvestors, setAddedInvestors] = useState(new Set())
+  const [addedInvestorsList, setAddedInvestorsList] = useState([]) // Added: Track list of actual investor objects
   const [showNotification, setShowNotification] = useState(false)
   const [searchResults, setSearchResults] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showAddedInvestors, setShowAddedInvestors] = useState(false) // Added: Toggle for showing added investors
+  // Log component initialization and selected list
+  useEffect(() => {
+    if (isOpen) {
+      console.log("AddInvestorsPopup opened", { selectedList, API_KEY });
+    }
+  }, [isOpen, selectedList]);
+    // Debug logs for monitoring data
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      console.log("Search result example:", searchResults[0]);
+    }
+  }, [searchResults]);
+  
+  // Debug logs for added investors
+  useEffect(() => {
+    console.log("Added investors list:", addedInvestorsList);
+  }, [addedInvestorsList]);
+  
+  useEffect(() => {
+    if (addedInvestorsList.length > 0) {
+      console.log("Added investor example:", addedInvestorsList[0]);
+    }
+  }, [addedInvestorsList])
+
+  // Reset states when popup is opened
+  useEffect(() => {
+    if (isOpen) {
+      setAddedInvestors(new Set());
+      setAddedInvestorsList([]);
+      setShowAddedInvestors(false);
+    }
+  }, [isOpen]);
 
   // Search for investors using API
   useEffect(() => {
@@ -300,13 +516,35 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       matchColor: "#CC8D03",
       matchValue: 85,
     },
+    {
+      id: 3,
+      name: "Michael Rodriguez",
+      company: "Andreessen Horowitz",
+      location: "United States",
+      investment: "5M",
+      type: "VC",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80",
+      email: "michael@a16z.com",
+      linkedin: "#",
+      website: "#",
+      twitter: "#",
+      checkSize: "$5M",
+      stage: "Series B",
+      stageCount: "+2",
+      industry: "SaaS",
+      industryCount: "+15",
+      geography: "+20",
+      match: "85%",
+      matchColor: "#CC8D03",
+      matchValue: 85,
+    },
     
   ]
 
 
-
   const hasResults = searchResults.length > 0
-  const showResults = searchTerm.trim().length > 0
+  // Show results layout if searching or showing added investors
+  const showResults = searchTerm.trim().length > 0 || addedInvestorsList.length > 0 || showAddedInvestors
 
   const citySvg = `
     <svg width="700" height="400" viewBox="0 0 700 400" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -321,29 +559,89 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       <rect x="565" y="220" width="8" height="8" fill="#4A5568"/>
     </svg>
   `
-  const cityBackground = `url("data:image/svg+xml;base64,${btoa(citySvg)}")`
-
+  const cityBackground = `url("data:image/svg+xml;base64,${btoa(citySvg)}")`;
+  
   const handleInvestorClick = (investor) => {
-    setSelectedInvestor(investor)
-  }
-
+    console.log("Selected investor:", investor);
+    setSelectedInvestor(investor);
+  };
+  
   const handleToggleInvestor = async (investor) => {
-    const newAddedInvestors = new Set(addedInvestors)
+    // Check if investor has an ID
+    const investorId = investor.id || investor._id;
+    if (!investorId) {
+      console.error("Investor has no ID");
+      alert("Error: Cannot identify investor");
+      return;
+    }
+  
+    const newAddedInvestors = new Set(addedInvestors);
     
-    if (addedInvestors.has(investor.id)) {
-      newAddedInvestors.delete(investor.id)
-      setAddedInvestors(newAddedInvestors)
-      setShowNotification(true)
-      setTimeout(() => setShowNotification(false), 3000)
+    // If investor is already in the list, remove them
+    if (addedInvestors.has(investorId)) {
+      try {
+        // Get the current list ID from the parent component
+        const listId = selectedList?.id;
+        if (!listId) {
+          console.error("No list selected");
+          return;
+        }
+        
+        // API call to remove investor from list could go here
+        // For now, we'll just update local state
+        
+        newAddedInvestors.delete(investorId);
+        setAddedInvestors(newAddedInvestors);
+        
+        // Update the added investors list
+        setAddedInvestorsList(prev => prev.filter(inv => (inv.id || inv._id) !== investorId));
+        
+        // Show success notification instead of alert
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 3000);
+      } catch (error) {
+        console.error('Error removing investor from target list:', error);
+        alert('Failed to remove investor from target list');
+      }
       return;
     }
     
+    // Add the investor to the list
     try {
       // Get the current list ID from the parent component
       const listId = selectedList?.id;
       if (!listId) {
         console.error("No list selected");
+        alert("Please select a list first");
         return;
+      }      // Make API call to add investor to list
+      console.log(`Adding investor ${investorId} to list ${listId}`);
+      
+      // First, try to get complete investor data if we only have basic info
+      let enrichedInvestor = investor;
+      if (!investor.sectors && !investor.check_size_ranges) {
+        try {
+          // Fetch full investor data
+          const investorDetailsResponse = await fetch(`${API_KEY}/api/investors/${investorId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+          });
+          
+          if (investorDetailsResponse.ok) {
+            const detailsData = await investorDetailsResponse.json();
+            if (detailsData.data) {
+              console.log("Retrieved detailed investor data:", detailsData.data);
+              enrichedInvestor = {
+                ...investor,
+                ...detailsData.data
+              };
+            }
+          }
+        } catch (detailsError) {
+          console.log("Could not fetch detailed investor data:", detailsError);
+          // Continue with original investor data
+        }
       }
       
       const response = await fetch(`${API_KEY}/api/investors/add-member`, {
@@ -353,32 +651,92 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({
-          investorId: investor.id,
+          investorId: investorId,
           listId: listId
         })
       });
+        // Check response
+      if (!response.ok) {
+        // Try to parse error as JSON, but handle HTML errors too
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to add investor');
+        } else {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+      }
       
-      if (!response.ok) throw new Error('Failed to add investor');
+      // Parse the successful response
+      const result = await response.json();
+        // Add to local state if API call succeeds
+      newAddedInvestors.add(investorId);
+      setAddedInvestors(newAddedInvestors);      // Make sure we have a complete investor object with all necessary fields
+      // Use the same data normalization logic from the InvestorCard component
+      const getInvestorDataForStorage = (investor) => {
+        return {
+          ...investor, // Keep all original data
+          id: investorId,
+          name: investor.name || "Unnamed Investor",
+          company: investor.company || investor.firm || investor.fund || "Unknown Company",
+          avatar: investor.profile_image || investor.avatar || "https://via.placeholder.com/75?text=Investor",
+          checkSize: investor.checkSize || investor.check_size || 
+                    (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
+                    investor.check_size_ranges[0] : "$N/A"),
+          stage: investor.stage || 
+                (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
+                investor.invests_in_rounds[0] : "N/A"),
+          stageCount: investor.stageCount || 
+                    (investor.invests_in_rounds ? 
+                    `+${Math.max(0, investor.invests_in_rounds.length - 1)}` : "+0"),
+          industry: investor.industry || 
+                  (investor.sectors && investor.sectors.length > 0 ? 
+                  investor.sectors[0] : "N/A"),
+          industryCount: investor.industryCount || 
+                      (investor.sectors ? 
+                        `+${Math.max(0, investor.sectors.length - 1)}` : "+0"),
+          geography: investor.geography || 
+                  (investor.geographies && investor.geographies.length > 0 ? 
+                    `+${investor.geographies.length}` : "+0"),
+          match: investor.match || "0%",
+          matchValue: investor.matchValue || 0,
+          type: investor.type || investor.title || "VC",
+          contacts: investor.contacts || {}
+        };
+      };
       
-      // Add to local state if API call succeeds
-      newAddedInvestors.add(investor.id)
-      setAddedInvestors(newAddedInvestors)
+      // Use the enriched investor data we got from the API if available
+      const completeInvestor = getInvestorDataForStorage(enrichedInvestor);
       
-      // Show notification
-      setShowNotification(true)
-      setTimeout(() => setShowNotification(false), 3000)
+      console.log("Adding investor with complete data:", completeInvestor);
       
-    } catch (error) {
+      // Add to the added investors list
+      setAddedInvestorsList(prev => [...prev, completeInvestor]);
+      
+      // Show notification instead of alert
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
+        // Show the added investors view after adding the first investor
+      if(addedInvestorsList.length === 0) {
+        setShowAddedInvestors(true);
+      }
+        } catch (error) {
       console.error('Error adding investor to target list:', error);
-      alert('Failed to add investor to target list');
+      
+      // More user-friendly error message
+      if (error.message.includes('404')) {
+        alert('API endpoint not found. Please check the server configuration.');
+      } else if (error.message.includes('401')) {
+        alert('Authentication failed. Please try logging in again.');
+      } else {
+        alert(`Failed to add investor to target list: ${error.message}`);
+      }
     }
   }
-
   const handleClose = () => {
     // Pass added investors back to parent when closing
-    if (onInvestorsAdded && addedInvestors.size > 0) {
-      const addedInvestorData = searchResults.filter((investor) => addedInvestors.has(investor.id))
-      onInvestorsAdded(addedInvestorData)
+    if (onInvestorsAdded && addedInvestorsList.length > 0) {
+      onInvestorsAdded(addedInvestorsList);
     }
     onClose()
   }
@@ -386,20 +744,23 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
   const isInvestorAdded = selectedInvestor ? addedInvestors.has(selectedInvestor.id) : false
 
   return (
-    <>
-      {/* Notification Popup */}
+    <>      {/* Notification Popup */}
       <div
         className={`fixed top-4 right-4 z-[100] transition-all duration-300 ease-in-out ${
           showNotification ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
         }`}
       >
         <div className="w-[13.75rem] h-[3.25rem] rounded-[0.375rem] border border-[#18152D] bg-black flex items-center justify-between px-4 py-3 shadow-lg">
-          <span className="text-white font-inter text-base font-medium">Changes saved</span>
+          <span className="text-white font-inter text-base font-medium">
+            {addedInvestors.has(selectedInvestor?.id || selectedInvestor?._id) 
+              ? "Investor added" 
+              : "Investor removed"}
+          </span>
           <button
             className="w-[2.8125rem] h-[1.28644rem] rounded-[0.125rem] bg-[#33005C] text-[#AD6FDE] text-[0.625rem] font-semibold flex items-center justify-center"
             onClick={() => setShowNotification(false)}
           >
-            Undo
+            Close
           </button>
         </div>
       </div>
@@ -498,18 +859,34 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
           ) : (
             // Layout when search results are shown
             <div className="flex flex-col w-full h-full">
-              {/* Header with search bar */}
-              <div className="pt-12 sm:pt-14 md:pt-16 xl:pt-18 px-3 sm:px-4 md:px-6 xl:px-12 pb-4">
-                <div className="mb-4">
-                  <h2 className="text-white font-inter text-sm sm:text-base md:text-lg xl:text-xl font-medium mb-1 leading-tight">
-                    Add Investors from Vertx database
-                  </h2>
-                  <p className="text-[#B8B8B8] font-inter text-xs sm:text-sm font-normal leading-tight">
-                    Search investors by name, email, or firm
-                  </p>
+              {/* Header with search bar */}              <div className="pt-12 sm:pt-14 md:pt-16 xl:pt-18 px-3 sm:px-4 md:px-6 xl:px-12 pb-4">
+                <div className="mb-4 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-white font-inter text-sm sm:text-base md:text-lg xl:text-xl font-medium mb-1 leading-tight">
+                      {showAddedInvestors ? "Added Investors" : "Add Investors from Vertx database"}
+                    </h2>
+                    <p className="text-[#B8B8B8] font-inter text-xs sm:text-sm font-normal leading-tight">
+                      {showAddedInvestors 
+                        ? `${addedInvestorsList.length} investors added to ${selectedList?.name || "list"}` 
+                        : "Search investors by name, email, or firm"}
+                    </p>
+                  </div>
+                  
+                  {addedInvestorsList.length > 0 && (
+                    <button
+                      onClick={() => setShowAddedInvestors(!showAddedInvestors)}
+                      className="bg-[#33005C] text-white px-3 py-2 rounded text-xs font-medium transition-colors hover:bg-[#4a0085] flex items-center"
+                    >
+                      {showAddedInvestors ? "Search More" : "View Added"}
+                      <span className="ml-2 bg-white text-[#33005C] rounded-full px-1.5 py-0.5 text-xs">
+                        {addedInvestorsList.length}
+                      </span>
+                    </button>
+                  )}
                 </div>
 
-                <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md xl:max-w-[500px]">
+                {!showAddedInvestors && (
+                  <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md xl:max-w-[500px]">
 
 
 <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 xl:pl-4 flex items-center pointer-events-none">
@@ -544,136 +921,67 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
   src={CloseIcon}
   alt="Close Icon"
   className="w-3 h-3"
-/>
-
-                    </button>
+/>                    </button>
                   )}
                 </div>
+                )}
               </div>
-
               {/* Content area with results and details */}
-              <div className="flex flex-1 overflow-hidden px-3 sm:px-4 md:px-6 xl:px-12 pb-3 sm:pb-4 md:pb-6 xl:pb-12 relative">
-                {/* Left side - Search results */}
+              <div className="flex flex-1 overflow-hidden px-3 sm:px-4 md:px-6 xl:px-12 pb-3 sm:pb-4 md:pb-6 xl:pb-12 relative">                {/* Left side - Search results or Added Investors */}
                 <div className="flex-1 pr-4 sm:pr-6 xl:pr-8">
                   <div
                     className="w-full max-w-xs sm:max-w-sm md:max-w-md xl:max-w-[500px] bg-black rounded-[0.25rem] overflow-y-auto space-y-2 p-2"
-                    style={{ height: "24.6875rem" }}
-                  >
-                    {isLoading ? (
-                      <div className="text-center text-[#B8B8B8] py-8">Searching investors...</div>
-                    ) : hasResults ? (
-                      searchResults.map((investor) => (
-                        <div
-                          key={investor.id}
-                          onClick={() => handleInvestorClick(investor)}
-                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all hover:bg-[#18002C] ${
-                            selectedInvestor?.id === investor.id ? "bg-[#18002C]" : "bg-transparent"
-                          }`}
-                          style={{ height: "6.75rem" }}
-                        >
-                          <img
-                            src={investor.profile_image || "/placeholder.svg"}
-                            alt={investor.name}
-                            className="rounded-lg object-cover flex-shrink-0"
-                            style={{ width: "4.6875rem", height: "4.6875rem" }}
+                    style={{ height: "calc(100% - 2rem)" }}
+                  >                    {showAddedInvestors ? (
+                      // Show added investors view
+                      addedInvestorsList.length > 0 ? (
+                        addedInvestorsList.map((investor) => (
+                          <InvestorCard
+                            key={investor.id || investor._id}
+                            investor={investor}
+                            isSelected={selectedInvestor && (selectedInvestor.id === investor.id || selectedInvestor._id === investor._id)}
+                            onClick={() => handleInvestorClick(investor)}
                           />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3
-                                className="text-white font-inter font-normal truncate"
-                                style={{ fontSize: "1.25rem" }}
-                              >
-                                {investor.name}
-                              </h3>
-                              <div className="flex items-center gap-1">
-                                {investor.linkedin && (
-                                  <img
-                                    key={`linkedin-${investor.id}`}
-                                    src={LinkedIn}
-                                    alt="LinkedIn"
-                                    style={{ width: "1.25rem", height: "1.25rem" }}
-                                    className="text-[#0077B5]"
-                                  />
-                                )}
-                                {investor.website && (
-                                  <img
-                                    key={`website-${investor.id}`}
-                                    src={LinkIcon}
-                                    alt="Link Icon"
-                                    className="text-gray-400"
-                                    style={{ width: "1.25rem", height: "1.25rem" }}
-                                  />
-                                )}
-                                {investor.email && (
-                                  <img
-                                    key={`email-${investor.id}`}
-                                    src={MailIcon}
-                                    alt="Mail Icon"
-                                    className="text-gray-400"
-                                    style={{ width: "1.25rem", height: "1.25rem" }}
-                                  />
-                                )}
-                                {investor.twitter && (
-                                  <img
-                                    key={`twitter-${investor.id}`}
-                                    src={TwitterIcon}
-                                    alt="Twitter Icon"
-                                    className="text-gray-400"
-                                    style={{ width: "1.25rem", height: "1.25rem" }}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                            <p className="text-white font-inter font-normal mb-1" style={{ fontSize: "0.75rem" }}>
-                              {investor.company}
-                            </p>
-                            <span
-                              className="inline-block px-2 py-1 bg-[#456BBD] text-white font-inter font-bold rounded-full"
-                              style={{
-                                fontSize: "0.5rem",
-                                width: "5rem",
-                                height: "1rem",
-                                borderRadius: "6.25rem",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              {investor.title || "INVESTOR"}
-                            </span>
-                          </div>
-                        </div>
+                        ))
+                      ) : (
+                        <div className="text-center text-[#B8B8B8] py-8">No investors added yet.</div>
+                      )
+                    ) : isLoading ? (
+                      <div className="text-center text-[#B8B8B8] py-8">Searching investors...</div>                    ) : hasResults ? (
+                      searchResults.map((investor) => (
+                        <InvestorCard
+                          key={investor.id || investor._id}
+                          investor={investor}
+                          isSelected={selectedInvestor && (selectedInvestor.id === investor.id || selectedInvestor._id === investor._id)}
+                          onClick={() => handleInvestorClick(investor)}
+                        />
                       ))
                     ) : (
                       <div className="text-center text-[#B8B8B8] py-8">No investors found matching your search.</div>
                     )}
                   </div>
-                </div>
-
-                {/* Right side - Selected investor details */}
+                </div>                {/* Right side - Selected investor details */}
                 {selectedInvestor && (
                   <div
-                    className="fixed bg-[#0F0E16] rounded-lg flex flex-col z-20"
+                    className="relative flex-shrink-0 bg-[#0F0E16] rounded-lg flex flex-col"
                     style={{
-                      top: "50%",
-                      right: "10%",
                       width: "40%",
-                      height: "80vh",
-                      maxHeight: "600px",
-                      transform: "translateY(-50%)",
-                      padding: "34px",
+                      height: "100%",
+                      padding: "2rem",
                       overflowY: "auto",
                     }}
-                  >
-                    <div className="text-center flex-shrink-0">
-                      <div className="w-[12.5rem] h-[12.5rem] mx-auto mb-4 flex-shrink-0">
+                  >                    <div className="text-center flex-shrink-0">
+                      <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-4 flex-shrink-0">
                         <img
-                          src={selectedInvestor.avatar || "Rectangle 119.png"}
+                          src={selectedInvestor.profile_image || selectedInvestor.avatar || `${API_KEY}/placeholder.png`}
                           alt={selectedInvestor.name}
                           className="w-full h-full rounded-lg object-cover"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/200?text=Investor";
+                          }}
                         />
                       </div>
-                      <h2 className="text-white font-inter font-medium mb-3" style={{ fontSize: "2rem" }}>
+                      <h2 className="text-white font-inter font-medium mb-3 text-xl sm:text-2xl md:text-3xl">
                         {selectedInvestor.name}
                       </h2>
                       <div className="flex justify-center gap-3 mb-6">
@@ -682,8 +990,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                             key="linkedin"
                             src={LinkedIn}
                             alt="LinkedIn"
-                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-                            className="text-[#0077B5] hover:opacity-80"
+                            className="w-5 h-5 text-[#0077B5] hover:opacity-80 cursor-pointer"
                           />
                         )}
                         {selectedInvestor.website && (
@@ -691,17 +998,14 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                             key="website"
                             src={LinkIcon}
                             alt="Link"
-                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-                            className="text-gray-400 hover:opacity-80"
+                            className="w-5 h-5 text-gray-400 hover:opacity-80 cursor-pointer"
                           />
                         )}
                         {selectedInvestor.email && (
-                          <img
-                            key="email"
+                          <img                            key="email"
                             src={MailIcon}
                             alt="Mail"
-                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-                            className="text-gray-400 hover:opacity-80"
+                            className="w-5 h-5 text-gray-400 hover:opacity-80 cursor-pointer"
                           />
                         )}
                         {selectedInvestor.twitter && (
@@ -709,72 +1013,79 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                             key="twitter"
                             src={TwitterIcon}
                             alt="Twitter"
-                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-                            className="text-gray-400 hover:opacity-80"
+                            className="w-5 h-5 text-gray-400 hover:opacity-80 cursor-pointer"
                           />
                         )}
                       </div>
-                    </div>
-
-                    <div className="space-y-4 flex-1">
-                    
-
-<div className="flex items-center justify-center gap-3 text-white">
-  <img
-    src={WorkIcon}
-    alt="Work"
-    style={{ width: "1.87306rem", height: "1.87306rem" }}
-    className="text-gray-400 flex-shrink-0"
-  />
-  <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
-    {selectedInvestor.company}
-  </span>
-</div>
-
-
+                    </div>                    <div className="space-y-6 flex-1 py-4">
+                      {/* Company/Firm */}
                       <div className="flex items-center justify-center gap-3 text-white">
-                    
-
-<img
-  src={LocationIcon}
-  alt="Location Icon"
-  className="text-gray-400 flex-shrink-0"
-  style={{ width: "1.87306rem", height: "1.87306rem" }}
-/>
-
-                        <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
-                          {selectedInvestor.location}
+                        <img
+                          src={WorkIcon}
+                          alt="Work"
+                          className="text-gray-400 flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7"
+                        />
+                        <span className="font-inter font-normal text-base sm:text-lg md:text-xl">
+                          {selectedInvestor.company || selectedInvestor.firm || "N/A"}
                         </span>
                       </div>
 
+                      {/* Location */}
                       <div className="flex items-center justify-center gap-3 text-white">
-                      <img
-  src={DollarIcon}
-  alt="Dollar Icon"
-  className="text-gray-400 flex-shrink-0"
-  style={{ width: "1.87306rem", height: "1.87306rem" }}
-/>
-
-                        <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
-                          {selectedInvestor.investment}
+                        <img
+                          src={LocationIcon}
+                          alt="Location Icon"
+                          className="text-gray-400 flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7"
+                        />
+                        <span className="font-inter font-normal text-base sm:text-lg md:text-xl">
+                          {selectedInvestor.location || selectedInvestor.geography || "Location not specified"}
                         </span>
                       </div>
-                    </div>
 
-                    <button
+                      {/* Investment Size */}
+                      <div className="flex items-center justify-center gap-3 text-white">
+                        <img
+                          src={DollarIcon}
+                          alt="Dollar Icon"
+                          className="text-gray-400 flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7"
+                        />
+                        <span className="font-inter font-normal text-base sm:text-lg md:text-xl">
+                          {selectedInvestor.investment || selectedInvestor.checkSize || "Investment size not specified"}
+                        </span>
+                      </div>
+
+                      {/* Additional Info - Stage */}
+                      {selectedInvestor.stage && (
+                        <div className="mt-6 text-center">
+                          <span className="text-white font-inter font-medium text-base">Stage: </span>
+                          <span className="text-white font-inter font-normal text-base">{selectedInvestor.stage}</span>
+                          {selectedInvestor.stageCount && (
+                            <span className="ml-2 text-[#B8B8B8] text-sm">{selectedInvestor.stageCount}</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Additional Info - Industry */}
+                      {selectedInvestor.industry && (
+                        <div className="text-center">
+                          <span className="text-white font-inter font-medium text-base">Industry: </span>
+                          <span className="text-white font-inter font-normal text-base">{selectedInvestor.industry}</span>
+                          {selectedInvestor.industryCount && (
+                            <span className="ml-2 text-[#B8B8B8] text-sm">{selectedInvestor.industryCount}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>                    <button 
                       onClick={() => handleToggleInvestor(selectedInvestor)}
-                      className={`font-inter font-medium transition-colors mt-6 w-full flex-shrink-0 ${
-                        isInvestorAdded
+                      className={`font-inter font-medium transition-colors mt-6 w-full py-3 sm:py-4 rounded flex-shrink-0 ${
+                        addedInvestors.has(selectedInvestor.id || selectedInvestor._id)
                           ? "bg-[#DE2D2D] text-white hover:bg-[#C82828]"
                           : "bg-white text-black hover:bg-gray-100"
                       }`}
-                      style={{
-                        height: "3.75rem",
-                        borderRadius: "0.25rem",
-                        fontSize: "1rem",
-                      }}
                     >
-                      {isInvestorAdded ? "Remove from target list" : "Add to target list"}
+                      {addedInvestors.has(selectedInvestor.id || selectedInvestor._id) 
+                        ? "Remove from target list" 
+                        : "Add to target list"}
                     </button>
                   </div>
                 )}
