@@ -10,7 +10,11 @@ import LinkedIn from '../../assets/LinkedIn.svg';
 import LinkIcon from '../../assets/link.svg';
 import MailIcon from '../../assets/mail.svg';
 import TwitterIcon from '../../assets/twitter.svg';
+<<<<<<< HEAD
 import WorkIcon from '../../assets/workIcon.svg';
+=======
+import WorkIcon from '../../assets/WorkIcon.svg'; // replace with actual path to your SVG or PNG
+>>>>>>> d9fb04da91d477f30548113e54dd063b31d523c6
 import LocationIcon from '../../assets/LocationIcon.svg';
 import DollarIcon from '../../assets/DollarIcon.svg';
 import IndiaFlag from '../../assets/IndiaFlag.png';
