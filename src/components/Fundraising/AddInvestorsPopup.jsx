@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react" 
+import { useState, useEffect } from "react" 
 
 import BackButton from '../../assets/BackButton.svg';
 import SearchIcon from '../../assets/SearchIcon.svg';
@@ -15,11 +15,44 @@ import LocationIcon from '../../assets/LocationIcon.svg';
 import DollarIcon from '../../assets/DollarIcon.svg';
 
 
-function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
+import API_KEY from "../../../key.js"
+
+function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedInvestor, setSelectedInvestor] = useState(null)
   const [addedInvestors, setAddedInvestors] = useState(new Set())
   const [showNotification, setShowNotification] = useState(false)
+  const [searchResults, setSearchResults] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Search for investors using API
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const searchInvestors = async () => {
+      if (searchTerm.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${API_KEY}/api/investors/search?name=${encodeURIComponent(searchTerm)}`);
+        if (!response.ok) throw new Error('Search failed');
+        
+        const data = await response.json();
+        setSearchResults(data.data || []);
+      } catch (error) {
+        console.error('Error searching investors:', error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    const debounceTimer = setTimeout(searchInvestors, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, isOpen]);
 
   if (!isOpen) return null
 
@@ -270,17 +303,9 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
     
   ]
 
-  // Filter investors based on search term
-  const filteredInvestors = searchTerm.trim()
-    ? mockInvestors.filter(
-        (investor) =>
-          investor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          investor.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          investor.email.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    : []
 
-  const hasResults = filteredInvestors.length > 0
+
+  const hasResults = searchResults.length > 0
   const showResults = searchTerm.trim().length > 0
 
   const citySvg = `
@@ -302,30 +327,57 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
     setSelectedInvestor(investor)
   }
 
-  const handleToggleInvestor = (investor) => {
+  const handleToggleInvestor = async (investor) => {
     const newAddedInvestors = new Set(addedInvestors)
-
+    
     if (addedInvestors.has(investor.id)) {
       newAddedInvestors.delete(investor.id)
-    } else {
-      newAddedInvestors.add(investor.id)
+      setAddedInvestors(newAddedInvestors)
+      setShowNotification(true)
+      setTimeout(() => setShowNotification(false), 3000)
+      return;
     }
-
-    setAddedInvestors(newAddedInvestors)
-
-    // Show notification
-    setShowNotification(true)
-
-    // Hide notification after 3 seconds
-    setTimeout(() => {
-      setShowNotification(false)
-    }, 3000)
+    
+    try {
+      // Get the current list ID from the parent component
+      const listId = selectedList?.id;
+      if (!listId) {
+        console.error("No list selected");
+        return;
+      }
+      
+      const response = await fetch(`${API_KEY}/api/investors/add-member`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify({
+          investorId: investor.id,
+          listId: listId
+        })
+      });
+      
+      if (!response.ok) throw new Error('Failed to add investor');
+      
+      // Add to local state if API call succeeds
+      newAddedInvestors.add(investor.id)
+      setAddedInvestors(newAddedInvestors)
+      
+      // Show notification
+      setShowNotification(true)
+      setTimeout(() => setShowNotification(false), 3000)
+      
+    } catch (error) {
+      console.error('Error adding investor to target list:', error);
+      alert('Failed to add investor to target list');
+    }
   }
 
   const handleClose = () => {
     // Pass added investors back to parent when closing
     if (onInvestorsAdded && addedInvestors.size > 0) {
-      const addedInvestorData = mockInvestors.filter((investor) => addedInvestors.has(investor.id))
+      const addedInvestorData = searchResults.filter((investor) => addedInvestors.has(investor.id))
       onInvestorsAdded(addedInvestorData)
     }
     onClose()
@@ -436,9 +488,9 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
 
                 <div className="absolute bottom-2 sm:bottom-3 xl:bottom-6 left-1/2 transform -translate-x-1/2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
-  <circle cx="5" cy="5" r="5" fill="white"/>
-  <circle cx="23" cy="5" r="5" fill="white" fill-opacity="0.13"/>
-  <circle cx="41" cy="5" r="5" fill="white" fill-opacity="0.13"/>
+  <circle key="circle1-top" cx="5" cy="5" r="5" fill="white"/>
+  <circle key="circle2-top" cx="23" cy="5" r="5" fill="white" fillOpacity="0.13"/>
+  <circle key="circle3-top" cx="41" cy="5" r="5" fill="white" fillOpacity="0.13"/>
 </svg>
                 </div>
               </div>
@@ -507,8 +559,10 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                     className="w-full max-w-xs sm:max-w-sm md:max-w-md xl:max-w-[500px] bg-black rounded-[0.25rem] overflow-y-auto space-y-2 p-2"
                     style={{ height: "24.6875rem" }}
                   >
-                    {hasResults ? (
-                      filteredInvestors.map((investor) => (
+                    {isLoading ? (
+                      <div className="text-center text-[#B8B8B8] py-8">Searching investors...</div>
+                    ) : hasResults ? (
+                      searchResults.map((investor) => (
                         <div
                           key={investor.id}
                           onClick={() => handleInvestorClick(investor)}
@@ -518,7 +572,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                           style={{ height: "6.75rem" }}
                         >
                           <img
-                            src={investor.avatar || "/placeholder.svg"}
+                            src={investor.profile_image || "/placeholder.svg"}
                             alt={investor.name}
                             className="rounded-lg object-cover flex-shrink-0"
                             style={{ width: "4.6875rem", height: "4.6875rem" }}
@@ -532,39 +586,42 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                                 {investor.name}
                               </h3>
                               <div className="flex items-center gap-1">
-
-<img
-  src={LinkedIn}
-  alt="LinkedIn"
-  style={{ width: "1.25rem", height: "1.25rem" }}
-  className="text-[#0077B5]"
-/>
-
-
-
-<img
-  src={LinkIcon}
-  alt="Link Icon"
-  className="text-gray-400"
-  style={{ width: "1.25rem", height: "1.25rem" }}
-/>
-
-
-
-<img
-  src={MailIcon}
-  alt="Mail Icon"
-  className="text-gray-400"
-  style={{ width: "1.25rem", height: "1.25rem" }}
-/>
-
-<img
-  src={TwitterIcon}
-  alt="Twitter Icon"
-  className="text-gray-400"
-  style={{ width: "1.25rem", height: "1.25rem" }}
-/>
-
+                                {investor.linkedin && (
+                                  <img
+                                    key={`linkedin-${investor.id}`}
+                                    src={LinkedIn}
+                                    alt="LinkedIn"
+                                    style={{ width: "1.25rem", height: "1.25rem" }}
+                                    className="text-[#0077B5]"
+                                  />
+                                )}
+                                {investor.website && (
+                                  <img
+                                    key={`website-${investor.id}`}
+                                    src={LinkIcon}
+                                    alt="Link Icon"
+                                    className="text-gray-400"
+                                    style={{ width: "1.25rem", height: "1.25rem" }}
+                                  />
+                                )}
+                                {investor.email && (
+                                  <img
+                                    key={`email-${investor.id}`}
+                                    src={MailIcon}
+                                    alt="Mail Icon"
+                                    className="text-gray-400"
+                                    style={{ width: "1.25rem", height: "1.25rem" }}
+                                  />
+                                )}
+                                {investor.twitter && (
+                                  <img
+                                    key={`twitter-${investor.id}`}
+                                    src={TwitterIcon}
+                                    alt="Twitter Icon"
+                                    className="text-gray-400"
+                                    style={{ width: "1.25rem", height: "1.25rem" }}
+                                  />
+                                )}
                               </div>
                             </div>
                             <p className="text-white font-inter font-normal mb-1" style={{ fontSize: "0.75rem" }}>
@@ -582,7 +639,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                                 justifyContent: "center",
                               }}
                             >
-                              {investor.type}
+                              {investor.title || "INVESTOR"}
                             </span>
                           </div>
                         </div>
@@ -620,30 +677,42 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                         {selectedInvestor.name}
                       </h2>
                       <div className="flex justify-center gap-3 mb-6">
-                      <img
-    src={LinkedIn}
-    alt="LinkedIn"
-    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-    className="text-[#0077B5] hover:opacity-80"
-  />
-                      <img
-    src={LinkIcon}
-    alt="Link"
-    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-    className="text-gray-400 hover:opacity-80"
-  />
-                        <img
-    src={MailIcon}
-    alt="Mail"
-    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-    className="text-gray-400 hover:opacity-80"
-  />
-                      <img
-    src={TwitterIcon}
-    alt="Twitter"
-    style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
-    className="text-gray-400 hover:opacity-80"
-  />
+                        {selectedInvestor.linkedin && (
+                          <img
+                            key="linkedin"
+                            src={LinkedIn}
+                            alt="LinkedIn"
+                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+                            className="text-[#0077B5] hover:opacity-80"
+                          />
+                        )}
+                        {selectedInvestor.website && (
+                          <img
+                            key="website"
+                            src={LinkIcon}
+                            alt="Link"
+                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+                            className="text-gray-400 hover:opacity-80"
+                          />
+                        )}
+                        {selectedInvestor.email && (
+                          <img
+                            key="email"
+                            src={MailIcon}
+                            alt="Mail"
+                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+                            className="text-gray-400 hover:opacity-80"
+                          />
+                        )}
+                        {selectedInvestor.twitter && (
+                          <img
+                            key="twitter"
+                            src={TwitterIcon}
+                            alt="Twitter"
+                            style={{ width: "1.25rem", height: "1.25rem", cursor: "pointer" }}
+                            className="text-gray-400 hover:opacity-80"
+                          />
+                        )}
                       </div>
                     </div>
 
@@ -725,9 +794,9 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded }) {
                       <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg"></div>
                       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
                       <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
-  <circle cx="5" cy="5" r="5" fill="white"/>
-  <circle cx="23" cy="5" r="5" fill="white" fill-opacity="0.13"/>
-  <circle cx="41" cy="5" r="5" fill="white" fill-opacity="0.13"/>
+  <circle key="circle1" cx="5" cy="5" r="5" fill="white"/>
+  <circle key="circle2" cx="23" cy="5" r="5" fill="white" fillOpacity="0.13"/>
+  <circle key="circle3" cx="41" cy="5" r="5" fill="white" fillOpacity="0.13"/>
 </svg>
                       </div>
                     </div>

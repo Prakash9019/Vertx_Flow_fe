@@ -806,6 +806,7 @@ export default function Target({ onListSelect }) {
           isOpen={isAddInvestorsPopupOpen}
           onClose={() => setIsAddInvestorsPopupOpen(false)}
           onInvestorsAdded={handleInvestorsAdded}
+          selectedList={selectedList}
         />
         <InviteAndCollab 
           isOpen={showInviteCollab} 
