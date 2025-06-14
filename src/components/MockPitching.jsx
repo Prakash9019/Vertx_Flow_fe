@@ -88,8 +88,8 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
       <div 
         className="fixed inset-0 z-50 flex items-center justify-center"
         style={{ 
-          background: "rgba(0, 0, 0, 0.8)",
-          backdropFilter: "blur(5px)"
+          background: "rgba(0, 0, 0, 0.9)",
+
         }}
       >
         <div 
@@ -111,8 +111,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ 
-        background: "rgba(0, 0, 0, 0.5)",
-        backdropFilter: "blur(5px)"
+        background: "rgba(0, 0, 0, 0.9)",
       }}
     >
       <div className="w-full h-full flex">
@@ -185,7 +184,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   width: "3.125rem",
                   height: "3.125rem",
                   background: isMuted ? "#dc2626" : "rgba(255, 255, 255, 0.2)",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: "blur(10px)", 
                   strokeWidth: "1px",
                   stroke: "#FFF"
                 }}
@@ -227,7 +226,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             width: "33rem",
             height: "100vh",
             background: "rgba(0, 0, 0, 0.8)",
-            backdropFilter: "blur(10px)",
+
             padding: "2rem 1rem"
           }}
         >
