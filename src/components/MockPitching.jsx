@@ -1,34 +1,43 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import CallIcon from "../assets/CallIcon.svg"
+import CallIcon2 from "../assets/CallIcon2.svg"
+import StarIcon from "../assets/StarIcon.svg"
+import logo from "../assets/logo.svg"
+import ContactsIcon from "../assets/ContactsIcon.svg"
+import AddIcon from "../assets/AddIcon.svg"
+import SpeedometerIcon from "../assets/SpeedometerIcon.svg"
+import TuneIcon from "../assets/TuneIcon.svg"
+import PlayIcon from "../assets/PlayIcon.svg"
 
-import SearchIcon from "../assets/SearchIcon.svg";
-import FilterIcon from "../assets/FilterIcon.svg";
-import CallIcon from "../assets/CallIcon.svg";
-import CallIcon2 from "../assets/CallIcon2.svg";
-import StarIcon from "../assets/StarIcon.svg";
-import logo from "../assets/logo.svg";
-import ContactsIcon from "../assets/ContactsIcon.svg";
-import AddIcon from "../assets/AddIcon.svg";
-import SpeedometerIcon from "../assets/SpeedometerIcon.svg";
-import TuneIcon from "../assets/TuneIcon.svg";
-import PlayIcon from "../assets/PlayIcon.svg";
-
-import { Search, Filter, Phone, Eye, Bookmark, MessageSquare, Settings, X, Star, PhoneOff, Mic, MicOff, Video, VideoOff, Captions } from "lucide-react"
+import {
+  Search,
+  Filter,
+  Phone,
+  MessageSquare,
+  Star,
+  PhoneOff,
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Captions,
+} from "lucide-react"
 
 // Import the new CallReportPage component
-import CallReportPage from './callReportPage'
+import CallReportPage from "./callReportPage"
 
 function CallEndedScreen({ onReturnHome, onViewReport }) {
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ 
-        background: "#000000"
+      style={{
+        background: "#000000",
       }}
     >
       <div className="text-center">
-        <h2 
+        <h2
           className="mb-8"
           style={{
             color: "#FFF",
@@ -68,7 +77,7 @@ function CallEndedScreen({ onReturnHome, onViewReport }) {
               fontFamily: "Inter",
               fontSize: "0.875rem",
               fontWeight: 500,
-              border: "none"
+              border: "none",
             }}
           >
             View report
@@ -85,14 +94,13 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
   if (!showFullInterface) {
     return (
-      <div 
+      <div
         className="fixed inset-0 z-50 flex items-center justify-center"
-        style={{ 
+        style={{
           background: "rgba(0, 0, 0, 0.9)",
-
         }}
       >
-        <div 
+        <div
           className="text-center"
           style={{
             color: "#FFF",
@@ -108,22 +116,22 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
   }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ 
+      style={{
         background: "rgba(0, 0, 0, 0.9)",
       }}
     >
       <div className="w-full h-full flex">
         <div className="flex-1 flex items-center justify-center relative">
-          <div 
-            className="relative"
+          <div
+            className="relative transition-all duration-500 ease-in-out"
             style={{
               width: "40rem",
               height: "22.5rem",
               borderRadius: "0.625rem",
               overflow: "hidden",
-              background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)"
+              background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
             }}
           >
             <div className="w-full h-full flex items-center justify-center">
@@ -133,7 +141,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                 className="rounded-full object-cover"
                 style={{
                   width: "9.375rem",
-                  height: "9.375rem"
+                  height: "9.375rem",
                 }}
                 onError={(e) => {
                   e.target.style.display = "none"
@@ -142,35 +150,35 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               />
               <div
                 className="rounded-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
-                style={{ 
+                style={{
                   display: "none",
                   width: "9.375rem",
-                  height: "9.375rem"
+                  height: "9.375rem",
                 }}
               >
                 {"P"}
               </div>
             </div>
 
-            <div 
+            <div
               className="absolute top-4 left-4 px-3 py-1"
               style={{
                 color: "#FFF",
                 fontFamily: "Inter",
                 fontSize: "0.875rem",
-                fontWeight: 500
+                fontWeight: 500,
               }}
             >
-              {"Praneth Kumar"}
+              {"Praneth Kumar | Vertxlabs"}
             </div>
 
-            <div 
+            <div
               className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2"
               style={{
                 color: "#FFF",
                 fontFamily: "Inter",
                 fontSize: "1rem",
-                fontWeight: 500
+                fontWeight: 500,
               }}
             >
               Calling...
@@ -184,11 +192,11 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   width: "3.125rem",
                   height: "3.125rem",
                   background: isMuted ? "#dc2626" : "rgba(255, 255, 255, 0.2)",
-                  backdropFilter: "blur(10px)", 
+                  backdropFilter: "blur(10px)",
                   strokeWidth: "1px",
-                  stroke: "#FFF"
+                  stroke: "#FFF",
                 }}
-              > 
+              >
                 {isMuted ? (
                   <MicOff style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
                 ) : (
@@ -207,7 +215,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   background: isVideoOff ? "#dc2626" : "rgba(255, 255, 255, 0.2)",
                   backdropFilter: "blur(10px)",
                   strokeWidth: "1px",
-                  stroke: "#FFF"
+                  stroke: "#FFF",
                 }}
               >
                 {isVideoOff ? (
@@ -220,35 +228,34 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
           </div>
         </div>
 
-        <div 
-          className="flex flex-col items-center justify-center"
+        <div
+          className="flex flex-col items-center justify-center transition-all duration-500 ease-in-out"
           style={{
             width: "33rem",
             height: "100vh",
             background: "rgba(0, 0, 0, 0.8)",
-
-            padding: "2rem 1rem"
+            padding: "2rem 1rem",
           }}
         >
           <div className="text-center mb-8">
-            <h2 
+            <h2
               className="mb-4"
               style={{
                 color: "#FFF",
                 fontFamily: "Inter",
                 fontSize: "1.5rem",
-                fontWeight: 500
+                fontWeight: 500,
               }}
             >
               Ready to join?
             </h2>
 
             <div className="flex justify-center mb-4">
-              <div 
+              <div
                 className="rounded-full overflow-hidden bg-gray-600"
                 style={{
                   width: "2.5rem",
-                  height: "2.5rem"
+                  height: "2.5rem",
                 }}
               >
                 <img
@@ -269,13 +276,13 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               </div>
             </div>
 
-            <p 
+            <p
               className="mb-8"
               style={{
                 color: "#FFF",
                 fontFamily: "Inter",
                 fontSize: "1rem",
-                fontWeight: 500
+                fontWeight: 500,
               }}
             >
               {investor?.name || "Persona One"} is in this call
@@ -284,7 +291,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             <div className="space-y-3 w-full flex flex-col items-center">
               <button
                 onClick={onJoinCall}
-                className="hover:opacity-90 transition-opacity"
+                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105"
                 style={{
                   width: "15rem",
                   height: "3.25rem",
@@ -294,14 +301,14 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   fontFamily: "Inter",
                   fontSize: "1rem",
                   fontWeight: 600,
-                  border: "none"
+                  border: "none",
                 }}
               >
                 Join now
               </button>
 
               <button
-                className="hover:opacity-90 transition-opacity"
+                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105"
                 style={{
                   width: "15rem",
                   height: "3.25rem",
@@ -311,7 +318,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   fontFamily: "Inter",
                   fontSize: "1rem",
                   fontWeight: 500,
-                  border: "1px solid #D9D9D9"
+                  border: "1px solid #D9D9D9",
                 }}
               >
                 Invite Co-founder
@@ -321,12 +328,10 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
         </div>
       </div>
 
-      <div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-      >
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
         <button
           onClick={onEndCall}
-          className="flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
           style={{
             width: "12.5rem",
             height: "2.5rem",
@@ -335,7 +340,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             color: "#FFF",
             fontFamily: "Inter",
             fontSize: "0.75rem",
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           <PhoneOff style={{ width: "0.875rem", height: "0.875rem" }} />
@@ -346,7 +351,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
   )
 }
 
-function VideoCallInterface({ investor, onEndCall }) {
+function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
   const [callDuration, setCallDuration] = useState(0)
   const [showCaptions, setShowCaptions] = useState(false)
   const [captionLines, setCaptionLines] = useState(["", ""])
@@ -367,48 +372,48 @@ function VideoCallInterface({ investor, onEndCall }) {
     "How do you see the market evolving?",
     "What are your key metrics so far?",
     "Tell me about your team background",
-    "What's your go-to-market strategy?"
+    "What's your go-to-market strategy?",
   ]
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCallDuration(prev => prev + 1)
+      setCallDuration((prev) => prev + 1)
     }, 1000)
 
     return () => clearInterval(timer)
   }, [])
 
   const updateCaptionLines = (newText) => {
-    const words = newText.split(' ')
+    const words = newText.split(" ")
     const maxWordsPerLine = 8
-    
+
     if (words.length <= maxWordsPerLine) {
       setCaptionLines([newText, ""])
     } else if (words.length <= maxWordsPerLine * 2) {
-      const firstLine = words.slice(0, maxWordsPerLine).join(' ')
-      const secondLine = words.slice(maxWordsPerLine).join(' ')
+      const firstLine = words.slice(0, maxWordsPerLine).join(" ")
+      const secondLine = words.slice(maxWordsPerLine).join(" ")
       setCaptionLines([firstLine, secondLine])
     } else {
       const totalWords = words.length
-      const firstLine = words.slice(totalWords - maxWordsPerLine * 2, totalWords - maxWordsPerLine).join(' ')
-      const secondLine = words.slice(totalWords - maxWordsPerLine).join(' ')
+      const firstLine = words.slice(totalWords - maxWordsPerLine * 2, totalWords - maxWordsPerLine).join(" ")
+      const secondLine = words.slice(totalWords - maxWordsPerLine).join(" ")
       setCaptionLines([firstLine, secondLine])
     }
   }
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    if (typeof window !== "undefined" && ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
       const recognitionInstance = new SpeechRecognition()
-      
+
       recognitionInstance.continuous = true
       recognitionInstance.interimResults = true
-      recognitionInstance.lang = 'en-US'
-      
+      recognitionInstance.lang = "en-US"
+
       recognitionInstance.onresult = (event) => {
-        let interimTranscript = ''
-        let finalTranscript = ''
-        
+        let interimTranscript = ""
+        let finalTranscript = ""
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript
           if (event.results[i].isFinal) {
@@ -417,14 +422,14 @@ function VideoCallInterface({ investor, onEndCall }) {
             interimTranscript += transcript
           }
         }
-        
+
         const fullText = transcript + finalTranscript + interimTranscript
         updateCaptionLines(fullText.trim())
-        
+
         if (silenceTimerRef.current) {
           clearTimeout(silenceTimerRef.current)
         }
-        
+
         silenceTimerRef.current = setTimeout(() => {
           questionIndexRef.current = (questionIndexRef.current + 1) % questions.length
           setCurrentQuestion(questions[questionIndexRef.current])
@@ -432,12 +437,12 @@ function VideoCallInterface({ investor, onEndCall }) {
           setCaptionLines(["", ""])
         }, 5000)
       }
-      
+
       recognitionInstance.onerror = (event) => {
-        console.error('Speech recognition error:', event.error)
+        console.error("Speech recognition error:", event.error)
         setIsListening(false)
       }
-      
+
       recognitionInstance.onend = () => {
         if (isListening && showCaptions) {
           setTimeout(() => {
@@ -445,10 +450,10 @@ function VideoCallInterface({ investor, onEndCall }) {
           }, 100)
         }
       }
-      
+
       setRecognition(recognitionInstance)
     }
-    
+
     return () => {
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current)
@@ -459,12 +464,12 @@ function VideoCallInterface({ investor, onEndCall }) {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
   const toggleCaptions = () => {
     setShowCaptions(!showCaptions)
-    
+
     if (!showCaptions) {
       setCaptionLines(["", ""])
       setIsListening(true)
@@ -472,7 +477,7 @@ function VideoCallInterface({ investor, onEndCall }) {
         try {
           recognition.start()
         } catch (error) {
-          console.error('Error starting recognition:', error)
+          console.error("Error starting recognition:", error)
         }
       }
     } else {
@@ -490,44 +495,38 @@ function VideoCallInterface({ investor, onEndCall }) {
   const topPadding = showCaptions ? "16rem" : "8rem"
 
   return (
-    <div 
-      className="fixed inset-0 z-50"
-      style={{ 
+    <div
+      className={`fixed inset-0 z-50 transition-all duration-700 ease-in-out ${isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
+      style={{
         background: "#000000",
         paddingLeft: "4rem",
         paddingRight: "4rem",
         paddingTop: topPadding,
         paddingBottom: "12rem",
-        transition: "padding-top 0.3s ease"
+        transition: "padding-top 0.3s ease, opacity 0.7s ease, transform 0.7s ease",
       }}
     >
       {showCaptions && (
-        <div 
-          className="absolute top-0 left-0 w-full flex justify-center z-10"
+        <div
+          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out"
           style={{ paddingTop: "2rem" }}
         >
-          <div 
-            className="flex items-center gap-2 px-4 py-2"
-          >
-            <div 
+          <div className="flex items-center gap-2 px-4 py-2">
+            <div
               className="rounded-full overflow-hidden"
               style={{
                 width: "1.875rem",
-                height: "1.875rem"
+                height: "1.875rem",
               }}
             >
-              <img
-                src="/api/placeholder/30/30"
-                alt="Avatar"
-                className="w-full h-full object-cover"
-              />
+              <img src="/api/placeholder/30/30" alt="Avatar" className="w-full h-full object-cover" />
             </div>
             <span
               style={{
                 color: "#FFF",
                 fontFamily: "Inter",
                 fontSize: "0.875rem",
-                fontWeight: 500
+                fontWeight: 500,
               }}
             >
               {currentQuestion}
@@ -537,13 +536,11 @@ function VideoCallInterface({ investor, onEndCall }) {
       )}
 
       {showCaptions && (captionLines[0] || captionLines[1]) && (
-        <div 
-          className="absolute top-0 left-0 w-full flex justify-center z-10"
+        <div
+          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out"
           style={{ paddingTop: "6rem" }}
         >
-          <div 
-            className="px-6 py-3 max-w-4xl text-center"
-          >
+          <div className="px-6 py-3 max-w-4xl text-center">
             <div
               style={{
                 color: "#FFF",
@@ -551,38 +548,27 @@ function VideoCallInterface({ investor, onEndCall }) {
                 fontFamily: "Inter",
                 fontSize: "2rem",
                 fontWeight: 300,
-                lineHeight: "1.5"
+                lineHeight: "1.5",
               }}
             >
               {captionLines[0] && (
-                <div style={{ marginBottom: captionLines[1] ? "0.5rem" : "0" }}>
-                  {captionLines[0]}
-                </div>
+                <div style={{ marginBottom: captionLines[1] ? "0.5rem" : "0" }}>{captionLines[0]}</div>
               )}
-              {captionLines[1] && (
-                <div>
-                  {captionLines[1]}
-                </div>
-              )}
+              {captionLines[1] && <div>{captionLines[1]}</div>}
             </div>
           </div>
         </div>
       )}
 
       {showCaptions && isListening && (
-        <div 
-          className="absolute top-0 right-8 z-10 flex items-center gap-2"
-          style={{ paddingTop: "2rem" }}
-        >
-          <div 
-            className="w-3 h-3 bg-red-500 rounded-full animate-pulse"
-          />
+        <div className="absolute top-0 right-8 z-10 flex items-center gap-2" style={{ paddingTop: "2rem" }}>
+          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
           <span
             style={{
               color: "#FFF",
               fontFamily: "Inter",
               fontSize: "0.75rem",
-              fontWeight: 400
+              fontWeight: 400,
             }}
           >
             Listening...
@@ -590,18 +576,16 @@ function VideoCallInterface({ investor, onEndCall }) {
         </div>
       )}
 
-      <div 
-        className="w-full h-full flex gap-8"
-      >
-        <div 
-          className="flex-1 relative"
+      <div className="w-full h-full flex gap-8">
+        <div
+          className="flex-1 relative transition-all duration-700 ease-in-out"
           style={{
             borderRadius: "0.625rem",
             overflow: "hidden",
-            background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)"
+            background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
         >
-          <div 
+          <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
               color: "#FFF",
@@ -614,11 +598,11 @@ function VideoCallInterface({ investor, onEndCall }) {
           </div>
 
           <div className="w-full h-full flex items-center justify-center">
-            <div 
+            <div
               className="rounded-full overflow-hidden bg-gray-600"
               style={{
                 width: "9.375rem",
-                height: "9.375rem"
+                height: "9.375rem",
               }}
             >
               <img
@@ -641,12 +625,12 @@ function VideoCallInterface({ investor, onEndCall }) {
 
           <div className="absolute bottom-6 left-6 flex gap-4">
             <button
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110"
               style={{
                 width: "3.5rem",
                 height: "3.5rem",
                 background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(10px)",
               }}
             >
               <Mic style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
@@ -655,12 +639,12 @@ function VideoCallInterface({ investor, onEndCall }) {
 
           <div className="absolute bottom-6 right-6">
             <button
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110"
               style={{
                 width: "3.5rem",
                 height: "3.5rem",
                 background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(10px)",
               }}
             >
               <Video style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
@@ -668,15 +652,15 @@ function VideoCallInterface({ investor, onEndCall }) {
           </div>
         </div>
 
-        <div 
-          className="flex-1 relative"
+        <div
+          className="flex-1 relative transition-all duration-700 ease-in-out"
           style={{
             borderRadius: "0.625rem",
             overflow: "hidden",
-            background: "linear-gradient(180deg, #9F67FF 0%, #0F0F0F 100%), #C4C4C4"
+            background: "linear-gradient(180deg, #9F67FF 0%, #0F0F0F 100%), #C4C4C4",
           }}
         >
-          <div 
+          <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
               color: "#FFF",
@@ -693,14 +677,14 @@ function VideoCallInterface({ investor, onEndCall }) {
               className="flex items-center justify-center rounded-full border-[10px] border-purple-400"
               style={{
                 width: "10.625rem",
-                height: "10.625rem"
+                height: "10.625rem",
               }}
             >
               <div
                 className="rounded-full overflow-hidden bg-gray-600"
                 style={{
                   width: "9.375rem",
-                  height: "9.375rem"
+                  height: "9.375rem",
                 }}
               >
                 <img
@@ -708,8 +692,8 @@ function VideoCallInterface({ investor, onEndCall }) {
                   alt={investor?.name || "Persona One"}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
+                    e.target.style.display = "none"
+                    e.target.nextSibling.style.display = "flex"
                   }}
                 />
                 <div
@@ -724,18 +708,18 @@ function VideoCallInterface({ investor, onEndCall }) {
         </div>
       </div>
 
-      <div 
+      <div
         className="fixed left-0 w-full flex justify-between items-center px-8"
         style={{
-          bottom: "2rem"
+          bottom: "2rem",
         }}
       >
-        <div 
+        <div
           style={{
             color: "#FFF",
             fontFamily: "Inter",
             fontSize: "1.25rem",
-            fontWeight: 400
+            fontWeight: 400,
           }}
         >
           {formatTime(callDuration)} | Mock Pitching
@@ -743,7 +727,7 @@ function VideoCallInterface({ investor, onEndCall }) {
 
         <button
           onClick={onEndCall}
-          className="flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
           style={{
             width: "12.5rem",
             height: "2.5rem",
@@ -752,7 +736,7 @@ function VideoCallInterface({ investor, onEndCall }) {
             color: "#FFF",
             fontFamily: "Inter",
             fontSize: "0.75rem",
-            fontWeight: 600
+            fontWeight: 600,
           }}
         >
           <PhoneOff style={{ width: "0.875rem", height: "0.875rem" }} />
@@ -760,24 +744,24 @@ function VideoCallInterface({ investor, onEndCall }) {
         </button>
 
         <div className="flex gap-4">
-          <button className="text-white hover:opacity-80">
+          <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
             <MessageSquare style={{ width: "1.25rem", height: "1.25rem" }} />
           </button>
-          <button 
+          <button
             onClick={toggleCaptions}
-            className="hover:opacity-80 flex items-center justify-center rounded-full"
+            className="hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110"
             style={{
               width: showCaptions ? "2.5rem" : "auto",
               height: showCaptions ? "2.5rem" : "auto",
-              background: showCaptions ? "#1C60CE" : "transparent"
+              background: showCaptions ? "#1C60CE" : "transparent",
             }}
           >
-            <Captions 
-              style={{ 
-                width: "1.25rem", 
+            <Captions
+              style={{
+                width: "1.25rem",
                 height: "1.25rem",
-                color: "#FFF"
-              }} 
+                color: "#FFF",
+              }}
             />
           </button>
         </div>
@@ -794,7 +778,8 @@ function MockPitching({ onBack }) {
   const [showFullCallInterface, setShowFullCallInterface] = useState(false)
   const [isInVideoCall, setIsInVideoCall] = useState(false)
   const [showCallEndedScreen, setShowCallEndedScreen] = useState(false)
-  const [showReportPage, setShowReportPage] = useState(false) // New state for report page
+  const [showReportPage, setShowReportPage] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   const investors = [
     {
@@ -812,31 +797,37 @@ function MockPitching({ onBack }) {
         "You are pitching your startup idea to Persona One, a strategic, principle-driven investor at Example Capital, known for investing in early-to-growth-stage startups with global, scalable business models.",
       instruction:
         "Persona One values visionary entrepreneurs who demonstrate clear product-market fit, disciplined execution, and a compelling global vision. Clearly present the core problem you're solving, your unique and differentiated solution, evidence of strong product-market fit, and your strategy for achieving global scalability.",
-    }, 
+    },
   ]
 
   const handleInvestorClick = (investor) => {
     setSelectedInvestor(investor)
   }
 
-  const handleCloseDetails = () => {
-    setSelectedInvestor(null)
-  }
-
   const handleCallInvestor = (investor) => {
     setCallingInvestor(investor)
     setIsCallActive(true)
     setShowFullCallInterface(false)
-    
+
     setTimeout(() => {
       setShowFullCallInterface(true)
     }, 3000)
   }
 
   const handleJoinCall = () => {
-    setIsInVideoCall(true)
-    setIsCallActive(false)
-    setShowFullCallInterface(false)
+    setIsTransitioning(true)
+
+    // Start transition after a brief delay
+    setTimeout(() => {
+      setIsInVideoCall(true)
+      setIsCallActive(false)
+      setShowFullCallInterface(false)
+
+      // Complete transition
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 100)
+    }, 300)
   }
 
   const handleEndCall = () => {
@@ -845,6 +836,7 @@ function MockPitching({ onBack }) {
     setShowFullCallInterface(false)
     setIsInVideoCall(false)
     setShowCallEndedScreen(true)
+    setIsTransitioning(false)
   }
 
   const handleReturnHome = () => {
@@ -854,12 +846,12 @@ function MockPitching({ onBack }) {
 
   const handleViewReport = () => {
     setShowCallEndedScreen(false)
-    setShowReportPage(true) // Show the report page
+    setShowReportPage(true)
   }
 
   // Show report page if triggered
   if (showReportPage) {
-    return <CallReportPage investor={callingInvestor} onBack={onBack} />;
+    return <CallReportPage investor={callingInvestor} onBack={onBack} />
   }
 
   // Show call ended screen
@@ -869,14 +861,14 @@ function MockPitching({ onBack }) {
 
   // Show video call interface when in video call
   if (isInVideoCall) {
-    return <VideoCallInterface investor={callingInvestor} onEndCall={handleEndCall} />
+    return <VideoCallInterface investor={callingInvestor} onEndCall={handleEndCall} isTransitioning={isTransitioning} />
   }
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
       {isCallActive && (
-        <CallingPage 
-          investor={callingInvestor} 
+        <CallingPage
+          investor={callingInvestor}
           onEndCall={handleEndCall}
           onJoinCall={handleJoinCall}
           showFullInterface={showFullCallInterface}
@@ -896,7 +888,7 @@ function MockPitching({ onBack }) {
         <div
           style={{
             width: selectedInvestor ? "37%" : "100%",
-            transition: "width 0.3s ease",
+            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
             overflowY: "auto",
             height: "100vh",
           }}
@@ -909,7 +901,7 @@ function MockPitching({ onBack }) {
                 placeholder="Search investors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-16 py-4 rounded focus:outline-none"
+                className="w-full pl-12 pr-16 py-4 rounded focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-purple-500"
                 style={{
                   height: "3.25rem",
                   borderRadius: "0.25rem",
@@ -943,7 +935,7 @@ function MockPitching({ onBack }) {
             {investors.map((investor) => (
               <div
                 key={investor.id}
-                className={`flex items-${selectedInvestor ? "start" : "center"} justify-between p-6 cursor-pointer hover:opacity-90 transition-opacity`}
+                className={`flex items-${selectedInvestor ? "start" : "center"} justify-between p-6 cursor-pointer hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02]`}
                 style={{
                   width: "100%",
                   height: "11.25rem",
@@ -1029,9 +1021,7 @@ function MockPitching({ onBack }) {
                                 justifyContent: "center",
                               }}
                             >
-                              {tag.type === "purple" && (
-                                <Phone style={{ width: "0.625rem", height: "0.625rem" }} />
-                              )}
+                              {tag.type === "purple" && <Phone style={{ width: "0.625rem", height: "0.625rem" }} />}
                               <span
                                 style={{
                                   color: "#FFF",
@@ -1074,7 +1064,7 @@ function MockPitching({ onBack }) {
 
                     <div className="flex flex-col gap-2">
                       <button
-                        className="hover:opacity-80 transition-opacity"
+                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
                         style={{
                           width: "15rem",
                           height: "1.95rem",
@@ -1090,7 +1080,7 @@ function MockPitching({ onBack }) {
                         View Profile
                       </button>
                       <button
-                        className="hover:opacity-80 transition-opacity"
+                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
                         style={{
                           width: "15rem",
                           height: "1.95rem",
@@ -1110,7 +1100,7 @@ function MockPitching({ onBack }) {
                           e.stopPropagation()
                           handleCallInvestor(investor)
                         }}
-                        className="flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                        className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
                         style={{
                           width: "15rem",
                           height: "1.95rem",
@@ -1249,7 +1239,7 @@ function MockPitching({ onBack }) {
                       <div className="flex flex-col" style={{ gap: "0.25rem" }}>
                         <div className="flex gap-2">
                           <button
-                            className="hover:opacity-80 transition-opacity"
+                            className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
                             style={{
                               width: "6.125rem",
                               height: "1.625rem",
@@ -1265,7 +1255,7 @@ function MockPitching({ onBack }) {
                             View Profile
                           </button>
                           <button
-                            className="hover:opacity-80 transition-opacity"
+                            className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
                             style={{
                               width: "6.125rem",
                               height: "1.625rem",
@@ -1286,7 +1276,7 @@ function MockPitching({ onBack }) {
                             e.stopPropagation()
                             handleCallInvestor(investor)
                           }}
-                          className="flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
                           style={{
                             width: "12.5rem",
                             height: "1.625rem",
@@ -1318,12 +1308,14 @@ function MockPitching({ onBack }) {
               padding: "1.5rem 2rem",
               background: "#0F0E16",
               borderRadius: "0.3125rem",
-              transition: "opacity 0.3s ease",
+              transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
               position: "fixed",
               top: "2.75rem",
               right: "1.88rem",
               height: "100vh",
               overflowY: "auto",
+              transform: "translateX(0)",
+              opacity: 1,
             }}
           >
             <div className="flex gap-6 mb-8 mt-15">
@@ -1406,7 +1398,7 @@ function MockPitching({ onBack }) {
                     >
                       {tag.type === "purple" && (
                         <img
-                          src={CallIcon}
+                          src={CallIcon || "/placeholder.svg"}
                           alt="Call"
                           style={{ width: "0.625rem", height: "0.625rem" }}
                         />
@@ -1435,7 +1427,7 @@ function MockPitching({ onBack }) {
                     }}
                   >
                     <img
-                      src={StarIcon}
+                      src={StarIcon || "/placeholder.svg"}
                       alt="Star"
                       style={{ width: "0.625rem", height: "0.625rem" }}
                     />
@@ -1459,8 +1451,12 @@ function MockPitching({ onBack }) {
                       position: "relative",
                     }}
                   >
-                    <div className="flex items-center justify-center cursor-pointer">
-                      <img src={PlayIcon} alt="Play" style={{ width: "1.25rem", height: "1.25rem" }} />
+                    <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300">
+                      <img
+                        src={PlayIcon || "/placeholder.svg"}
+                        alt="Play"
+                        style={{ width: "1.25rem", height: "1.25rem" }}
+                      />
                     </div>
 
                     <div
@@ -1489,7 +1485,11 @@ function MockPitching({ onBack }) {
                 </div>
 
                 <button
-                  className="flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleCallInvestor(selectedInvestor)
+                  }}
+                  className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
                   style={{
                     width: "12.5rem",
                     height: "2.25rem",
@@ -1502,7 +1502,11 @@ function MockPitching({ onBack }) {
                     border: "none",
                   }}
                 >
-                  <img src={CallIcon2} alt="Call" style={{ width: "0.875rem", height: "0.875rem" }} />
+                  <img
+                    src={CallIcon2 || "/placeholder.svg"}
+                    alt="Call"
+                    style={{ width: "0.875rem", height: "0.875rem" }}
+                  />
                   Call Investor
                 </button>
               </div>
@@ -1577,7 +1581,7 @@ function MockPitching({ onBack }) {
           }}
         >
           <button
-            className="flex items-center justify-center hover:opacity-80 transition-opacity"
+            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110"
             style={{
               width: "2.375rem",
               height: "2.375rem",
@@ -1586,7 +1590,7 @@ function MockPitching({ onBack }) {
             }}
           >
             <img
-              src={logo}
+              src={logo || "/placeholder.svg"}
               alt="logo"
               style={{
                 width: "1.2rem",
@@ -1604,7 +1608,7 @@ function MockPitching({ onBack }) {
           />
 
           <button
-            className="flex items-center justify-center hover:opacity-80 transition-opacity"
+            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110"
             style={{
               width: "2.5rem",
               height: "2.25rem",
@@ -1613,34 +1617,30 @@ function MockPitching({ onBack }) {
             }}
           >
             <img
-              src={ContactsIcon}
+              src={ContactsIcon || "/placeholder.svg"}
               alt="Contacts"
               style={{ width: "1.2rem", height: "1.2rem" }}
             />
           </button>
 
-          <button className="flex items-center justify-center hover:opacity-80 transition-opacity text-gray-600">
+          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
             <img
-              src={AddIcon}
+              src={AddIcon || "/placeholder.svg"}
               alt="Add"
               style={{ width: "1.5rem", height: "1.5rem", filter: "invert(100%)" }}
             />
           </button>
 
-          <button className="flex items-center justify-center hover:opacity-80 transition-opacity text-gray-600">
+          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
             <img
-              src={SpeedometerIcon}
+              src={SpeedometerIcon || "/placeholder.svg"}
               alt="Speedometer"
               style={{ width: "1.5rem", height: "1.5rem" }}
             />
           </button>
 
-          <button className="flex items-center justify-center hover:opacity-80 transition-opacity text-gray-600">
-            <img
-              src={TuneIcon}
-              alt="Tune"
-              style={{ width: "1.5rem", height: "1.5rem" }}
-            />
+          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+            <img src={TuneIcon || "/placeholder.svg"} alt="Tune" style={{ width: "1.5rem", height: "1.5rem" }} />
           </button>
 
           <div
@@ -1653,7 +1653,7 @@ function MockPitching({ onBack }) {
 
           <button
             onClick={onBack}
-            className="flex items-center justify-center hover:opacity-80 transition-opacity text-xs font-medium"
+            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium"
             style={{
               width: "2.5rem",
               height: "1.875rem",
