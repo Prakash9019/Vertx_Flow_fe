@@ -84,7 +84,8 @@ export default function Target({ onListSelect }) {
           investorCount: 0,
           investors: [],
         }));
-        
+        console.log("helllooo")
+        console.log(mappedLists)
         setUserTargetLists(mappedLists);
       } catch (error) {
         console.error("Error fetching lists:", error);
