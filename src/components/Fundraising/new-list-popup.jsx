@@ -86,11 +86,12 @@ export default function NewListPopup({ isOpen, onClose, onSave }) {
                 <div
                   key={option.id}
                   onClick={() => setSelectedCover(option.id)}
-                  className="cursor-pointer transition-transform hover:scale-105 w-10 h-10 rounded-[0.125rem] flex items-center justify-center"
+                  className="cursor-pointer w-10 h-10 rounded-[0.125rem] flex items-center justify-center transition-transform duration-200"
                   style={{
                     background: option.color,
                     border:
                       option.id === "default" ? option.border : selectedCover === option.id ? "2px solid #FFF" : "",
+                    transform: selectedCover === option.id ? "scale(1.2)" : "scale(1)",
                   }}
                 >
                   {option.id === "default" && (
