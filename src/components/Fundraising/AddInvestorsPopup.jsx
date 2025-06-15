@@ -5,12 +5,12 @@ import { useState, useEffect } from "react"
 import BackButton from '../../assets/BackButton.svg';
 import SearchIcon from '../../assets/SearchIcon.svg';
 import CloseIcon from '../../assets/close_icon.svg';
-import Investor from "../../assets/add_investor.jpg";
+
 import LinkedIn from '../../assets/LinkedIn.svg';
 import LinkIcon from '../../assets/link.svg';
 import MailIcon from '../../assets/mail.svg';
 import TwitterIcon from '../../assets/twitter.svg';
-import WorkIcon from '../../assets/WorkIcon.svg';
+import WorkIcon from '../../assets/workIcon.svg';
 import LocationIcon from '../../assets/LocationIcon.svg';
 import DollarIcon from '../../assets/DollarIcon.svg';
 import IndiaFlag from '../../assets/IndiaFlag.png';
@@ -40,7 +40,7 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
       id: investor.id || investor._id,
       name: investor.name || "Unnamed Investor",
       company: investor.company || investor.firm || investor.fund || "Company not specified",
-      avatar: investor.profile_image || investor.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      avatar: investor.profile_image || investor.avatar || fallbackAvatar,
       checkSize: investor.checkSize || investor.check_size || 
                 (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
                   investor.check_size_ranges[0] : "$N/A"),
@@ -83,16 +83,14 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
           <>
             {/* Left side - Name, Company, Social Icons */}
             <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
-            <img
-  src={investorData.avatar}
-  alt={investorData.name}
-  className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white"
-  onError={(e) => {
-    e.target.onerror = null; // prevents infinite loop
-    e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-  }}
-/>
-
+              <img
+                src={investorData.avatar}
+                alt={investorData.name}
+                className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/75?text=Investor";
+                }}
+              />
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="text-white font-normal text-base truncate">
@@ -133,7 +131,67 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
               </div>
             </div>
 
-          
+            {/* Right side - Details Section */}
+            <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+              {/* Check Size */}
+              <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-12 h-6 rounded-[0.1875rem] flex items-center justify-center flex-shrink-0">
+                {investorData.checkSize}
+              </div>
+
+              {/* Stage */}
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.stage}
+                </div>
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.stageCount}
+                </div>
+              </div>
+
+              {/* Industry */}
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center overflow-hidden text-ellipsis">
+                  {investorData.industry}
+                </div>
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.industryCount}
+                </div>
+              </div>
+
+              {/* Geography */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <div className="flex items-center gap-1 bg-[#18002C] rounded-[0.1875rem] px-1 py-0.5">
+                  <div className="w-5 h-3 flex items-center justify-center">
+                    {investor.location && investor.location.includes("India") ? (
+                      <img src={IndiaFlag} alt="Flag" />
+                    ) : (
+                      <div className="w-5 h-3 bg-blue-800 rounded-sm flex items-center justify-center text-[0.4rem] text-white overflow-hidden">
+                        {investor.location ? investor.location.substring(0, 3).toUpperCase() : "INT"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.geography}
+                </div>
+              </div>
+
+              {/* Match Score */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <div className={`w-2.5 h-2.5 rounded-full ${getMatchColor(investorData.matchValue)}`}></div>
+                <span className="text-white text-base font-semibold">{investorData.match}</span>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                className="text-white text-[0.625rem] font-medium rounded w-15 h-7 flex-shrink-0"
+                style={{
+                  background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
+                }}
+              >
+                Submit
+              </button>
+            </div>
           </>
         );
       })()}
@@ -778,26 +836,25 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
               </div>
 
               {/* Right side - Image */}
-              <img src={Investor}
+              <div
                 className="relative  flex items-center justify-center flex-shrink-0 w-32 sm:w-48 md:w-100 xl:w-[440px] h-24 sm:h-36 md:h-100 xl:h-[440px] rounded-sm sm:rounded-md overflow-hidden"
                 style={{
-                  // backgroundImage: cityBackground,
+                  backgroundImage: cityBackground,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
                 }}
-              />
-       {/* <img src={Investor} />  dot svg */}
-                {/* <div className="absolute bottom-2 sm:bottom-3 xl:bottom-6 left-1/2 transform -translate-x-1/2">
-  
-         <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
+              >
+                <div className="absolute inset-0 bg-black bg-opacity-30 rounded-sm sm:rounded-md"></div>
+
+                <div className="absolute bottom-2 sm:bottom-3 xl:bottom-6 left-1/2 transform -translate-x-1/2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
   <circle key="circle1-top" cx="5" cy="5" r="5" fill="white"/>
   <circle key="circle2-top" cx="23" cy="5" r="5" fill="white" fillOpacity="0.13"/>
   <circle key="circle3-top" cx="41" cy="5" r="5" fill="white" fillOpacity="0.13"/>
 </svg>
-
-                </div> */}
-              {/* </div> */}
+                </div>
+              </div>
             </div>
           ) : (
             // Layout when search results are shown
@@ -904,7 +961,6 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                     )}
                   </div>
                 </div>                {/* Right side - Selected investor details */}
-                {selectedInvestor && console.log(selectedInvestor)}
                 {selectedInvestor && (
                   <div
                     className="relative flex-shrink-0 bg-[#0F0E16] rounded-lg flex flex-col"
