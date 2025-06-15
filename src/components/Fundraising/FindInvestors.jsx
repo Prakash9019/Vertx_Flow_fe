@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Search, MoreVertical, ChevronDown } from 'lucide-react';
-import DefaultAvatar from '../../assets/DefaultAvatar.svg';
 
 // Simple base64 fallback avatar
 const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
@@ -11,7 +10,7 @@ function FindInvestors() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [geographyDropdownOpen, setGeographyDropdownOpen] = useState(false);
-  const [selectedGeographies, setSelectedGeographies] = useState(['India', 'United States', 'Europe', 'UAE']);
+  const [selectedGeographies, setSelectedGeographies] = useState([]);
   const itemsPerPage = 10;
 
   const findTabsArray = ["Venture Firms", "Investors", "Import"];
@@ -43,8 +42,6 @@ function FindInvestors() {
       matchColor: "#DE2D2D",
       matchValue: 23
     },
-
-
   ];
 
   // Function to get match color based on percentage
@@ -145,19 +142,39 @@ function FindInvestors() {
                   </div>
                 ))}
 
-                {/* Geography Dropdown */}
+                {/* Geography Dropdown - FIXED VERSION */}
                 <div className="relative flex-shrink-0">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setGeographyDropdownOpen(!geographyDropdownOpen);
-                    }}
-                    className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem] flex items-center"
-                  >
+                <button
+  onClick={(e) => {
+    e.stopPropagation();
+    setGeographyDropdownOpen(!geographyDropdownOpen);
+  }}
+  className={`relative text-left text-gray-400 font-normal text-[0.625rem] outline-none appearance-none pr-6 pl-3 py-1 h-[1.75rem] flex items-center transition-all rounded-[0.1875rem] border ${
+    selectedGeographies.length > 0 
+      ? 'border-[#33005C]' 
+      : 'border-transparent'
+  } bg-black`}
+>
+
                     Geography
                     <ChevronDown 
                       className="ml-2 w-[0.75rem] h-[0.75rem] text-[#B8B8B8]"
                     />
+                    
+                    {/* Selection Count Badge */}
+                    {selectedGeographies.length > 0 && (
+                      <div 
+                        className="absolute -top-1.5 -right-1.5 w-[0.8125rem] h-[0.8125rem] rounded-full bg-[#33005C] flex items-center justify-center"
+                        style={{
+                          color: '#FFF',
+                          fontFamily: 'Inter',
+                          fontSize: '0.5rem',
+                          fontWeight: '500'
+                        }}
+                      >
+                        {selectedGeographies.length}
+                      </div>
+                    )}
                   </button>
 
                   {/* Geography Dropdown Menu */}
@@ -165,7 +182,7 @@ function FindInvestors() {
                     <div 
                       className="absolute left-0 top-8 border border-[#0F0E16] w-[7.4375rem] h-[10.25rem] rounded-[0.25rem] bg-black z-50"
                     >
-                      <div className="py-1 px-1 overflow-y-auto h-full">
+                      <div className="py-1 px-1  h-full">
                         {geographyOptions.map((geography, index) => (
                           <button
                             key={index}
@@ -198,7 +215,7 @@ function FindInvestors() {
                         
                         {/* Divider Line */}
                         <div 
-                          className="mx-auto my-2 w-[6.5rem] h-[0.0625rem] bg-[#333]"
+                          className="mx-auto my-1 w-[6.5rem] h-[0.0625rem] bg-[#333]"
                         ></div>
                         
                         {/* Reset All Button */}
@@ -236,6 +253,8 @@ function FindInvestors() {
                 </button>
               </div>
             </div>
+
+
 
             {/* Table Header */}
             <div className="flex items-center py-4 px-4 xl:px-6">
@@ -303,10 +322,12 @@ function FindInvestors() {
                   className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
                 >
                   {/* Fixed Width Container for Avatar + Name + Links */}
-                  <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">                    <img 
+                  <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
+                    <img 
                       src={investor.avatar} 
                       alt={investor.name}
-                      className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"                      onError={(e) => {
+                      className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
+                      onError={(e) => {
                         e.target.src = fallbackAvatar;
                       }}
                     />
@@ -380,14 +401,13 @@ function FindInvestors() {
 
                     {/* Submit Button */}
                     <button
-  className="text-white text-[0.625rem] font-medium rounded w-15 h-7 flex-shrink-0"
-  style={{
-    background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
-  }}
->
-  Submit
-</button>
-
+                      className="text-white text-[0.625rem] font-medium rounded w-15 h-7 flex-shrink-0"
+                      style={{
+                        background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
+                      }}
+                    >
+                      Submit
+                    </button>
 
                     {/* Options */}
                     <div className="relative flex-shrink-0">
@@ -431,54 +451,54 @@ function FindInvestors() {
               ))}
             </div>
 
-           {/* Pagination */}
-<div className="flex items-center justify-between mt-12 pb-12">
-  {/* Left Side: Results Count */}
-  <div className="flex items-center justify-center bg-black text-gray-400 font-normal text-[0.5rem] rounded-sm w-[9.375rem] h-[1.875rem] font-inter">
-    {investorData.length} results found | 10 per page
-  </div>
+            {/* Pagination */}
+            <div className="flex items-center justify-between mt-12 pb-12">
+              {/* Left Side: Results Count */}
+              <div className="flex items-center justify-center bg-black text-gray-400 font-normal text-[0.5rem] rounded-sm w-[9.375rem] h-[1.875rem] font-inter">
+                {investorData.length} results found | 10 per page
+              </div>
 
-  {/* Right Side: Pagination Controls */}
-  <div className="flex items-center justify-between bg-black rounded-sm px-2 w-[9rem] h-[1.875rem]">
-    
-    {/* Previous Button */}
-    <button
-      onClick={handlePrevPage}
-      disabled={currentPage === 1}
-      className={`flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-4 h-4 font-inter 
-        ${currentPage === 1 
-          ? 'bg-[rgba(51,0,92,0.35)] text-[rgba(173,111,222,0.35)] cursor-not-allowed' 
-          : 'bg-[#33005C] text-[#AD6FDE] cursor-pointer'}`}
-    >
-      &lt;
-    </button>
+              {/* Right Side: Pagination Controls */}
+              <div className="flex items-center justify-between bg-black rounded-sm px-2 w-[9rem] h-[1.875rem]">
+                
+                {/* Previous Button */}
+                <button
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                  className={`flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-4 h-4 font-inter 
+                    ${currentPage === 1 
+                      ? 'bg-[rgba(51,0,92,0.35)] text-[rgba(173,111,222,0.35)] cursor-not-allowed' 
+                      : 'bg-[#33005C] text-[#AD6FDE] cursor-pointer'}`}
+                >
+                  &lt;
+                </button>
 
-    {/* Page Info */}
-    <div className="flex items-center gap-2">
-      <span className="text-gray-400 font-normal text-[0.5rem] font-inter">
-        Page
-      </span>
-      <span className="flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-[1.375rem] h-4 bg-[#33005C] text-[#AD6FDE] font-inter">
-        {currentPage.toString().padStart(3, '0')}
-      </span>
-      <span className="text-gray-400 font-normal text-[0.5rem] font-inter">
-        of {totalPages.toString().padStart(3, '0')}
-      </span>
-    </div>
+                {/* Page Info */}
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400 font-normal text-[0.5rem] font-inter">
+                    Page
+                  </span>
+                  <span className="flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-[1.375rem] h-4 bg-[#33005C] text-[#AD6FDE] font-inter">
+                    {currentPage.toString().padStart(3, '0')}
+                  </span>
+                  <span className="text-gray-400 font-normal text-[0.5rem] font-inter">
+                    of {totalPages.toString().padStart(3, '0')}
+                  </span>
+                </div>
 
-    {/* Next Button */}
-    <button
-      onClick={handleNextPage}
-      disabled={currentPage === totalPages}
-      className={`flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-4 h-4 font-inter 
-        ${currentPage === totalPages 
-          ? 'bg-[rgba(51,0,92,0.35)] text-[rgba(173,111,222,0.35)] cursor-not-allowed' 
-          : 'bg-[#33005C] text-[#AD6FDE] cursor-pointer'}`}
-    >
-      &gt;
-    </button>
-  </div>
-</div>
+                {/* Next Button */}
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className={`flex items-center justify-center rounded-sm font-bold text-[0.5rem] w-4 h-4 font-inter 
+                    ${currentPage === totalPages 
+                      ? 'bg-[rgba(51,0,92,0.35)] text-[rgba(173,111,222,0.35)] cursor-not-allowed' 
+                      : 'bg-[#33005C] text-[#AD6FDE] cursor-pointer'}`}
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
 
           </div>
         </div>
