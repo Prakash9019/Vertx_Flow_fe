@@ -84,7 +84,6 @@ function InviteAndCollab({ isOpen, onClose, listId }) {
       setCreating(false);
     }
   };
-
   const handleGenerateQR = async () => {
     if (!inviteData) return;
     
@@ -92,9 +91,31 @@ function InviteAndCollab({ isOpen, onClose, listId }) {
     setLoading(true);
     
     try {
-      const response = await fetch(`${API_KEY}/api/targetlist-invite/${inviteData.inviteId}/qr`);
+      const token = getAuthToken();
+      if (!token) {
+        alert('Please log in to generate QR code');
+        setCurrentView('main');
+        return;
+      }
+
+      console.log('Generating QR code for invite:', inviteData.inviteId);
+        console.log('Auth token (first 20 chars):', token.substring(0, 20) + '...');
+      
+      const response = await fetch(`${API_KEY}/api/targetlist-invite/${inviteData.inviteId}/qr`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`QR code generation failed: ${response.status} ${response.statusText}`, errorText);
+        throw new Error(`Failed to generate QR code: ${response.status} ${response.statusText}`);
+      }
+      
       const result = await response.json();
-        if (result.success) {
+      if (result.success) {
         setQrCodeData(result.data.qrCode);
         // Stay on QR view - user can navigate back manually
       } else {
@@ -459,10 +480,9 @@ function InviteAndCollab({ isOpen, onClose, listId }) {
                       )}
                     </button>
                   </div>
-                </div>
-
-                {/* Generate QR button */}
+                </div>                {/* Generate QR button */}
                 <button
+                  data-qr-button="true"
                   onClick={handleGenerateQR}
                   disabled={!inviteData || loading}
                   className={`flex items-center justify-center gap-1 transition-colors w-28 h-9 bg-[rgba(255,255,255,0.11)] rounded-[0.125rem] border-none cursor-pointer ${

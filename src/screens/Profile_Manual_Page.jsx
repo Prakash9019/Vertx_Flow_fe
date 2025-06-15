@@ -23,11 +23,23 @@ function Profile_Manual_Page() {
     if (profileData?.accountName) setAccountName(profileData.accountName);
   }, [profileData]);
   
-  
   const handleCreateProfile = async () => {
     if (companyName && accountName && companyWebsite) {
       try {
         const token = localStorage.getItem("authToken");
+        console.log("Submitting to:", API_KEY + "/api/profile/manual");
+        
+        // Make sure we're using the right token format
+        if (!token) {
+          console.error("No auth token found!");
+          setErrorMessage(true);
+          setTimeout(() => setErrorMessage(false), 1000);
+          return;
+        }
+        
+        console.log("Using token (first 20 chars):", token.substring(0, 20) + "...");
+        console.log("Data:", { accountName, companyName, companyWebsite });
+        
         const res = await fetch(API_KEY + "/api/profile/manual", {
           method: "POST",
           headers: {
@@ -41,8 +53,24 @@ function Profile_Manual_Page() {
           })
         });
   
-        if (!res.ok) throw new Error("Failed to create profile");
-       await fetchProfileData();
+        if (!res.ok) {
+          console.error("Server responded with status:", res.status);
+          let errorText = "";
+          try {
+            const errorData = await res.json();
+            errorText = JSON.stringify(errorData);
+            console.error("Error response:", errorText);
+          } catch (e) {
+            errorText = await res.text();
+            console.error("Error response (text):", errorText);
+          }
+          throw new Error(`Failed to create profile: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log("Profile created successfully:", data);
+        
+        await fetchProfileData();
         setMessage(true);
         setTimeout(() => {
           setMessage(false);
@@ -132,10 +160,9 @@ function Profile_Manual_Page() {
               >
                 Create Flow Profile
               </button>
-            </div>
-            <p className="mt-4 text-sm text-gray-400 text-center">
+            </div>            <p className="mt-4 text-sm text-gray-400 text-center">
               Not interested in filling your profile manually?{" "}
-              <Link to="/profile" className="text-white hover:underline">
+              <Link to="/linkedin" className="text-white hover:underline">
                 Autofill using LinkedIn
               </Link>
             </p>

@@ -475,9 +475,21 @@ export default function Target({ onListSelect }) {
                       alt="Copy Icon"
                       className="w-[1.125rem] h-[1.125rem] text-[#B8B8B8]"
                     />
-                  </div>
-
-                  <button className="flex items-center justify-center gap-2 bg-black text-gray-400 hover:text-white transition-colors w-[6.75rem] h-9 rounded-[0.125rem]">
+                  </div>                  <button 
+                    onClick={() => {
+                      if (activeList?.id) {
+                        setShowInviteCollab(true);
+                        // Set a delay to trigger QR generation after modal is open
+                        setTimeout(() => {
+                          const qrBtn = document.querySelector('[data-qr-button="true"]');
+                          if (qrBtn) qrBtn.click();
+                        }, 500);
+                      } else {
+                        alert('Please select a list first');
+                      }
+                    }} 
+                    className="flex items-center justify-center gap-2 bg-black text-gray-400 hover:text-white transition-colors w-[6.75rem] h-9 rounded-[0.125rem]"
+                  >
                     <img src={QRIcon || "/placeholder.svg"} alt="QR Icon" className="w-4 h-4" />
                     <span className="text-[#B8B8B8] font-['Inter'] text-[0.625rem] font-normal">Generate QR</span>
                   </button>
