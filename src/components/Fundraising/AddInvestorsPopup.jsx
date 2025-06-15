@@ -14,9 +14,12 @@ import WorkIcon from '../../assets/workIcon.svg';
 import LocationIcon from '../../assets/LocationIcon.svg';
 import DollarIcon from '../../assets/DollarIcon.svg';
 import IndiaFlag from '../../assets/IndiaFlag.png';
-
+import DefaultAvatar from '../../assets/DefaultAvatar.svg';
 
 import API_KEY from "../../../key.js"
+
+// Simple base64 fallback avatar in case SVG import fails
+const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 // InvestorCard component for consistent investor display
 const InvestorCard = ({ investor, isSelected, onClick }) => {
@@ -33,14 +36,12 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
     if (value >= 86 && value <= 100) return "bg-[#0E8D07]";
     return "bg-[#DE2D2D]";
   };
-  
-  // Helper function to extract data from investor object considering different field names
-  const getInvestorData = (investor) => {
-    return {
+    // Helper function to extract data from investor object considering different field names
+  const getInvestorData = (investor) => {    return {
       id: investor.id || investor._id,
       name: investor.name || "Unnamed Investor",
       company: investor.company || investor.firm || investor.fund || "Company not specified",
-      avatar: investor.profile_image || investor.avatar || "https://via.placeholder.com/75?text=Investor",
+      avatar: investor.profile_image || investor.avatar || fallbackAvatar,
       checkSize: investor.checkSize || investor.check_size || 
                 (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
                   investor.check_size_ranges[0] : "$N/A"),
@@ -64,8 +65,7 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
       type: investor.type || investor.title || "VC",
       contacts: investor.contacts || {}
     };
-  };
-    return (
+  };  return (
     <div
       onClick={onClick}
       className={`flex items-center hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6 ${
@@ -85,18 +85,16 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
             <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
               <img
                 src={investorData.avatar}
-                alt={investorData.name}
-                className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/75?text=Investor";
+                alt={investorData.name}                className="rounded-full object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] flex-shrink-0"                onError={(e) => {
+                  e.target.src = fallbackAvatar;
                 }}
               />
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-normal text-base truncate">
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-white font-normal text-sm xl:text-base truncate">
                     {investorData.name}
                   </span>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-shrink-0">
                     {contacts.linkedin && (
                       <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
@@ -109,19 +107,19 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
                     {contacts.twitter && (
                       <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
-                    {/* If no contacts, show default icons */}
+                    {/* If no contacts, show default icons with lower opacity */}
                     {!contacts.linkedin && !contacts.website && !contacts.email && !contacts.twitter && (
                       <>
-                        <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
-                        <img src={LinkIcon} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
-                        <img src={MailIcon} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
-                        <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-50" />
+                        <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={LinkIcon} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={MailIcon} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
                       </>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-1 overflow-hidden">
-                  <span className="text-white text-[0.625rem] truncate max-w-[5rem]">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <span className="text-white text-[0.625rem] truncate max-w-[8rem]">
                     {investorData.company}
                   </span>
                   <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0">
@@ -132,10 +130,15 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
             </div>
 
             {/* Right side - Details Section */}
-            <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+            <div className="flex items-center justify-between flex-grow gap-x-3 xl:gap-x-6 min-w-0">
               {/* Check Size */}
-              <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-12 h-6 rounded-[0.1875rem] flex items-center justify-center flex-shrink-0">
-                {investorData.checkSize}
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-14 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  {investorData.checkSize}
+                </div>
+                <div className="text-white text-[0.5rem] font-medium opacity-60">
+                  CHECK SIZE
+                </div>
               </div>
 
               {/* Stage */}
@@ -146,45 +149,61 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
                 <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
                   {investorData.stageCount}
                 </div>
+                <div className="text-white text-[0.5rem] font-medium opacity-60">
+                  STAGE
+                </div>
               </div>
 
               {/* Industry */}
               <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center overflow-hidden text-ellipsis">
-                  {investorData.industry}
+                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                  <span className="truncate">{investorData.industry}</span>
                 </div>
                 <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
                   {investorData.industryCount}
                 </div>
+                <div className="text-white text-[0.5rem] font-medium opacity-60">
+                  INDUSTRY
+                </div>
               </div>
 
               {/* Geography */}
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <div className="flex items-center gap-1 bg-[#18002C] rounded-[0.1875rem] px-1 py-0.5">
-                  <div className="w-5 h-3 flex items-center justify-center">
-                    {investor.location && investor.location.includes("India") ? (
-                      <img src={IndiaFlag} alt="Flag" />
-                    ) : (
-                      <div className="w-5 h-3 bg-blue-800 rounded-sm flex items-center justify-center text-[0.4rem] text-white overflow-hidden">
-                        {investor.location ? investor.location.substring(0, 3).toUpperCase() : "INT"}
-                      </div>
-                    )}
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="flex items-center gap-1">
+                  <div className="bg-[#18002C] rounded-[0.1875rem] px-2 py-1 h-6 flex items-center">
+                    <div className="w-4 h-3 flex items-center justify-center">
+                      {investor.location && (investor.location.toLowerCase().includes("india") || investor.location.toLowerCase().includes("in")) ? (
+                        <img src={IndiaFlag} alt="Flag" className="w-4 h-3 object-cover rounded-sm" />
+                      ) : (
+                        <div className="w-4 h-3 bg-blue-800 rounded-sm flex items-center justify-center text-[0.4rem] text-white">
+                          {investor.location ? investor.location.substring(0, 2).toUpperCase() : "INT"}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-8 h-6 rounded-[0.1875rem] flex items-center justify-center">
+                    {investorData.geography}
                   </div>
                 </div>
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                  {investorData.geography}
+                <div className="text-white text-[0.5rem] font-medium opacity-60">
+                  GEOGRAPHY
                 </div>
               </div>
 
               {/* Match Score */}
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <div className={`w-2.5 h-2.5 rounded-full ${getMatchColor(investorData.matchValue)}`}></div>
-                <span className="text-white text-base font-semibold">{investorData.match}</span>
+              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${getMatchColor(investorData.matchValue)}`}></div>
+                  <span className="text-white text-sm font-semibold">{investorData.match}</span>
+                </div>
+                <div className="text-white text-[0.5rem] font-medium opacity-60">
+                  MATCH
+                </div>
               </div>
 
               {/* Submit Button */}
               <button
-                className="text-white text-[0.625rem] font-medium rounded w-15 h-7 flex-shrink-0"
+                className="text-white text-[0.625rem] font-medium rounded w-16 h-7 flex-shrink-0"
                 style={{
                   background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
                 }}
@@ -679,7 +698,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
           id: investorId,
           name: investor.name || "Unnamed Investor",
           company: investor.company || investor.firm || investor.fund || "Unknown Company",
-          avatar: investor.profile_image || investor.avatar || "https://via.placeholder.com/75?text=Investor",
+          avatar: investor.profile_image || investor.avatar || fallbackAvatar,
           checkSize: investor.checkSize || investor.check_size || 
                     (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
                     investor.check_size_ranges[0] : "$N/A"),
@@ -823,15 +842,20 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       color: "#B8B8B8", // fallback for stroke color, but for img it won’t affect
     }}
   />
-</div>
-
-                  <input
+</div>                  <input
                     type="text"
                     placeholder="Search..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-8 sm:h-10 md:h-12 xl:h-[50px] pl-8 sm:pl-10 md:pl-12 xl:pl-14 pr-2 sm:pr-3 xl:pr-4 rounded-md sm:rounded-lg border border-[#0f0e16] bg-black font-inter text-xs sm:text-sm font-normal text-white outline-none focus:outline-none"
+                    className="w-full h-8 sm:h-10 md:h-12 xl:h-[50px] pl-8 sm:pl-10 md:pl-12 xl:pl-14 pr-10 sm:pr-12 xl:pr-14 rounded-md sm:rounded-lg border border-[#0f0e16] bg-black font-inter text-xs sm:text-sm font-normal text-white outline-none focus:outline-none"
                   />
+                  
+                  {/* Loading spinner */}
+                  {isLoading && (
+                    <div className="absolute inset-y-0 right-2 sm:right-3 xl:right-4 flex items-center pointer-events-none">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -901,15 +925,28 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       color: "#B8B8B8", // fallback for stroke color, but for img it won’t affect
     }}
   />
-</div>
-
-                  <input
+</div>                  <input
                     type="text"
                     placeholder="Search..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-8 sm:h-10 md:h-12 xl:h-[50px] pl-8 sm:pl-10 md:pl-12 xl:pl-14 pr-2 sm:pr-3 xl:pr-4 rounded-md sm:rounded-lg border border-[#0f0e16] bg-black font-inter text-xs sm:text-sm font-normal text-white outline-none focus:outline-none"
+                    className="w-full h-8 sm:h-10 md:h-12 xl:h-[50px] pl-8 sm:pl-10 md:pl-12 xl:pl-14 pr-10 sm:pr-12 xl:pr-14 rounded-md sm:rounded-lg border border-[#0f0e16] bg-black font-inter text-xs sm:text-sm font-normal text-white outline-none focus:outline-none"
                   />
+                  
+                  {/* Loading spinner - positioned before close button */}
+                  {isLoading && !searchTerm && (
+                    <div className="absolute inset-y-0 right-2 sm:right-3 xl:right-4 flex items-center pointer-events-none">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    </div>
+                  )}
+                  
+                  {/* Loading spinner when search term exists - positioned before close button */}
+                  {isLoading && searchTerm && (
+                    <div className="absolute inset-y-0 right-8 sm:right-10 xl:right-12 flex items-center pointer-events-none">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    </div>
+                  )}
+                  
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm("")}
@@ -972,12 +1009,10 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                     }}
                   >                    <div className="text-center flex-shrink-0">
                       <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-4 flex-shrink-0">
-                        <img
-                          src={selectedInvestor.profile_image || selectedInvestor.avatar || `${API_KEY}/placeholder.png`}
+                        <img                          src={selectedInvestor.profile_image || selectedInvestor.avatar || fallbackAvatar}
                           alt={selectedInvestor.name}
-                          className="w-full h-full rounded-lg object-cover"
-                          onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/200?text=Investor";
+                          className="w-full h-full rounded-lg object-cover"                          onError={(e) => {
+                            e.target.src = fallbackAvatar;
                           }}
                         />
                       </div>

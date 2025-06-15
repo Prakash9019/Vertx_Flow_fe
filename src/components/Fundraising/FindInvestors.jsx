@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { Search, MoreVertical, ChevronDown } from 'lucide-react';
+import DefaultAvatar from '../../assets/DefaultAvatar.svg';
+
+// Simple base64 fallback avatar
+const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 function FindInvestors() {
   const [activeFindTab, setActiveFindTab] = useState("Investors");
@@ -113,7 +117,7 @@ function FindInvestors() {
 
       {activeFindTab === "Investors" && (
         <div className="mb-12">
-          <div className="rounded-lg bg-[#0F0E16] p-6 rounded-[0.625rem]">
+          <div className="bg-[#0F0E16] p-6 rounded-[0.625rem]">
             {/* Search and Filters */}
             <div className="flex items-center justify-between mb-6 min-w-0">
               <div className="relative flex-shrink-0 w-[12.5rem]">
@@ -299,11 +303,12 @@ function FindInvestors() {
                   className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
                 >
                   {/* Fixed Width Container for Avatar + Name + Links */}
-                  <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
-                    <img 
+                  <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">                    <img 
                       src={investor.avatar} 
                       alt={investor.name}
-                      className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
+                      className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"                      onError={(e) => {
+                        e.target.src = fallbackAvatar;
+                      }}
                     />
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">

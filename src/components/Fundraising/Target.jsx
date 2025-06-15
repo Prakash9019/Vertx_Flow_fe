@@ -23,6 +23,10 @@ import Link from "../../assets/link.svg"
 import Mail from "../../assets/mail.svg"
 import Twitter from "../../assets/twitter.svg"
 import SearchIcon from "../../assets/SearchIcon.svg"
+import DefaultAvatar from "../../assets/DefaultAvatar.svg"
+
+// Simple base64 fallback avatar
+const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 export default function Target({ onListSelect }) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -47,7 +51,6 @@ export default function Target({ onListSelect }) {
     pink: "linear-gradient(180deg, #FC6848 0%, #AD6FDE 100%)",
     red: "linear-gradient(180deg, #AF4F00 0%, #FC4141 100%)",
   }
-
   // Fetch user target lists on component mount
   useEffect(() => {
     const fetchLists = async () => {
@@ -72,17 +75,18 @@ export default function Target({ onListSelect }) {
         }
 
         const result = await response.json();
+        console.log('Fetched lists with investors:', result);
         
-        // Map backend lists to frontend format
-        const mappedLists = result.lists.map(list => ({
+        // Map backend lists to frontend format with populated investor data
+        const mappedLists = result.data.map(list => ({
           id: list._id,
           name: list.name,
           cover: list.coverColor,
           createdBy: "Company",
           createdDate: new Date(list.createdAt).toLocaleDateString("en-GB"),
           updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
-          investorCount: 0,
-          investors: [],
+          investorCount: list.investors ? list.investors.length : 0,
+          investors: list.investors || [],
         }));
         
         setUserTargetLists(mappedLists);
@@ -184,18 +188,62 @@ export default function Target({ onListSelect }) {
   const handleAddInvestorsClick = () => {
     setIsAddInvestorsPopupOpen(true)
   }
-
-  const handleInvestorsAdded = (newInvestors) => {
+  const handleInvestorsAdded = async (newInvestors) => {
     if (selectedList && newInvestors.length > 0) {
-      const updatedList = {
-        ...selectedList,
-        investors: [...(selectedList.investors || []), ...newInvestors],
-        investorCount: (selectedList.investorCount || 0) + newInvestors.length,
-        updatedDate: "Updated today",
-      }
+      // Refresh the entire lists to get updated data from server
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          console.error('Authentication required');
+          return;
+        }
+        
+        const response = await fetch(`${API_KEY}/api/list`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-      setSelectedList(updatedList)
-      setUserTargetLists((prev) => prev.map((list) => (list.id === selectedList.id ? updatedList : list)))
+        if (!response.ok) {
+          throw new Error(`Failed to fetch updated lists: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Refreshed lists after adding investors:', result);
+        
+        // Map backend lists to frontend format with populated investor data
+        const mappedLists = result.data.map(list => ({
+          id: list._id,
+          name: list.name,
+          cover: list.coverColor,
+          createdBy: "Company",
+          createdDate: new Date(list.createdAt).toLocaleDateString("en-GB"),
+          updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
+          investorCount: list.investors ? list.investors.length : 0,
+          investors: list.investors || [],
+        }));
+        
+        setUserTargetLists(mappedLists);
+        
+        // Update selected list with fresh data
+        const updatedSelectedList = mappedLists.find(list => list.id === selectedList.id);
+        if (updatedSelectedList) {
+          setSelectedList(updatedSelectedList);
+        }
+      } catch (error) {
+        console.error("Error refreshing lists after adding investors:", error);
+        // Fallback to local update if server refresh fails
+        const updatedList = {
+          ...selectedList,
+          investors: [...(selectedList.investors || []), ...newInvestors],
+          investorCount: (selectedList.investorCount || 0) + newInvestors.length,
+          updatedDate: "Updated today",
+        }
+        setSelectedList(updatedList);
+        setUserTargetLists((prev) => prev.map((list) => (list.id === selectedList.id ? updatedList : list)));
+      }
     }
   }
 
@@ -626,7 +674,7 @@ export default function Target({ onListSelect }) {
                   >
                     <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
                       <img
-                        src={investor.avatar || "/placeholder.svg"}
+                        src={investor.avatar || fallbackAvatar}
                         alt={investor.name}
                         className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
                       />
