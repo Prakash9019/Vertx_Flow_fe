@@ -3,6 +3,7 @@
 // updated page with Target component - converted to responsive Tailwind
 
 import { useState, useEffect } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import Sidebar from "../Sidebar"
 import AddRoundPopup from "./AddRoundPopup"
 import FindInvestors from "./FindInvestors"
@@ -13,6 +14,9 @@ import API_KEY from "../../../key";
 function FundraisingManagePage() {
   
   const { profileData } = useStartupProfile();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [activeTab, setActiveTab] = useState("Manage")
   const [activeSubTab, setActiveSubTab] = useState("Current Round")
   const [isPopupOpen, setIsPopupOpen] = useState(false)
@@ -23,7 +27,50 @@ function FundraisingManagePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const tabsArray = ["Manage", "Find", "Target", "Network"]
+  const tabsArray = ["Manage", "Find", "Target", "Network"]  // Initialize activeTab based on URL path
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/manage')) {
+      setActiveTab('Manage');
+    } else if (path.includes('/find')) {
+      setActiveTab('Find');
+    } else if (path.includes('/target')) {
+      setActiveTab('Target');
+    } else if (path.includes('/network')) {
+      setActiveTab('Network');
+    } else if (path === '/fundraising/raise') {
+      // Default to Manage if only /fundraising/raise is accessed
+      setActiveTab('Manage');
+      navigate('/fundraising/raise/manage', { replace: true });
+    } else {
+      // Default to Manage for any other case
+      setActiveTab('Manage');
+    }
+  }, [location.pathname, navigate]);
+
+  // Function to handle tab change with URL update
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    
+    // Update URL based on selected tab
+    const baseUrl = '/fundraising/raise';
+    switch(tab) {
+      case 'Manage':
+        navigate(`${baseUrl}/manage`);
+        break;
+      case 'Find':
+        navigate(`${baseUrl}/find`);
+        break;
+      case 'Target':
+        navigate(`${baseUrl}/target`);
+        break;
+      case 'Network':
+        navigate(`${baseUrl}/network`);
+        break;
+      default:
+        navigate(`${baseUrl}/manage`);
+    }
+  };
 
   // Fetch funding rounds on component mount
   useEffect(() => {
@@ -200,12 +247,11 @@ function FundraisingManagePage() {
         )}
 
         {/* Navigation Tabs - Hidden when target list is selected */}
-        {!(activeTab === "Target" && isTargetListSelected) && (
-          <div className="flex gap-4" style={{ paddingLeft: "3.44rem", paddingRight: "3.87rem", marginTop: "1.69rem" }}>
+        {!(activeTab === "Target" && isTargetListSelected) && (          <div className="flex gap-4" style={{ paddingLeft: "3.44rem", paddingRight: "3.87rem", marginTop: "1.69rem" }}>
             {tabsArray.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
                 className={`rounded-full transition-colors ${
                   activeTab === tab ? "bg-white text-black" : "text-gray-400"
                 }`}

@@ -68,8 +68,11 @@ function App() {
    
     
     { path:"/flow/outbound", element:<GenerateEmail />},
-    { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> }, 
-    {path:"/fundraising/raise", element:<FundraisingManagePage /> },
+    { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising/raise", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/manage", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/find", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/target", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/network", element:<FundraisingManagePage /> },
     {path:"/invite/:inviteId", element:<InviteAcceptPage /> },
    
 
