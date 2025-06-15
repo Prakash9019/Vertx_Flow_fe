@@ -9,7 +9,12 @@ import ContactsIcon from "../assets/ContactsIcon.svg"
 import AddIcon from "../assets/AddIcon.svg"
 import SpeedometerIcon from "../assets/SpeedometerIcon.svg"
 import TuneIcon from "../assets/TuneIcon.svg"
-import PlayIcon from "../assets/PlayIcon.svg"
+import PlayIcon from "../assets/PlayIcon.svg" 
+import EndCallIcon from "../assets/EndCall.svg";
+import VideoIcon from "../assets/VideoIcon.svg";
+import VideoOffIcon from "../assets/VideoOffIcon.svg";
+import MicIcon from "../assets/MicIcon.svg";
+import MicOffIcon from "../assets/MicOffIcon.svg";
 
 import {
   Search,
@@ -185,45 +190,61 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             </div>
 
             <div className="absolute bottom-4 left-4 flex gap-2">
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity"
-                style={{
-                  width: "3.125rem",
-                  height: "3.125rem",
-                  background: isMuted ? "#dc2626" : "rgba(255, 255, 255, 0.2)",
-                  backdropFilter: "blur(10px)",
-                  strokeWidth: "1px",
-                  stroke: "#FFF",
-                }}
-              >
-                {isMuted ? (
-                  <MicOff style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
-                ) : (
-                  <Mic style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
-                )}
-              </button>
+            <button
+  onClick={() => setIsMuted(!isMuted)}
+  className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+  style={{
+    width: "3.125rem",
+    height: "3.125rem",
+    background: "transparent",
+    borderWidth: "1px",
+    borderColor: "#FFF",
+  }}
+>
+  {isMuted ? (
+    <img
+      src={MicOffIcon}
+      alt="Mic Off"
+      style={{ width: "1.5rem", height: "1.5rem" }}
+    />
+  ) : (
+    <img
+      src={MicIcon}
+      alt="Mic On"
+      style={{ width: "1.5rem", height: "1.5rem" }}
+    />
+  )}
+</button>
+
             </div>
 
             <div className="absolute bottom-4 right-4">
-              <button
-                onClick={() => setIsVideoOff(!isVideoOff)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity"
-                style={{
-                  width: "3.125rem",
-                  height: "3.125rem",
-                  background: isVideoOff ? "#dc2626" : "rgba(255, 255, 255, 0.2)",
-                  backdropFilter: "blur(10px)",
-                  strokeWidth: "1px",
-                  stroke: "#FFF",
-                }}
-              >
-                {isVideoOff ? (
-                  <VideoOff style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
-                ) : (
-                  <Video style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
-                )}
-              </button>
+            <button
+  onClick={() => setIsVideoOff(!isVideoOff)}
+  className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+  style={{
+    width: "3.125rem",
+    height: "3.125rem",
+    background: "transparent",
+    borderWidth: "1px",
+    borderColor: "#FFF",
+  }}
+>
+  {isVideoOff ? (
+    <img
+      src={VideoOffIcon}
+      alt="Video Off"
+      style={{ width: "1.5rem", height: "1.5rem" }}
+    />
+  ) : (
+    <img
+      src={VideoIcon}
+      alt="Video On"
+      style={{ width: "1.5rem", height: "1.5rem" }}
+    />
+  )}
+</button>
+
             </div>
           </div>
         </div>
@@ -329,23 +350,27 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
       </div>
 
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <button
-          onClick={onEndCall}
-          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-          style={{
-            width: "12.5rem",
-            height: "2.5rem",
-            borderRadius: "0.125rem",
-            background: "#E10004",
-            color: "#FFF",
-            fontFamily: "Inter",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-          }}
-        >
-          <PhoneOff style={{ width: "0.875rem", height: "0.875rem" }} />
-          End Call
-        </button>
+<button
+  onClick={onEndCall}
+  className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
+  style={{
+    width: "12.5rem",
+    height: "2.5rem",
+    borderRadius: "0.125rem",
+    background: "#E10004",
+    color: "#FFF",
+    fontFamily: "Inter",
+    fontSize: "0.75rem",
+    fontWeight: 600,
+  }}
+>
+  <img
+    src={EndCallIcon}
+    alt="End Call Icon"
+    style={{ width: "0.875rem", height: "0.875rem" }}
+  />
+  End Call
+</button>
       </div>
     </div>
   )
@@ -359,6 +384,8 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
   const [isListening, setIsListening] = useState(false)
   const [recognition, setRecognition] = useState(null)
   const [transcript, setTranscript] = useState("")
+  const [isMuted, setIsMuted] = useState(false)
+  const [isVideoOff, setIsVideoOff] = useState(false)
   const silenceTimerRef = useRef(null)
   const questionIndexRef = useRef(0)
 
@@ -625,29 +652,57 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
 
           <div className="absolute bottom-6 left-6 flex gap-4">
             <button
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110"
+              onClick={() => setIsMuted(!isMuted)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
               style={{
                 width: "3.5rem",
                 height: "3.5rem",
-                background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
               }}
             >
-              <Mic style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
+              {isMuted ? (
+                <img
+                  src={MicOffIcon}
+                  alt="Mic Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={MicIcon}
+                  alt="Mic On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
             </button>
           </div>
 
           <div className="absolute bottom-6 right-6">
             <button
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110"
+              onClick={() => setIsVideoOff(!isVideoOff)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
               style={{
                 width: "3.5rem",
                 height: "3.5rem",
-                background: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
               }}
             >
-              <Video style={{ width: "1.5rem", height: "1.5rem" }} className="text-white" />
+              {isVideoOff ? (
+                <img
+                  src={VideoOffIcon}
+                  alt="Video Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={VideoIcon}
+                  alt="Video On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
             </button>
           </div>
         </div>
@@ -739,7 +794,11 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
             fontWeight: 600,
           }}
         >
-          <PhoneOff style={{ width: "0.875rem", height: "0.875rem" }} />
+          <img
+            src={EndCallIcon}
+            alt="End Call Icon"
+            style={{ width: "0.875rem", height: "0.875rem" }}
+          />
           End Call
         </button>
 
