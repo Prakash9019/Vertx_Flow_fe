@@ -14,6 +14,7 @@ import DollarIcon from '../../assets/DollarIcon.svg';
 import IndiaFlag from '../../assets/IndiaFlag.png';
 import DefaultAvatar from '../../assets/DefaultAvatar.svg';
 import API_KEY from "../../../key.js"
+import Investor from "../../assets/Investor.jpg"
 
 // Simple base64 fallback avatar
 const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
@@ -79,7 +80,7 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
               <img
                 src={investorData.avatar}
                 alt={investorData.name}
-                className="rounded-full object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] flex-shrink-0"
+                className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white"
                 onError={(e) => { e.target.src = fallbackAvatar; }}
               />
               <div className="flex flex-col min-w-0">
@@ -552,19 +553,20 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                   )}
                 </div>
               </div>
-              <div
-                className="relative flex items-center justify-center flex-shrink-0 w-32 sm:w-48 md:w-100 xl:w-[440px] h-24 sm:h-36 md:h-100 xl:h-[440px] rounded-sm sm:rounded-md overflow-hidden"
-                style={{ backgroundImage: cityBackground, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
-              >
-                <div className="absolute inset-0 bg-black bg-opacity-30 rounded-sm sm:rounded-md"></div>
-                <div className="absolute bottom-2 sm:bottom-3 xl:bottom-6 left-1/2 transform -translate-x-1/2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="46" height="10" viewBox="0 0 46 10" fill="none">
-                    <circle cx="5" cy="5" r="5" fill="white"/>
-                    <circle cx="23" cy="5" r="5" fill="white" fillOpacity="0.13"/>
-                    <circle cx="41" cy="5" r="5" fill="white" fillOpacity="0.13"/>
-                  </svg>
-                </div>
-              </div>
+         
+              <div 
+  className="relative flex items-center justify-center flex-shrink-0 w-32 sm:w-48 md:w-100 xl:w-[440px] h-24 sm:h-36 md:h-100 xl:h-[440px] rounded-sm sm:rounded-md overflow-hidden"
+>
+  <div className="absolute inset-0 bg-black bg-opacity-30 rounded-sm sm:rounded-md"></div>
+
+  <img 
+    src={Investor} 
+    alt="Investor" 
+    className="w-full h-full object-contain z-10"
+  />
+</div>
+
+
             </div>
           ) : (
             <div className="flex flex-col w-full h-full">
