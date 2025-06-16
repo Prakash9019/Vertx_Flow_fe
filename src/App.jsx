@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import Login_Page from "./screens/Login_page"; // Assuming correct path and name
 import PrivateRoute from "./components/PrivateRoute";
 import GoogleAuthCallback from "./components/GoogleAuthCallback";
+import AuthError from "./screens/AuthError";
 
 // Screens for Profile Setup
 import ProfileSetup_Page from "./screens/ProfileSetup_Page";
@@ -84,13 +85,14 @@ function App() {
     <div className="relative h-screen overflow-hidden">
       {" "}
       {/* Consider CSS for global scroll if needed */}
-      <Routes>
-        {/* <Route path="/" element={<Login_Page />} /> */}
+      <Routes>        {/* <Route path="/" element={<Login_Page />} /> */}
         {/* <Route path="/" element={<FundraisingPage />} /> */}
         <Route path="/" element={<Login_Page />} />
         <Route path="/login" element={<Login_Page />} />
-
+        
+        {/* Auth routes */}
         <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+        <Route path="/auth-error" element={<AuthError />} />
 
         {protectedRoutes.map(({ path, element }) => (
           <Route

@@ -22,7 +22,7 @@ function Login_Page() {
     const inviteTokenFromUrl = params.get("inviteToken");
 
     if (inviteTokenFromUrl) {
-      console.log("Invite Token found in URL:", inviteTokenFromUrl);
+
       localStorage.setItem("cofounderInviteToken", inviteTokenFromUrl);
 
       // Don't clean the URL immediately to avoid redirection issues
@@ -79,16 +79,27 @@ function Login_Page() {
       inputsRef.current[index - 1].focus();
     }
   };
-
   // Google Login
   const handleLoginWithGoogle = () => {
     // Check if this is a cofounder login (has invite token)
     const hasInviteToken = localStorage.getItem("cofounderInviteToken");
+    
     // Only set homepage redirect for cofounders
     if (hasInviteToken) {
       localStorage.setItem('postLoginRedirect', '/homepage');
     }
-    const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
+    
+    // Log for debugging
+    
+    // Determine if we're in development or production
+    const isDev = window.location.hostname === "localhost" || 
+                  window.location.hostname === "127.0.0.1";
+    
+    // Use the appropriate backend URL
+    const backendUrl = isDev ? "http://localhost:5000" : API_KEY;
+    const backendGoogleAuthUrl = `${backendUrl}/auth/google`;
+    
+
     window.location.href = backendGoogleAuthUrl;
   };
 
