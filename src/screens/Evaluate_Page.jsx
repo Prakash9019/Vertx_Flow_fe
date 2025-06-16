@@ -448,7 +448,7 @@ function Evaluate_Page() {
 
                 {/* Previous History Cards */}
                 {analysisData && analysisData.map((item, idx) => (
-                  <div key={`old-${idx}`} className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4">
+                  <div key={`old-${idx}`} className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4">
                     <div className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center">
                       <span className="text-white font-light text-lg">SATISFACTORY</span>
                       <span className="text-white font-bold text-2xl">

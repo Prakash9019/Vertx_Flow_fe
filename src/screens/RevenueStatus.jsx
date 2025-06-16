@@ -155,7 +155,7 @@ const RevenueStatus = () => {
                     <label className="block font-inter font-semibold text-sm leading-[1.0625rem] mb-2">
                       What is your current revenue status (MRR)?
                     </label>
-                    <p className="font-inter font-normal text-xs leading-[0.9375rem] mb-8">
+                    <p className="font-inter font-normal text-xs leading-[0.9375rem] mb-6">
                       This helps investors understand your traction and growth.
                     </p>
                     

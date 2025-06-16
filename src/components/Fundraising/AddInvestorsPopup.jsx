@@ -17,7 +17,8 @@ import API_KEY from "../../../key.js"
 import Investor from "../../assets/Investor.jpg"
 
 // Simple base64 fallback avatar
-const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
+const fallbackAvatar = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+// "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 // InvestorCard component
 const InvestorCard = ({ investor, isSelected, onClick }) => {
@@ -37,7 +38,7 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
     return {
       id: investor.id || investor._id,
       name: investor.name || "Unnamed Investor",
-      company: investor.company || investor.firm || investor.fund || "Company not specified",
+      company: investor.company || investor.firm || investor.fund ,
       avatar: investor.profile_image || investor.avatar || fallbackAvatar,
       checkSize: investor.checkSize || investor.check_size || 
                 (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
@@ -90,107 +91,38 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
                   </span>
                   <div className="flex gap-1 flex-shrink-0">
                     {contacts.linkedin && (
-                      <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                      <img src={LinkedIn} alt="LinkedIn" className="w-6 h-6 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
                     {contacts.website && (
-                      <img src={LinkIcon} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                      <img src={LinkIcon} alt="Link" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
                     {contacts.email && (
-                      <img src={MailIcon} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                      <img src={MailIcon} alt="Mail" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
                     {contacts.twitter && (
-                      <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
+                      <img src={TwitterIcon} alt="Twitter" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
                     {!contacts.linkedin && !contacts.website && !contacts.email && !contacts.twitter && (
                       <>
-                        <img src={LinkedIn} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
-                        <img src={LinkIcon} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
-                        <img src={MailIcon} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
-                        <img src={TwitterIcon} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={LinkedIn} alt="LinkedIn" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={LinkIcon} alt="Link" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={MailIcon} alt="Mail" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
+                        <img src={TwitterIcon} alt="Twitter" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
                       </>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 overflow-hidden">
-                  <span className="text-white text-[0.625rem] truncate max-w-[8rem]">
+                 { investorData.company && <span className="text-white text-[0.625rem] truncate max-w-[8rem]">
                     {investorData.company}
-                  </span>
+                  </span>}
                   <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0">
                     {(investorData.type === "ACCELERATOR") ? "ACC" : "VC"}
                   </span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between flex-grow gap-x-3 xl:gap-x-6 min-w-0">
-              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-14 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                  {investorData.checkSize}
-                </div>
-                <div className="text-white text-[0.5rem] font-medium opacity-60">
-                  CHECK SIZE
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                  {investorData.stage}
-                </div>
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                  {investorData.stageCount}
-                </div>
-                <div className="text-white text-[0.5rem] font-medium opacity-60">
-                  STAGE
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-16 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                  <span className="truncate">{investorData.industry}</span>
-                </div>
-                <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-6 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                  {investorData.industryCount}
-                </div>
-                <div className="text-white text-[0.5rem] font-medium opacity-60">
-                  INDUSTRY
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                <div className="flex items-center gap-1">
-                  <div className="bg-[#18002C] rounded-[0.1875rem] px-2 py-1 h-6 flex items-center">
-                    <div className="w-4 h-3 flex items-center justify-center">
-                      {investor.location && (investor.location.toLowerCase().includes("india") || investor.location.toLowerCase().includes("in")) ? (
-                        <img src={IndiaFlag} alt="Flag" className="w-4 h-3 object-cover rounded-sm" />
-                      ) : (
-                        <div className="w-4 h-3 bg-blue-800 rounded-sm flex items-center justify-center text-[0.4rem] text-white">
-                          {investor.location ? investor.location.substring(0, 2).toUpperCase() : "INT"}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="bg-[#18002C] text-white text-[0.625rem] font-semibold w-8 h-6 rounded-[0.1875rem] flex items-center justify-center">
-                    {investorData.geography}
-                  </div>
-                </div>
-                <div className="text-white text-[0.5rem] font-medium opacity-60">
-                  GEOGRAPHY
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${getMatchColor(investorData.matchValue)}`}></div>
-                  <span className="text-white text-sm font-semibold">{investorData.match}</span>
-                </div>
-                <div className="text-white text-[0.5rem] font-medium opacity-60">
-                  MATCH
-                </div>
-              </div>
-              <button
-                className="text-white text-[0.625rem] font-medium rounded w-16 h-7 flex-shrink-0"
-                style={{
-                  background: `linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)`
-                }}
-              >
-                Submit
-              </button>
-            </div>
+          
           </>
         );
       })()}
@@ -555,16 +487,15 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
               </div>
          
               <div 
-  className="relative flex items-center justify-center flex-shrink-0 w-32 sm:w-48 md:w-100 xl:w-[440px] h-24 sm:h-36 md:h-100 xl:h-[440px] rounded-sm sm:rounded-md overflow-hidden"
+  className="relative flex items-center justify-center flex-shrink-0 w-32 sm:w-48 md:w-[25rem] xl:w-[440px] h-24 sm:h-36 md:h-[25rem] xl:h-[440px] rounded-sm sm:rounded-md overflow-hidden"
 >
-  <div className="absolute inset-0 bg-black bg-opacity-30 rounded-sm sm:rounded-md"></div>
-
   <img 
     src={Investor} 
     alt="Investor" 
-    className="w-full h-full object-contain z-10"
+    className="w-full h-full object-cover z-10"
   />
 </div>
+
 
 
             </div>
@@ -628,7 +559,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                         onClick={() => setSearchTerm("")}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
                       >
-                        <img src={CloseIcon} alt="Close Icon" className="w-3 h-3"/>
+                        <img src={CloseIcon} alt="Close Icon" className="w-6 h-3"/>
                       </button>
                     )}
                   </div>
@@ -688,14 +619,15 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                     }}
                   >
                     <div className="text-center flex-shrink-0">
-                      <div className="w-[12.5rem] h-[12.5rem] mx-auto mb-4 flex-shrink-0">
-                        <img
-                          src={selectedInvestor.profile_image || selectedInvestor.avatar || fallbackAvatar}
-                          alt={selectedInvestor.name}
-                          className="w-full h-full rounded-lg object-cover"
-                          onError={(e) => { e.target.src = fallbackAvatar; }}
-                        />
-                      </div>
+                    <div className="w-[12.5rem] h-[12.5rem] mx-auto mb-4 flex-shrink-0">
+  <img
+    src={selectedInvestor.profile_image || selectedInvestor.avatar || fallbackAvatar}
+    alt={selectedInvestor.name}
+    className="w-full h-full rounded-lg object-contain"
+    onError={(e) => { e.target.src = fallbackAvatar; }}
+  />
+</div>
+
                       <h2 className="text-white font-inter font-medium mb-3" style={{ fontSize: "2rem" }}>
                         {selectedInvestor.name}
                       </h2>
@@ -758,12 +690,12 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                         </span>
                       </div>
                       <div className="flex items-center justify-center gap-3 text-white">
-                        <img
+                        {/* <img
                           src={DollarIcon}
                           alt="Dollar Icon"
                           className="text-gray-400 flex-shrink-0"
                           style={{ width: "1.87306rem", height: "1.87306rem" }}
-                        />
+                        /> */}
                         <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
                           {selectedInvestor.investment || selectedInvestor.checkSize || "Investment size not specified"}
                         </span>

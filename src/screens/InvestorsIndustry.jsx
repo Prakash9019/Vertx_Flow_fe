@@ -169,12 +169,12 @@ const InvestorsIndustry = () => {
                     <label className="block font-inter font-semibold text-sm leading-[1.0625rem] mb-2">
                       Which industry do you operate in?
                     </label>
-                    <p className="font-inter font-normal text-xs leading-[0.9375rem] mb-8">
+                    <p className="font-inter font-normal text-xs leading-[0.9375rem] mb-4">
                       Most investors specialize in specific industries. You can choose multiple.
                     </p>
                     
                     {/* Selection Area */}
-                    <div className={`w-full max-w-[20rem] relative ${selectedIndustries.length > 0 ? 'mb-6' : 'mb-auto'}`}>
+                    <div className={`w-full max-w-[20rem] relative ${selectedIndustries.length > 0 ? 'mb-4' : 'mb-auto'}`}>
                       <div 
                         ref={selectButtonRef}
                         onClick={() => !isLoading && setIsDropdownOpen(!isDropdownOpen)} 
