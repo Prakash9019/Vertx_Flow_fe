@@ -8,7 +8,7 @@ import LinkedIn from '../../assets/LinkedIn.svg';
 import LinkIcon from '../../assets/link.svg';
 import MailIcon from '../../assets/mail.svg';
 import TwitterIcon from '../../assets/twitter.svg';
-import WorkIcon from '../../assets/workIcon.svg';
+import WorkIcon from '../../assets/WorkIcon.svg';
 import LocationIcon from '../../assets/LocationIcon.svg';
 import DollarIcon from '../../assets/DollarIcon.svg';
 import IndiaFlag from '../../assets/IndiaFlag.png';
