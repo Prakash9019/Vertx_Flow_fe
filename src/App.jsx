@@ -92,13 +92,11 @@ function App() {
         
         {/* Auth routes */}
         <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-        <Route path="/auth-error" element={<AuthError />} />
-
-        {protectedRoutes.map(({ path, element }) => (
+        <Route path="/auth-error" element={<AuthError />} />        {protectedRoutes.map(({ path, element }) => (
           <Route
             key={path}
             path={path}
-            element={element}
+            element={<PrivateRoute>{element}</PrivateRoute>}
           />
         ))}
       </Routes>

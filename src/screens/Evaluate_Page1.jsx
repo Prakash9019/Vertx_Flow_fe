@@ -50,9 +50,8 @@ function Evaluate_Page() {
       console.log("data of pdf :-", pdfFiles);
       setTimeout(() => {
         setEvaluation(false);
-      }, 1000);
-      // send to next page
-      navigate("/evaluate/report", {
+      }, 1000);      // send to next page
+      navigate("/evaluate/report#analysis", {
         state: { reportData: response.data, pdfFiles: pdfFiles },
       });
     } catch (error) {
