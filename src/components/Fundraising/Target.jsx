@@ -44,6 +44,8 @@ export default function Target({ onListSelect }) {
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState("")
 
+  const [showDeleteNotification, setShowDeleteNotification] = useState(false);
+
   const coverOptions = {
     default: "#0F0E16",
     purple: "linear-gradient(180deg, #6C04BF 0%, #456BBD 100%)",
@@ -354,7 +356,7 @@ export default function Target({ onListSelect }) {
         throw new Error(errorData.message || 'Failed to delete list');
       }
 
-      // Immediately update the UI state
+      // Update UI state
       setUserTargetLists(prevLists => prevLists.filter(list => list.id !== listId));
       
       // If the deleted list was selected, clear selection
@@ -365,14 +367,19 @@ export default function Target({ onListSelect }) {
         }
       }
 
-      // Close any open menus
+      // Close menus
       setActiveMenuId(null);
       setActiveDropdown(null);
 
-      return true;
+      // Show success notification
+      setShowDeleteNotification(true);
+      setTimeout(() => {
+        setShowDeleteNotification(false);
+      }, 1000);
+
     } catch (error) {
       console.error('Error deleting list:', error);
-      throw error;
+      throw error; // Propagate the error up
     }
   };
 
@@ -1127,6 +1134,17 @@ export default function Target({ onListSelect }) {
         onClose={() => setIsNewListPopupOpen(false)}
         onSave={handleNewListSave}
       />
+
+      {/* Delete Notification Toast */}
+      <div
+  className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+    showDeleteNotification ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+  }`}
+>
+  <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+    <span className="text-white font-inter text-sm sm:text-base font-medium">List deleted successfully!</span>
+  </div>
+</div>
     </div>
   )
 }

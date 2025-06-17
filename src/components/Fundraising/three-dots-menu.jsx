@@ -15,60 +15,51 @@ export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated 
   ];
 
   const handleOptionClick = async (optionId) => {
-    try {
-      if (optionId === "edit" && onEditName) {
-        onEditName();
-      } else if (optionId === "delete") {
-        if (window.confirm("Are you sure you want to delete this target list?")) {
+    if (!isVertxCreated) {
+      switch (optionId) {
+        case "delete":
           try {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-              throw new Error('Authentication required');
-            }
-
-            const response = await fetch(`${API_KEY}/api/list/${listId}`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
-            });
-
-            if (!response.ok) {
-              throw new Error('Failed to delete list');
-            }
-
-            // Call onDelete callback with the listId
             if (onDelete) {
-              onDelete(listId);
-              onClose(); // Close menu after successful deletion
+              await onDelete(listId);
+              onClose();
             }
           } catch (error) {
             console.error('Delete error:', error);
             alert("Failed to delete list. Please try again.");
           }
-        }
-      } else {
-        switch (optionId) {
-          case "share":
-            console.log(`Share target list ${listId}`)
-            // Add share logic here
-            break
-          case "reach":
-            console.log(`Add list ${listId} to Reach`)
-            // Add reach logic here
-            break
-          case "pipeline":
-            console.log(`Add list ${listId} to pipeline`)
-            // Add pipeline logic here
-            break
-          default:
-            console.log(`${optionId} clicked for list ${listId}`)
-        }
+          break;
+        case "edit":
+          if (onEditName) {
+            onEditName(listId);
+            onClose();
+          }
+          break;
+        default:
+          break;
       }
-    } catch (error) {
-      console.error('Operation failed:', error);
-      alert("Operation failed. Please try again.");
+    } else {
+      switch (optionId) {
+        case "share":
+          console.log(`Share target list ${listId}`)
+          // Add share logic here
+          break
+        case "reach":
+          console.log(`Add list ${listId} to Reach`)
+          // Add reach logic here
+          break
+        case "pipeline":
+          console.log(`Add list ${listId} to pipeline`)
+          // Add pipeline logic here
+          break
+        case "edit":
+          if (onEditName) {
+            onEditName();
+            onClose();
+          }
+          break;
+        default:
+          console.log(`${optionId} clicked for list ${listId}`)
+      }
     }
     onClose()
   }
