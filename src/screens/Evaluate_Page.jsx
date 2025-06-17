@@ -221,9 +221,8 @@ function Evaluate_Page() {
     }
   };
 
-  
   const handleAccessReport = (status) => {
-    navigate("/evaluate/report", {
+    navigate("/evaluate/report#analysis", {
       state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },
     });
   };
@@ -469,8 +468,7 @@ function Evaluate_Page() {
                       <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
                       <p className="text-white text-sm mb-3">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
                     </div>
-                    <button
-                      onClick={() => navigate("/evaluate/report", {
+                    <button                      onClick={() => navigate("/evaluate/report#analysis", {
                         state: { reportData: item.result, pdfFiles: [item.file_name] }
                       })}
                       className="mt-auto bg-white text-black w-full py-2 rounded text-sm font-medium hover:bg-gray-200"
