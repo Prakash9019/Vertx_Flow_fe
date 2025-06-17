@@ -15,6 +15,8 @@ import VideoIcon from "../assets/VideoIcon.svg";
 import VideoOffIcon from "../assets/VideoOffIcon.svg";
 import MicIcon from "../assets/MicIcon.svg";
 import MicOffIcon from "../assets/MicOffIcon.svg";
+import PresentationIcon from "../assets/PresentationIcon.svg";
+import CaptionIcon from "../assets/CaptionIcon.svg";
 
 import {
   Search,
@@ -115,6 +117,29 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
           }}
         >
           Calling...
+        </div>
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-60">
+          <button
+            onClick={onEndCall}
+            className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
+            style={{
+              width: "12.5rem",
+              height: "2.5rem",
+              borderRadius: "0.125rem",
+              background: "#E10004",
+              color: "#FFF",
+              fontFamily: "Inter",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+            }}
+          >
+            <img
+              src={EndCallIcon}
+              alt="End Call Icon"
+              style={{ width: "0.875rem", height: "0.875rem" }}
+            />
+            End Call
+          </button>
         </div>
       </div>
     )
@@ -349,28 +374,28 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-<button
-  onClick={onEndCall}
-  className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-  style={{
-    width: "12.5rem",
-    height: "2.5rem",
-    borderRadius: "0.125rem",
-    background: "#E10004",
-    color: "#FFF",
-    fontFamily: "Inter",
-    fontSize: "0.75rem",
-    fontWeight: 600,
-  }}
->
-  <img
-    src={EndCallIcon}
-    alt="End Call Icon"
-    style={{ width: "0.875rem", height: "0.875rem" }}
-  />
-  End Call
-</button>
+      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-60">
+        <button
+          onClick={onEndCall}
+          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
+          style={{
+            width: "12.5rem",
+            height: "2.5rem",
+            borderRadius: "0.125rem",
+            background: "#E10004",
+            color: "#FFF",
+            fontFamily: "Inter",
+            fontSize: "0.75rem",
+            fontWeight: 600,
+          }}
+        >
+          <img
+            src={EndCallIcon}
+            alt="End Call Icon"
+            style={{ width: "0.875rem", height: "0.875rem" }}
+          />
+          End Call
+        </button>
       </div>
     </div>
   )
@@ -780,6 +805,39 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
           {formatTime(callDuration)} | Mock Pitching
         </div>
 
+        <div className="flex gap-4">
+        <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
+  <img
+    src={PresentationIcon}
+    alt="Presentation Icon"
+    style={{ width: "1.25rem", height: "1.25rem" }}
+  />
+</button>
+
+
+<button
+  onClick={toggleCaptions}
+  className="hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110"
+  style={{
+    width: showCaptions ? "2.5rem" : "auto",
+    height: showCaptions ? "2.5rem" : "auto",
+    background: showCaptions ? "#1C60CE" : "transparent",
+  }}
+>
+  <img
+    src={CaptionIcon}
+    alt="Captions"
+    style={{
+      width: "1.25rem",
+      height: "1.25rem",
+    }}
+  />
+</button>
+
+        </div>
+      </div>
+
+      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-60">
         <button
           onClick={onEndCall}
           className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
@@ -801,29 +859,6 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
           />
           End Call
         </button>
-
-        <div className="flex gap-4">
-          <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
-            <MessageSquare style={{ width: "1.25rem", height: "1.25rem" }} />
-          </button>
-          <button
-            onClick={toggleCaptions}
-            className="hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110"
-            style={{
-              width: showCaptions ? "2.5rem" : "auto",
-              height: showCaptions ? "2.5rem" : "auto",
-              background: showCaptions ? "#1C60CE" : "transparent",
-            }}
-          >
-            <Captions
-              style={{
-                width: "1.25rem",
-                height: "1.25rem",
-                color: "#FFF",
-              }}
-            />
-          </button>
-        </div>
       </div>
     </div>
   )
@@ -1211,7 +1246,7 @@ function MockPitching({ onBack }) {
                             color: "#FFF",
                             fontFamily: "Inter",
                             fontSize: "1rem",
-                            fontWeight: 500,
+                            fontWeight: "500",
                             marginBottom: "0rem",
                           }}
                         >
