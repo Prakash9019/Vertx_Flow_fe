@@ -17,7 +17,7 @@ function Evaluate_Page() {
   const [analysisData, setAnalysisData] = useState([]);
   const [score,setScore]=useState(0);
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
-
+  const [loading, setLoading] = useState(true);
   const {profileData,user_id } =useStartupProfile();
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ function Evaluate_Page() {
    
   useEffect(() => {
     if (!user_id) return;
-  
+     console.log(true);
     const fetchAnalysis = async () => {
       try {
         const response = await axios.get(`${API_KEY}/api/pitch/analysis/${user_id}`);
@@ -44,7 +44,7 @@ function Evaluate_Page() {
         console.error('Error fetching analysis:', err);
         // setError(err.response?.data?.message || 'Failed to fetch data');
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     };
   
@@ -227,8 +227,15 @@ function Evaluate_Page() {
       state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },
     });
   };
+  {loading && (
+    <div className="flex justify-center items-center mt-32">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+    </div>
+  )}
+  
 
   return (
+    
     <div className="min-h-screen bg-black text-white flex relative overflow-hidden">
       {/* Add CSS for scanning effect */}
       <style jsx>{`
@@ -283,7 +290,7 @@ function Evaluate_Page() {
           </div>
 
           {/* Content with responsive specifications */}
-          {!showUploader && pdfFiles.length === 0 && analysisData.length === 0 && (
+          {!loading && !showUploader && pdfFiles.length === 0 && analysisData.length === 0 && (
             <div className="text-center mt-12 sm:mt-16 md:mt-20 lg:mt-24 xl:mt-[4.94rem] px-4">
               <p className="text-[#B8B8B8] font-inter text-sm sm:text-base font-normal mb-3 xl:mb-[0.81rem]">
                 You haven't added any deck yet, add one to evaluate now
@@ -378,12 +385,14 @@ function Evaluate_Page() {
             <div className="flex flex-col mt-8 sm:mt-10 xl:mt-[2.56rem] mx-3 sm:mx-4 xl:mx-[0.94rem] mb-32">
               {/* Cards Container with Upload Box included */}
               <div
-      className={`${
-        analysisData.length === 0 && pdfFiles.length === 0
-          ? "flex justify-center"
-          : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      } max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32`}
-    >
+  className={`scrollbar-hidden ${
+    analysisData.length === 0 && pdfFiles.length === 0
+      ? "flex justify-center"
+      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+  } max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32`}
+>
+
+
          {/* Upload Box as first card */}
                 {!showUploader && (
                   <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">

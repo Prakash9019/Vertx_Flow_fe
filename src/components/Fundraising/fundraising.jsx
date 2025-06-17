@@ -27,7 +27,7 @@ function FundraisingManagePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const tabsArray = ["Manage", "Find", "Target", "Network"]  // Initialize activeTab based on URL path
+  const tabsArray = ["Manage", "Find", "Target"]  // Initialize activeTab based on URL path
   useEffect(() => {
     const path = location.pathname;
     if (path.includes('/manage')) {
@@ -36,9 +36,7 @@ function FundraisingManagePage() {
       setActiveTab('Find');
     } else if (path.includes('/target')) {
       setActiveTab('Target');
-    } else if (path.includes('/network')) {
-      setActiveTab('Network');
-    } else if (path === '/fundraising/raise') {
+    }  else if (path === '/fundraising/raise') {
       // Default to Manage if only /fundraising/raise is accessed
       setActiveTab('Manage');
       navigate('/fundraising/raise/manage', { replace: true });
@@ -63,9 +61,6 @@ function FundraisingManagePage() {
         break;
       case 'Target':
         navigate(`${baseUrl}/target`);
-        break;
-      case 'Network':
-        navigate(`${baseUrl}/network`);
         break;
       default:
         navigate(`${baseUrl}/manage`);
@@ -437,14 +432,7 @@ function FundraisingManagePage() {
 
           {activeTab === "Target" && <Target onListSelect={setIsTargetListSelected} />}
 
-          {activeTab === "Network" && (
-            <div className="py-8">
-              <div className="text-center text-gray-400">
-                <h3 className="text-2xl mb-4">Network</h3>
-                <p>Network content will go here...</p>
-              </div>
-            </div>
-          )}
+          
         </div>
       </div>
 
