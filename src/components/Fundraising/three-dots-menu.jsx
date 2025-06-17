@@ -3,45 +3,72 @@ import DeleteIcon from "../../assets/DeleteIcon.svg";
 import ShareIcon from "../../assets/ShareIcon.svg";
 import AddIcon from "../../assets/AddIcon.svg";
 import DollarIcon2 from "../../assets/DollarIcon2.svg";
+import API_KEY from '../../../key.js';
 
-"use client"
-
-export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated = false, onEditName }) {
+export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated = false, onEditName, onDelete }) {
   const menuOptions = [
     { id: "edit", label: "Edit name" },
     { id: "delete", label: "Delete target list" },
     { id: "share", label: "Share target list", disabled: false },
     { id: "reach", label: "Add list to Reach", disabled: false },
     { id: "pipeline", label: "Add to pipeline", disabled: false },
-  ]
+  ];
 
-  const handleOptionClick = (optionId) => {
-    if (optionId === "edit" && onEditName) {
-      onEditName()
-    } else {
-      // Handle other menu options
-      switch (optionId) {
-        case "delete":
-          if (window.confirm("Are you sure you want to delete this target list?")) {     
-            console.log(`Delete target list ${listId}`)
-            // Add delete logic here
+  const handleOptionClick = async (optionId) => {
+    try {
+      if (optionId === "edit" && onEditName) {
+        onEditName();
+      } else if (optionId === "delete") {
+        if (window.confirm("Are you sure you want to delete this target list?")) {
+          try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+              throw new Error('Authentication required');
+            }
+
+            const response = await fetch(`${API_KEY}/api/list/${listId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to delete list');
+            }
+
+            // Call onDelete callback with the listId
+            if (onDelete) {
+              onDelete(listId);
+              onClose(); // Close menu after successful deletion
+            }
+          } catch (error) {
+            console.error('Delete error:', error);
+            alert("Failed to delete list. Please try again.");
           }
-          break
-        case "share":
-          console.log(`Share target list ${listId}`)
-          // Add share logic here
-          break
-        case "reach":
-          console.log(`Add list ${listId} to Reach`)
-          // Add reach logic here
-          break
-        case "pipeline":
-          console.log(`Add list ${listId} to pipeline`)
-          // Add pipeline logic here
-          break
-        default:
-          console.log(`${optionId} clicked for list ${listId}`)
+        }
+      } else {
+        switch (optionId) {
+          case "share":
+            console.log(`Share target list ${listId}`)
+            // Add share logic here
+            break
+          case "reach":
+            console.log(`Add list ${listId} to Reach`)
+            // Add reach logic here
+            break
+          case "pipeline":
+            console.log(`Add list ${listId} to pipeline`)
+            // Add pipeline logic here
+            break
+          default:
+            console.log(`${optionId} clicked for list ${listId}`)
+        }
       }
+    } catch (error) {
+      console.error('Operation failed:', error);
+      alert("Operation failed. Please try again.");
     }
     onClose()
   }

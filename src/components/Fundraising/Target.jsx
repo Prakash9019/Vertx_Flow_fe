@@ -266,37 +266,115 @@ export default function Target({ onListSelect }) {
     }
   }
 
-  const handleSaveEdit = () => {
-    const trimmedName = editedName.trim()
+  const handleSaveEdit = async () => {
+    const trimmedName = editedName.trim();
 
     if (!trimmedName) {
-      alert("Please enter a valid name")
-      return
+      alert("Please enter a valid name");
+      return;
     }
 
     if (trimmedName.length > 50) {
-      alert("Name must be 50 characters or less")
-      return
+      alert("Name must be 50 characters or less");
+      return;
     }
 
     if (trimmedName === selectedList.name) {
       // No changes made
-      setIsEditingName(false)
-      setEditedName("")
-      return
+      setIsEditingName(false);
+      setEditedName("");
+      return;
     }
 
-    const updatedList = {
-      ...selectedList,
-      name: trimmedName,
-      updatedDate: "Updated today",
-    }
+    try {
+      await handleUpdateList(selectedList.id, { name: trimmedName });
 
-    setSelectedList(updatedList)
-    setUserTargetLists((prev) => prev.map((list) => (list.id === selectedList.id ? updatedList : list)))
-    setIsEditingName(false)
-    setEditedName("")
+      const updatedList = {
+        ...selectedList,
+        name: trimmedName,
+        updatedDate: "Updated today",
+      };
+
+      setSelectedList(updatedList);
+      setUserTargetLists((prev) => 
+        prev.map((list) => (list.id === selectedList.id ? updatedList : list))
+      );
+      setIsEditingName(false);
+      setEditedName("");
+    } catch (error) {
+      alert("Failed to update list name. Please try again.");
+    }
   }
+
+  const handleUpdateList = async (listId, updatedData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      
+      const response = await fetch(`${API_KEY}/api/list/${listId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update list: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error updating list:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteList = async (listId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${API_KEY}/api/list/${listId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete list');
+      }
+
+      // Immediately update the UI state
+      setUserTargetLists(prevLists => prevLists.filter(list => list.id !== listId));
+      
+      // If the deleted list was selected, clear selection
+      if (selectedList?.id === listId) {
+        setSelectedList(null);
+        if (onListSelect) {
+          onListSelect(false);
+        }
+      }
+
+      // Close any open menus
+      setActiveMenuId(null);
+      setActiveDropdown(null);
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      throw error;
+    }
+  };
 
   const getMatchColor = (matchValue) => {
     if (matchValue >= 0 && matchValue <= 49) return "#DE2D2D"
@@ -442,6 +520,7 @@ export default function Target({ onListSelect }) {
               listId={selectedList.id}
               isVertxCreated={selectedList.createdBy === "VERTX"}
               onEditName={handleEditNameClick}
+              onDelete={handleDeleteList}
             />
           </div>
         )}
@@ -971,10 +1050,11 @@ export default function Target({ onListSelect }) {
                 </button>
                 <ThreeDotsMenu
                   isOpen={activeMenuId === list.id}
-                  onClose={closeMenu}
+                  onClose={() => setActiveMenuId(null)}
                   listId={list.id}
-                  isVertxCreated={false}
-                  onEditName={handleEditNameClick}
+                  isVertxCreated={list.createdBy === "VERTX"}
+                  onEditName={() => handleEditNameClick(list)}
+                  onDelete={handleDeleteList}
                 />
               </div>
             )}
@@ -1032,7 +1112,7 @@ export default function Target({ onListSelect }) {
             </button>
             <ThreeDotsMenu
               isOpen={activeMenuId === "matched-investors"}
-              onClose={closeMenu}
+              onClose={() => setActiveMenuId(null)}
               listId="matched-investors"
               isVertxCreated={true}
               onEditName={handleEditNameClick}
