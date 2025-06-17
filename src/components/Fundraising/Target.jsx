@@ -354,17 +354,13 @@ export default function Target({ onListSelect }) {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to delete list');
-      }
-
-      // Update UI state
+      }      // Update UI state
       setUserTargetLists(prevLists => prevLists.filter(list => list.id !== listId));
       
-      // If the deleted list was selected, clear selection
-      if (selectedList?.id === listId) {
-        setSelectedList(null);
-        if (onListSelect) {
-          onListSelect(false);
-        }
+      // Always redirect to main target lists view after deletion
+      setSelectedList(null);
+      if (onListSelect) {
+        onListSelect(false);
       }
 
       // Close menus
@@ -375,11 +371,71 @@ export default function Target({ onListSelect }) {
       setShowDeleteNotification(true);
       setTimeout(() => {
         setShowDeleteNotification(false);
-      }, 1000);
+      }, 3000);
 
     } catch (error) {
       console.error('Error deleting list:', error);
       throw error; // Propagate the error up
+    }
+  };
+
+  const handleRemoveInvestor = async (investorId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      if (!selectedList?.id) {
+        throw new Error('No list selected');
+      }
+
+      const response = await fetch(`${API_KEY}/api/list/remove-investor`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          listId: selectedList.id,
+          investorId: investorId
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to remove investor from list');
+      }
+
+      // Update local state - remove investor from current list
+      const updatedInvestors = selectedList.investors.filter(inv => 
+        (inv.id || inv._id) !== investorId
+      );
+      
+      const updatedList = {
+        ...selectedList,
+        investors: updatedInvestors,
+        investorCount: updatedInvestors.length,
+        updatedDate: "Updated today",
+      };
+
+      setSelectedList(updatedList);
+      
+      // Update the lists array
+      setUserTargetLists(prev => 
+        prev.map(list => 
+          list.id === selectedList.id ? updatedList : list
+        )
+      );
+
+      // Close dropdown
+      setActiveDropdown(null);
+
+      console.log(`Successfully removed investor ${investorId} from list ${selectedList.id}`);
+      
+    } catch (error) {
+      console.error('Error removing investor from list:', error);
+      alert('Failed to remove investor from list. Please try again.');
     }
   };
 
@@ -878,18 +934,19 @@ export default function Target({ onListSelect }) {
                           }}
                         >
                           <MoreVertical className="w-6 h-6 text-gray-400" />
-                        </button>
-
-                        {activeDropdown === investor.id && (
-                          <div className="absolute right-0 top-8 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black">
-                            <div className="py-1">
-                              {[
-                                { text: "Add to pipeline", icon: "💰" },
-                                { text: "Remove from list", icon: "🗑️" },
-                                { text: "Report an error", icon: "⚠️" },
+                        </button>                        {activeDropdown === investor.id && (
+                          <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                            <div className="py-1">{[
+                                { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
+                                { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id) },
+                                { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
                               ].map((item, index) => (
                                 <button
                                   key={index}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    item.action();
+                                  }}
                                   className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
                                 >
                                   <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">

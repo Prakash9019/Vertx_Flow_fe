@@ -16,8 +16,7 @@ export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated 
 
   const handleOptionClick = async (optionId) => {
     if (!isVertxCreated) {
-      switch (optionId) {
-        case "delete":
+      switch (optionId) {        case "delete":
           try {
             if (onDelete) {
               await onDelete(listId);
@@ -66,11 +65,11 @@ export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated 
 
   if (!isOpen) return null
 
-  return (
-    <div
+  return (    <div
       className="absolute z-50 top-full right-0 mt-2 w-[8.0625rem] h-[7.75rem] rounded border border-[#0F0E16] bg-black p-1"
       role="menu"
       aria-label="Target list options"
+      onClick={(e) => e.stopPropagation()}
     >
       {menuOptions.map((option) => (
         <div
@@ -79,15 +78,15 @@ export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated 
             option.disabled
               ? "opacity-50 cursor-not-allowed"
               : "hover:bg-[#33005C] hover:text-white focus:bg-[#33005C] focus:text-white"
-          }`}
-          onClick={() => {
+          }`}          onClick={(e) => {
+            e.stopPropagation();
             if (!option.disabled) {
               handleOptionClick(option.id)
             }
-          }}
-          onKeyDown={(e) => {
+          }}          onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault()
+              e.stopPropagation()
               if (!option.disabled) {
                 handleOptionClick(option.id)
               }

@@ -273,8 +273,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     }
   
     const newAddedInvestors = new Set(addedInvestors);
-    
-    if (addedInvestors.has(investorId)) {
+      if (addedInvestors.has(investorId)) {
       try {
         const listId = selectedList?.id;
         if (!listId) {
@@ -282,11 +281,32 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
           return;
         }
         
+        // Call backend API to remove investor from list
+        const response = await fetch(`${API_KEY}/api/list/remove-investor`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          },
+          body: JSON.stringify({
+            listId: listId,
+            investorId: investorId
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to remove investor from list');
+        }
+
+        // Update local state only after successful API call
         newAddedInvestors.delete(investorId);
         setAddedInvestors(newAddedInvestors);
         setAddedInvestorsList(prev => prev.filter(inv => (inv.id || inv._id) !== investorId));
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
+        
+        console.log(`Successfully removed investor ${investorId} from list ${listId}`);
       } catch (error) {
         console.error('Error removing investor from target list:', error);
         alert('Failed to remove investor from target list');
