@@ -687,10 +687,9 @@ export default function Target({ onListSelect }) {
                   >
                     <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
                       <img
-                        src={investor.avatar || fallbackAvatar}
+                        src={investor.profile_image || investor.avatar || fallbackAvatar}
                         alt={investor.name}
-                        className="rounded object-cover w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem]"
-                      />
+                        className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white" />
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
                           <span className="text-white font-normal text-base truncate font-['Inter']">
@@ -722,7 +721,7 @@ export default function Target({ onListSelect }) {
                         </div>
                         <div className="flex items-center gap-2 mt-1 overflow-hidden">
                           <span className="text-white text-xs truncate max-w-[5rem] font-['Inter'] text-[0.625rem]">
-                            {investor.company}
+                            {investor.company || investor.firm || investor.fund}
                           </span>
                           <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0 font-['Inter']">
                             {investor.type === "ACCELERATOR" ? "ACC" : "VC"}
@@ -733,24 +732,30 @@ export default function Target({ onListSelect }) {
 
                     <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
                       <div className="bg-[#18002C] text-white text-xs font-semibold w-12 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
-                        {investor.checkSize}
+                        {investor.checkSize || investor.check_size || 
+                (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
+                  investor.check_size_ranges[0] : "$N/A")}
                       </div>
 
                       <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
                         <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.stage}
+                          {investor.stage || 
+             (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
+              investor.invests_in_rounds[0] : "N/A")}
                         </div>
                         <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.stageCount}
+                          {investor.stageCount ||   (investor.invests_in_rounds ? `+${investor.invests_in_rounds.length - 1}` : "+0")}
                         </div>
                       </div>
 
                       <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
                         <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.industry}
+                          {investor.industry || 
+               (investor.sectors && investor.sectors.length > 0 ? 
+                investor.sectors[0] : "N/A")}
                         </div>
                         <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.industryCount}
+                          {investor.industryCount || (investor.sectors ?  `+${investor.sectors.length - 1}` : "+0")}
                         </div>
                       </div>
 
@@ -761,7 +766,9 @@ export default function Target({ onListSelect }) {
                           </div>
                         </div>
                         <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.geography}
+                          {investor.geography || 
+                (investor.geographies && investor.geographies.length > 0 ? 
+                 `+${investor.geographies.length}` : "+0")}
                         </div>
                       </div>
 
