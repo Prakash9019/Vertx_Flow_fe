@@ -5,14 +5,22 @@ import AddIcon from "../../assets/AddIcon.svg";
 import DollarIcon2 from "../../assets/DollarIcon2.svg";
 import API_KEY from '../../../key.js';
 
-export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated = false, onEditName, onDelete }) {
-  const menuOptions = [
-    { id: "edit", label: "Edit name" },
-    { id: "delete", label: "Delete target list" },
-    { id: "share", label: "Share target list", disabled: false },
-    { id: "reach", label: "Add list to Reach", disabled: false },
-    { id: "pipeline", label: "Add to pipeline", disabled: false },
+export default function ThreeDotsMenu({ isOpen, onClose, listId, isVertxCreated = false, onEditName, onDelete, userPermissions = {} }) {
+  const allMenuOptions = [
+    { id: "edit", label: "Edit name", requiresEdit: true },
+    { id: "delete", label: "Delete target list", requiresDelete: true },
+    { id: "share", label: "Share target list", disabled: false, requiresView: true },
+    { id: "reach", label: "Add list to Reach", disabled: false, requiresEdit: true },
+    { id: "pipeline", label: "Add to pipeline", disabled: false, requiresEdit: true },
   ];
+
+  // Filter menu options based on user permissions
+  const menuOptions = allMenuOptions.filter(option => {
+    if (option.requiresEdit && !userPermissions.canEdit) return false;
+    if (option.requiresDelete && !userPermissions.canDelete) return false;
+    if (option.requiresView && !userPermissions.canView) return false;
+    return true;
+  });
 
   const handleOptionClick = async (optionId) => {
     if (!isVertxCreated) {

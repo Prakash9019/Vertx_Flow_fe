@@ -70,8 +70,7 @@ function FundraisingManagePage() {
   // Fetch funding rounds on component mount
   useEffect(() => {
     fetchFundingRounds();
-  }, []);
-  const fetchFundingRounds = async () => {
+  }, []);  const fetchFundingRounds = async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -100,13 +99,16 @@ function FundraisingManagePage() {
         throw new Error(`Failed to fetch funding rounds: ${response.status}`);
       }
 
-      const data = await response.json();
-      setFundingRounds(data);
+      const responseData = await response.json();
+      
+      // Extract the actual funding rounds from the response
+      const fundingRoundsArray = responseData.data || responseData;
+      setFundingRounds(fundingRoundsArray);
       
       // Check if there are any active rounds
-      if (data && data.length > 0) {
+      if (fundingRoundsArray && fundingRoundsArray.length > 0) {
         setHasActiveRound(true);
-        setRoundData(data[0]); // Use the most recent round (sorted by createdAt desc)
+        setRoundData(fundingRoundsArray[0]); // Use the most recent round (sorted by createdAt desc)
       } else {
         setHasActiveRound(false);
         setRoundData(null);

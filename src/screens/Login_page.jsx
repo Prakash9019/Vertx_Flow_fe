@@ -123,14 +123,27 @@ function Login_Page() {
         window.history.replaceState({}, document.title, cleanUrl);
 
         const inviteToken = localStorage.getItem("cofounderInviteToken");        const shouldRedirectToHome = localStorage.getItem("redirectToHomeAfterLogin") === "true";
-        const pendingInviteId = localStorage.getItem("pendingInviteId");
-
-        if (inviteToken) {
+        const pendingInviteId = localStorage.getItem("pendingInviteId");        if (inviteToken) {
           console.log(
             "Processing cofounder invitation token:",
             inviteToken
           );
           try {
+            // Call the API to accept the cofounder invite
+            const inviteResponse = await axios.post(
+              `${API_KEY}/api/invites/accept-cofounder`,
+              { inviteToken },
+              {
+                headers: {
+                  Authorization: `Bearer ${response.data.token}`,
+                },
+              }
+            );
+
+            if (inviteResponse.data) {
+              console.log("Cofounder invite accepted successfully:", inviteResponse.data);
+            }
+
             // Always redirect to homepage after successful login
             navigate("/homepage");
           } catch (inviteError) {
@@ -140,7 +153,7 @@ function Login_Page() {
           } finally {
             localStorage.removeItem("cofounderInviteToken");
           }
-        } 
+        }
         // Check for target list invite redirect flag
         else if (shouldRedirectToHome || pendingInviteId) {
           console.log("Redirecting to homepage after target list invite login");

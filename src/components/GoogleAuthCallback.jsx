@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import API_KEY from '../../key.js';
 
 function GoogleAuthCallback() {
   const location = useLocation();
@@ -56,11 +57,26 @@ function GoogleAuthCallback() {
           } else {
             // Check if there's a legacy cofounder invitation token
             const inviteToken = localStorage.getItem('cofounderInviteToken');
-            
-            if (inviteToken) {
+              if (inviteToken) {
               console.log('Google Login successful for cofounder, invite token is present:', inviteToken);
               // This is a cofounder login with invitation token
-              try {
+              try {                // Call the API to accept the cofounder invite
+                const inviteResponse = await fetch(`${API_KEY}/api/invites/accept-cofounder`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({ inviteToken })
+                });
+
+                if (inviteResponse.ok) {
+                  const inviteData = await inviteResponse.json();
+                  console.log('Cofounder invite accepted successfully:', inviteData);
+                } else {
+                  console.error('Failed to accept cofounder invite:', await inviteResponse.text());
+                }
+
                 // Always navigate cofounders to homepage
                 console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
                 navigate('/homepage');
@@ -70,7 +86,8 @@ function GoogleAuthCallback() {
                 navigate('/homepage');
               } finally {
                 localStorage.removeItem('cofounderInviteToken');
-              }            } else {
+              }
+            }else {
               // Check if we should redirect to homepage after target list invite
               const shouldRedirectToHome = localStorage.getItem("redirectToHomeAfterLogin") === "true";
               const pendingInviteId = localStorage.getItem("pendingInviteId");
