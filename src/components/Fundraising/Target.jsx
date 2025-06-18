@@ -44,6 +44,8 @@ export default function Target({ onListSelect }) {
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState("")
 
+  const [showDeleteNotification, setShowDeleteNotification] = useState(false);
+
   const coverOptions = {
     default: "#0F0E16",
     purple: "linear-gradient(180deg, #6C04BF 0%, #456BBD 100%)",
@@ -266,37 +268,176 @@ export default function Target({ onListSelect }) {
     }
   }
 
-  const handleSaveEdit = () => {
-    const trimmedName = editedName.trim()
+  const handleSaveEdit = async () => {
+    const trimmedName = editedName.trim();
 
     if (!trimmedName) {
-      alert("Please enter a valid name")
-      return
+      alert("Please enter a valid name");
+      return;
     }
 
     if (trimmedName.length > 50) {
-      alert("Name must be 50 characters or less")
-      return
+      alert("Name must be 50 characters or less");
+      return;
     }
 
     if (trimmedName === selectedList.name) {
       // No changes made
-      setIsEditingName(false)
-      setEditedName("")
-      return
+      setIsEditingName(false);
+      setEditedName("");
+      return;
     }
 
-    const updatedList = {
-      ...selectedList,
-      name: trimmedName,
-      updatedDate: "Updated today",
-    }
+    try {
+      await handleUpdateList(selectedList.id, { name: trimmedName });
 
-    setSelectedList(updatedList)
-    setUserTargetLists((prev) => prev.map((list) => (list.id === selectedList.id ? updatedList : list)))
-    setIsEditingName(false)
-    setEditedName("")
+      const updatedList = {
+        ...selectedList,
+        name: trimmedName,
+        updatedDate: "Updated today",
+      };
+
+      setSelectedList(updatedList);
+      setUserTargetLists((prev) => 
+        prev.map((list) => (list.id === selectedList.id ? updatedList : list))
+      );
+      setIsEditingName(false);
+      setEditedName("");
+    } catch (error) {
+      alert("Failed to update list name. Please try again.");
+    }
   }
+
+  const handleUpdateList = async (listId, updatedData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      
+      const response = await fetch(`${API_KEY}/api/list/${listId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update list: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error updating list:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteList = async (listId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${API_KEY}/api/list/${listId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete list');
+      }      // Update UI state
+      setUserTargetLists(prevLists => prevLists.filter(list => list.id !== listId));
+      
+      // Always redirect to main target lists view after deletion
+      setSelectedList(null);
+      if (onListSelect) {
+        onListSelect(false);
+      }
+
+      // Close menus
+      setActiveMenuId(null);
+      setActiveDropdown(null);
+
+      // Show success notification
+      setShowDeleteNotification(true);
+      setTimeout(() => {
+        setShowDeleteNotification(false);
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      throw error; // Propagate the error up
+    }
+  };
+
+  const handleRemoveInvestor = async (investorId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      if (!selectedList?.id) {
+        throw new Error('No list selected');
+      }
+
+      const response = await fetch(`${API_KEY}/api/list/remove-investor`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          listId: selectedList.id,
+          investorId: investorId
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to remove investor from list');
+      }
+
+      // Update local state - remove investor from current list
+      const updatedInvestors = selectedList.investors.filter(inv => 
+        (inv.id || inv._id) !== investorId
+      );
+      
+      const updatedList = {
+        ...selectedList,
+        investors: updatedInvestors,
+        investorCount: updatedInvestors.length,
+        updatedDate: "Updated today",
+      };
+
+      setSelectedList(updatedList);
+      
+      // Update the lists array
+      setUserTargetLists(prev => 
+        prev.map(list => 
+          list.id === selectedList.id ? updatedList : list
+        )
+      );
+
+      // Close dropdown
+      setActiveDropdown(null);
+
+      console.log(`Successfully removed investor ${investorId} from list ${selectedList.id}`);
+      
+    } catch (error) {
+      console.error('Error removing investor from list:', error);
+      alert('Failed to remove investor from list. Please try again.');
+    }
+  };
 
   const getMatchColor = (matchValue) => {
     if (matchValue >= 0 && matchValue <= 49) return "#DE2D2D"
@@ -442,6 +583,7 @@ export default function Target({ onListSelect }) {
               listId={selectedList.id}
               isVertxCreated={selectedList.createdBy === "VERTX"}
               onEditName={handleEditNameClick}
+              onDelete={handleDeleteList}
             />
           </div>
         )}
@@ -799,18 +941,19 @@ export default function Target({ onListSelect }) {
                           }}
                         >
                           <MoreVertical className="w-6 h-6 text-gray-400" />
-                        </button>
-
-                        {activeDropdown === investor.id && (
-                          <div className="absolute right-0 top-8 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black">
-                            <div className="py-1">
-                              {[
-                                { text: "Add to pipeline", icon: "💰" },
-                                { text: "Remove from list", icon: "🗑️" },
-                                { text: "Report an error", icon: "⚠️" },
+                        </button>                        {activeDropdown === investor.id && (
+                          <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                            <div className="py-1">{[
+                                { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
+                                { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id) },
+                                { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
                               ].map((item, index) => (
                                 <button
                                   key={index}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    item.action();
+                                  }}
                                   className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
                                 >
                                   <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
@@ -978,10 +1121,11 @@ export default function Target({ onListSelect }) {
                 </button>
                 <ThreeDotsMenu
                   isOpen={activeMenuId === list.id}
-                  onClose={closeMenu}
+                  onClose={() => setActiveMenuId(null)}
                   listId={list.id}
-                  isVertxCreated={false}
-                  onEditName={handleEditNameClick}
+                  isVertxCreated={list.createdBy === "VERTX"}
+                  onEditName={() => handleEditNameClick(list)}
+                  onDelete={handleDeleteList}
                 />
               </div>
             )}
@@ -1039,7 +1183,7 @@ export default function Target({ onListSelect }) {
             </button>
             <ThreeDotsMenu
               isOpen={activeMenuId === "matched-investors"}
-              onClose={closeMenu}
+              onClose={() => setActiveMenuId(null)}
               listId="matched-investors"
               isVertxCreated={true}
               onEditName={handleEditNameClick}
@@ -1054,6 +1198,17 @@ export default function Target({ onListSelect }) {
         onClose={() => setIsNewListPopupOpen(false)}
         onSave={handleNewListSave}
       />
+
+      {/* Delete Notification Toast */}
+      <div
+  className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+    showDeleteNotification ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+  }`}
+>
+  <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+    <span className="text-white font-inter text-sm sm:text-base font-medium">List deleted successfully!</span>
+  </div>
+</div>
     </div>
   )
 }

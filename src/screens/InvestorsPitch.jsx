@@ -49,6 +49,28 @@ const InvestorsPitch = () => {
       <div className="relative z-10">
         <Header />
 
+        {/* Success Notification Popup */}
+        <div
+          className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+            successMessage ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">{successMessage}</span>
+          </div>
+        </div>
+
+        {/* Error Notification Popup */}
+        <div
+          className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+            error ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">{error}</span>
+          </div>
+        </div>
+
         <div className="flex justify-center mt-12">
           <div className="relative w-full max-w-[80rem] px-4 lg:px-0">
             {/* Header Text - Now aligned with the container below */}
@@ -161,14 +183,6 @@ const InvestorsPitch = () => {
                           </defs>
                         </svg>
                       </div>
-                      
-                      {/* Error/Success Messages */}
-                      {(error || successMessage) && (
-                        <div className="absolute w-full text-center mt-2">
-                          {error && <p className="text-red-500 text-xs">{error}</p>}
-                          {successMessage && <p className="text-green-500 text-xs">{successMessage}</p>}
-                        </div>
-                      )}
                     </div>
                   </div>
 
