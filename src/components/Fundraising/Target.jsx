@@ -873,14 +873,14 @@ export default function Target({ onListSelect }) {
                     </div>
 
                     <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-12 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
                         {investor.checkSize || investor.check_size || 
                 (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
                   investor.check_size_ranges[0] : "$N/A")}
                       </div>
 
-                      <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                      <div className="flex flex-col  gap-y-1 flex-shrink-0">
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
                           {investor.stage || 
              (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
               investor.invests_in_rounds[0] : "N/A")}
@@ -890,7 +890,7 @@ export default function Target({ onListSelect }) {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center gap-y-1 flex-shrink-0">
+                      <div className="flex flex-col  gap-y-1 flex-shrink-0">
                         <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
                           {investor.industry || 
                (investor.sectors && investor.sectors.length > 0 ? 
