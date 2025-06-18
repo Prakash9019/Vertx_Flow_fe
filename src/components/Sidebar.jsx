@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Logo from "../assets/logo.svg"
 import BackLogo from "../assets/BackIcon.svg"
 import Rocket from "../assets/rocket.svg"
@@ -14,10 +15,33 @@ import UserPlan from "../assets/plan.svg";
 import UserFeedback from "../assets/feedback.svg";
 import LogOut from "../assets/logout.svg";
 import { useStartupProfile } from "../context/StartupProfileContext";
+import CofounderPermissions from "./CofounderPermissions";
+import API_KEY from "../../key";
 
 const Sidebar = () => {
-  const { profileData } = useStartupProfile();
-  const navigate = useNavigate();
+  const { profileData } = useStartupProfile();  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);// Check user role on component mount
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        
+        if (token) {
+          const response = await axios.get(`${API_KEY}/api/auth/founder`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          setUserRole(response.data.role);
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+      }
+    };
+
+    checkUserRole();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -236,13 +260,16 @@ const Sidebar = () => {
           </nav>
         </div>
 
-        {/* Third divider */}
-        <div className="border-b border-[#B8B8B8] opacity-25 mx-4"></div>
-
-        {/* Bottom section with account options */}
-        <div className="mt-auto">
+        {/* Third divider */}        <div className="border-b border-[#B8B8B8] opacity-25 mx-4"></div>        {/* Bottom section with account options */}        <div className="mt-auto">
           <ul>
-            <li className="px-4 py-3 flex items-center justify-between hover:bg-gray-900">
+            <li 
+              className={`px-4 py-3 flex items-center justify-between hover:bg-gray-900 ${userRole === 'founder' ? 'cursor-pointer' : ''}`}
+              onClick={() => {
+                if (userRole === 'founder') {
+                  setShowPermissionsModal(true);
+                }
+              }}
+            >
               <span className="text-[#B8B8B8] font-medium text-sm">Your account</span>
               <img 
                 src={UserAccount}
@@ -276,12 +303,14 @@ const Sidebar = () => {
             </li>
           </ul>
         </div>
-      </div>
-
-      {/* Main content area */}
+      </div>      {/* Main content area */}
       <div className="flex-1 bg-[#1a0b2e]">
-        {/* Your main content goes here */}
-      </div>
+        {/* Your main content goes here */}      </div>
+
+      {/* Co-founder Permissions Modal */}
+      {showPermissionsModal && (
+        <CofounderPermissions onClose={() => setShowPermissionsModal(false)} />
+      )}
     </div>
   );
 };

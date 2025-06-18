@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useStartupProfile } from "../context/StartupProfileContext";
+import { usePermissions } from "../hooks/usePermissions";
 import API_KEY from "../../key";
 
 function Evaluate_Page() {
@@ -14,21 +15,30 @@ function Evaluate_Page() {
   const [evaluationError, setEvaluationError] = useState(false);
   const [evaluationComplete, setEvaluationComplete] = useState(false);
   const [reportData, setReportData] = useState(null);
-  const [analysisData, setAnalysisData] = useState([]);
-  const [score,setScore]=useState(0);
+  const [analysisData, setAnalysisData] = useState([]);  const [score,setScore]=useState(0);
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
   const [loading, setLoading] = useState(true);
   const {profileData,user_id } =useStartupProfile();
+  const { hasFullAccess, canEvaluate, canUpload, userRole, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
 
-  const handleAddNowClick = () => setShowUploader(true);
+  const handleAddNowClick = () => {
+    if (!canUpload) {
+      alert('You do not have permission to upload pitch decks. Please contact your founder for access.');
+      return;
+    }
+    setShowUploader(true);
+  };
    
   useEffect(() => {
     if (!user_id) return;
      console.log(true);
-    const fetchAnalysis = async () => {
-      try {
-        const response = await axios.get(`${API_KEY}/api/pitch/analysis/${user_id}`);
+    const fetchAnalysis = async () => {      try {
+        const response = await axios.get(`${API_KEY}/api/pitch-analysis/analysis/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+          }
+        });
         setAnalysisData(response.data);
 
         console.log(response.data)
@@ -181,8 +191,12 @@ function Evaluate_Page() {
   //     setEvaluation(false);
   //   }
   // };
-
   const handleEvaluation = async (file) => {
+    if (!canEvaluate) {
+      alert('You do not have permission to evaluate pitch decks. Please contact your founder for access.');
+      return;
+    }
+    
     const fileName = file.name;
     setEvaluationStatus(prev => ({
       ...prev,
@@ -220,18 +234,27 @@ function Evaluate_Page() {
       }));
     }
   };
-
   const handleAccessReport = (status) => {
+    if (!canEvaluate) {
+      alert('You do not have permission to view evaluation reports. Please contact your founder for access.');
+      return;
+    }
+    
     navigate("/evaluate/report#analysis", {
-      state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },
-    });
+      state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },    });
   };
-  {loading && (
-    <div className="flex justify-center items-center mt-32">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
-    </div>
-  )}
-  
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex">
+        <Sidebar />
+        <div className="flex-1 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     
@@ -457,8 +480,7 @@ function Evaluate_Page() {
 
                 {/* Previous History Cards */}
                 {analysisData && analysisData.map((item, idx) => (
-                  <div key={`old-${idx}`} className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4">
-                    <div className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center">
+                  <div key={`old-${idx}`} className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4">                    <div className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 flex flex-col items-center justify-center">
                       <span className="text-white font-light text-lg">SATISFACTORY</span>
                       <span className="text-white font-bold text-2xl">
                         {((item.result.breakdown[0].score.value / 800) * 100).toFixed(0)}
@@ -466,14 +488,31 @@ function Evaluate_Page() {
                     </div>
                     <div className="text-left">
                       <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
-                      <p className="text-white text-sm mb-3">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
+                      <p className="text-white text-sm mb-1">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
+                      {item.uploadedBy && (
+                        <p className="text-gray-400 text-xs mb-2">
+                          Uploaded by: {item.uploadedBy.name || item.uploadedBy.email} ({item.uploaderRole})
+                        </p>
+                      )}
                     </div>
-                    <button                      onClick={() => navigate("/evaluate/report#analysis", {
-                        state: { reportData: item.result, pdfFiles: [item.file_name] }
-                      })}
-                      className="mt-auto bg-white text-black w-full py-2 rounded text-sm font-medium hover:bg-gray-200"
+                    <button                      
+                      onClick={() => {
+                        if (!item.canAccess) {
+                          alert('You do not have permission to view this evaluation report. Please contact your founder for access.');
+                          return;
+                        }
+                        navigate("/evaluate/report#analysis", {
+                          state: { reportData: item.result, pdfFiles: [item.file_name] }
+                        });
+                      }}
+                      className={`mt-auto w-full py-2 rounded text-sm font-medium ${
+                        item.canAccess 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                      }`}
+                      disabled={!item.canAccess}
                     >
-                      Access Report
+                      {item.canAccess ? 'Access Report' : 'Access Restricted'}
                     </button>
                   </div>
                 ))}
@@ -489,9 +528,8 @@ function Evaluate_Page() {
                     // className="flex flex-col w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] rounded-lg border-2 border-white bg-black p-3 sm:p-4 xl:p-[0.94rem]"
                     className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4"
                   >
-                    {/* PDF thumbnail */}
-                    <div 
-                      className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center"
+                    {/* PDF thumbnail */}                    <div 
+                      className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 flex flex-col items-center justify-center"
                       style={{
                         backgroundColor: pdfThumbnails[file.name] ? 'transparent' : '#6B7280'
                       }}
@@ -535,21 +573,32 @@ function Evaluate_Page() {
                           ? "Evaluation report is ready and you can access now."
                           : `${new Date().toLocaleDateString()}`}
                       </p>
-                    </div>
-
-                    <button
-                     onClick={status.complete ? () => handleAccessReport(status) : () => handleEvaluation(file)}
+                    </div>                    <button
+                     onClick={
+                       !canEvaluate 
+                         ? () => alert('You do not have permission to evaluate or access reports. Please contact your founder for access.')
+                         : status.complete 
+                           ? () => handleAccessReport(status) 
+                           : () => handleEvaluation(file)
+                     }
                       className={`w-full py-2 rounded text-sm font-medium cursor-pointer transition duration-200 ${
-                        status.evaluating ? 'bg-gray-500 text-white' : 'bg-white text-black hover:bg-gray-200'
+                        !canEvaluate
+                          ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                          : status.evaluating 
+                            ? 'bg-gray-500 text-white' 
+                            : 'bg-white text-black hover:bg-gray-200'
                       }`}
+                      disabled={!canEvaluate && !status.complete}
                     >
-                       {status.evaluating
-    ? "Initializing..."
-    : status.error
-    ? "Failed to evaluate"
-    : status.complete
-    ? "Access Report"
-    : "Evaluate"}
+                       {!canEvaluate
+                         ? "Access Restricted"
+                         : status.evaluating
+                           ? "Initializing..."
+                           : status.error
+                             ? "Failed to evaluate"
+                             : status.complete
+                               ? "Access Report"
+                               : "Evaluate"}
                     </button>
                   </div>
                 );

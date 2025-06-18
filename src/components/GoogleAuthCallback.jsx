@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import API_KEY from '../../key.js';
 
 function GoogleAuthCallback() {
@@ -97,11 +98,31 @@ function GoogleAuthCallback() {
                 // Clear the flags after use
                 localStorage.removeItem("redirectToHomeAfterLogin");
                 localStorage.removeItem("pendingInviteId");
-                navigate('/homepage');
-              } else {
+                navigate('/homepage');              } else {
                 // This is a regular user login (not a cofounder)
-                console.log('Google Auth Successful, token received, navigating to /profile/manual');
-                navigate('/profile/manual');
+                console.log('Google Auth Successful, checking profile completion status');
+                  try {
+                  // Check profile completion status before redirecting
+                  const profileResponse = await axios.get(`${API_KEY}/api/auth/profile-status`, {
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    }
+                  });
+                  
+                  const { isProfileComplete, redirectTo } = profileResponse.data;
+                  
+                  if (isProfileComplete) {
+                    console.log('Profile is complete, redirecting to homepage');
+                    navigate('/homepage');
+                  } else {
+                    console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
+                    navigate(redirectTo || '/profile/manual');
+                  }
+                } catch (profileError) {
+                  console.error('Error checking profile status:', profileError);
+                  // Fallback to default profile setup if API call fails
+                  navigate('/profile/manual');
+                }
               }
             }
           }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import API_KEY from "../../../key"
+import { usePermissions } from "../../hooks/usePermissions"
 import NewListPopup from "./new-list-popup"
 import ThreeDotsMenu from "./three-dots-menu"
 import AddInvestorsPopup from "./AddInvestorsPopup"
@@ -43,18 +44,27 @@ export default function Target({ onListSelect }) {
   const [showInviteCollab, setShowInviteCollab] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editedName, setEditedName] = useState("")
+  const [showDeleteNotification, setShowDeleteNotification] = useState(false)
+  const [error, setError] = useState(null)
+  // Use permission hook for all permission-related state
+  const { 
+    hasFullAccess, 
+    canCreate, 
+    canEdit, 
+    canView,
+    canDelete, 
+    userRole, 
+    isFounder, 
+    loading: permissionsLoading 
+  } = usePermissions();
 
-  const [showDeleteNotification, setShowDeleteNotification] = useState(false);
-
-  // User permissions state
-  const [userPermissions, setUserPermissions] = useState({
-    canCreate: true,
-    canEdit: true,
-    canDelete: true,
-    canView: true
-  });
-  const [userRole, setUserRole] = useState('founder');
-  const [isFounder, setIsFounder] = useState(true);
+  // Create userPermissions object for components that expect it
+  const userPermissions = {
+    canEdit,
+    canView,
+    canDelete,
+    canCreate
+  };
 
   const coverOptions = {
     default: "#0F0E16",
@@ -62,67 +72,81 @@ export default function Target({ onListSelect }) {
     orange: "linear-gradient(0deg, #AF4F00 0%, #CC8D03 100%)",
     pink: "linear-gradient(180deg, #FC6848 0%, #AD6FDE 100%)",
     red: "linear-gradient(180deg, #AF4F00 0%, #FC4141 100%)",
-  }
-  // Fetch user target lists on component mount
-  useEffect(() => {
-    const fetchLists = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-          console.error('Authentication required');
-          return;
-        }
-        
-        const response = await fetch(`${API_KEY}/api/list`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+    blue: "linear-gradient(180deg, #456BBD 0%, #6C04BF 100%)"
+  };
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch lists: ${response.status}`);
-        }        const result = await response.json();
-        console.log('Fetched lists with investors:', result);
-        
-        // Set user permissions from backend response
-        if (result.permissions) {
-          setUserPermissions(result.permissions);
-        }
-        if (result.userRole) {
-          setUserRole(result.userRole);
-        }
-        if (result.isFounder !== undefined) {
-          setIsFounder(result.isFounder);
-        }
-        
-        // Map backend lists to frontend format with populated investor data
-        const mappedLists = result.data.map(list => ({
-          id: list._id,
-          name: list.name,
-          cover: list.coverColor,
-          createdBy: result.isFounder ? "Company" : "Founder",
-          createdDate: new Date(list.createdAt).toLocaleDateString("en-GB"),
-          updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
-          investorCount: list.investors ? list.investors.length : 0,
-          investors: list.investors || [],
-        }));
-        console.log("helllooo")
-        console.log(mappedLists)
-        setUserTargetLists(mappedLists);
-      } catch (error) {
-        console.error("Error fetching lists:", error);
-      } finally {
-        setIsLoading(false);
+  // Fetch user target lists
+  const fetchLists = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        throw new Error('Authentication required');
       }
-    };
+      
+      const response = await fetch(`${API_KEY}/api/list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    fetchLists();
-  }, []);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch lists: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Fetched lists:', result);
+      
+      // Map backend lists to frontend format
+      let lists = Array.isArray(result) ? result : result.data || [];
+      if (!Array.isArray(lists)) {
+        console.error('Invalid lists data:', lists);
+        lists = [];
+      }
+
+      const formattedLists = lists.map(list => ({
+        id: list._id,
+        name: list.name,
+        cover: list.coverColor || 'default',
+        createdBy: isFounder ? "Company" : "Founder",
+        createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
+        investors: Array.isArray(list.investors) ? list.investors : []
+      }));
+      
+      setUserTargetLists(formattedLists);
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Only fetch lists when permissions are loaded
+  useEffect(() => {
+    if (!permissionsLoading) {
+      fetchLists();
+    }
+  }, [permissionsLoading]);
+  
+  // Add error display
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
 
   const handleNewListClick = () => {
+    if (!canCreate) {
+      alert('You do not have permission to create new lists. Please contact your founder for access.');
+      return;
+    }
     setIsNewListPopupOpen(true)
   }
 
@@ -132,19 +156,7 @@ export default function Target({ onListSelect }) {
       if (!token) {
         throw new Error('Authentication required');
       }
-      
-      // Map frontend color names to backend allowed colors
-      const colorMap = {
-        'default': 'blue',
-        'purple': 'purple',
-        'orange': 'orange',
-        'pink': 'red',  // Map pink to red since backend doesn't have pink
-        'red': 'red'
-      };
-      
-      const backendColor = colorMap[listData.cover] || 'purple';
-      
-      const response = await fetch(`${API_KEY}/api/list/new`, {
+        const response = await fetch(`${API_KEY}/api/list/new`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -152,7 +164,7 @@ export default function Target({ onListSelect }) {
         },
         body: JSON.stringify({
           name: listData.name,
-          coverColor: backendColor
+          coverColor: listData.cover
         })
       });
 
@@ -481,8 +493,32 @@ export default function Target({ onListSelect }) {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
+    }  }
+
+  // Refresh lists after creating a new one
+  const handleCreateList = async (listData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_KEY}/api/list/new`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(listData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create list: ${response.status}`);
+      }
+
+      // Refresh the lists after creating a new one
+      await fetchLists();
+      setIsNewListPopupOpen(false);
+    } catch (error) {
+      console.error('Error creating list:', error);
     }
-  }
+  };
 
   // If a list is selected, show the detail view
   if (selectedList) {
@@ -563,7 +599,7 @@ export default function Target({ onListSelect }) {
         </button>
       </div>
     ) : (
-      <>        {hasInvestors && !showSettings && userPermissions.canEdit && (
+      <>        {hasInvestors && !showSettings && canEdit && (
           <>
             <button
               onClick={() => setShowSettings(true)}
@@ -587,21 +623,21 @@ export default function Target({ onListSelect }) {
           </>
         )}
 
-        {(!hasInvestors || hasInvestors) && !showSettings && (
+        {!showSettings && (
           <div className="relative">
             <button
               onClick={(e) => handleThreeDotsClick(e, selectedList.id)}
               className="p-2 hover:bg-gray-700 rounded transition-colors text-[#B8B8B8]"
             >
               <img src={MoreIcon || "/placeholder.svg"} alt="More Icon" className="w-7 h-7" />
-            </button>
-            <ThreeDotsMenu
+            </button>            <ThreeDotsMenu
               isOpen={activeMenuId === selectedList.id}
               onClose={closeMenu}
               listId={selectedList.id}
               isVertxCreated={selectedList.createdBy === "VERTX"}
               onEditName={handleEditNameClick}
               onDelete={handleDeleteList}
+              userPermissions={userPermissions}
             />
           </div>
         )}
@@ -623,7 +659,7 @@ export default function Target({ onListSelect }) {
                 </div>
 
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="flex-1 flex items-center justify-between bg-black px-4 rounded relative h-9 rounded-[0.125rem]">
+                  <div className="flex-1 flex items-center justify-between bg-black px-4 relative h-9 rounded-[0.125rem]">
                     <input
                       type="text"
                       value="https://flow.govertx.com/targetlist/invite/abc123efgyurfhrvg"
@@ -745,7 +781,7 @@ export default function Target({ onListSelect }) {
                 }}
               >
                 <h2 className="text-white font-['Inter'] text-xl font-semibold m-0">No investors are in this list.</h2>                <div className="flex items-center gap-4">
-                  {userPermissions.canEdit && (
+                  {canEdit && (
                     <button
                       onClick={handleAddInvestorsClick}
                       className="flex items-center justify-center gap-2 transition-colors hover:bg-purple-700 w-40 h-10 rounded bg-[#5F248D] border-none cursor-pointer"
@@ -755,7 +791,7 @@ export default function Target({ onListSelect }) {
                     </button>
                   )}
 
-                  {userPermissions.canView && (
+                  {canView && (
                     <button
                       onClick={() => setShowInviteCollab(true)}
                       className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 w-[11.25rem] h-10 rounded bg-white border-none cursor-pointer"
@@ -794,7 +830,7 @@ export default function Target({ onListSelect }) {
               {/* Table Header */}
               <div className="flex items-center py-4 px-4 xl:px-6">
                 <div className="w-[17rem] flex-shrink-0">
-                  <div className="text-white font-semibold text-xs uppercase tracking-wider font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                  <div className="text-white font-semibold text-xs uppercase tracking-[0.05em] font-['Inter'] text-[0.5rem]">
                     INVESTOR NAME
                   </div>
                 </div>
@@ -967,9 +1003,8 @@ export default function Target({ onListSelect }) {
                                 { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
                                 { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
                                 { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
-                              ].filter(item => {
-                                if (item.requiresEdit && !userPermissions.canEdit) return false;
-                                if (item.requiresView && !userPermissions.canView) return false;
+                              ].filter(item => {                                if (item.requiresEdit && !canEdit) return false;
+                                if (item.requiresView && !canView) return false;
                                 return true;
                               }).map((item, index) => (
                                 <button
@@ -1069,10 +1104,11 @@ export default function Target({ onListSelect }) {
               placeholder="Search target list..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-80 h-10 rounded border-2 border-black bg-[#0F0E16] pl-10 pr-4 bg-transparent focus:outline-none font-['Inter'] text-xs font-normal text-[#B8B8B8]"
-            />
-          </div>          {/* New List Button - Only show for founders */}
-          {userPermissions.canCreate && (
+              className="w-80 h-10 rounded border-2 border-black bg-[#0F0E16] pl-10 pr-4 focus:outline-none font-['Inter'] text-xs font-normal text-[#B8B8B8]"
+            />          </div>
+
+          {/* New List Button - Only show for users with create permissions */}
+          {canCreate && (
             <button
               onClick={handleNewListClick}
               className="flex items-center justify-center transition-colors hover:bg-purple-700 w-30 h-10 rounded bg-[#5F248D] gap-2"
@@ -1080,6 +1116,12 @@ export default function Target({ onListSelect }) {
               <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem]" />
               <span className="text-white font-['Inter'] text-sm font-medium">New list</span>
             </button>
+          )}
+          {!canCreate && (
+            <div className="flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed">
+              <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem] opacity-50" />
+              <span className="text-gray-400 font-['Inter'] text-sm font-medium">New list</span>
+            </div>
           )}
         </div>
 
@@ -1129,7 +1171,7 @@ export default function Target({ onListSelect }) {
                 {list.investorCount} INVESTORS
               </div>
             </div>            {/* Three Dots Menu - Only show if list has investors and user has permissions */}
-            {list.investorCount > 0 && userPermissions.canView && (
+            {list.investorCount > 0 && canView && (
               <div className="relative">
                 <button
                   onClick={(e) => handleThreeDotsClick(e, list.id)}

@@ -152,8 +152,7 @@ function Login_Page() {
             navigate("/homepage");
           } finally {
             localStorage.removeItem("cofounderInviteToken");
-          }
-        }
+          }        }
         // Check for target list invite redirect flag
         else if (shouldRedirectToHome || pendingInviteId) {
           console.log("Redirecting to homepage after target list invite login");
@@ -163,8 +162,28 @@ function Login_Page() {
           navigate("/homepage");
         } 
         else {
-          // Normal login flow - redirect to profile setup for new users
-          navigate("/profile/manual");
+          // Check profile completion status before redirecting
+          try {
+            const profileResponse = await axios.get(`${API_KEY}/api/auth/profile-status`, {
+              headers: {
+                Authorization: `Bearer ${response.data.token}`,
+              },
+            });
+            
+            const { isProfileComplete, redirectTo } = profileResponse.data;
+            
+            if (isProfileComplete) {
+              console.log("Profile is complete, redirecting to homepage");
+              navigate("/homepage");
+            } else {
+              console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
+              navigate(redirectTo || "/profile/manual");
+            }
+          } catch (profileError) {
+            console.error("Error checking profile status:", profileError);
+            // Fallback to default profile setup if API call fails
+            navigate("/profile/manual");
+          }
         }
         
         setOtpFormDisplay(false);

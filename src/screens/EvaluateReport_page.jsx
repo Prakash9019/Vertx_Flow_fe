@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Background from "../assets/imgBackground.png";
+import API_KEY from "../../key";
 import { useLocation, useNavigate } from "react-router-dom";
 import EvaluateReportComponent from "../components/EvaluateReportComponent";
 import EvaluateReportOverview from "../components/EvaluateReportOverview";
@@ -11,9 +13,9 @@ import Sidebar from "../components/Sidebar";
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const fileName = location?.state?.pdfFiles|| "filename.pdf";
+    const fileName = location?.state?.pdfFiles || "filename.pdf";
   const incomingData = location?.state?.reportData;
+  const analysisId = location?.state?.analysisId;
   const [reportData, setReportData] = useState(null);
   
   // Get current tab from URL hash, default to "Analysis"
@@ -27,30 +29,47 @@ function EvaluateReport_page() {
   useEffect(() => {
     console.log('EvaluateReport_page: Checking for report data');
     console.log('Incoming data:', incomingData);
-    
-    if (!incomingData) {
-      // Check if we have stored report data in sessionStorage as fallback
-      const storedData = sessionStorage.getItem('evaluateReportData');
-      console.log('Stored data:', storedData);
-      
-      if (storedData) {
+      if (!incomingData) {
+      // Try to fetch from API using analysisId
+      const fetchAnalysis = async () => {
         try {
-          const parsedData = JSON.parse(storedData);
-          console.log('Successfully parsed stored data');
-          setReportData(parsedData);
+          const token = localStorage.getItem('authToken');
+          if (!token) {
+            console.error('No auth token found');
+            navigate("/");
+            return;
+          }
+
+          const response = await axios.get(
+            `${API_KEY}/api/pitch/analysis/id/${analysisId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+
+          if (response.data && response.data.result) {
+            console.log('Successfully fetched analysis from API');
+            setReportData(response.data.result);
+          } else {
+            console.error('Invalid analysis data received');
+            navigate("/");
+          }
         } catch (error) {
-          console.error('Error parsing stored report data:', error);
+          console.error('Error fetching analysis:', error);
           navigate("/");
         }
+      };
+
+      if (analysisId) {
+        fetchAnalysis();
       } else {
-        console.log('No report data found, redirecting to home');
+        console.log('No analysis ID found, redirecting to home');
         navigate("/");
       }
     } else {
-      console.log('Using incoming data');
-      setReportData(incomingData);
-      // Store data in sessionStorage for tab navigation persistence
-      sessionStorage.setItem('evaluateReportData', JSON.stringify(incomingData));
+      console.log('Using incoming data');      setReportData(incomingData);
     }
   }, [incomingData, navigate]);// Update URL when tab changes
   const handleTabChange = (newTab) => {
@@ -73,16 +92,7 @@ function EvaluateReport_page() {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
-
-  // Cleanup sessionStorage when component unmounts
-  useEffect(() => {
-    return () => {
-      // Only clear if we're navigating away from the evaluate section
-      if (!window.location.pathname.includes('/evaluate')) {
-        sessionStorage.removeItem('evaluateReportData');
-      }
-    };
-  }, []);
+  // No need for cleanup since we're not using sessionStorage anymore
   const companyName = reportData?.overview?.company_name;
   const tabsArray = ["Analysis", "Overview", "Capital", "Suggestions"];
 
