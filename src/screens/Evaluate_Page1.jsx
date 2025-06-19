@@ -46,7 +46,7 @@ function Evaluate_Page() {
 
   const handleAddNowClick = () => {
     if (!canUpload) {
-      alert('Access denied. You do not have permission to upload files.');
+      alert('You don\'t have access from founder.');
       return;
     }
     setShowUploader(true);
@@ -222,7 +222,7 @@ function Evaluate_Page() {
                   opacity: canUpload ? 1 : 0.5
                 }}
                 className={canUpload ? "hover:bg-gray-500 hover:text-white active:bg-gray-500 active:text-white transition duration-300" : ""}
-                title={!canUpload ? "You don't have permission to upload files" : ""}
+                title={!canUpload ? "You don't have access from founder" : ""}
               >
                 Add now
               </button>

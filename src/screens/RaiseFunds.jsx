@@ -89,7 +89,7 @@ const RaiseFunds = () => {
   }, []);
   const handleRaiseSelect = (option) => {
     if (!canEdit) {
-      alert('You do not have permission to modify fundraising information. Please contact your founder for access.');
+      alert('You don\'t have access from founder.');
       return;
     }
     setCurrentRaise(option);

@@ -24,7 +24,7 @@ function Evaluate_Page() {
 
   const handleAddNowClick = () => {
     if (!canUpload) {
-      alert('You do not have permission to upload pitch decks. Please contact your founder for access.');
+      alert('You don\'t have access from founder.');
       return;
     }
     setShowUploader(true);
@@ -193,7 +193,7 @@ function Evaluate_Page() {
   // };
   const handleEvaluation = async (file) => {
     if (!canEvaluate) {
-      alert('You do not have permission to evaluate pitch decks. Please contact your founder for access.');
+      alert('You don\'t have access from founder.');
       return;
     }
     
@@ -236,7 +236,7 @@ function Evaluate_Page() {
   };
   const handleAccessReport = (status) => {
     if (!canEvaluate) {
-      alert('You do not have permission to view evaluation reports. Please contact your founder for access.');
+      alert('You don\'t have access from founder.');
       return;
     }
     
@@ -498,7 +498,7 @@ function Evaluate_Page() {
                     <button                      
                       onClick={() => {
                         if (!item.canAccess) {
-                          alert('You do not have permission to view this evaluation report. Please contact your founder for access.');
+                          alert('You don\'t have access from founder.');
                           return;
                         }
                         navigate("/evaluate/report#analysis", {
@@ -576,7 +576,7 @@ function Evaluate_Page() {
                     </div>                    <button
                      onClick={
                        !canEvaluate 
-                         ? () => alert('You do not have permission to evaluate or access reports. Please contact your founder for access.')
+                         ? () => alert('You don\'t have access from founder.')
                          : status.complete 
                            ? () => handleAccessReport(status) 
                            : () => handleEvaluation(file)
