@@ -865,7 +865,9 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false }) {
 }
 
 function MockPitching({ onBack }) {
+  const [investors, setInvestors] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
+  
   const [selectedInvestor, setSelectedInvestor] = useState(null)
   const [isCallActive, setIsCallActive] = useState(false)
   const [callingInvestor, setCallingInvestor] = useState(null)
@@ -875,24 +877,53 @@ function MockPitching({ onBack }) {
   const [showReportPage, setShowReportPage] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
-  const investors = [
-    {
-      id: 1,
-      name: "Persona One",
-      role: "Venture Capitalist at",
-      company: "Example Capital",
-      image: "/api/placeholder/150/150",
-      tags: [
-        { text: "Expressive and Polite", type: "purple" },
-        { text: "Hard", type: "brown" },
-      ],
-      rating: "4/5",
-      description:
-        "You are pitching your startup idea to Persona One, a strategic, principle-driven investor at Example Capital, known for investing in early-to-growth-stage startups with global, scalable business models.",
-      instruction:
-        "Persona One values visionary entrepreneurs who demonstrate clear product-market fit, disciplined execution, and a compelling global vision. Clearly present the core problem you're solving, your unique and differentiated solution, evidence of strong product-market fit, and your strategy for achieving global scalability.",
-    },
-  ]
+  useEffect(() => {
+  fetch("https://ai-mock-pitching-427457295403.europe-west1.run.app/api/personas")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success" && data.personas) {
+        const formatted = Object.entries(data.personas).map(([key, persona], index) => ({
+          id: index + 1,
+          name: persona.name,
+          role: persona.title,
+          company: "", // Add if available
+          image: "/api/placeholder/150/150", // or a real image field if added later
+          tags: [
+            { text: persona.personality.split(",")[0], type: "purple" }, // First trait as tag
+            { text: key, type: "brown" }, // "skeptical", "technical", etc.
+          ],
+          rating: "4/5", // You can generate or update based on response
+          description: persona.personality,
+          instruction: persona.approach,
+        }))
+        setInvestors(formatted)
+      } else {
+        console.error("Unexpected API structure:", data)
+      }
+    })
+    .catch((err) => {
+      console.error("Failed to fetch investors:", err)
+    })
+}, [])
+
+  // const investors = [
+  //   {
+  //     id: 1,
+  //     name: "Persona One",
+  //     role: "Venture Capitalist at",
+  //     company: "Example Capital",
+  //     image: "/api/placeholder/150/150",
+  //     tags: [
+  //       { text: "Expressive and Polite", type: "purple" },
+  //       { text: "Hard", type: "brown" },
+  //     ],
+  //     rating: "4/5",
+  //     description:
+  //       "You are pitching your startup idea to Persona One, a strategic, principle-driven investor at Example Capital, known for investing in early-to-growth-stage startups with global, scalable business models.",
+  //     instruction:
+  //       "Persona One values visionary entrepreneurs who demonstrate clear product-market fit, disciplined execution, and a compelling global vision. Clearly present the core problem you're solving, your unique and differentiated solution, evidence of strong product-market fit, and your strategy for achieving global scalability.",
+  //   },
+  // ]
 
   const handleInvestorClick = (investor) => {
     setSelectedInvestor(investor)
