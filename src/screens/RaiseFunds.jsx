@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
+import { usePermissions } from "../hooks/usePermissions";
 import Header from "../components/Header";
 import CloseIcon from "../assets/close_icon.svg";
 import ProfileProgressBar from "../components/ProfileProgressBar";
@@ -51,6 +52,7 @@ if (!document.getElementById("raise-funds-styles")) {
 const RaiseFunds = () => {
   const navigate = useNavigate();
   const { startupData, updateStartupField, error, setError, loadingData } = useStartupProfile();
+  const { hasFullAccess, canEdit, userRole } = usePermissions();
   const [currentRaise, setCurrentRaise] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,8 +87,11 @@ const RaiseFunds = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   const handleRaiseSelect = (option) => {
+    if (!canEdit) {
+      alert('You don\'t have access from founder.');
+      return;
+    }
     setCurrentRaise(option);
     updateStartupField('raise', option);
     setError(null);

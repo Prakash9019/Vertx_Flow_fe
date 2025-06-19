@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import rectangleImage from '../../assets/Rectangle 82.png';
+import { usePermissions } from '../../hooks/usePermissions';
 import API_KEY from '../../../key';
 
 function AddRoundPopup({ isOpen, onClose, onNext }) {
   // console.log(isOpen, onClose, onNext);
+  const { hasFullAccess, canCreate, userRole } = usePermissions();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [selectedOption, setSelectedOption] = useState("")
   const [hoveredOption, setHoveredOption] = useState("")
@@ -505,8 +507,13 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
     }
     return token;
   };
-
   const handleNext = () => {
+    // Check permissions before allowing any funding round creation
+    if (!canCreate) {
+      alert('You do not have permission to create funding rounds. Please contact your founder for access.');
+      return;
+    }
+    
     // Validate current step before proceeding
     if (!isStepValid()) {
       if (isInputStep()) {
