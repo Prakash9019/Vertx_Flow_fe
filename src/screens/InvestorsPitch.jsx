@@ -44,71 +44,46 @@ const InvestorsPitch = () => {
   }
 
   return (
-    <div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">
+    <div className="min-h-screen text-white bg-[#150718] bg-cover bg-top bg-no-repeat p-1 xs:p-2 sm:p-6 md:p-9">
       <div className="absolute inset-0 bg-gradient-to-b from-black to-purple-950 opacity-65 z-0"></div>
       <div className="relative z-10">
         <Header />
 
-        {/* Success Notification Popup */}
-        <div
-          className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
-            successMessage ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-          }`}
-        >
-          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-            <span className="text-white font-inter text-sm sm:text-base font-medium">{successMessage}</span>
-          </div>
-        </div>
-
-        {/* Error Notification Popup */}
-        <div
-          className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
-            error ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-          }`}
-        >
-          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-            <span className="text-white font-inter text-sm sm:text-base font-medium">{error}</span>
-          </div>
-        </div>
-
-        <div className="flex justify-center mt-12">
-          <div className="relative w-full max-w-[80rem] px-4 lg:px-0">
-            {/* Header Text - Now aligned with the container below */}
-            <div className="text-white mb-5 w-full max-w-2xl lg:max-w-[45rem] mx-auto">
-              <h2 className="font-inter font-semibold text-lg lg:text-xl leading-6 mb-3">
-                Tell us about your startup
+        <div className="flex justify-center mt-3 xs:mt-6 sm:mt-12">
+          <div className="relative w-full max-w-[80rem] px-1 xs:px-2 sm:px-4 lg:px-0">
+            {/* Header text container */}
+                        <div className="text-white mb-2 xs:mb-3 sm:mb-5 w-full max-w-2xl lg:max-w-[45rem] mx-auto">
+              <h2 className="font-inter font-semibold text-sm xs:text-base sm:text-lg lg:text-xl leading-4 xs:leading-5 sm:leading-6 mb-1.5 xs:mb-2 sm:mb-3">
+                 Tell us about your startup
               </h2>
-              <p className="font-inter font-normal text-sm leading-[1.0625rem]">
+              <p className="font-inter font-normal text-[10px] xs:text-xs sm:text-sm leading-[0.875rem] xs:leading-[1rem] sm:leading-[1.0625rem]">
                 We'll use this information to match you with the right investors for your specific needs.
               </p>
             </div>
 
-            {/* Main Card Container */}
-            <div className="relative w-full max-w-2xl lg:max-w-[45rem] mt-8 sm:mt-12 mx-auto">
-              {/* Gradient Border */}
-              <div 
-                className="p-0.5 rounded-[0.625rem]"
+            {/* Main card container */}
+            <div className="relative w-full max-w-2xl lg:max-w-[45rem] mt-3 xs:mt-4 sm:mt-8 mx-auto">
+              {/* Gradient border */}
+              <div className="p-0.5 rounded-[0.625rem]"
                 style={{
                   background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)'
-                }}
-              >
-                {/* Inner Content */}
-                <div className="bg-black rounded-[0.625rem] p-6 lg:p-8 lg:pt-10 min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">
-                  {/* Progress Bar */}
-                  <div className="w-full mb-6">
+                }}>
+                
+                <div className="bg-black rounded-[0.625rem] p-3 xs:p-4 sm:p-6 lg:p-8 lg:pt-10 min-h-[16rem] xs:min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">
+                  
+                  <div className="w-full mb-3 xs:mb-4 sm:mb-6">
                     <ProfileProgressBar currentStep={5} />
                   </div>
 
-                  {/* Form Content */}
                   <div className="text-white flex-1 flex flex-col">
-                    <label className="block font-inter font-semibold text-sm leading-[1.0625rem] mb-2">
+                    <label className="block font-inter font-semibold text-[10px] xs:text-xs sm:text-sm leading-[0.875rem] xs:leading-[0.9375rem] mb-1.5 xs:mb-2">
                       Your startup's elevator pitch
                     </label>
-                    <p className="font-inter font-normal text-xs leading-[0.9375rem] mb-5">
+                    <p className="font-inter font-normal text-[10px] xs:text-xs leading-[0.875rem] xs:leading-[0.9375rem] mb-4 xs:mb-6 sm:mb-8">
                       Give investors a concise overview of your value proposition. You can enhance it.
                     </p>
-                    
-                    {/* Textarea Container */}
+
+                    {/* Keep the existing textarea container unchanged */}
                     <div className="w-full relative mb-auto">
                       <textarea
                         id="pitch-textarea"
@@ -184,36 +159,37 @@ const InvestorsPitch = () => {
                         </svg>
                       </div>
                     </div>
+
+                    {error && (
+                      <p className="text-red-500 text-[10px] xs:text-xs sm:text-sm mt-2">
+                        {error}
+                      </p>
+                    )}
                   </div>
 
-                  {/* Fixed position buttons container */}
-                  <div className="flex justify-between items-center text-white pt-8 mt-auto">
+                  {/* Navigation buttons */}
+                  <div className="flex justify-between items-center text-white pt-4 xs:pt-6 sm:pt-8 mt-auto">
                     <button 
-                      className={`font-inter font-normal text-sm leading-[1.0625rem] ${
-                        isSubmitting 
-                          ? 'text-gray-500 cursor-not-allowed opacity-60' 
-                          : 'text-white cursor-pointer'
+                      className={`font-inter font-normal text-[10px] xs:text-xs sm:text-sm leading-[0.875rem] xs:leading-[1rem] sm:leading-[1.0625rem] ${
+                        isSubmitting ? 'text-gray-500 cursor-not-allowed opacity-60' : 'text-white cursor-pointer'
                       }`}
-                      onClick={handleBack}
+                      onClick={() => navigate('/profile/industry')}
                       disabled={isSubmitting}
                     >
                       Back
                     </button>
+                    
                     <button 
-                      className={`font-inter font-medium inline-flex justify-center items-center rounded text-sm font-medium w-[6.4375rem] h-[2.1875rem] px-5 py-2 ${
-                        isSubmitting 
-                          ? 'bg-gray-300 cursor-not-allowed' 
-                          : 'bg-white cursor-pointer'
+                      className={`font-inter font-medium inline-flex justify-center items-center rounded text-[10px] xs:text-xs sm:text-sm w-16 xs:w-20 sm:w-[6.4375rem] h-7 xs:h-8 sm:h-[2.1875rem] px-3 xs:px-4 sm:px-5 py-1 xs:py-1.5 sm:py-2 ${
+                        isSubmitting ? 'bg-gray-300 cursor-not-allowed' : 'bg-white cursor-pointer'
                       } text-black`}
                       onClick={handleFinish}
-                      disabled={isSubmitting || !!successMessage}
+                      disabled={isSubmitting}
                     >
                       {isSubmitting ? (
-                        <div className="w-4 h-4 border-2 border-gray-600 border-t-black rounded-full animate-spin" />
-                      ) : successMessage ? (
-                        "Saved!"
+                        <div className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-4 sm:h-4 border-2 border-gray-600 border-t-black rounded-full loading-spinner" />
                       ) : (
-                        "Continue"
+                        'Continue'
                       )}
                     </button>
                   </div>

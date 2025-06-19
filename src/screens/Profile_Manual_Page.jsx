@@ -1,6 +1,5 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
-import Background from "../assets/Profile_background.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import API_KEY from "../../key";
@@ -8,13 +7,11 @@ import { useStartupProfile } from "../context/StartupProfileContext";
 
 function Profile_Manual_Page() {
   const { profileData, fetchProfileData } = useStartupProfile();
-
   const [accountName, setAccountName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [message, setMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState(false);
- 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -89,52 +86,49 @@ function Profile_Manual_Page() {
   };
 
   return (
-    <div
-      className="min-h-screen text-white bg-black bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9"
-      //   style={{ backgroundImage: `url(${Background})` }}
-    >
+    <div className="min-h-screen text-white bg-black bg-cover bg-top bg-no-repeat p-4 sm:p-6 md:p-9">
       <div className="absolute inset-0 bg-gradient-to-b from-black to-violet-950 opacity-65 z-0"></div>
       <div className="relative z-10">
         <Header />
 
-        {/* Success Notification Popup */}
+        {/* Success Notification */}
         <div
           className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
             message ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
           }`}
         >
-          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-            <span className="text-white font-inter text-sm sm:text-base font-medium">Profile created successfully!</span>
+          <div className="max-w-[200px] sm:max-w-sm md:max-w-md rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 py-2 sm:px-4 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-xs sm:text-sm md:text-base font-medium">Profile created successfully!</span>
           </div>
         </div>
 
-        {/* Error Notification Popup */}
+        {/* Error Notification */}
         <div
           className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
             errorMessage ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
           }`}
         >
-          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-            <span className="text-white font-inter text-sm sm:text-base font-medium">Failed to create profile.</span>
+          <div className="max-w-[200px] sm:max-w-sm md:max-w-md rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 py-2 sm:px-4 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-xs sm:text-sm md:text-base font-medium">Failed to create profile.</span>
           </div>
         </div>
 
-        {/* Centered Form */}
-        <div className="flex justify-center items-center min-h-[70vh]">
-          <div className="bg-opacity-60 p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-lg">
-            <div className="w-full sm:w-85 sm:mx-auto">
-              <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center sm:text-left">
+        {/* Form Container */}
+        <div className="flex justify-center items-center min-h-[calc(100vh-8rem)] sm:min-h-[calc(100vh-10rem)]">
+          <div className="w-full max-w-[90%] sm:max-w-lg bg-opacity-60 p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
+            <div className="w-full">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 sm:mb-6 text-center sm:text-left">
                 Enter Details to Create Account
               </h2>
 
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4 sm:gap-6">
                 <input
                   type="text"
                   value={accountName}
                   required
                   onChange={(e) => setAccountName(e.target.value)}
                   placeholder="Account full name"
-                  className=" text-white border border-gray-700 py-3 px-4 rounded-md"
+                  className="w-full bg-black text-white border border-gray-700 py-2.5 sm:py-3 px-3 sm:px-4 rounded-md text-sm sm:text-base focus:outline-none focus:border-purple-500"
                 />
                 <input
                   type="text"
@@ -142,7 +136,7 @@ function Profile_Manual_Page() {
                   required
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Company name"
-                  className="bg-black text-white border border-gray-700 py-4 px-4 rounded-md"
+                  className="w-full bg-black text-white border border-gray-700 py-2.5 sm:py-3 px-3 sm:px-4 rounded-md text-sm sm:text-base focus:outline-none focus:border-purple-500"
                 />
                 <input
                   type="text"
@@ -150,22 +144,24 @@ function Profile_Manual_Page() {
                   required
                   onChange={(e) => setCompanyWebsite(e.target.value)}
                   placeholder="Company website"
-                  className="bg-black text-white border border-gray-700 py-3 px-4 rounded-md"
+                  className="w-full bg-black text-white border border-gray-700 py-2.5 sm:py-3 px-3 sm:px-4 rounded-md text-sm sm:text-base focus:outline-none focus:border-purple-500"
                 />
               </div>
 
               <button
                 onClick={handleCreateProfile}
-                className="mt-6 w-full bg-white text-black font-semibold py-2.5 rounded hover:bg-gray-200 transition-all"
+                className="w-full mt-6 bg-white text-black font-semibold py-2.5 sm:py-3 rounded text-sm sm:text-base hover:bg-gray-200 transition-all"
               >
                 Create Flow Profile
               </button>
-            </div>            <p className="mt-4 text-sm text-gray-400 text-center">
-              Not interested in filling your profile manually?{" "}
-              <Link to="/linkedin" className="text-white hover:underline">
-                Autofill using LinkedIn
-              </Link>
-            </p>
+
+              <p className="mt-4 text-xs sm:text-sm text-gray-400 text-center px-2 sm:px-0">
+                Not interested in filling your profile manually?{" "}
+                <Link to="/linkedin" className="text-white hover:underline">
+                  Autofill using LinkedIn
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
