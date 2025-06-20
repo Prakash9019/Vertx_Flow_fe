@@ -50,36 +50,35 @@ function Usage_Page() {
       <div className="relative z-10">
         <Header />
         {/* body  */}
-        {/* <div className="flex justify-center items-center min-h-[70vh]"> */}
-        <div style={{ marginLeft: '17rem', marginTop: '9.87rem' }}>
-          <div className="px-4 sm:px-0 sm:w-3/4 xl:w-1/2 text-white">
-            <h5 className="text-2xl font-semibold mb-2">
+        <div className="md:ml-[17rem] md:mt-[9.87rem] mt-8 ml-4">
+          <div className="px-4 sm:px-0 sm:w-3/4 text-white">
+            <h5 className="text-xl md:text-2xl font-semibold mb-2">
               Help us tailor your Vertx trial
             </h5>
             <p>This will help us give you better experience</p>
             <div>
-              <p className="mb-5 mt-9">
-                I am a
+              <p className="mb-5 mt-6 md:mt-9 flex flex-wrap md:block">
+                <span className="mr-1">I am a</span>
                 <button
-  onClick={() => toggleRole("Founder")}
-  className={`ml-2 mr-1 px-4 py-1 border border-purple-950 text-white ${
-    selectedRole === "Founder" ? "" : "rounded-md bg-black"
-  }`}
-  style={
-    selectedRole === "Founder"
-      ? {
-          borderRadius: "0.25rem",
-          background:
-            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
-        }
-      : {}
-  }
->
-  Founder
-</button>
+                  onClick={() => toggleRole("Founder")}
+                  className={`ml-0 md:ml-2 mr-1 px-3 md:px-4 py-1 border border-purple-950 text-white ${
+                    selectedRole === "Founder" ? "" : "rounded-md bg-black"
+                  }`}
+                  style={
+                    selectedRole === "Founder"
+                      ? {
+                          borderRadius: "0.25rem",
+                          background:
+                            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                        }
+                      : {}
+                  }
+                >
+                  Founder
+                </button>
                 <button
                   onClick={() => toggleRole("Investor")}
-                  className={`mr-2 ml-1 px-4 py-1 rounded-md border border-purple-950 text-white ${
+                  className={`mr-2 ml-1 px-3 md:px-4 py-1 rounded-md border border-purple-950 text-white ${
                     selectedRole === "Investor" 
                       ? "" 
                       : "bg-black"
@@ -96,17 +95,17 @@ function Usage_Page() {
                 >
                   Investor
                 </button>
-                <span className="block sm:inline">
+                <span className="block md:inline mt-2 md:mt-0">
                   and I wanted to get started with
                 </span>
               </p>
 
-              <div className="flex flex-wrap gap-2 w-full xl:w-3xl">
+              <div className="flex flex-wrap gap-2 w-full">
                 {options.map((option) => (
                   <button
                     key={option}
                     onClick={() => toggleOption(option)}
-                    className={`px-4 py-1 rounded border border-purple-950 text-white ${
+                    className={`px-3 md:px-4 py-1 rounded border border-purple-950 text-white ${
                       selected.includes(option)
                         ? ""
                         : "bg-black"
@@ -114,7 +113,6 @@ function Usage_Page() {
                     style={
                       selected.includes(option)
                         ? {
-                            // borderRadius: "0.25rem",
                             background:
                               "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
                           }
@@ -128,7 +126,7 @@ function Usage_Page() {
             </div>
             <button
               onClick={handleContinue}
-              className="mt-9 px-5 py-2 font-semibold rounded-md bg-white text-black"
+              className="mt-6 md:mt-9 px-4 md:px-5 py-1.5 md:py-2 font-semibold rounded-md bg-white text-black"
             >
               Continue
             </button>
