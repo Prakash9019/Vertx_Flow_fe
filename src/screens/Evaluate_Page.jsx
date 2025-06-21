@@ -18,7 +18,7 @@ function Evaluate_Page() {
   const [analysisData, setAnalysisData] = useState([]);  const [score,setScore]=useState(0);
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
   const [loading, setLoading] = useState(true);
-  const {profileData,user_id } =useStartupProfile();
+  const {profileData,user_id, startupId } =useStartupProfile();
   const { hasFullAccess, canEvaluate, canUpload, userRole, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
 
@@ -31,10 +31,12 @@ function Evaluate_Page() {
   };
    
   useEffect(() => {
-    if (!user_id) return;
+    if (!startupId) return;
+    console.log(startupId)
      console.log(true);
-    const fetchAnalysis = async () => {      try {
-        const response = await axios.get(`${API_KEY}/api/pitch-analysis/analysis/${user_id}`, {
+    const fetchAnalysis = async () => {    
+        try {
+        const response = await axios.get(`${API_KEY}/api/pitch/analysis/${startupId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`
           }
@@ -59,7 +61,7 @@ function Evaluate_Page() {
     };
   
     fetchAnalysis();
-  }, [user_id]);
+  }, [startupId]);
 
   
   // Function to generate PDF thumbnail
@@ -112,7 +114,7 @@ function Evaluate_Page() {
   };
 
   const handlePdfUpload = async (e) => {
-    console.log(user_id)
+    console.log(startupId)
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     setShowUploader(false);
@@ -208,7 +210,7 @@ function Evaluate_Page() {
   
     try {
       const response = await axios.post(
-        `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?user_id=${user_id}`,
+        `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?startupId=${startupId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -260,26 +262,7 @@ function Evaluate_Page() {
     
     <div className="min-h-screen bg-black text-white flex relative overflow-hidden">
       {/* Add CSS for scanning effect */}
-      <style jsx>{`
-        .scanning-line {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, transparent, #AD6FDE, transparent);
-          animation: scan 2.5s linear infinite;
-        }
-  
-        @keyframes scan {
-          0% {
-            top: 0%;
-          }
-          100% {
-            top: 100%;
-          }
-        }
-      `}</style>
+    
 
 {/* Sidebar */}
 <div className="bg-black text-white">
@@ -417,7 +400,7 @@ function Evaluate_Page() {
 
          {/* Upload Box as first card */}
                 {!showUploader && (
-                  <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
+                  <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-68 md:h-76 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
                     <label className="cursor-pointer flex flex-col items-center h-full">
                       {/* SVG Icon with responsive gap from top */}
                       <svg 
@@ -526,7 +509,7 @@ function Evaluate_Page() {
                   <div
                     key={index}
                     // className="flex flex-col w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] rounded-lg border-2 border-white bg-black p-3 sm:p-4 xl:p-[0.94rem]"
-                    className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4"
+                    className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4"
                   >
                     {/* PDF thumbnail */}                    <div 
                       className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 flex flex-col items-center justify-center"

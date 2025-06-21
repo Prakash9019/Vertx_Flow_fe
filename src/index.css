@@ -9,3 +9,22 @@
     scrollbar-width: none;     /* Firefox */
   }
   
+  .scanning-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #AD6FDE, transparent);
+    animation: scan 2.5s linear infinite;
+  }
+  
+  @keyframes scan {
+    0% {
+      top: 0%;
+    }
+    100% {
+      top: 100%;
+    }
+  }
+  

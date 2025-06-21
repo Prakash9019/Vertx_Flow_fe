@@ -199,7 +199,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       try {
         const response = await fetch(`${API_KEY}/api/investors/search?name=${encodeURIComponent(searchTerm)}`);
         if (!response.ok) throw new Error('Search failed');
-        
+        console.log(response.data)
         const data = await response.json();
         setSearchResults(data.data || []);
       } catch (error) {

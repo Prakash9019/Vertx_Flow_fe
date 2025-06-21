@@ -28,6 +28,7 @@ export const StartupProfileProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [user_id, setUserid] = useState('');
+  const [startupId, setstartupId ] =useState('');
   const getToken = () => localStorage.getItem('authToken');
 
   const fetchStartupData = useCallback(async () => {
@@ -49,6 +50,7 @@ export const StartupProfileProvider = ({ children }) => {
       if (response.data && response.data.data) {
         const fetchedData = response.data.data;
         setUserid(fetchedData.userId)
+        setstartupId(fetchedData._id);
         setStartupData({
           stage: fetchedData.stage || '',
           location: fetchedData.location || '',
@@ -167,6 +169,7 @@ export const StartupProfileProvider = ({ children }) => {
       loadingData,
       fetchProfileData,
       user_id,
+      startupId,
       isSubmitting,
       error,
       successMessage,

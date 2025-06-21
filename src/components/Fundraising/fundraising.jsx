@@ -8,6 +8,7 @@ import Sidebar from "../Sidebar"
 import AddRoundPopup from "./AddRoundPopup"
 import FindInvestors from "./FindInvestors"
 import Target from "./Target"
+import BgImg from "../../assets/imgBackground.png";
 import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
 
@@ -208,7 +209,7 @@ function FundraisingManagePage() {
             style={{
               height: "11.375rem",
               backgroundColor: "#f0f0f0",
-              backgroundImage: "url(../src/assets/imgBackground.png)",
+              backgroundImage: `url(${BgImg})`,
               backgroundRepeat: "no-repeat",
               backgroundSize: "100% 100%",
               backgroundPosition: "center",

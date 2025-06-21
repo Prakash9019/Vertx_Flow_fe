@@ -164,7 +164,7 @@ const InvestorsIndustry = () => {
                   <label className="block font-inter font-semibold text-[10px] xs:text-xs sm:text-sm leading-[0.875rem] xs:leading-[0.9375rem] mb-1.5 xs:mb-2">
                     Which industry do you operate in?
                   </label>
-                  <p className="font-inter font-normal text-[10px] xs:text-xs leading-[0.875rem] xs:leading-[0.9375rem] mb-4 xs:mb-6 sm:mb-8">
+                  <p className="font-inter font-normal text-[10px] xs:text-xs leading-[0.875rem] xs:leading-[0.9375rem] mb-1 xs:mb-4 sm:mb-6">
                     Most investors specialize in specific industries. You can choose multiple.
                   </p>
 
@@ -287,8 +287,11 @@ const InvestorsIndustry = () => {
                   </div>
 
                 {/* Navigation buttons - add mt-8 to push below selected industries */}
-                <div className="flex justify-between items-center text-white pt-4 xs:pt-6 sm:pt-8 mt-auto">
-                  <button 
+                <div
+  className={`flex justify-between items-center text-white ${
+    error ? 'pt-4 xs:pt-6 sm:pt-8 mt-auto' : ''
+  }`}
+>                  <button 
                     className={`font-inter font-normal text-[10px] xs:text-xs sm:text-sm leading-[0.875rem] xs:leading-[1rem] sm:leading-[1.0625rem] ${
                       isLoading ? 'text-gray-500 cursor-not-allowed opacity-60' : 'text-white cursor-pointer'
                     }`}

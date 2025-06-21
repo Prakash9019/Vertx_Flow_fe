@@ -1,8 +1,18 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import { FaArrowUp } from "react-icons/fa";
 
 function HomePage() {
+ 
+  useEffect(() => {
+    const alreadyReloaded = sessionStorage.getItem("reloaded-homepage");
+  
+    if (window.location.pathname === "/homepage" && !alreadyReloaded) {
+      sessionStorage.setItem("reloaded-homepage", "true");
+      window.location.reload();
+    }
+  }, []);
+  
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white relative">
       {/* Background gradient */}
