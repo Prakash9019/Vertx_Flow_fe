@@ -35,6 +35,7 @@ import {
 
 // Import the new CallReportPage component
 import CallReportPage from "./callReportPage"
+import { useStartupProfile } from "../context/StartupProfileContext"
 
 function CallEndedScreen({ onReturnHome, onViewReport }) {
   return (
@@ -96,7 +97,7 @@ function CallEndedScreen({ onReturnHome, onViewReport }) {
   )
 }
 
-function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = false }) {
+function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = false, profileData }) {
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [hasMediaPermissions, setHasMediaPermissions] = useState(false)
@@ -210,9 +211,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               >
                 {"P"}
               </div>
-            </div>
-
-            <div
+            </div>            <div
               className="absolute top-4 left-4 px-3 py-1"
               style={{
                 color: "#FFF",
@@ -221,7 +220,9 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                 fontWeight: 500,
               }}
             >
-              {"Praneth Kumar | Vertxlabs"}
+              {profileData?.accountName && profileData?.companyName 
+                ? `${profileData.accountName} | ${profileData.companyName}`
+                : "User | Company"}
             </div>
 
             <div
@@ -431,7 +432,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
   )
 }
 
-function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId }) {
+function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId, profileData }) {
   const [callDuration, setCallDuration] = useState(0)
   const [showCaptions, setShowCaptions] = useState(false)
   const [captionLines, setCaptionLines] = useState(["", ""])
@@ -1136,8 +1137,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
             overflow: "hidden",
             background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
-        >
-          <div
+        >          <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
               color: "#FFF",
@@ -1146,7 +1146,9 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
               fontWeight: 500,
             }}
           >
-            Praneeth Kumar | Vertxlabs
+            {profileData?.accountName && profileData?.companyName 
+              ? `${profileData.accountName} | ${profileData.companyName}`
+              : "User | Company"}
           </div>
 
           <div className="w-full h-full flex items-center justify-center">
@@ -1156,21 +1158,19 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 width: "9.375rem",
                 height: "9.375rem",
               }}
-            >
-              <img
+            >              <img
                 src="/api/placeholder/150/150"
-                alt="Praneeth Kumar"
+                alt={profileData?.accountName || "User"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.style.display = "none"
                   e.target.nextSibling.style.display = "flex"
                 }}
-              />
-              <div
+              />              <div
                 className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
                 style={{ display: "none" }}
               >
-                P
+                {profileData?.accountName?.charAt(0) || "U"}
               </div>
             </div>
           </div>
@@ -1474,6 +1474,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
 }
 
 function MockPitching({ onBack }) {
+  const { profileData } = useStartupProfile()
   const socketRef = useRef(null);
   const [investors, setInvestors] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -1800,7 +1801,6 @@ function MockPitching({ onBack }) {
   if (showCallEndedScreen) {
     return <CallEndedScreen onReturnHome={handleReturnHome} onViewReport={handleViewReport} />
   }
-
   // Show video call interface when in video call
   if (isInVideoCall) {
     return <VideoCallInterface
@@ -1809,17 +1809,18 @@ function MockPitching({ onBack }) {
       isTransitioning={isTransitioning}
       sessionId={sessionId}
       setSessionId={setSessionId}
+      profileData={profileData}
     />
   }
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
-      {isCallActive && (
-        <CallingPage
+      {isCallActive && (        <CallingPage
           investor={callingInvestor}
           onEndCall={handleEndCall}
           onJoinCall={handleJoinCall}
           showFullInterface={showFullCallInterface}
+          profileData={profileData}
         />
       )}
 
