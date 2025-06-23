@@ -378,88 +378,96 @@ const toggleExpand = (index) => {
 
 {activeTab === "Analysis" && (
   <div className="space-y-4">
-    {categoryScores.map((item, index) => {
-      const isExpanded = expandedIndex === index;
-      const key = item.title.toLowerCase().replace(/ /g, "_");
-      const categoryData = analysis?.category_scores?.[key] || {};
-      const description = categoryData?.description; // ← Correct key
-      const score = categoryData?.score;
-      const rating = categoryData?.rating;
+    {categoryScores
+      .filter(
+        (item) =>
+          !["engagement", "fluency", "interactivity", "questions_asked"].includes(
+            item.title.toLowerCase().replace(/ /g, "_")
+          )
+      )
+      .map((item, index) => {
+        const isExpanded = expandedIndex === index;
+        const key = item.title.toLowerCase().replace(/ /g, "_");
+        const categoryData = analysis?.category_scores?.[key] || {};
+        const description = categoryData?.description;
+        const score = categoryData?.score;
+        const rating = categoryData?.rating;
 
-      return (
-        <div
-          key={index}
-          className="rounded-md overflow-hidden"
-          style={{ background: "#0F0E16" }}
-        >
-          {/* Accordion Header */}
+        return (
           <div
-            onClick={() => toggleExpand(index)}
-            className="flex items-center justify-between px-6 py-4 cursor-pointer"
-            style={{ background: "#000", borderRadius: "5px" }}
+            key={index}
+            className="rounded-md overflow-hidden"
+            style={{ background: "#0F0E16" }}
           >
-            <div className="text-white text-base font-semibold font-['Inter']">
-              {item.title}
-            </div>
+            {/* Accordion Header */}
+            <div
+              onClick={() => toggleExpand(index)}
+              className="flex items-center justify-between px-6 py-4 cursor-pointer"
+              style={{ background: "#000", borderRadius: "5px" }}
+            >
+              <div className="text-white text-base font-semibold font-['Inter']">
+                {item.title}
+              </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    style={{
+                      backgroundColor: item.color,
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "50%",
+                      display: "inline-block",
+                    }}
+                  />
+                  <span className="text-white text-sm font-semibold font-['Inter']">
+                    {item.status}
+                  </span>
+                </div>
+                <ChevronDown
+                  size={20}
+                  color="#FFF"
                   style={{
-                    backgroundColor: item.color,
-                    width: "12px",
-                    height: "12px",
-                    borderRadius: "50%",
-                    display: "inline-block",
+                    transition: "transform 0.3s ease",
+                    transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
                   }}
                 />
-                <span className="text-white text-sm font-semibold font-['Inter']">
-                  {item.status}
-                </span>
               </div>
-              <ChevronDown
-                size={20}
-                color="#FFF"
-                style={{
-                  transition: "transform 0.3s ease",
-                  transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                }}
-              />
             </div>
-          </div>
 
-          {/* Accordion Content */}
-          {isExpanded && (
-            <div
-              className="px-6 py-4 text-sm font-['Inter']"
-              style={{
-                background: "#0F0E16",
-                borderTop: "1px solid #222",
-              }}
-            >
-              {score !== undefined && (
-                <div className="text-white font-semibold mb-1">
-                  Score: <span className="font-normal text-gray-300">{score}</span>
-                </div>
-              )}
-              {rating && (
-                <div className="text-white font-semibold mb-1">
-                  Rating: <span className="font-normal text-gray-300">{rating}</span>
-                </div>
-              )}
-              {description && (
-                <div className="text-gray-300">
-                  {description}
-                </div>
-              )}
-              {!description && (
-                  <div className="text-gray-500 italic">No description available.</div>
-              )}
-            </div>
-          )}
-        </div>
-      );
-    })}
+            {/* Accordion Content */}
+            {isExpanded && (
+              <div
+                className="px-6 py-4 text-sm font-['Inter']"
+                style={{
+                  background: "#0F0E16",
+                  borderTop: "1px solid #222",
+                }}
+              >
+                {score !== undefined && (
+                  <div className="text-white font-semibold mb-1">
+                    Score:{" "}
+                    <span className="font-normal text-gray-300">{score}</span>
+                  </div>
+                )}
+                {rating && (
+                  <div className="text-white font-semibold mb-1">
+                    Rating:{" "}
+                    <span className="font-normal text-gray-300">{rating}</span>
+                  </div>
+                )}
+                {description ? (
+                  <div className="text-gray-300">{description}</div>
+                ) : (
+                  <div className="text-gray-500 italic">
+                    No description available.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
   </div>
 )}
 
