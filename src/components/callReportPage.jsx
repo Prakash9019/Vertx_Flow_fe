@@ -373,6 +373,8 @@ const toggleExpand = (index) => {
     </div>
   </div>
 )} */}
+
+
 {activeTab === "Analysis" && (
   <div className="space-y-4">
     {categoryScores.map((item, index) => {
@@ -462,7 +464,7 @@ const toggleExpand = (index) => {
 
 
 
-        {activeTab === "Insights" && (
+        {/* {activeTab === "Insights" && (
           <div
             className="pt-8 pb-8 px-4 rounded-lg space-y-4"
             style={{
@@ -497,7 +499,134 @@ const toggleExpand = (index) => {
               </div>
             )}
           </div>
-        )}
+        )} */}
+        {activeTab === "Insights" && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6 py-8">
+    
+    {/* ENGAGEMENT */}
+    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
+      <div>
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-lg font-semibold">Engagement</h3>
+          <span className="text-xl">🗣️</span>
+        </div>
+        <p className="text-sm text-gray-400 mb-2">
+          How much you talked vs. how much you listened
+        </p>
+        <div className="flex justify-between text-2xl font-bold mb-2">
+          <div>
+            <div className="text-sm text-gray-400 font-normal">Listened</div>
+            <div>{analysis?.category_scores?.engagement?.listened_count ?? "-"}</div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-400 font-normal">Talked</div>
+            <div>{analysis?.category_scores?.engagement?.talked_count ?? "-"}</div>
+          </div>
+        </div>
+        <div className="text-red-500 text-sm font-medium">
+          {analysis?.category_scores?.engagement?.rating ?? "-"}
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {analysis?.category_scores?.engagement?.description}
+        </div>
+      </div>
+      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
+        View detailed insights →
+      </button>
+    </div>
+
+    {/* FLUENCY */}
+    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
+      <div>
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-lg font-semibold">Fluency</h3>
+          <span className="text-xl">🧠</span>
+        </div>
+        <p className="text-sm text-gray-400 mb-2">
+          Fluency tells how smoothly and confidently you speak
+        </p>
+        <div className="grid grid-cols-3 text-center text-lg font-bold mb-2">
+          <div>
+            <div className="text-xs text-gray-400">Fillers</div>
+            <div>{analysis?.category_scores?.fluency?.fillers ?? "-"}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-400">Grammar</div>
+            <div>{analysis?.category_scores?.fluency?.grammar ?? "-"}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-400">Vocab</div>
+            <div>{analysis?.category_scores?.fluency?.vocabulary ?? "-"}</div>
+          </div>
+        </div>
+        <div className={`text-sm font-medium ${
+          analysis?.category_scores?.fluency?.rating === "Good" ? "text-teal-400" :
+          analysis?.category_scores?.fluency?.rating === "Average" ? "text-yellow-400" : "text-red-500"
+        }`}>
+          {analysis?.category_scores?.fluency?.rating ?? "-"}
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {analysis?.category_scores?.fluency?.description}
+        </div>
+      </div>
+      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
+        View detailed insights →
+      </button>
+    </div>
+
+    {/* INTERACTIVITY */}
+    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
+      <div>
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-lg font-semibold">Interactivity</h3>
+          <span className="text-xl">🔁</span>
+        </div>
+        <p className="text-sm text-gray-400 mb-2">
+          How often the conversation switched
+        </p>
+        <div className="text-3xl font-bold mb-2">
+          {analysis?.category_scores?.interactivity?.score ?? "-"}
+        </div>
+        <div className="text-red-500 text-sm font-medium">
+          {analysis?.category_scores?.interactivity?.rating ?? "-"}
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {analysis?.category_scores?.interactivity?.description}
+        </div>
+      </div>
+      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
+        View detailed insights →
+      </button>
+    </div>
+
+    {/* QUESTIONS ASKED */}
+    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
+      <div>
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-lg font-semibold">Questions Asked</h3>
+          <span className="text-xl">❓</span>
+        </div>
+        <p className="text-sm text-gray-400 mb-2">
+          Number of questions asked per minute
+        </p>
+        <div className="text-3xl font-bold mb-2">
+          {analysis?.category_scores?.questions_asked?.score ?? "-"}
+        </div>
+        <div className="text-red-500 text-sm font-medium">
+          {analysis?.category_scores?.questions_asked?.rating ?? "-"}
+        </div>
+        <div className="text-xs text-gray-400 mt-1">
+          {analysis?.category_scores?.questions_asked?.description}
+        </div>
+      </div>
+      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
+        View detailed insights →
+      </button>
+    </div>
+
+  </div>
+)}
+
 
         {activeTab === "Summary" && (
           <div className="relative flex flex-col gap-8 items-start w-[1145px] max-w-full min-h-[430px] mx-auto mt-4">
