@@ -23,7 +23,16 @@ const fallbackAvatar = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
 // InvestorCard component
 const InvestorCard = ({ investor, isSelected, onClick }) => {
   console.log("Rendering investor card for:", investor);
-  
+  const getCountString = (str, isGeography = false) => {
+    if (!str) {
+      return isGeography ? "+0" : "+0"; // Default for empty string
+    }
+    const items = str.split(',').filter(s => s.trim() !== '');
+    if (items.length === 0) {
+      return isGeography ? "+0" : "+0";
+    }
+    return isGeography ? `+${items.length}` : `+${items.length - 1}`;
+  };
   const getMatchColor = (matchValue) => {
     if (!matchValue) return "bg-[#DE2D2D]";
     const value = parseInt(matchValue);
@@ -36,32 +45,24 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
 
   const getInvestorData = (investor) => {
     return {
-      id: investor.id || investor._id,
+      id: investor._id, // Use MongoDB's default _id as the primary identifier
       name: investor.name || "Unnamed Investor",
-      company: investor.company || investor.firm || investor.fund ,
-      avatar: investor.profile_image || investor.avatar || fallbackAvatar,
-      checkSize: investor.checkSize || investor.check_size || 
-                (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
-                  investor.check_size_ranges[0] : "$N/A"),
-      stage: investor.stage || 
-             (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
-              investor.invests_in_rounds[0] : "N/A"),
-      stageCount: investor.stageCount || 
-                 (investor.invests_in_rounds ? 
-                  `+${investor.invests_in_rounds.length - 1}` : "+0"),
-      industry: investor.industry || 
-               (investor.sectors && investor.sectors.length > 0 ? 
-                investor.sectors[0] : "N/A"),
-      industryCount: investor.industryCount || 
-                    (investor.sectors ? 
-                     `+${investor.sectors.length - 1}` : "+0"),
-      geography: investor.geography || 
-                (investor.geographies && investor.geographies.length > 0 ? 
-                 `+${investor.geographies.length}` : "+0"),
-      match: investor.match || "0%",
-      matchValue: investor.matchValue || 0,
-      type: investor.type || investor.title || "VC",
-      contacts: investor.contacts || {}
+      company: investor.fund || "", // Maps to 'fund' in the new schema
+      avatar: investor.profile_image || fallbackAvatar, // Maps to 'profile_image'
+      checkSize: investor.cheque_range || "$N/A", // Directly uses 'cheque_range' from the new schema
+      stage: investor.stage || "N/A", // Directly uses 'stage' (comma-separated string)
+      stageCount: investor.stage.length, // Calculates count from 'stage' string
+      industry: investor.industry || "N/A", // Directly uses 'industry' (comma-separated string)
+      industryCount: investor.industry.length, // Calculates count from 'industry' string
+      geography: investor.countries, // Maps to the count of 'countries'
+      match: investor.match || "0%", // Assumed to be directly available on the investor object
+      matchValue: investor.matchValue || 0, // Assumed to be directly available on the investor object
+      type: investor.type || "VC",
+      email:investor.email,
+      twitter: investor.twitter,
+      crunchbase:investor.crunchbase,
+      linkedin:investor.linkedin_personal,
+      website:investor.website
     };
   };
 
@@ -74,7 +75,6 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
     >
       {(() => {
         const investorData = getInvestorData(investor);
-        const contacts = investor.contacts || {};
         return (
           <>
             <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
@@ -90,19 +90,19 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
                     {investorData.name}
                   </span>
                   <div className="flex gap-1 flex-shrink-0">
-                    {contacts.linkedin && (
+                    {investorData.linkedin && (
                       <img src={LinkedIn} alt="LinkedIn" className="w-6 h-6 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
-                    {contacts.website && (
+                    {investorData.website && (
                       <img src={LinkIcon} alt="Link" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
-                    {contacts.email && (
+                    {investorData.email && (
                       <img src={MailIcon} alt="Mail" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
-                    {contacts.twitter && (
+                    {investorData.twitter && (
                       <img src={TwitterIcon} alt="Twitter" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer" />
                     )}
-                    {!contacts.linkedin && !contacts.website && !contacts.email && !contacts.twitter && (
+                    {!investorData.linkedin && !investorData.website && !investorData.email && !investorData.twitter && (
                       <>
                         <img src={LinkedIn} alt="LinkedIn" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
                         <img src={LinkIcon} alt="Link" className="w-6 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer opacity-30" />
@@ -117,7 +117,7 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
                     {investorData.company}
                   </span>}
                   <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0">
-                    {(investorData.type === "ACCELERATOR") ? "ACC" : "VC"}
+                    {investorData.type}
                   </span>
                 </div>
               </div>
@@ -263,9 +263,20 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     console.log("Selected investor:", investor);
     setSelectedInvestor(investor);
   };
+  const getCountString = (str, isGeography = false) => {
+    if (!str) {
+      return isGeography ? "+0" : "+0"; // Default for empty string
+    }
+    const items = str.split(',').filter(s => s.trim() !== '');
+    if (items.length === 0) {
+      return isGeography ? "+0" : "+0";
+    }
+    return isGeography ? `+${items.length}` : `+${items.length - 1}`;
+  };
 
   const handleToggleInvestor = async (investor) => {
     const investorId = investor.id || investor._id;
+    console.log(investorId)
     if (!investorId) {
       console.error("Investor has no ID");
       alert("Error: Cannot identify investor");
@@ -275,12 +286,14 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     const newAddedInvestors = new Set(addedInvestors);
       if (addedInvestors.has(investorId)) {
       try {
-        const listId = selectedList?.id;
+        console.log(selectedList);
+        const listId = selectedList?._id;
+        console.log(listId);
         if (!listId) {
           console.error("No list selected");
           return;
         }
-        
+        console.log(listId);
         // Call backend API to remove investor from list
         const response = await fetch(`${API_KEY}/api/list/remove-investor`, {
           method: 'POST',
@@ -316,6 +329,8 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     
     try {
       const listId = selectedList?.id;
+      console.log(selectedList)
+      console.log(investorId)
       if (!listId) {
         console.error("No list selected");
         alert("Please select a list first");
@@ -368,32 +383,24 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       const getInvestorDataForStorage = (investor) => {
         return {
           ...investor,
-          id: investorId,
+          id: investor._id, // Use MongoDB's default _id as the primary identifier
           name: investor.name || "Unnamed Investor",
-          company: investor.company || investor.firm || investor.fund || "Unknown Company",
-          avatar: investor.profile_image || investor.avatar || fallbackAvatar,
-          checkSize: investor.checkSize || investor.check_size || 
-                    (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
-                    investor.check_size_ranges[0] : "$N/A"),
-          stage: investor.stage || 
-                (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
-                investor.invests_in_rounds[0] : "N/A"),
-          stageCount: investor.stageCount || 
-                    (investor.invests_in_rounds ? 
-                    `+${Math.max(0, investor.invests_in_rounds.length - 1)}` : "+0"),
-          industry: investor.industry || 
-                  (investor.sectors && investor.sectors.length > 0 ? 
-                  investor.sectors[0] : "N/A"),
-          industryCount: investor.industryCount || 
-                      (investor.sectors ? 
-                        `+${Math.max(0, investor.sectors.length - 1)}` : "+0"),
-          geography: investor.geography || 
-                  (investor.geographies && investor.geographies.length > 0 ? 
-                    `+${investor.geographies.length}` : "+0"),
-          match: investor.match || "0%",
-          matchValue: investor.matchValue || 0,
-          type: investor.type || investor.title || "VC",
-          contacts: investor.contacts || {}
+          company: investor.fund || "", // Maps to 'fund' in the new schema
+          avatar: investor.profile_image || fallbackAvatar, // Maps to 'profile_image'
+          checkSize: investor.cheque_range || "$N/A", // Directly uses 'cheque_range' from the new schema
+          stage: investor.stage || "N/A", // Directly uses 'stage' (comma-separated string)
+          stageCount: investor.stage.length, // Calculates count from 'stage' string
+          industry: investor.industry || "N/A", // Directly uses 'industry' (comma-separated string)
+          industryCount: investor.industry.length, // Calculates count from 'industry' string
+          geography: investor.countries, // Maps to the count of 'countries'
+          match: investor.match || "0%", // Assumed to be directly available on the investor object
+          matchValue: investor.matchValue || 0, // Assumed to be directly available on the investor object
+          type: investor.type || "VC",
+          email:investor.email,
+          twitter: investor.twitter,
+          crunchbase:investor.crunchbase,
+          linkedin:investor.linkedin_personal,
+          website:investor.website
         };
       };
       
@@ -695,7 +702,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                           style={{ width: "1.87306rem", height: "1.87306rem" }}
                         />
                         <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
-                          {selectedInvestor.company || selectedInvestor.firm || "N/A"}
+                          {selectedInvestor.company || selectedInvestor.fund || "N/A"}
                         </span>
                       </div>
                       <div className="flex items-center justify-center gap-3 text-white">
@@ -706,7 +713,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                           style={{ width: "1.87306rem", height: "1.87306rem" }}
                         />
                         <span className="font-inter font-normal" style={{ fontSize: "1.25rem" }}>
-                          {selectedInvestor.location || selectedInvestor.geography || "Location not specified"}
+                         {selectedInvestor.countries[0]}  {selectedInvestor.location || selectedInvestor.geography || "Location not specified"}
                         </span>
                       </div>
                       <div className="flex items-center justify-center gap-3 text-white">

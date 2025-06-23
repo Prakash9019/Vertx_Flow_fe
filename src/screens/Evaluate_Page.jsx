@@ -471,7 +471,7 @@ function Evaluate_Page() {
                     </div>
                     <div className="text-left">
                       <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
-                      <p className="text-white text-sm mb-1">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
+                      <p className="text-white text-sm mb-3">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
                       {item.uploadedBy && (
                         <p className="text-gray-400 text-xs mb-2">
                           Uploaded by: {item.uploadedBy.name || item.uploadedBy.email} ({item.uploaderRole})
