@@ -5,6 +5,8 @@ import Link from "../../assets/link.svg"
 import Mail from "../../assets/mail.svg"
 import Twitter from "../../assets/twitter.svg"
 import API_KEY from '../../../key';
+import Dropdown from "../Dropdown.jsx"; // adjust path as per your project
+
 // Simple base64 fallback avatar
 const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
@@ -274,75 +276,44 @@ if (error) return <div className="text-center py-8 text-red-500">Error: {error}<
               
               <div className="flex ml-6 gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
                                 {/* Global HQ Filter */}
- <div className="relative flex-shrink-0" >                           
-                                <select
-                                    name="type"
-                                    multiple // Enable multi-select
-                                    value={filters.type}
-                                    onChange={handleFilterChange}
-                                    className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem]"
-                                >
-                                    <option value="">Select Type(s)</option>
-                                    {Type.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
+<div className="flex flex-wrap gap-2 sm:gap-4 md:gap-6 xl:gap-8">
+  <Dropdown
+    label="Type"
+    options={Type}
+    selected={filters.type}
+    setSelected={(val) =>
+      setFilters((prev) => ({ ...prev, type: val }))
+    }
+  />
+  <Dropdown
+    label="Stage"
+    options={STAGE_OPTIONS}
+    isMulti
+    selected={filters.stage}
+    setSelected={(val) =>
+      setFilters((prev) => ({ ...prev, stage: val }))
+    }
+  />
+  <Dropdown
+    label="Industry"
+    options={INDUSTRY_OPTIONS}
+    isMulti
+    selected={filters.industry}
+    setSelected={(val) =>
+      setFilters((prev) => ({ ...prev, industry: val }))
+    }
+  />
+  <Dropdown
+    label="Geography"
+    options={COUNTRY_OPTIONS}
+    isMulti
+    selected={filters.countries}
+    setSelected={(val) =>
+      setFilters((prev) => ({ ...prev, countries: val }))
+    }
+  />
+</div>
 
-                                {/* Countries Filter */}
-                                <select
-                                    name="countries"
-                                    multiple // Enable multi-select
-                                    value={filters.countries}
-                                    onChange={handleFilterChange}
-                                    className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem]" >
-                                    <option value="">Select Country/Countries</option>
-                                    {COUNTRY_OPTIONS.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-
-                                {/* Stage Filter */}
-                                <select
-                                    name="stage"
-                                    multiple // Enable multi-select
-                                    value={filters.stage}
-                                    onChange={handleFilterChange}
-                                    className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem]"  >
-                                    <option value="">Select Stage(s)</option>
-                                    {STAGE_OPTIONS.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-
-                                {/* Industry Filter */}
-                                <select
-                                    name="industry"
-                                    multiple // Enable multi-select
-                                    value={filters.industry}
-                                    onChange={handleFilterChange}
-                                    className="bg-black text-left text-gray-400 font-normal text-[0.625rem] border-none outline-none appearance-none pr-6 pl-3 py-1 rounded-[0.1875rem] h-[1.75rem]"  >
-                                    <option value="">Select Industry/Industries</option>
-                                    {INDUSTRY_OPTIONS.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-
-                                {/* You can add more filters here, e.g., type, cheque_range if they are dropdowns */}
-                                {/* Example for a single-select 'type' filter */}
-                                {/*
-                                <select
-                                    name="type"
-                                    value={filters.type}
-                                    onChange={handleFilterChange}
-                                    className="w-full px-4 py-2 rounded-md bg-gray-700 border border-gray-600 text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none custom-select"
-                                >
-                                    <option value="">Select Type</option>
-                                    <option value="VC">VC</option>
-                                    <option value="Solo Angel">Solo Angel</option>
-                                    <option value="Accelerator">Accelerator</option>
-                                </select>
-                                */}
-                                </div>
 
                             </div>
             </div>
