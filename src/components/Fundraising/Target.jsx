@@ -116,7 +116,7 @@ export default function Target({ onListSelect }) {
         createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
         investors: Array.isArray(list.investors) ? list.investors : []
       }));
-      
+      console.log(formattedLists.investors)
       setUserTargetLists(formattedLists);
     } catch (error) {
       console.error('Error fetching lists:', error);
@@ -835,7 +835,7 @@ export default function Target({ onListSelect }) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0">
+                <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0 pl-4">
                   <div className="flex justify-center flex-shrink-0 w-12">
                     <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
                       CHECK SIZE
@@ -922,110 +922,116 @@ export default function Target({ onListSelect }) {
                             {investor.company || investor.firm || investor.fund}
                           </span>
                           <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0 font-['Inter']">
-                            {investor.type === "ACCELERATOR" ? "ACC" : "VC"}
+                            {investor.type}
                           </span>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
-                        {investor.checkSize || investor.check_size || 
-                (investor.check_size_ranges && investor.check_size_ranges.length > 0 ? 
-                  investor.check_size_ranges[0] : "$N/A")}
-                      </div>
 
-                      <div className="flex flex-col  gap-y-1 flex-shrink-0">
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.stage || 
-             (investor.invests_in_rounds && investor.invests_in_rounds.length > 0 ? 
-              investor.invests_in_rounds[0] : "N/A")}
-                        </div>
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.stageCount ||   (investor.invests_in_rounds ? `+${investor.invests_in_rounds.length - 1}` : "+0")}
-                        </div>
-                      </div>
+{/* Check Size */}
+<div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
+  {investor.checkSize || "—"}
+</div>
 
-                      <div className="flex flex-col  gap-y-1 flex-shrink-0">
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.industry || 
-               (investor.sectors && investor.sectors.length > 0 ? 
-                investor.sectors[0] : "N/A")}
-                        </div>
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.industryCount || (investor.sectors ?  `+${investor.sectors.length - 1}` : "+0")}
-                        </div>
-                      </div>
+{/* Stage */}
+<div className="flex flex-col gap-y-1 flex-shrink-0">
+  <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
+    {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+  </div>
+  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+    {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
+     investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
+  </div>
+</div>
 
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
-                          <div className="w-5 h-3 flex items-center justify-center">
-                            <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
-                          </div>
-                        </div>
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.geography || 
-                (investor.geographies && investor.geographies.length > 0 ? 
-                 `+${investor.geographies.length}` : "+0")}
-                        </div>
-                      </div>
+{/* Industry */}
+<div className="flex flex-col gap-y-1 flex-shrink-0">
+  <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
+    {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+  </div>
+ {investor.industry.length>0 && <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+    {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
+     investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
+  </div>}
+</div>
 
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <div
-                          className="w-2.5 h-2.5 rounded-full"
-                          style={{ background: getMatchColor(investor.matchValue) }}
-                        ></div>
-                        <span className="text-white text-base font-semibold font-['Inter']">{investor.match}</span>
-                      </div>
+{/* Geography */}
+<div className="flex items-center gap-1 flex-shrink-0">
+  <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
+    <div className="w-5 h-3 flex items-center justify-center">
+      <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
+    </div>
+  </div>
+  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+    {investor.geography || (investor.geography?.length > 0 ? `+${investor.geography.length}` : "+0")}
+  </div>
+</div>
 
-                      <button
-                        className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem]"
-                        style={{
-                          background:
-                            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
-                        }}
-                      >
-                        Submit
-                      </button>
+{/* Match Value */}
+<div className="flex items-center gap-1 flex-shrink-0">
+  <div
+    className="w-2.5 h-2.5 rounded-full"
+    style={{ background: getMatchColor(investor.matchValue) }}
+  ></div>
+  <span className="text-white text-base font-semibold font-['Inter']">{investor.match || "—"}</span>
+</div>
 
-                      <div className="relative flex-shrink-0">
-                        <button
-                          className="hover:opacity-70 transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setActiveDropdown(activeDropdown === investor.id ? null : investor.id)
-                          }}
-                        >
-                          <MoreVertical className="w-6 h-6 text-gray-400" />
-                        </button>                        {activeDropdown === investor.id && (
-                          <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
-                            <div className="py-1">                              {[
-                                { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
-                                { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
-                                { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
-                              ].filter(item => {                                if (item.requiresEdit && !canEdit) return false;
-                                if (item.requiresView && !canView) return false;
-                                return true;
-                              }).map((item, index) => (
-                                <button
-                                  key={index}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    item.action();
-                                  }}
-                                  className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
-                                >
-                                  <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
-                                    {item.icon}
-                                  </div>
-                                  {item.text}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+{/* Submit Button */}
+<button
+  className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem] transition-all hover:scale-105"
+  style={{
+    background:
+      "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+  }}
+>
+  Submit
+</button>
+
+{/* Dropdown */}
+<div className="relative flex-shrink-0">
+  <button
+    className="hover:opacity-70 transition-colors"
+    onClick={(e) => {
+      e.stopPropagation();
+      setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+    }}
+  >
+    <MoreVertical className="w-6 h-6 text-gray-400" />
+  </button>
+
+  {activeDropdown === investor.id && (
+    <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+      <div className="py-1">
+        {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
+          { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
+          { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
+        ].filter(item => {
+          if (item.requiresEdit && !canEdit) return false;
+          if (item.requiresView && !canView) return false;
+          return true;
+        }).map((item, index) => (
+          <button
+            key={index}
+            onClick={(e) => {
+              e.stopPropagation();
+              item.action();
+            }}
+            className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+          >
+            <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+              {item.icon}
+            </div>
+            {item.text}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+</div>
+
                   </div>
                 ))}
               </div>

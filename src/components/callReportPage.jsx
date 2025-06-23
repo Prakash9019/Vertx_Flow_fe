@@ -1,14 +1,11 @@
 import { useState } from "react";
 import { ArrowLeft, Play, Search } from "lucide-react";
-
-// SVG imports for the bottom navigation (reused from MockPitching)
 import logo from "../assets/logo.svg";
 import ContactsIcon from "../assets/ContactsIcon.svg";
 import AddIcon from "../assets/AddIcon.svg";
 import SpeedometerIcon from "../assets/SpeedometerIcon.svg";
 import TuneIcon from "../assets/TuneIcon.svg";
 
-// Reusing the bottom navigation style from MockPitching
 const BottomNavigation = ({ onBack }) => {
   return (
     <div
@@ -119,41 +116,21 @@ const BottomNavigation = ({ onBack }) => {
   );
 };
 
-const CallDetailView = ({ investor, onBack }) => {
+const CallDetailView = ({ analysis, onBack }) => {
   const [activeTab, setActiveTab] = useState("Analysis");
+  const getColor = (score) => {
+    if (score >= 75) return ["Excellent", "#10B981"];
+    if (score >= 60) return ["Good", "#22D3EE"];
+    if (score >= 45) return ["Satisfactory", "#EAB308"];
+    if (score >= 30) return ["Below Average", "#F59E0B"];
+    return ["Needs Improvement", "#DE2D2D"];
+  };
 
-  const analysisItems = [
-    {
-      title: "Hook & Story",
-      status: "Needs Improvement",
-      color: "#DE2D2D",
-      bgColor: "rgba(222, 45, 45, 0.1)"
-    },
-    {
-      title: "Problem & Urgency", 
-      status: "Below Average",
-      color: "#F59E0B",
-      bgColor: "rgba(245, 158, 11, 0.1)"
-    },
-    {
-      title: "Solution & Fit",
-      status: "Satisfactory",
-      color: "#EAB308",
-      bgColor: "rgba(234, 179, 8, 0.1)"
-    },
-    {
-      title: "Market & Opportunity",
-      status: "Good",
-      color: "#10B981",
-      bgColor: "rgba(16, 185, 129, 0.1)"
-    },
-    {
-      title: "Market & Opportunity",
-      status: "Good", 
-      color: "#10B981",
-      bgColor: "rgba(16, 185, 129, 0.1)"
-    }
-  ];
+  const categoryScores = Object.entries(analysis?.category_scores || {}).map(([title, scoreData]) => {
+    const score = typeof scoreData === 'object' ? scoreData.score : scoreData;
+    const [label, color] = getColor(score);
+    return { title: title.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), status: label, color, score };
+  });
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
@@ -261,25 +238,28 @@ const CallDetailView = ({ investor, onBack }) => {
 
       {/* Main Content */}
       <div
-        className="flex-1"
+        className="flex-1 hide-scrollbar"
         style={{
           paddingLeft: "4rem",
           paddingRight: "4rem",
           paddingTop: "2rem",
           paddingBottom: "8rem",
+          maxHeight: "calc(100vh - 14.25rem)", // 14.25rem is the header height
+          overflowY: "auto", // Enable vertical scrolling
+          scrollbarWidth: "none",        // Firefox
+          msOverflowStyle: "none",       // IE and Edge
         }}
       >
         {activeTab === "Analysis" && (
-        <div
-        className="pt-8 pb-8 px-4 rounded-lg"
-        style={{
-          borderRadius: "0.625rem",
-          background: "#0F0E16",
-        }}
-      >
-      
+          <div
+            className="pt-8 pb-8 px-4 rounded-lg"
+            style={{
+              borderRadius: "0.625rem",
+              background: "#0F0E16",
+            }}
+          >
             <div className="space-y-2">
-              {analysisItems.map((item, index) => (
+              {categoryScores.map((item, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-6 rounded-lg"
@@ -332,37 +312,100 @@ const CallDetailView = ({ investor, onBack }) => {
         )}
 
         {activeTab === "Insights" && (
-          <div className="text-center text-gray-400 py-12">
-            <h3 className="text-xl mb-4">Insights</h3>
-            <p>Detailed insights about the call will be displayed here...</p>
+          <div
+            className="pt-8 pb-8 px-4 rounded-lg space-y-4"
+            style={{
+              borderRadius: "0.625rem",
+              background: "#0F0E16",
+            }}
+          >
+            {analysis?.investor_perspective && (
+              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Investor Perspective</h4>
+                <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.investor_perspective}</p>
+              </div>
+            )}
+            {analysis?.key_recommendations && analysis.key_recommendations.length > 0 && (
+              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Key Recommendations</h4>
+                <ul className="text-gray-300 space-y-1" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>
+                  {analysis.key_recommendations.map((rec, index) => (
+                    <li key={index}>• {rec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {analysis?.next_steps && analysis.next_steps.length > 0 && (
+              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Next Steps</h4>
+                <ul className="text-gray-300 space-y-1" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>
+                  {analysis.next_steps.map((step, index) => (
+                    <li key={index}>• {step}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === "Summary" && (
-          <div className="text-center text-gray-400 py-12">
-            <h3 className="text-xl mb-4">Summary</h3>
-            <p>Call summary and key takeaways will be displayed here...</p>
+          <div
+            className="pt-8 pb-8 px-4 rounded-lg space-y-4"
+            style={{
+              borderRadius: "0.625rem",
+              background: "#0F0E16",
+            }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {analysis?.founder_name && (
+                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Founder Name</h4>
+                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.founder_name}</p>
+                </div>
+              )}
+              {analysis?.company_name && (
+                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Company Name</h4>
+                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.company_name}</p>
+                </div>
+              )}
+              {analysis?.overall_score && (
+                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Overall Score</h4>
+                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.overall_score}</p>
+                </div>
+              )}
+              {analysis?.overall_rating && (
+                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Overall Rating</h4>
+                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.overall_rating}</p>
+                </div>
+              )}
+            </div>
+            {analysis?.overall_description && (
+              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
+                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Description</h4>
+                <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.overall_description}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
+      <style>
+        {`
+          .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
     </div>
   );
 };
 
-const CallReportPage = ({ investor, onBack }) => {
+const CallReportPage = ({ investor, analysis, onBack }) => {
   const [showDetailView, setShowDetailView] = useState(false);
-
-  const handleViewClick = () => {
-    setShowDetailView(true);
-  };
-
-  const handleBackToList = () => {
-    setShowDetailView(false);
-  };
-
-  if (showDetailView) {
-    return <CallDetailView investor={investor} onBack={handleBackToList} />;
-  }
+  const handleViewClick = () => setShowDetailView(true);
+  if (showDetailView) return <CallDetailView analysis={analysis} onBack={() => setShowDetailView(false)} />;
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
@@ -378,7 +421,7 @@ const CallReportPage = ({ investor, onBack }) => {
         {/* Search Bar */}
         <div className="relative mb-8">
           <div className="relative">
-            <Search 
+            <Search
               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
               style={{
                 width: "1.38644rem",
@@ -478,7 +521,7 @@ const CallReportPage = ({ investor, onBack }) => {
               fontWeight: 600,
             }}
           >
-            1 hour ago
+            {analysis?.timestamp ? new Date(analysis.timestamp).toLocaleString() : "Now"}
           </div>
 
           <div
@@ -490,7 +533,7 @@ const CallReportPage = ({ investor, onBack }) => {
               fontWeight: 600,
             }}
           >
-            13:49
+            {analysis?.session_duration_minutes ? `${Math.floor(analysis.session_duration_minutes)}:${String(Math.floor((analysis.session_duration_minutes % 1) * 60)).padStart(2, '0')}` : "0:00"}
           </div>
 
           <div
@@ -502,7 +545,7 @@ const CallReportPage = ({ investor, onBack }) => {
               fontWeight: 600,
             }}
           >
-            31
+            {analysis?.overall_score || "-"}
           </div>
 
           <div
@@ -514,7 +557,7 @@ const CallReportPage = ({ investor, onBack }) => {
               fontWeight: 600,
             }}
           >
-            BAD
+            {analysis?.overall_rating || "-"}
           </div>
 
           <div style={{ width: "10%" }}>

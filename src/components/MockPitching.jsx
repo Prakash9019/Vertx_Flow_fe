@@ -10,7 +10,7 @@ import ContactsIcon from "../assets/ContactsIcon.svg"
 import AddIcon from "../assets/AddIcon.svg"
 import SpeedometerIcon from "../assets/SpeedometerIcon.svg"
 import TuneIcon from "../assets/TuneIcon.svg"
-import PlayIcon from "../assets/PlayIcon.svg" 
+import PlayIcon from "../assets/PlayIcon.svg"
 import EndCallIcon from "../assets/EndCall.svg";
 import VideoIcon from "../assets/VideoIcon.svg";
 import VideoOffIcon from "../assets/VideoOffIcon.svg";
@@ -35,6 +35,7 @@ import {
 
 // Import the new CallReportPage component
 import CallReportPage from "./callReportPage"
+import { useStartupProfile } from "../context/StartupProfileContext"
 
 function CallEndedScreen({ onReturnHome, onViewReport }) {
   return (
@@ -96,7 +97,7 @@ function CallEndedScreen({ onReturnHome, onViewReport }) {
   )
 }
 
-function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = false }) {
+function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = false, profileData }) {
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [hasMediaPermissions, setHasMediaPermissions] = useState(false)
@@ -107,7 +108,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
       requestMediaPermissions()
     }
   }, [showFullInterface])
-  
+
   // Function to request media permissions
   const requestMediaPermissions = async () => {
     try {
@@ -210,9 +211,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               >
                 {"P"}
               </div>
-            </div>
-
-            <div
+            </div>            <div
               className="absolute top-4 left-4 px-3 py-1"
               style={{
                 color: "#FFF",
@@ -221,7 +220,9 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                 fontWeight: 500,
               }}
             >
-              {"Praneth Kumar | Vertxlabs"}
+              {profileData?.accountName && profileData?.companyName 
+                ? `${profileData.accountName} | ${profileData.companyName}`
+                : "User | Company"}
             </div>
 
             <div
@@ -237,60 +238,60 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             </div>
 
             <div className="absolute bottom-4 left-4 flex gap-2">
-            <button
-  onClick={() => setIsMuted(!isMuted)}
-  className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
-  style={{
-    width: "3.125rem",
-    height: "3.125rem",
-    background: "transparent",
-    borderWidth: "1px",
-    borderColor: "#FFF",
-  }}
->
-  {isMuted ? (
-    <img
-      src={MicOffIcon}
-      alt="Mic Off"
-      style={{ width: "1.5rem", height: "1.5rem" }}
-    />
-  ) : (
-    <img
-      src={MicIcon}
-      alt="Mic On"
-      style={{ width: "1.5rem", height: "1.5rem" }}
-    />
-  )}
-</button>
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+                style={{
+                  width: "3.125rem",
+                  height: "3.125rem",
+                  background: "transparent",
+                  borderWidth: "1px",
+                  borderColor: "#FFF",
+                }}
+              >
+                {isMuted ? (
+                  <img
+                    src={MicOffIcon}
+                    alt="Mic Off"
+                    style={{ width: "1.5rem", height: "1.5rem" }}
+                  />
+                ) : (
+                  <img
+                    src={MicIcon}
+                    alt="Mic On"
+                    style={{ width: "1.5rem", height: "1.5rem" }}
+                  />
+                )}
+              </button>
 
             </div>
 
             <div className="absolute bottom-4 right-4">
-            <button
-  onClick={() => setIsVideoOff(!isVideoOff)}
-  className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
-  style={{
-    width: "3.125rem",
-    height: "3.125rem",
-    background: "transparent",
-    borderWidth: "1px",
-    borderColor: "#FFF",
-  }}
->
-  {isVideoOff ? (
-    <img
-      src={VideoOffIcon}
-      alt="Video Off"
-      style={{ width: "1.5rem", height: "1.5rem" }}
-    />
-  ) : (
-    <img
-      src={VideoIcon}
-      alt="Video On"
-      style={{ width: "1.5rem", height: "1.5rem" }}
-    />
-  )}
-</button>
+              <button
+                onClick={() => setIsVideoOff(!isVideoOff)}
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+                style={{
+                  width: "3.125rem",
+                  height: "3.125rem",
+                  background: "transparent",
+                  borderWidth: "1px",
+                  borderColor: "#FFF",
+                }}
+              >
+                {isVideoOff ? (
+                  <img
+                    src={VideoOffIcon}
+                    alt="Video Off"
+                    style={{ width: "1.5rem", height: "1.5rem" }}
+                  />
+                ) : (
+                  <img
+                    src={VideoIcon}
+                    alt="Video On"
+                    style={{ width: "1.5rem", height: "1.5rem" }}
+                  />
+                )}
+              </button>
 
             </div>
           </div>
@@ -431,7 +432,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
   )
 }
 
-function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId: propSessionId }) {
+function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId, profileData }) {
   const [callDuration, setCallDuration] = useState(0)
   const [showCaptions, setShowCaptions] = useState(false)
   const [captionLines, setCaptionLines] = useState(["", ""])
@@ -442,40 +443,40 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [sessionId, setSessionId] = useState(propSessionId || null)
+  // const [sessionId, setSessionId] = useState(propSessionId || null)
   const socketRef = useRef(null)
   const silenceTimerRef = useRef(null)
   const questionIndexRef = useRef(0)
   const [currentAudio, setCurrentAudio] = useState(null)
   useEffect(() => {
-  return () => {
-    try {
-      setIsListening(false)
-      setTranscript('')
-      setIsLoading(false)
+    return () => {
+      try {
+        setIsListening(false)
+        setTranscript('')
+        setIsLoading(false)
 
-      if (recognition) recognition.stop()
-      if (currentAudio) {
-        currentAudio.pause()
-        currentAudio.currentTime = 0
+        if (recognition) recognition.stop()
+        if (currentAudio) {
+          currentAudio.pause()
+          currentAudio.currentTime = 0
+        }
+        if (window.audioStream) {
+          window.audioStream.getTracks().forEach(track => track.stop())
+          window.audioStream = null
+        }
+        if (sessionId) {
+          fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason: 'user_ended' })
+          }).catch(console.error)
+        }
+        if (socketRef.current) socketRef.current.disconnect()
+      } catch (e) {
+        console.error("Cleanup failed:", e)
       }
-      if (window.audioStream) {
-        window.audioStream.getTracks().forEach(track => track.stop())
-        window.audioStream = null
-      }
-      if (sessionId) {
-        fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason: 'user_ended' })
-        }).catch(console.error)
-      }
-      if (socketRef.current) socketRef.current.disconnect()
-    } catch (e) {
-      console.error("Cleanup failed:", e)
     }
-  }
-}, [])
+  }, [])
 
 
   const questions = [
@@ -492,149 +493,260 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   ]
 
   // Initialize WebSocket connection and session
-  useEffect(() => {
-    // Generate unique session ID
-    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    setSessionId(newSessionId)
-    
-    // Connect to WebSocket server with proper error handling
-    let socket
-    try {
-      socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
-        transports: ['websocket', 'polling'],
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 20000
-      })
-      socketRef.current = socket
-    } catch (error) {
-      console.error('Error connecting to socket server:', error)
-      return
-    }
-    
-    // Connection events
-    socket.on('connect', () => {
-      console.log('Connected to AI server')
-      
-      // Start a session with the server
-      const sessionData = {
-        session_id: newSessionId,
-        persona: 'skeptical', // Use a specific persona ID that exists on the server
-        system: 'workflow'
-      }
-      
-      console.log('Starting session with data:', sessionData)
-      
-      // First emit session_started event
-      socket.emit('session_started', sessionData)
-      
-      // Don't automatically send initial message
-      // Let the user control the conversation flow
-    })
-    
-    // Connection error handling
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error)
-      setIsLoading(false)
-    })
-    
-    socket.on('connect_timeout', () => {
-      console.error('Socket connection timeout')
-      setIsLoading(false)
-    })
-    
-    // Listen for AI responses
-    socket.on('response', (data) => {
-      console.log('Received response from AI:', data)
-      
-      // Stop speech recognition while playing audio
-      if (recognition) {
-        try {
-          recognition.stop()
-        } catch (e) {
-          // Ignore errors
-        }
-      }
-      
-      // Play audio if available
-      if (data.audio_url) {
-        // Construct the full audio URL
-        let fullAudioUrl;
-        if (data.audio_url.startsWith('http')) {
-          fullAudioUrl = data.audio_url;
-        } else if (data.audio_url.startsWith('/')) {
-          fullAudioUrl = `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url}`;
-        } else {
-          fullAudioUrl = `https://ai-mock-pitching-427457295403.europe-west1.run.app/${data.audio_url}`;
-        }
-        
-        console.log('Playing audio from URL:', fullAudioUrl)
-        
-        // Try to play the audio
-        playAudio(fullAudioUrl)
-      } else {
-        console.warn('No audio URL in response')
-        setIsLoading(false)
-      }
-      
-      // Update captions with AI response
-      if (data.message && showCaptions) {
-        updateCaptionLines(data.message)
-      }
-    })
-    
-    // Listen for session started
-    socket.on('session_started', (data) => {
-      console.log('Session started confirmation:', data.session_id)
-    })
-    
-    // Listen for errors
-    socket.on('error', (error) => {
-      console.error('Socket error:', error)
-      setIsLoading(false)
-      
-      // Try to reconnect on error
-      if (socket && !socket.connected) {
-        socket.connect()
-      }
-    })
-    
-    // Timer for call duration
-    const timer = setInterval(() => {
-      setCallDuration((prev) => prev + 1)
-    }, 1000)
+  // useEffect(() => {
+  //   // Generate unique session ID
+  //   const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  //   setSessionId(newSessionId)
 
-    return () => {
-      clearInterval(timer)
-      if (socketRef.current) {
-        socketRef.current.disconnect()
+  //   // Connect to WebSocket server with proper error handling
+  //   let socket
+  //   try {
+  //     socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
+  //       transports: ['websocket', 'polling'],
+  //       reconnectionAttempts: 5,
+  //       reconnectionDelay: 1000,
+  //       timeout: 20000
+  //     })
+  //     socketRef.current = socket
+  //   } catch (error) {
+  //     console.error('Error connecting to socket server:', error)
+  //     return
+  //   }
+
+  //   // Connection events
+  //   socket.on('connect', () => {
+  //     console.log('Connected to AI server')
+
+  //     // Start a session with the server
+  //     const sessionData = {
+  //       session_id: newSessionId,
+  //       persona: 'skeptical', // Use a specific persona ID that exists on the server
+  //       system: 'workflow'
+  //     }
+
+  //     console.log('Starting session with data:', sessionData)
+
+  //     // First emit session_started event
+  //     socket.emit('session_started', sessionData)
+
+  //     // Don't automatically send initial message
+  //     // Let the user control the conversation flow
+  //   })
+
+  //   // Connection error handling
+  //   socket.on('connect_error', (error) => {
+  //     console.error('Socket connection error:', error)
+  //     setIsLoading(false)
+  //   })
+
+  //   socket.on('connect_timeout', () => {
+  //     console.error('Socket connection timeout')
+  //     setIsLoading(false)
+  //   })
+
+  //   // Listen for AI responses
+  //   socket.on('response', (data) => {
+  //     console.log('Received response from AI:', data)
+
+  //     // Stop speech recognition while playing audio
+  //     if (recognition) {
+  //       try {
+  //         recognition.stop()
+  //       } catch (e) {
+  //         // Ignore errors
+  //       }
+  //     }
+
+  //     // Play audio if available
+  //     if (data.audio_url) {
+  //       // Construct the full audio URL
+  //       let fullAudioUrl;
+  //       if (data.audio_url.startsWith('http')) {
+  //         fullAudioUrl = data.audio_url;
+  //       } else if (data.audio_url.startsWith('/')) {
+  //         fullAudioUrl = `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url}`;
+  //       } else {
+  //         fullAudioUrl = `https://ai-mock-pitching-427457295403.europe-west1.run.app/${data.audio_url}`;
+  //       }
+
+  //       console.log('Playing audio from URL:', fullAudioUrl)
+
+  //       // Try to play the audio
+  //       playAudio(fullAudioUrl)
+  //     } else {
+  //       console.warn('No audio URL in response')
+  //       setIsLoading(false)
+  //     }
+
+  //     // Update captions with AI response
+  //     if (data.message && showCaptions) {
+  //       updateCaptionLines(data.message)
+  //     }
+  //   })
+
+  //   // Listen for session started
+  //   socket.on('session_started', (data) => {
+  //     console.log('Session started confirmation:', data.session_id)
+  //   })
+
+  //   // Listen for errors
+  //   socket.on('error', (error) => {
+  //     console.error('Socket error:', error)
+  //     setIsLoading(false)
+
+  //     // Try to reconnect on error
+  //     if (socket && !socket.connected) {
+  //       socket.connect()
+  //     }
+  //   })
+
+  //   // Timer for call duration
+  //   const timer = setInterval(() => {
+  //     setCallDuration((prev) => prev + 1)
+  //   }, 1000)
+
+  //   return () => {
+  //     clearInterval(timer)
+  //     if (socketRef.current) {
+  //       socketRef.current.disconnect()
+  //     }
+  //     stopSpeechRecognition()
+  //   }
+  // }, [])
+  useEffect(() => {
+    const initSession = async () => {
+      let socket;
+
+      try {
+        // Generate a unique session ID
+        const uniqueSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Step 1: Start session via backend
+        const res = await fetch('https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            persona: 'skeptical',
+            system: 'workflow',
+            session_id: uniqueSessionId
+          })
+        });
+
+        const data = await res.json();
+        // Use our unique session ID instead of the one from the API
+        setSessionId(uniqueSessionId); // ✅ Save valid sessionId
+        console.log('✅ Session started with ID:', uniqueSessionId);
+
+        // Step 2: Connect to WebSocket
+        socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
+          transports: ['websocket', 'polling'],
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 20000
+        });
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+          console.log('✅ Connected to AI server');
+          socket.emit('session_started', {
+            session_id: uniqueSessionId,
+            persona: 'skeptical',
+            system: 'workflow'
+          });
+          console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
+        });
+
+        socket.on('response', (data) => {
+          console.log('🧠 AI response:', data);
+
+          if (recognition) {
+            try {
+              recognition.stop();
+            } catch (_) { }
+          }
+
+          if (data.audio_url) {
+            const fullAudioUrl = data.audio_url.startsWith('http')
+              ? data.audio_url
+              : `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url.startsWith('/') ? '' : '/'}${data.audio_url}`;
+
+            console.log('🔊 Playing audio:', fullAudioUrl);
+            playAudio(fullAudioUrl);
+          } else {
+            console.warn('⚠️ No audio URL in response');
+            setIsLoading(false);
+          }
+
+          if (data.message && showCaptions) {
+            updateCaptionLines(data.message);
+          }
+        });
+
+        socket.on('session_started', (data) => {
+          console.log('🟢 Server confirmed session:', data.session_id);
+        });
+
+        socket.on('connect_error', (err) => {
+          console.error('❌ Socket connect error:', err);
+          setIsLoading(false);
+        });
+
+        socket.on('connect_timeout', () => {
+          console.error('⏰ Socket timeout');
+          setIsLoading(false);
+        });
+
+        socket.on('error', (err) => {
+          console.error('🔥 Socket error:', err);
+          setIsLoading(false);
+          if (socket && !socket.connected) {
+            socket.connect();
+          }
+        });
+
+        const timer = setInterval(() => {
+          setCallDuration((prev) => prev + 1);
+        }, 1000);
+
+        // Cleanup
+        return () => {
+          clearInterval(timer);
+          if (socketRef.current) socketRef.current.disconnect();
+          stopSpeechRecognition();
+        };
+
+      } catch (err) {
+        console.error('❌ Error in initSession:', err);
+        setIsLoading(false);
       }
-      stopSpeechRecognition()
-    }
-  }, [])
-  
+    };
+
+    initSession();
+  }, []);
+
+
   // Start speech recognition - no longer used
   const startSpeechRecognition = () => {
     if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
       alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.')
       return
     }
-    
+
     // Stop any existing recognition first
     if (recognition) {
       recognition.stop()
     }
-    
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognitionInstance = new SpeechRecognition()
-    
+
     recognitionInstance.continuous = true
     recognitionInstance.interimResults = true
     recognitionInstance.lang = 'en-US'
-    
+
     recognitionInstance.onresult = (event) => {
       let finalTranscript = ''
-      
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript
@@ -642,21 +754,21 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
         }
       }
     }
-    
+
     recognitionInstance.onstart = () => {
       setIsListening(true)
     }
-    
+
     recognitionInstance.onend = () => {
       if (isListening) {
         setTimeout(() => recognitionInstance.start(), 100)
       }
     }
-    
+
     recognitionInstance.onerror = () => {
       setIsListening(false)
     }
-    
+
     try {
       recognitionInstance.start()
       setRecognition(recognitionInstance)
@@ -664,7 +776,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       setIsListening(false)
     }
   }
-  
+
   // Stop speech recognition - no longer used
   const stopSpeechRecognition = () => {
     setIsListening(false)
@@ -672,40 +784,40 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       recognition.stop()
     }
   }
-  
+
   // Function to send message to AI
   const sendMessage = (text) => {
     if (!text.trim() || !sessionId || !socketRef.current) {
       console.error('Cannot send message: missing text, sessionId, or socket connection')
       return
     }
-    
+
     // Don't send if we're already waiting for a response
     if (isLoading) {
       console.log('Already waiting for a response, ignoring new message')
       return
     }
-    
+
     setIsLoading(true) // Show loading indicator while waiting for response
     setIsListening(false) // Stop listening mode
-    
+
     // Stop speech recognition while sending message
     if (recognition) {
       recognition.stop()
     }
-    
+
     const messageData = {
       text: text.trim(),
       persona: 'skeptical', // Use a specific persona ID that exists on the server
       session_id: sessionId,
       system: 'workflow'
     }
-    
+
     console.log('Sending message to AI:', messageData)
-    
+
     // Send to backend
     socketRef.current.emit('text_message', messageData)
-    
+
     // Clear transcript after sending
     setTranscript('')
   }
@@ -793,7 +905,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
     const secs = seconds % 60
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
-  
+
   // Just clean up resources without ending the call
   const handleEndCallButton = () => {
     // Stop speech recognition
@@ -801,23 +913,23 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
     if (recognition) {
       try {
         recognition.stop()
-      } catch (e) {}
+      } catch (e) { }
     }
-    
+
     // Stop any playing audio
     if (currentAudio) {
       currentAudio.pause()
       currentAudio.currentTime = 0
     }
-    
+
     // Clear transcript
     setTranscript('')
-    
+
     console.log('End call button clicked - resources cleaned up')
   }
-  
 
-  
+
+
   // Play audio from URL
   const playAudio = (audioUrl) => {
     if (!audioUrl) {
@@ -825,24 +937,24 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       setIsLoading(false)
       return
     }
-    
+
     console.log('Attempting to play audio from URL:', audioUrl)
-    
+
     // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause()
       currentAudio.currentTime = 0
     }
-    
+
     // Create new audio element
     const audio = new Audio()
-    
+
     // Add event listeners
     audio.addEventListener('error', (e) => {
       console.error('Audio error:', e)
       console.error('Audio error code:', e.target.error ? e.target.error.code : 'unknown')
       setIsLoading(false)
-      
+
       // Try with a direct fetch to check if the URL is accessible
       fetch(audioUrl)
         .then(response => {
@@ -853,26 +965,26 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
         })
         .catch(err => console.error('Error fetching audio URL:', err))
     })
-    
+
     audio.addEventListener('canplaythrough', () => {
       console.log('Audio ready to play')
     })
-    
+
     audio.addEventListener('playing', () => {
       console.log('Audio is now playing')
     })
-    
+
     // Add cache busting parameter
     const finalUrl = audioUrl + (audioUrl.includes('?') ? '&' : '?') + `t=${Date.now()}`
     console.log('Final audio URL with cache busting:', finalUrl)
     audio.src = finalUrl
     audio.crossOrigin = 'anonymous' // Try with CORS enabled
-    
+
     setCurrentAudio(audio)
-    
+
     // Play the audio
     const playPromise = audio.play()
-    
+
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
@@ -882,27 +994,27 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
         .catch(error => {
           console.error('Error playing audio:', error)
           setIsLoading(false)
-          
+
           // Try an alternative approach - create an audio element in the DOM
           const audioElement = document.createElement('audio')
           audioElement.src = finalUrl
           audioElement.controls = false
           audioElement.style.display = 'none'
           document.body.appendChild(audioElement)
-          
+
           audioElement.onended = () => {
             document.body.removeChild(audioElement)
             setIsLoading(false) // Don't set loading to true here
           }
-          
+
           audioElement.play().catch(e => console.error('Alternative audio playback failed:', e))
         })
     }
-    
+
     audio.onended = () => {
       console.log('Audio playback finished')
       setIsLoading(false) // Set loading to false when audio finishes
-      
+
       // Don't automatically restart speech recognition
       // Let the user control when to start listening again
     }
@@ -1025,8 +1137,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
             overflow: "hidden",
             background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
-        >
-          <div
+        >          <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
               color: "#FFF",
@@ -1035,7 +1146,9 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
               fontWeight: 500,
             }}
           >
-            Praneeth Kumar | Vertxlabs
+            {profileData?.accountName && profileData?.companyName 
+              ? `${profileData.accountName} | ${profileData.companyName}`
+              : "User | Company"}
           </div>
 
           <div className="w-full h-full flex items-center justify-center">
@@ -1045,21 +1158,19 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 width: "9.375rem",
                 height: "9.375rem",
               }}
-            >
-              <img
+            >              <img
                 src="/api/placeholder/150/150"
-                alt="Praneeth Kumar"
+                alt={profileData?.accountName || "User"}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.style.display = "none"
                   e.target.nextSibling.style.display = "flex"
                 }}
-              />
-              <div
+              />              <div
                 className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
                 style={{ display: "none" }}
               >
-                P
+                {profileData?.accountName?.charAt(0) || "U"}
               </div>
             </div>
           </div>
@@ -1173,7 +1284,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 </div>
               </div>
             </div>
-            
+
             <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6">
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 mb-2">
@@ -1183,11 +1294,11 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 </div>
               ) : null}
               <p className="text-white mb-4">
-                {isLoading ? "AI is responding..." : 
-                 isListening ? "Listening... Click Stop when done" : 
-                 "Click Listen to start speaking"}
+                {isLoading ? "AI is responding..." :
+                  isListening ? "Listening... Click Stop when done" :
+                    "Click speak to start speaking"}
               </p>
-              
+
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => {
@@ -1196,14 +1307,14 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                       alert('Speech recognition not supported in this browser')
                       return
                     }
-                    
+
                     if (isListening) {
                       // Stop listening
                       if (recognition) {
                         try {
                           recognition.abort()
                           recognition.stop()
-                        } catch (e) {}
+                        } catch (e) { }
                       }
                       setIsListening(false)
                     } else {
@@ -1212,30 +1323,30 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                         try {
                           recognition.abort()
                           recognition.stop()
-                        } catch (e) {}
+                        } catch (e) { }
                       }
-                      
+
                       setTimeout(() => {
                         try {
                           const recognitionInstance = new SpeechRecognition()
                           recognitionInstance.continuous = true
                           recognitionInstance.interimResults = false
                           recognitionInstance.lang = 'en-US'
-                          
+
                           recognitionInstance.onresult = (event) => {
                             const last = event.results.length - 1
                             const transcript = event.results[last][0].transcript
                             setTranscript(prev => prev ? prev + ' ' + transcript.trim() : transcript.trim())
                           }
-                          
+
                           recognitionInstance.onend = () => {
                             if (isListening) {
                               try {
                                 recognitionInstance.start()
-                              } catch (e) {}
+                              } catch (e) { }
                             }
                           }
-                          
+
                           recognitionInstance.start()
                           setRecognition(recognitionInstance)
                           setIsListening(true)
@@ -1254,9 +1365,9 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                     opacity: isLoading ? "0.5" : "1",
                   }}
                 >
-                  {isListening ? "Stop" : "Listen"}
+                  {isListening ? "Stop" : "speak"}
                 </button>
-                
+
                 <button
                   onClick={() => {
                     if (transcript) {
@@ -1275,7 +1386,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                   Send
                 </button>
               </div>
-              
+
               {transcript && (
                 <div className="mt-4 p-3 bg-gray-700 bg-opacity-50 rounded-md max-h-32 overflow-y-auto">
                   <p className="text-white text-sm">{transcript}</p>
@@ -1304,33 +1415,33 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
         </div>
 
         <div className="flex gap-4">
-        <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
-  <img
-    src={PresentationIcon}
-    alt="Presentation Icon"
-    style={{ width: "1.25rem", height: "1.25rem" }}
-  />
-</button>
+          <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
+            <img
+              src={PresentationIcon}
+              alt="Presentation Icon"
+              style={{ width: "1.25rem", height: "1.25rem" }}
+            />
+          </button>
 
 
-<button
-  onClick={toggleCaptions}
-  className="hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110"
-  style={{
-    width: showCaptions ? "2.5rem" : "auto",
-    height: showCaptions ? "2.5rem" : "auto",
-    background: showCaptions ? "#1C60CE" : "transparent",
-  }}
->
-  <img
-    src={CaptionIcon}
-    alt="Captions"
-    style={{
-      width: "1.25rem",
-      height: "1.25rem",
-    }}
-  />
-</button>
+          <button
+            onClick={toggleCaptions}
+            className="hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110"
+            style={{
+              width: showCaptions ? "2.5rem" : "auto",
+              height: showCaptions ? "2.5rem" : "auto",
+              background: showCaptions ? "#1C60CE" : "transparent",
+            }}
+          >
+            <img
+              src={CaptionIcon}
+              alt="Captions"
+              style={{
+                width: "1.25rem",
+                height: "1.25rem",
+              }}
+            />
+          </button>
 
         </div>
       </div>
@@ -1360,9 +1471,11 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       </div>
     </div>
   )
-} 
+}
 
 function MockPitching({ onBack }) {
+  const { profileData } = useStartupProfile()
+  const socketRef = useRef(null);
   const [investors, setInvestors] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedInvestor, setSelectedInvestor] = useState(null)
@@ -1374,64 +1487,66 @@ function MockPitching({ onBack }) {
   const [showReportPage, setShowReportPage] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [sessionId, setSessionId] = useState(null)
+  const [analysis, setAnalysis] = useState(null);
+
   // const [isListening, setIsListening] = useState(false)
 
 
-//   useEffect(() => {
-//   return () => {
-//     setIsListening(false)
-//     setTranscript('')
-//     setIsLoading(false)
+  //   useEffect(() => {
+  //   return () => {
+  //     setIsListening(false)
+  //     setTranscript('')
+  //     setIsLoading(false)
 
-//     if (recognition) recognition.stop()
-//     if (currentAudio) {
-//       currentAudio.pause()
-//       currentAudio.currentTime = 0
-//     }
-//     if (window.audioStream) {
-//       window.audioStream.getTracks().forEach(track => track.stop())
-//       window.audioStream = null
-//     }
-//     if (sessionId) {
-//       fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ reason: 'user_ended' })
-//       }).catch(console.error)
-//     }
-//     if (socketRef.current) socketRef.current.disconnect()
-//   }
-// }, [])
+  //     if (recognition) recognition.stop()
+  //     if (currentAudio) {
+  //       currentAudio.pause()
+  //       currentAudio.currentTime = 0
+  //     }
+  //     if (window.audioStream) {
+  //       window.audioStream.getTracks().forEach(track => track.stop())
+  //       window.audioStream = null
+  //     }
+  //     if (sessionId) {
+  //       fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ reason: 'user_ended' })
+  //       }).catch(console.error)
+  //     }
+  //     if (socketRef.current) socketRef.current.disconnect()
+  //   }
+  // }, [])
 
 
-useEffect(() => {
-  fetch("https://ai-mock-pitching-427457295403.europe-west1.run.app/api/personas")
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success === true && data.personas) {
-        const formatted = Object.entries(data.personas).map(([key, persona], index) => ({
-          id: index + 1,
-          name: persona.name || "Unknown",
-          role: persona.title || "Investor",
-          company: "", // Not in API, leave empty or customize
-          image: "/api/placeholder/150/150",
-          tags: [
-            { text: persona.personality?.split(",")[0] || "Investor", type: "purple" },
-            { text: key, type: "brown" },
-          ],
-          rating: "4/5",
-          description: persona.personality || "No description available",
-          instruction: persona.approach || "No instruction available",
-        }))
-        setInvestors(formatted)
-      } else {
-        console.error("Unexpected API structure:", data)
-      }
-    })
-    .catch((err) => {
-      console.error("Failed to fetch investors:", err)
-    })
-}, [])
+  useEffect(() => {
+    fetch("https://ai-mock-pitching-427457295403.europe-west1.run.app/api/personas")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success === true && data.personas) {
+          const formatted = Object.entries(data.personas).map(([key, persona], index) => ({
+            id: index + 1,
+            name: persona.name || "Unknown",
+            role: persona.title || "Investor",
+            company: "", // Not in API, leave empty or customize
+            image: "/api/placeholder/150/150",
+            tags: [
+              { text: persona.personality?.split(",")[0] || "Investor", type: "purple" },
+              { text: key, type: "brown" },
+            ],
+            rating: "4/5",
+            description: persona.personality || "No description available",
+            instruction: persona.approach || "No instruction available",
+          }))
+          setInvestors(formatted)
+        } else {
+          console.error("Unexpected API structure:", data)
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch investors:", err)
+      })
+  }, [])
 
 
   const handleInvestorClick = (investor) => {
@@ -1453,18 +1568,18 @@ useEffect(() => {
       console.log('Requesting microphone permission...')
       // Request only audio permissions since we only need microphone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      
+
       console.log('Microphone permission granted')
       // Keep the stream active for better audio performance
       window.audioStream = stream
-      
+
       // Generate unique session ID if not already set
-      if (!sessionId) {
-        const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        setSessionId(newSessionId)
-        console.log('Generated new session ID:', newSessionId)
-      }
-      
+      // if (!sessionId) {
+      //   const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      //   setSessionId(newSessionId)
+      //   console.log('Generated new session ID:', newSessionId)
+      // }
+
       setIsTransitioning(true)
 
       // Start transition after a brief delay
@@ -1491,19 +1606,19 @@ useEffect(() => {
   //       recognition.stop()
   //     } catch (e) {}
   //   }
-    
+
   //   // Stop any playing audio
   //   if (currentAudio) {
   //     currentAudio.pause()
   //     currentAudio.currentTime = 0
   //   }
-    
+
   //   // Stop audio stream if it exists
   //   if (window.audioStream) {
   //     window.audioStream.getTracks().forEach(track => track.stop())
   //     window.audioStream = null
   //   }
-    
+
   //   // End the pitch session via API if we have a session ID
   //   if (sessionId) {
   //     console.log('Ending session with ID:', sessionId)
@@ -1515,18 +1630,18 @@ useEffect(() => {
   //       body: JSON.stringify({ reason: 'user_ended' })
   //     })
   //     .catch(err => console.error('Error ending session:', err))
-      
+
   //     // Also disconnect socket
   //     if (socketRef.current) {
   //       socketRef.current.disconnect()
   //     }
   //   }
-    
+
   //   // Clear transcript
   //   setTranscript('')
   //   setIsListening(false)
   //   setIsLoading(false)
-    
+
   //   // Update UI state
   //   setIsCallActive(false)
   //   setCallingInvestor(null)
@@ -1536,16 +1651,136 @@ useEffect(() => {
   //   setIsTransitioning(false)
   // }
 
-  const handleEndCall = () => {
-  setIsCallActive(false)
-  setCallingInvestor(null)
-  setShowFullCallInterface(false)
-  setIsInVideoCall(false)
-  setShowCallEndedScreen(true)
-  setIsTransitioning(false)
-}
+  //   const handleEndCall = () => {
+  //   setIsCallActive(false)
+  //   setCallingInvestor(null)
+  //   setShowFullCallInterface(false)
+  //   setIsInVideoCall(false)
+  //   setShowCallEndedScreen(true)
+  //   setIsTransitioning(false)
+  // }
+  // const handleEndCall = async () => {
+  //   try {
+  //     if (window.audioStream) {
+  //       window.audioStream.getTracks().forEach(track => track.stop());
+  //       window.audioStream = null;
+  //     }
 
-    // Stop speech recognition
+  //     if (sessionId) {
+  //       console.log('Ending session with ID:', sessionId)
+  //       const response = await fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json'
+  //         },
+  //         body: JSON.stringify({ reason: 'user_ended' })
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error(`Failed to end session. Status: ${response.status}`);
+  //       }
+
+  //       const data = await response.json();
+  //       console.log("Session ended. Analysis received:", data.analysis || data);
+  //       setAnalysis(data.analysis || data);
+
+  //       // Optionally store the analysis here for report view
+  //       // setAnalysis(data.analysis); if you track it somewhere
+  //     }
+  //   } catch (error) {
+  //     console.error("Error while ending session:", error);
+  //   } finally {
+  //     // Reset UI state regardless of success/failure
+  //     setIsCallActive(false);
+  //     setCallingInvestor(null);
+  //     setShowFullCallInterface(false);
+  //     setIsInVideoCall(false);
+  //     setShowCallEndedScreen(true);
+  //     setIsTransitioning(false);
+  //   }
+  // };
+  // const handleEndCall = async () => {
+  //   try {
+  //     console.log('🛑 Ending session with ID:', sessionId);
+
+  //     if (window.audioStream) {
+  //       window.audioStream.getTracks().forEach(track => track.stop());
+  //       window.audioStream = null;
+  //     }
+
+  //     if (sessionId) {
+  //       const res = await fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ reason: 'user_ended' })
+  //       });
+
+  //       if (!res.ok) {
+  //         throw new Error(`Failed to end session. Status: ${res.status}`);
+  //       }
+
+  //       const result = await res.json();
+  //       console.log('📊 Session ended. Analysis received:', result.analysis || result);
+
+  //       // Optional: setAnalysis(result.analysis);
+  //     }
+  //   } catch (error) {
+  //     console.error('❌ Error while ending session:', error);
+  //   } finally {
+  //     setIsCallActive(false);
+  //     setCallingInvestor(null);
+  //     setShowFullCallInterface(false);
+  //     setIsInVideoCall(false);
+  //     setShowCallEndedScreen(true);
+  //     setIsTransitioning(false);
+  //   }
+  // };
+  const handleEndCall = async () => {
+    try {
+      console.log("🛑 Ending session with ID:", sessionId);
+      if (!sessionId) return;
+
+      // Stop audio
+      if (window.audioStream) {
+        window.audioStream.getTracks().forEach((track) => track.stop());
+        window.audioStream = null;
+      }
+
+      // Call API to end session
+      const res = await fetch(`https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/end/${sessionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'user_ended' }),
+      });
+
+      if (!res.ok) throw new Error(`Failed to end session. Status: ${res.status}`);
+      const result = await res.json();
+      console.log("✅ Session ended:", result);
+      if(result.analysis){
+        console.log("📊 Analysis data:", result.analysis);
+        setAnalysis(result.analysis || result); 
+        // Optional: show analysis or report
+        setShowReportPage(true);
+
+      }
+
+    } catch (err) {
+      console.error("❌ Error while ending session:", err);
+    } finally {
+      // Cleanup UI state
+      if (socketRef.current) socketRef.current.disconnect();
+      // stopSpeechRecognition();
+      setIsCallActive(false);
+      setCallingInvestor(null);
+      setShowFullCallInterface(false);
+      setIsInVideoCall(false);
+      setShowCallEndedScreen(true);
+    }
+  };
+
+
+
+  // Stop speech recognition
 
   const handleReturnHome = () => {
     setShowCallEndedScreen(false)
@@ -1558,28 +1793,34 @@ useEffect(() => {
   }
 
   // Show report page if triggered
-  if (showReportPage) {
-    return <CallReportPage investor={callingInvestor} onBack={onBack} />
+  if (showReportPage && analysis) {
+    return <CallReportPage investor={callingInvestor} onBack={onBack} analysis={analysis} />
   }
 
   // Show call ended screen
   if (showCallEndedScreen) {
     return <CallEndedScreen onReturnHome={handleReturnHome} onViewReport={handleViewReport} />
   }
-
   // Show video call interface when in video call
   if (isInVideoCall) {
-    return <VideoCallInterface investor={callingInvestor} onEndCall={handleEndCall} isTransitioning={isTransitioning} sessionId={sessionId} />
+    return <VideoCallInterface
+      investor={callingInvestor}
+      onEndCall={handleEndCall}
+      isTransitioning={isTransitioning}
+      sessionId={sessionId}
+      setSessionId={setSessionId}
+      profileData={profileData}
+    />
   }
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
-      {isCallActive && (
-        <CallingPage
+      {isCallActive && (        <CallingPage
           investor={callingInvestor}
           onEndCall={handleEndCall}
           onJoinCall={handleJoinCall}
           showFullInterface={showFullCallInterface}
+          profileData={profileData}
         />
       )}
 
