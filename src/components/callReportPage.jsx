@@ -450,7 +450,7 @@ const toggleExpand = (index) => {
                 </div>
               )}
               {!description && (
-                <div className="text-gray-500 italic">No description available.</div>
+                  <div className="text-gray-500 italic">No description available.</div>
               )}
             </div>
           )}
