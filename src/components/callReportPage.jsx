@@ -5,6 +5,7 @@ import ContactsIcon from "../assets/ContactsIcon.svg";
 import AddIcon from "../assets/AddIcon.svg";
 import SpeedometerIcon from "../assets/SpeedometerIcon.svg";
 import TuneIcon from "../assets/TuneIcon.svg";
+import { ChevronDown } from "lucide-react";
 
 const BottomNavigation = ({ onBack }) => {
   return (
@@ -118,6 +119,10 @@ const BottomNavigation = ({ onBack }) => {
 
 const CallDetailView = ({ analysis, onBack }) => {
   const [activeTab, setActiveTab] = useState("Analysis");
+  const [expandedIndex, setExpandedIndex] = useState(null);
+const toggleExpand = (index) => {
+  setExpandedIndex((prev) => (prev === index ? null : index));
+}
   const getColor = (score) => {
     if (score >= 75) return ["Excellent", "#10B981"];
     if (score >= 60) return ["Good", "#22D3EE"];
@@ -250,7 +255,7 @@ const CallDetailView = ({ analysis, onBack }) => {
           msOverflowStyle: "none",       // IE and Edge
         }}
       >
-        {activeTab === "Analysis" && (
+        {/* {activeTab === "Analysis" && (
           <div
             className="pt-8 pb-8 px-4 rounded-lg"
             style={{
@@ -309,7 +314,153 @@ const CallDetailView = ({ analysis, onBack }) => {
               ))}
             </div>
           </div>
-        )}
+        )} */}
+
+        {/* {activeTab === "Analysis" && (
+  <div
+    className="px-8 py-6"
+    style={{
+      background: "#0F0E16",
+      borderRadius: "10px",
+    }}
+  >
+    <div className="space-y-4">
+      {categoryScores.map((item, index) => (
+        <div
+          key={index}
+          className="flex justify-between items-center px-6 py-4"
+          style={{
+            background: "#000000",
+            borderRadius: "5px",
+          }}
+        >
+          <div
+            style={{
+              color: "#FFFFFF",
+              fontFamily: "Inter",
+              fontWeight: 600,
+              fontSize: "18px",
+              lineHeight: "22px",
+            }}
+          >
+            {item.title}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              style={{
+                width: "13px",
+                height: "13px",
+                borderRadius: "999px",
+                backgroundColor: item.color,
+                display: "inline-block",
+              }}
+            />
+            <span
+              style={{
+                color: "#FFFFFF",
+                fontFamily: "Inter",
+                fontWeight: 600,
+                fontSize: "14px",
+                lineHeight: "17px",
+              }}
+            >
+              {item.status}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)} */}
+{activeTab === "Analysis" && (
+  <div className="space-y-4">
+    {categoryScores.map((item, index) => {
+      const isExpanded = expandedIndex === index;
+      const key = item.title.toLowerCase().replace(/ /g, "_");
+      const categoryData = analysis?.category_scores?.[key] || {};
+      const description = categoryData?.description; // ← Correct key
+      const score = categoryData?.score;
+      const rating = categoryData?.rating;
+
+      return (
+        <div
+          key={index}
+          className="rounded-md overflow-hidden"
+          style={{ background: "#0F0E16" }}
+        >
+          {/* Accordion Header */}
+          <div
+            onClick={() => toggleExpand(index)}
+            className="flex items-center justify-between px-6 py-4 cursor-pointer"
+            style={{ background: "#000", borderRadius: "5px" }}
+          >
+            <div className="text-white text-base font-semibold font-['Inter']">
+              {item.title}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span
+                  style={{
+                    backgroundColor: item.color,
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                  }}
+                />
+                <span className="text-white text-sm font-semibold font-['Inter']">
+                  {item.status}
+                </span>
+              </div>
+              <ChevronDown
+                size={20}
+                color="#FFF"
+                style={{
+                  transition: "transform 0.3s ease",
+                  transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Accordion Content */}
+          {isExpanded && (
+            <div
+              className="px-6 py-4 text-sm font-['Inter']"
+              style={{
+                background: "#0F0E16",
+                borderTop: "1px solid #222",
+              }}
+            >
+              {score !== undefined && (
+                <div className="text-white font-semibold mb-1">
+                  Score: <span className="font-normal text-gray-300">{score}</span>
+                </div>
+              )}
+              {rating && (
+                <div className="text-white font-semibold mb-1">
+                  Rating: <span className="font-normal text-gray-300">{rating}</span>
+                </div>
+              )}
+              {description && (
+                <div className="text-gray-300">
+                  {description}
+                </div>
+              )}
+              {!description && (
+                <div className="text-gray-500 italic">No description available.</div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+)}
+
+
 
         {activeTab === "Insights" && (
           <div
