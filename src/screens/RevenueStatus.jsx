@@ -137,17 +137,12 @@ const RevenueStatus = () => {
             {/* Main card container */}
             <div className="relative w-full max-w-2xl lg:max-w-[45rem] mt-3 xs:mt-4 sm:mt-8 mx-auto">
               {/* Gradient border */}
-              <div className="p-0.5 rounded-[0.625rem]"
-                style={{
-                  background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)'
-                }}>
+              <div className="p-0.5 rounded-[0.625rem] bg-[linear-gradient(224.28deg,#592582_18.6%,#6965ED_81.4%)]">
                 
-                <div className="bg-black rounded-[0.625rem] p-3 xs:p-4 sm:p-6 lg:p-8 lg:pt-10 min-h-[16rem] xs:min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">
-                  
+                <div className="bg-black rounded-[0.625rem] p-3 xs:p-4 sm:p-6 lg:p-8 lg:pt-10 min-h-[16rem] xs:min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">                 
                   <div className="w-full mb-3 xs:mb-4 sm:mb-6">
                     <ProfileProgressBar currentStep={3} />
                   </div>
-
                   <div className="text-white flex-1 flex flex-col">
                     <label className="block font-inter font-semibold text-[10px] xs:text-xs sm:text-sm leading-[0.875rem] xs:leading-[0.9375rem] mb-1.5 xs:mb-2">
                       What is your current revenue status (MRR)?
@@ -162,10 +157,7 @@ const RevenueStatus = () => {
                           <div className="font-inter font-normal text-xs leading-[0.9375rem] text-white mb-2">
                             Currently selected:
                           </div>
-                          <div className="inline-flex items-center h-8 min-w-[4.6875rem] px-2.5 rounded-sm"
-                            style={{
-                              background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)'
-                            }}>
+                          <div className="inline-flex items-center h-8 min-w-[4.6875rem] px-2.5 rounded-sm bg-[linear-gradient(260.47deg,rgba(0,0,0,0.25)_-22.9%,rgba(252,65,65,0.25)_119.49%),linear-gradient(99.45deg,#000000_-4%,#33005C_104%)]">
                             <span className="font-inter font-medium text-xs leading-[0.9375rem] text-white mr-2">
                               {currentRevenue}
                             </span>
