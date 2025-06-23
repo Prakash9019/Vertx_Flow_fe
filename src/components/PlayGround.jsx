@@ -34,61 +34,25 @@ function PlayGround() {
       {/* Main Content */}
       <div className="flex-1 h-screen overflow-hidden">
         <div 
-          style={{
-            paddingLeft: "2.8rem",
-            paddingRight: "2.8rem",
-            paddingTop: "5rem",
-            paddingBottom: "6rem",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem"
-          }}
-        >
+          className="pl-[2.8rem] pr-[2.8rem] pt-20 pb-24 h-full flex flex-col gap-4">
           {/* Hero Section */}
           <div 
-            className="relative flex flex-col items-center justify-center text-center flex-1"
             style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url(${NatureRectangleImage})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              borderRadius: "0.5rem",
-              minHeight: "200px"
-            }}
-          >
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${NatureRectangleImage}")`
+          }}
+            className="bg-cover bg-center bg-no-repeat rounded-lg min-h-[200px] relative flex flex-col items-center justify-center text-center flex-1">
             <div className="max-w-4xl px-8">
               <h1 
-                className="text-white mb-8 leading-tight"
-                style={{
-                  color: "#FFF",
-                  textAlign: "center",
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "1.25rem",
-                  fontWeight: 300
-                }}
-              >
+                className="text-white mb-8 leading-tight  text-center font-sans text-xl font-light"
+                style={{fontFamily: "Inter, sans-serif"}}>
                 Playground helps you practice your pitch<br />
                 and build confidence by talking to an AI<br />
                 investor before the real call.
               </h1>
               
               <button 
-                className="bg-white text-black transition-colors hover:bg-gray-100"
-                style={{
-                  color: "#000",
-                  textAlign: "center",
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  width: "7.5rem",
-                  height: "2.25rem",
-                  borderRadius: "0.25rem",
-                  background: "#FFF",
-                  border: "none",
-                  cursor: "pointer"
-                }}
-              >
+                className="bg-white text-black transition-colors hover:bg-gray-100 text-center text-xs font-semibold w-[7.5rem] h-9 rounded border-none cursor-pointer"
+                style={{ fontFamily: "Inter, sans-serif" }}>
                 Watch Intro
               </button>
             </div>
@@ -96,183 +60,97 @@ function PlayGround() {
 
           {/* Cards Section */}
           <div 
-            className="grid grid-cols-1 md:grid-cols-3"
-            style={{
-              gap: "0.8rem",
-              flex: "0 0 auto"
-            }}
-          >
+            className="grid grid-cols-1 md:grid-cols-3 gap-[0.8rem] flex-none">
             {/* Mock Pitching Card */}
             <div 
-              className="relative rounded-lg overflow-hidden"
+              className="relative rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url(${MockPitchingImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                aspectRatio: "4/3"
-              }}
-            >
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${MockPitchingImage}")`
+              }}>
               <div className="absolute inset-0 flex flex-col justify-between p-6 items-center text-center">
                 <div>
                   <h3 
-                    className="text-white mt-8"
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "1.25rem",
-                      fontWeight: 600
-                    }}
-                  >
+                    className="text-white mt-8 text-xl font-semibold"
+                    style={{ fontFamily: "Inter, sans-serif" }}>
                     Mock Pitching
                   </h3>
-                  <p 
-                    className="text-white mt-1 leading-relaxed"
-                    style={{
-                      width: "12rem",
-                      color: "#FFF",
-                      textAlign: "center",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "0.75rem",
-                      fontWeight: 300
-                    }}
-                  >
+                  <p
+                  className="text-white mt-1 leading-relaxed w-48 text-center text-xs font-light"
+                  style={{ fontFamily: "Inter, sans-serif" }}>
                     Take AI investor calls and receive instant reports to help you articulate and enhance your pitch, making you investor ready.
                   </p>
                 </div>
                 
-                <button 
+                <button
                   onClick={handlePitchNowClick}
-                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100"
+                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[5.0625rem] h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
                   style={{
-                    color: "#000",
-                    textAlign: "center",
                     fontFamily: "Inter, sans-serif",
-                    fontSize: "0.625rem",
-                    fontWeight: 600,
-                    width: "5.0625rem",
-                    height: "1.6875rem",
-                    borderRadius: "0.1875rem",
-                    background: "#FFF",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
+                  }}>
                   Pitch now
                 </button>
               </div>
             </div>
 
             {/* Deck Generation Card */}
-            <div 
-              className="relative rounded-lg overflow-hidden"
+            <div
+              className="relative rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url(${DeckGeneration})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                aspectRatio: "4/3"
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${DeckGeneration}")`
               }}
             >
               <div className="absolute inset-0 flex flex-col justify-between p-6 items-center text-center">
                 <div>
-                  <h3 
-                    className="text-white mt-8"
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "1.25rem",
-                      fontWeight: 600
-                    }}
+                  <h3
+                    className="text-white mt-8 text-xl font-semibold"
+                    style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Deck Generation
                   </h3>
-                  <p 
-                    className="text-white mt-1 leading-relaxed"
-                    style={{
-                      width:'12rem',
-                      color: "#FFF",
-                      textAlign: "center",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "0.75rem",
-                      fontWeight: 300
-                    }}
+                  <p
+                    className="text-white mt-1 leading-relaxed w-48 text-center text-xs font-light"
+                    style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Quickly generate a pitch deck based on proven templates used by startups that scaled beyond $1B.
                   </p>
                 </div>
-                
-                <button 
-                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100"
+                <button
+                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[5.0625rem] h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
                   style={{
-                    color: "#000",
-                    textAlign: "center",
                     fontFamily: "Inter, sans-serif",
-                    fontSize: "0.625rem",
-                    fontWeight: 600,
-                    width: "5.0625rem",
-                    height: "1.6875rem",
-                    borderRadius: "0.1875rem",
-                    background: "#FFF",
-                    border: "none",
-                    cursor: "pointer"
-                  }}
-                >
+                  }}>
                   Generate now
                 </button>
               </div>
             </div>
 
             {/* Mock Outreach Card */}
-            <div 
-              className="relative rounded-lg overflow-hidden"
+            <div
+              className="relative rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url(${MockOutreach})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                aspectRatio: "4/3"
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${MockOutreach}")`
               }}
             >
               <div className="absolute inset-0 flex flex-col justify-between p-6 items-center text-center">
                 <div>
-                  <h3 
-                    className="text-white mt-8"
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "1.25rem",
-                      fontWeight: 600
-                    }}
+                  <h3
+                    className="text-white mt-8 text-xl font-semibold"
+                    style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Mock Outreach
                   </h3>
-                  <p 
-                    className="text-white mt-1 leading-relaxed"
-                    style={{
-                      width:'12rem',
-                      color: "#FFF",
-                      textAlign: "center",
-                      fontFamily: "Inter, sans-serif",
-                      fontSize: "0.75rem",
-                      fontWeight: 300
-                    }}
+                  <p
+                    className="text-white mt-1 leading-relaxed w-48 text-center text-xs font-light"
+                    style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Practice cold mailing with our AI agents and receive instant reports to help you articulate and enhance your mail.
                   </p>
                 </div>
                 
-                <button 
-                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100"
+                <button
+                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[5.0625rem] h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
                   style={{
-                    color: "#000",
-                    textAlign: "center",
                     fontFamily: "Inter, sans-serif",
-                    fontSize: "0.625rem",
-                    fontWeight: 600,
-                    width: "5.0625rem",
-                    height: "1.6875rem",
-                    borderRadius: "0.1875rem",
-                    background: "#FFF",
-                    border: "none",
-                    cursor: "pointer"
                   }}
                 >
                   Try now

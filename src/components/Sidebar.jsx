@@ -119,7 +119,7 @@ const Sidebar = () => {
 
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
-  console.log(isMobile)
+  console.log("Is a Small Device",isMobile)
   const handleNavigation = (route) => {
     if (route === "homepage" && !localStorage.getItem("token")) {
       // Show full-screen auth page (LandingAuth) if user is not logged in and trying to access explore
