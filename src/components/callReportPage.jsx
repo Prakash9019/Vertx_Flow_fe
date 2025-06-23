@@ -500,45 +500,70 @@ const toggleExpand = (index) => {
         )}
 
         {activeTab === "Summary" && (
-          <div
-            className="pt-8 pb-8 px-4 rounded-lg space-y-4"
-            style={{
-              borderRadius: "0.625rem",
-              background: "#0F0E16",
-            }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {analysis?.founder_name && (
-                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Founder Name</h4>
-                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.founder_name}</p>
-                </div>
-              )}
-              {analysis?.company_name && (
-                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Company Name</h4>
-                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.company_name}</p>
-                </div>
-              )}
-              {analysis?.overall_score && (
-                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Overall Score</h4>
-                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.overall_score}</p>
-                </div>
-              )}
-              {analysis?.overall_rating && (
-                <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                  <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Overall Rating</h4>
-                  <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.overall_rating}</p>
-                </div>
-              )}
-            </div>
-            {analysis?.overall_description && (
-              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Description</h4>
-                <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.overall_description}</p>
+          <div className="relative flex flex-col gap-8 items-start w-[1145px] max-w-full min-h-[430px] mx-auto mt-4">
+            {/* Founder Performance Box */}
+            <div className="relative bg-[#0F0E16] rounded-[15px] px-12 py-8 w-full shadow-lg">
+              <div className="absolute left-0 top-8 h-[28px] w-[5px] bg-[#AD6FDE] rounded" />
+              <h2 className="ml-7 text-white font-inter font-semibold text-[24px] leading-[29px] mb-2">
+                Founder Performance
+              </h2>
+              <div className="flex flex-col gap-6 ml-7 w-full mt-4">
+                {Array.isArray(analysis?.founder_performance) && analysis.founder_performance.length > 0 ? (
+                  analysis.founder_performance.map((item, idx) => (
+                    <div key={idx}>
+                      <h4 className="text-white font-medium text-[18px] leading-[22px] mb-1">{item.title}</h4>
+                      <p className="text-[#B8B8B8] text-[14px] leading-[17px] max-w-[726px]">
+                        {item.description}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <p className="text-[#B8B8B8] text-[14px] leading-[17px]">No data available.</p>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+
+            {/* What Worked Box */}
+            <div className="relative bg-[#0F0E16] rounded-[15px] px-12 py-8 w-full shadow-lg">
+              <div className="absolute left-0 top-8 h-[28px] w-[5px] bg-[#AD6FDE] rounded" />
+              <h2 className="ml-7 text-white font-inter font-semibold text-[24px] leading-[29px] mb-2">
+                What Worked
+              </h2>
+              <div className="flex flex-col gap-6 ml-7 w-full mt-4">
+              {Array.isArray(analysis?.what_worked) && analysis.what_worked.length > 0 ? (analysis.what_worked.map((item, idx) => (
+                    <div key={idx}>
+                      <h4 className="text-white font-medium text-[18px] leading-[22px] mb-1">{item}</h4>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <p className="text-[#B8B8B8] text-[14px] leading-[17px]">No data available.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* What Didn't Work Box */}
+            <div className="relative bg-[#0F0E16] rounded-[15px] px-12 py-8 w-full shadow-lg">
+              <div className="absolute left-0 top-8 h-[28px] w-[5px] bg-[#AD6FDE] rounded" />
+               <h2 className="ml-7 text-white font-inter font-semibold text-[24px] leading-[29px] mb-2">
+                What Didn't Work
+              </h2>
+              <div className="flex flex-col gap-6 ml-7 w-full mt-4">
+              {Array.isArray(analysis?.what_didnt_work) && analysis.what_didnt_work.length > 0 ? (analysis.what_didnt_work.map((item, idx) => (
+                    <div key={idx}>
+                      <h4 className="text-white font-medium text-[18px] leading-[22px] mb-1">{item}</h4>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <p className="text-[#B8B8B8] text-[14px] leading-[17px]">No data available.</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
