@@ -64,10 +64,7 @@ const InvestorsPitch = () => {
             {/* Main card container */}
             <div className="relative w-full max-w-2xl lg:max-w-[45rem] mt-3 xs:mt-4 sm:mt-8 mx-auto">
               {/* Gradient border */}
-              <div className="p-0.5 rounded-[0.625rem]"
-                style={{
-                  background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)'
-                }}>
+              <div className="p-0.5 rounded-[0.625rem] bg-[linear-gradient(224.28deg,#592582_18.6%,#6965ED_81.4%)]">
                 
                 <div className="bg-black rounded-[0.625rem] p-3 xs:p-4 sm:p-6 lg:p-8 lg:pt-10 min-h-[16rem] xs:min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">
                   
