@@ -205,38 +205,25 @@ function FundraisingManagePage() {
         {/* Header - Hidden when target list is selected */}
         {!(activeTab === "Target" && isTargetListSelected) && (
           <div
-            className="relative text-white w-full"
+            className="relative text-white w-full h-[11.375rem] bg-[#f0f0f0] bg-no-repeat bg-[size:100%_100%] bg-center"
             style={{
-              height: "11.375rem",
-              backgroundColor: "#f0f0f0",
-              backgroundImage: `url(${BgImg})`,
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
+              backgroundImage: `url("${BgImg}")`,
             }}
           >
-            <div className="absolute inset-0 z-0" style={{ backgroundColor: "#000000CC" }}></div>
-
+          <div className="absolute inset-0 z-0 bg-black/80"></div>
             <div
-              className="relative z-10 flex flex-col justify-between h-full"
-              style={{
-                paddingLeft: "3.44rem",
-                paddingRight: "3.87rem",
-                paddingTop: "4.06rem",
-                paddingBottom: "1.5rem",
-              }}
+              className="relative z-10 flex flex-col justify-between h-full pl-[3.44rem] pr-[3.87rem] pt-[4.06rem] pb-6"
             >
               <div>
                 <h1
-                  className="text-white font-semibold mb-2"
-                  style={{ fontFamily: "Inter", fontSize: "2rem", fontWeight: 600 }}
-                >
+                  className="text-white font-semibold mb-2 text-[2rem]"
+                  style={{ fontFamily: "Inter" }}>
                   {profileData ? profileData.companyName : "Company"}
                 </h1>
-                <p className="text-white mb-2" style={{ fontFamily: "Inter", fontSize: "0.75rem", fontWeight: 600 }}>
+                <p className="text-white mb-2 text-xs font-semibold" style={{ fontFamily: "Inter" }}>
                   {profileData ? profileData.companyName : "This company"} helps A to solve B by addition of C and D.
                 </p>
-                <p className="text-white mb-4" style={{ fontFamily: "Inter", fontSize: "0.625rem", fontWeight: 500 }}>
+                <p className="text-white mb-4 text-[0.625rem] font-medium" style={{ fontFamily: "Inter" }}>
                   {profileData ? profileData.companyWebsite : "www.companyname.com"}
                 </p>
               </div>
@@ -245,23 +232,19 @@ function FundraisingManagePage() {
         )}
 
         {/* Navigation Tabs - Hidden when target list is selected */}
-        {!(activeTab === "Target" && isTargetListSelected) && (          <div className="flex gap-4" style={{ paddingLeft: "3.44rem", paddingRight: "3.87rem", marginTop: "1.69rem" }}>
+        {!(activeTab === "Target" && isTargetListSelected) && (          <div className="flex gap-4 pl-[3.44rem] pr-[3.87rem] mt-[1.69rem]">
             {tabsArray.map((tab) => (
               <button
                 key={tab}
                 onClick={() => handleTabChange(tab)}
-                className={`rounded-full transition-colors ${
-                  activeTab === tab ? "bg-white text-black" : "text-gray-400"
-                }`}
+                className={`rounded-full transition-colors h-10 text-base
+                  ${activeTab === tab
+                    ? 'w-[6.25rem] bg-white text-black font-medium'
+                    : 'w-[5rem] bg-[#0F0E16] text-[#656565] font-normal'
+                  }
+                `}
                 style={{
-                  width: activeTab === tab ? "6.25rem" : "5rem",
-                  height: "2.5rem",
-                  borderRadius: "6.25rem",
-                  backgroundColor: activeTab === tab ? "#FFF" : "#0F0E16",
-                  color: activeTab === tab ? "#000" : "#656565",
                   fontFamily: "Inter",
-                  fontSize: "1rem",
-                  fontWeight: activeTab === tab ? 500 : 400,
                 }}
               >
                 {tab}
