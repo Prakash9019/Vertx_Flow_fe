@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import rectangleImage from '../../assets/Rectangle 82.png';
 import { usePermissions } from '../../hooks/usePermissions';
 import API_KEY from '../../../key';
+// import { useState } from "react";
 
 function AddRoundPopup({ isOpen, onClose, onNext }) {
   // console.log(isOpen, onClose, onNext);
@@ -22,6 +23,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [isButtonLoading, setIsButtonLoading] = useState(false)
+  const [permissionError, setPermissionError] = useState(""); // NEW
   // Format number with US comma system
   const formatUSNumber = (num) => {
     const numStr = num.toString()
@@ -510,7 +512,9 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
   const handleNext = () => {
     // Check permissions before allowing any funding round creation
     if (!canCreate) {
-      alert('You do not have permission to create funding rounds. Please contact your founder for access.');
+      // alert('You do not have permission to create funding rounds. Please contact your founder for access.');
+      setPermissionError("You do not have permission to create funding rounds. Please contact your founder for access.");
+      setTimeout(() => setPermissionError(""), 3000); // Hide after 3s
       return;
     }
     
@@ -940,6 +944,14 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
 
   return (
     <>
+      {/* Permission Error Notification */}
+      {permissionError && (
+        <div className="fixed top-4 right-4 z-[100] transition-all duration-1000 ease-in-out translate-x-0 opacity-100">
+          <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-pre-line rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+            <span className="text-white font-inter text-sm sm:text-base font-medium">{permissionError}</span>
+          </div>
+        </div>
+      )}
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         {/* Dimmed background overlay */}
         <div className="absolute inset-0 bg-black" style={{ opacity: 0.7 }} onClick={onClose}></div>
