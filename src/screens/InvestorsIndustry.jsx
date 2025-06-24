@@ -149,13 +149,8 @@ const InvestorsIndustry = () => {
             {/* Main card container */}
             <div className="relative w-full max-w-2xl lg:max-w-[45rem] mt-3 xs:mt-4 sm:mt-8 mx-auto">
               {/* Gradient border */}
-              <div className="p-0.5 rounded-[0.625rem]"
-                style={{
-                  background: 'linear-gradient(224.28deg, #592582 18.6%, #6965ED 81.4%)'
-                }}>
-              
-              <div className="bg-black rounded-[0.625rem] p-3 xs:p-4 sm:p-6 lg:p-8 lg:pt-10 min-h-[16rem] xs:min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">
-                
+              <div className="p-0.5 rounded-[0.625rem] bg-[linear-gradient(224.28deg,#592582_18.6%,#6965ED_81.4%)]">
+              <div className="bg-black rounded-[0.625rem] p-3 xs:p-4 sm:p-6 lg:p-8 lg:pt-10 min-h-[16rem] xs:min-h-[18rem] sm:min-h-[20rem] lg:min-h-[22.625rem] flex flex-col">              
                 <div className="w-full mb-3 xs:mb-4 sm:mb-6">
                   <ProfileProgressBar currentStep={4} />
                 </div>
@@ -177,14 +172,7 @@ const InvestorsIndustry = () => {
                           isLoading ? 'bg-[#1a1a1a] cursor-not-allowed' : 'bg-[#0F0E16] cursor-pointer'
                         } border border-white/13 rounded-sm flex items-center justify-between px-4 box-border z-[5] transition-all duration-200
                           xs:px-3 xs:h-10
-                          md:px-4 md:h-[2.439rem]
-                          `}
-                        style={{
-                          minWidth: 0,
-                          width: '100%',
-                          maxWidth: '100%',
-                        }}
-                      >
+                          md:px-4 md:h-[2.439rem] min-w-0 w-full max-w-full`}>
                         <span className={`font-inter font-normal text-xs leading-[0.9375rem] ${
                           selectedIndustries.length > 0 
                             ? (isLoading ? 'text-gray-500' : 'text-white') 
@@ -207,13 +195,7 @@ const InvestorsIndustry = () => {
                       {isDropdownOpen && !isLoading && (
                         <div 
                           ref={dropdownRef}
-                          className="dropdown-container slide-up absolute top-full left-0 w-full sm:max-w-[20rem] bg-[#0F0E16] border border-white/13 rounded-sm z-[20] mt-1.5 max-h-[12.5rem] overflow-y-auto"
-                          style={{
-                            minWidth: 0,
-                            width: '100%',
-                            maxWidth: '100%',
-                          }}
-                        >
+                          className="dropdown-container slide-up absolute top-full left-0 sm:max-w-[20rem] bg-[#0F0E16] border border-white/13 rounded-sm z-[20] mt-1.5 max-h-[12.5rem] overflow-y-auto min-w-0 w-full max-w-full">
                           {industryOptions.map((industry) => ( 
                             <div 
                               key={industry} 
@@ -245,20 +227,12 @@ const InvestorsIndustry = () => {
                             Selected industries:
                           </div>
                           <div 
-                            className="selected-items-container flex flex-nowrap gap-2 overflow-x-auto whitespace-nowrap pb-1 z-[10]"
-                            style={{
-                              width: '100%',
-                              maxWidth: '100%',
-                            }}
+                            className="selected-items-container flex flex-nowrap gap-2 overflow-x-auto whitespace-nowrap pb-1 z-[10] w-full max-w-full"
                           >
                             {selectedIndustries.map((industry) => (
                               <div 
                                 key={industry}
-                                className="inline-flex items-center h-8 min-w-[4.6875rem] px-2.5 rounded-sm flex-shrink-0 overflow-hidden"
-                                style={{
-                                  background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)'
-                                }}
-                              >
+                                className="inline-flex items-center h-8 min-w-[4.6875rem] px-2.5 rounded-sm flex-shrink-0 overflow-hidden bg-[linear-gradient(260.47deg,rgba(0,0,0,0.25)_-22.9%,rgba(252,65,65,0.25)_119.49%),linear-gradient(99.45deg,#000000_-4%,#33005C_104%)]">
                                 <span className="font-inter font-medium text-xs leading-[0.9375rem] text-white mr-2 text-ellipsis overflow-hidden whitespace-nowrap max-w-[calc(100%-1.25rem)]">
                                   {industry}
                                 </span>

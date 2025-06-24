@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import{ useState, useEffect } from 'react';
+import {useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Logo from "../assets/logo.svg";
-import BackLogo from "../assets/BackIcon.svg";
 import Rocket from "../assets/rocket.svg";
 import Home from "../assets/home.svg";
 import flash from "../assets/flash.jpg";
@@ -17,10 +16,22 @@ import { useStartupProfile } from "../context/StartupProfileContext";
 import CofounderPermissions from "./CofounderPermissions";
 import API_KEY from "../../key";
 
+export function NavIconFooter({ iconSrc, label }) { // Renamed prop to iconSrc for clarity
+  return (
+    <div
+      className={`flex flex-col items-center transition-colors duration-200`}
+    >
+      {/* Use img tag and pass the source string to src */}
+      <img src={iconSrc} alt={label} className="w-6 h-6 object-contain" />
+      <span className="text-xs mt-1">{label}</span>
+    </div>
+  );
+}
+
 const Sidebar = () => {
 
   const {profileData} = useStartupProfile();
-
+  const [currentPage, setPage] = useState("homepage");
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname.toLowerCase();
@@ -65,6 +76,7 @@ const Sidebar = () => {
     checkUserRole();
   }, []);
   const isHome = path.includes('homepage');
+  const isFlash = path.includes('flash');
   const isEvaluate = path.includes('evaluate');
   const isFundraisingActive = path.includes('fundraising');
   const isPlayground = path.includes('playground');
@@ -96,8 +108,34 @@ const Sidebar = () => {
     setCollapsed(!collapsed);
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
+  console.log("Is a Small Device",isMobile)
+  const handleNavigation = (route) => {
+    if (route === "homepage" && !localStorage.getItem("token")) {
+      // Show full-screen auth page (LandingAuth) if user is not logged in and trying to access explore
+      setShowAuthPage(true);
+    } else if (route === "homepage" && localStorage.getItem("exe")) {
+      navigate("/");
+    } else {
+      navigate(`/${route}`);
+    }
+  };
+
   return (
-    <div className="flex h-screen">
+    <>
+    {
+      !isMobile ?
+    (<div className="flex h-screen">
       {/* Sidebar */}
       <div className={`bg-black text-white flex flex-col h-full border-r border-[rgba(184,184,184,0.13)] transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'}`}>
         {/* Top section with logo and collapse button with !collapsed rule */}
@@ -417,7 +455,64 @@ const Sidebar = () => {
       {showPermissionsModal && (
         <CofounderPermissions onClose={() => setShowPermissionsModal(false)} />
       )}
-    </div>
+    </div>):(
+      <div className='fixed bottom-0 left-0 right-0 border-t border-gray-800 z-50 min-w-screen bg-black text-white flex hover:cursor-pointer justify-around items-center py-3'>
+        {/* Home */}
+        <div
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isHome ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          onClick={() => handleNavigation("homepage")}
+        >
+          <NavIconFooter
+            iconSrc={Home}
+            label="Home"
+          />
+        </div>
+        {/* Flash */}
+        <div
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isFlash ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          onClick={() => handleNavigation("flash")}
+        >
+          <NavIconFooter
+            iconSrc={flash}
+            label="Flash"
+          />
+        </div>
+        {/* Evaluate */}
+        <div
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isEvaluate ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          onClick={() => handleNavigation("evaluate")}
+        >
+          <NavIconFooter
+            iconSrc={Ellipse}
+            label="Evaluate"
+          />
+        </div>
+        {/* Fundraising */}
+        <div
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isFundraisingActive ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          onClick={() => handleNavigation("fundraising/raise")}
+        >
+          <NavIconFooter
+            iconSrc={FundraseLogo}
+            label="Fundraising"
+          />
+        </div>
+        {/* Playground */}
+        <div
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isPlayground ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          onClick={() => handleNavigation("playground")}
+        >
+          <NavIconFooter
+            iconSrc={Playground}
+            label="Playground"
+          />
+        </div>
+
+
+
+      </div>
+    )}
+    </>
   );
 };
 

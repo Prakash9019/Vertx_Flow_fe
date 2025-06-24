@@ -353,13 +353,14 @@ function Evaluate_Page() {
                     </svg>
                     
                     {/* Upload PDF Text */}
+                    {/* Styles Unverified as Evaluate page was not loading */}
                     <p
-                      className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem]"
-                      style={{
-                        background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                      }}
+                      className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem] bg-[linear-gradient(180deg,#AD6FDE_34.21%,#0077B7_126.32%)] bg-clip-text text-transparent"
+                      // style={{
+                      //   background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
+                      //   WebkitBackgroundClip: 'text',
+                      //   WebkitTextFillColor: 'transparent',
+                      // }}
                     >
                       Upload PDF
                     </p>
@@ -432,12 +433,12 @@ function Evaluate_Page() {
                       
                       {/* Upload PDF Text with responsive gap from icon */}
                       <p
-                        className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem]"
-                        style={{
-                          background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                        }}
+                        className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem] bg-[linear-gradient(180deg,#AD6FDE_34.21%,#0077B7_126.32%)] bg-clip-text text-transparent"
+                        // style={{
+                        //   background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
+                        //   WebkitBackgroundClip: 'text',
+                        //   WebkitTextFillColor: 'transparent',
+                        // }}
                       >
                         Upload PDF
                       </p>
@@ -531,14 +532,14 @@ function Evaluate_Page() {
                       
                       {/* Loading Scanning Effect */}
                       { status.evaluating && !status.complete && (
-                        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                           <div className="scanning-line"></div>
                         </div>
                       )}
                       
                       {/* Evaluation Complete Overlay */}
                       {status.complete && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
                           <div className="text-white font-inter text-lg sm:text-xl md:text-2xl xl:text-[1.75rem] font-light mb-[-0.5rem] mt-2 sm:mt-4 xl:mt-[1rem]">
                             SATISFACTORY
                           </div>
