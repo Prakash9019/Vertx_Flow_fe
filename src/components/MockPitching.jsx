@@ -443,31 +443,48 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  // const [sessionId, setSessionId] = useState(propSessionId || null)
   const socketRef = useRef(null)
   const silenceTimerRef = useRef(null)
   const questionIndexRef = useRef(0)
   const [currentAudio, setCurrentAudio] = useState(null)
-  const videoRef = useRef(null);
+  const videoRef = useRef(null)
+  const cameraStreamRef = useRef(null) // <-- Add this ref
 
+  // Start/stop camera stream based on isVideoOff
   useEffect(() => {
-    // Start camera after permissions are granted
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-      .then((stream) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      })
-      .catch((err) => {
-        console.error("Camera access denied:", err);
-      });
-    // Cleanup: stop camera when component unmounts
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+    if (!isVideoOff) {
+      // Turn ON camera
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then((stream) => {
+          cameraStreamRef.current = stream
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream
+          }
+        })
+        .catch((err) => {
+          console.error("Camera access denied:", err)
+        })
+    } else {
+      // Turn OFF camera
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach(track => track.stop())
+        cameraStreamRef.current = null
       }
-    };
-  }, [])
+      if (videoRef.current) {
+        videoRef.current.srcObject = null
+      }
+    }
+    // Cleanup on unmount
+    return () => {
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach(track => track.stop())
+        cameraStreamRef.current = null
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null
+      }
+    }
+  }, [isVideoOff])
 
   useEffect(() => {
     return () => {
@@ -1188,17 +1205,69 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 borderRadius: "1rem",
                 objectFit: "cover",
                 background: "#222",
+                backgroundColor: isVideoOff ? "#222" : undefined,
+                display: isVideoOff ? "none" : "block",
               }}
             />
+            {isVideoOff && (
+              <div
+                style={{
+                  width: "80%",
+                  height: "80%",
+                  borderRadius: "1rem",
+                  background: "#222",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  fontSize: "2rem",
+                  fontWeight: 500,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                }}
+              >
+                Camera Off
+              </div>
+            )}
+          </div>
+          {/* Video toggle button */}
+          <div className="absolute bottom-4 right-4">
+            <button
+              onClick={() => setIsVideoOff(v => !v)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
+              style={{
+                width: "3.5rem",
+                height: "3.5rem",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
+              }}
+              aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
+            >
+              {isVideoOff ? (
+                <img
+                  src={VideoOffIcon}
+                  alt="Video Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={VideoIcon}
+                  alt="Video On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
+            </button>
           </div>
 
           <div className="absolute bottom-4 left-4 flex gap-2">
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
               style={{
-                width: "3.5rem",
-                height: "3.5rem",
+                width: "3.125rem",
+                height: "3.125rem",
                 background: "transparent",
                 borderWidth: "1px",
                 borderColor: "#FFF",
@@ -1218,34 +1287,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 />
               )}
             </button>
-          </div>
 
-          <div className="absolute bottom-4 right-4">
-            <button
-              onClick={() => setIsVideoOff(!isVideoOff)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
-              style={{
-                width: "3.5rem",
-                height: "3.5rem",
-                background: "transparent",
-                borderWidth: "1px",
-                borderColor: "#FFF",
-              }}
-            >
-              {isVideoOff ? (
-                <img
-                  src={VideoOffIcon}
-                  alt="Video Off"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              ) : (
-                <img
-                  src={VideoIcon}
-                  alt="Video On"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              )}
-            </button>
           </div>
         </div>
 
