@@ -140,15 +140,7 @@ function GoogleAuthCallback() {
   }, [navigate, location]);
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#000',
-      color: 'white',
-      fontSize: '1.2rem'
-    }}>
+    <div class="flex justify-center items-center h-screen bg-black text-white text-lg">
       Processing Google authentication, please wait...
     </div>
   );
