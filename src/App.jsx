@@ -45,11 +45,9 @@ import HomePage from "./screens/Home";
 
 //screens for PlayGround 
 import PlayGround from "./components/PlayGround"
+import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";
 
 function App() {
-  const authToken = localStorage.getItem("authToken");
-
-  
   const streamlinedProtectedRoutes = [
     { path: "/linkedin", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
@@ -81,27 +79,28 @@ function App() {
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //
-
   return (
-    <div className="relative h-screen overflow-hidden">
-      {" "}
-      {/* Consider CSS for global scroll if needed */}
-      <Routes>        {/* <Route path="/" element={<Login_Page />} /> */}
-        {/* <Route path="/" element={<FundraisingPage />} /> */}
-        <Route path="/" element={<Login_Page />} />
-        <Route path="/login" element={<Login_Page />} />
-        
-        {/* Auth routes */}
-        <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-        <Route path="/auth-error" element={<AuthError />} />        {protectedRoutes.map(({ path, element }) => (
-          <Route
-            key={path}
-            path={path}
-            element={<PrivateRoute>{element}</PrivateRoute>}
-          />
-        ))}
-      </Routes>
-    </div>
+    <PermissionNotificationProvider>
+      <div className="relative h-screen overflow-hidden">
+        {" "}
+        {/* Consider CSS for global scroll if needed */}
+        <Routes>        {/* <Route path="/" element={<Login_Page />} /> */}
+          {/* <Route path="/" element={<FundraisingPage />} /> */}
+          <Route path="/" element={<Login_Page />} />
+          <Route path="/login" element={<Login_Page />} />
+          
+          {/* Auth routes */}
+          <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+          <Route path="/auth-error" element={<AuthError />} />        {protectedRoutes.map(({ path, element }) => (
+            <Route
+              key={path}
+              path={path}
+              element={<PrivateRoute>{element}</PrivateRoute>}
+            />
+          ))}
+        </Routes>
+      </div>
+    </PermissionNotificationProvider>
   );
 }
 

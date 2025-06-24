@@ -30,33 +30,31 @@ import DefaultAvatar from "../../assets/DefaultAvatar.svg"
 const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 export default function Target({ onListSelect }) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false)
-  const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false)
-  const [userTargetLists, setUserTargetLists] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [activeMenuId, setActiveMenuId] = useState(null)
-  const [selectedList, setSelectedList] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [activeDropdown, setActiveDropdown] = useState(null)
-  const itemsPerPage = 10
-  const [showSettings, setShowSettings] = useState(false)
-  const [showInviteCollab, setShowInviteCollab] = useState(false)
-  const [isEditingName, setIsEditingName] = useState(false)
-  const [editedName, setEditedName] = useState("")
-  const [showDeleteNotification, setShowDeleteNotification] = useState(false)
-  const [error, setError] = useState(null)
-  const [showNoPermissionToast, setShowNoPermissionToast] = useState(false);
-  // Use permission hook for all permission-related state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false);
+  const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false);
+  const [userTargetLists, setUserTargetLists] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [selectedList, setSelectedList] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const itemsPerPage = 10;
+  const [showSettings, setShowSettings] = useState(false);
+  const [showInviteCollab, setShowInviteCollab] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [showDeleteNotification, setShowDeleteNotification] = useState(false);
+  const [error, setError] = useState(null);
+    // Use permission hook for all permission-related state
   const { 
-    hasFullAccess, 
     canCreate, 
     canEdit, 
     canView,
     canDelete, 
-    userRole, 
     isFounder, 
-    loading: permissionsLoading 
+    loading: permissionsLoading,
+    checkPermissionWithNotification
   } = usePermissions();
 
   // Create userPermissions object for components that expect it
@@ -142,15 +140,12 @@ export default function Target({ onListSelect }) {
       </div>
     );
   }
-
   const handleNewListClick = () => {
-    if (!canCreate) {
-      setShowNoPermissionToast(true);
-      setTimeout(() => setShowNoPermissionToast(false), 3000);
+    if (!checkPermissionWithNotification('create a new target list')) {
       return;
     }
     setIsNewListPopupOpen(true);
-  }
+  };
 
   const handleNewListSave = async (listData) => {
     try {
@@ -496,32 +491,6 @@ export default function Target({ onListSelect }) {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
     }  }
-
-  // Refresh lists after creating a new one
-  const handleCreateList = async (listData) => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_KEY}/api/list/new`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(listData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to create list: ${response.status}`);
-      }
-
-      // Refresh the lists after creating a new one
-      await fetchLists();
-      setIsNewListPopupOpen(false);
-    } catch (error) {
-      console.error('Error creating list:', error);
-    }
-  };
-
   // If a list is selected, show the detail view
   if (selectedList) {
     const hasInvestors = investors.length > 0
@@ -675,7 +644,7 @@ export default function Target({ onListSelect }) {
                     />
                   </div>                  <button 
                     onClick={() => {
-                      if (activeList?.id) {
+                      if (selectedList?.id) {
                         setShowInviteCollab(true);
                         // Set a delay to trigger QR generation after modal is open
                         setTimeout(() => {
@@ -685,7 +654,7 @@ export default function Target({ onListSelect }) {
                       } else {
                         alert('Please select a list first');
                       }
-                    }} 
+                    }}
                     className="flex items-center justify-center gap-2 bg-black text-gray-400 hover:text-white transition-colors w-[6.75rem] h-9 rounded-[0.125rem]"
                   >
                     <img src={QRIcon || "/placeholder.svg"} alt="QR Icon" className="w-4 h-4" />
@@ -1094,21 +1063,8 @@ export default function Target({ onListSelect }) {
       </div>
     )
   }
-
   return (
     <div className="pt-12" onClick={closeMenu}>
-      {/* Toast for no permission */}
-      <div
-        className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
-          showNoPermissionToast ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-        }`}
-      >
-        <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
-          <span className="text-white font-inter text-sm sm:text-base font-medium">
-            Please take access from the founder to create a new list.
-          </span>
-        </div>
-      </div>
 
       {/* Header Section */}
       <div className="mb-8">
