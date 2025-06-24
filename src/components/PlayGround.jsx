@@ -9,11 +9,20 @@ import DeckGeneration from "../assets/DeckGeneration.jpg";
 import MockOutreach from "../assets/MockOutreach.jpg";
 
 function PlayGround() {
+  const [loadingMockPitching, setLoadingMockPitching] = useState(true);
+
   const [currentView, setCurrentView] = useState('playground')
 
   const handlePitchNowClick = () => {
-    setCurrentView('mockpitching')
-  }
+  setCurrentView('mockpitching');
+  setLoadingMockPitching(true); // Start loading
+
+  // Simulate loading (e.g., fetch data, prepare backend, etc.)
+  setTimeout(() => {
+    setLoadingMockPitching(false); // Stop loading after 2 seconds
+  }, 2000);
+};
+
 
   const handleBackToPlayground = () => {
     setCurrentView('playground')
@@ -21,8 +30,9 @@ function PlayGround() {
 
   // If viewing MockPitching, render it full screen without sidebar
   if (currentView === 'mockpitching') {
-    return <MockPitching onBack={handleBackToPlayground} />
-  }
+  return <MockPitching onBack={handleBackToPlayground} loading={loadingMockPitching} />;
+}
+
 
   return (
     <div className="min-h-screen bg-black text-white flex relative">
