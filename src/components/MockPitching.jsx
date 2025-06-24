@@ -1565,20 +1565,12 @@ function MockPitching({ onBack, loading  }) {
 
   const handleJoinCall = async () => {
     try {
-      console.log('Requesting microphone permission...')
-      // Request only audio permissions since we only need microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-
-      console.log('Microphone permission granted')
-      // Keep the stream active for better audio performance
+      console.log('Requesting microphone and camera permission...')
+      // Request both audio and video permissions
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      console.log('Microphone and camera permission granted')
+      // Keep the stream active for better audio/video performance
       window.audioStream = stream
-
-      // Generate unique session ID if not already set
-      // if (!sessionId) {
-      //   const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      //   setSessionId(newSessionId)
-      //   console.log('Generated new session ID:', newSessionId)
-      // }
 
       setIsTransitioning(true)
 
@@ -1595,7 +1587,7 @@ function MockPitching({ onBack, loading  }) {
       }, 300)
     } catch (error) {
       console.error('Error requesting media permissions:', error)
-      alert('Please allow microphone access to join the call')
+      alert('Please allow microphone and camera access to join the call')
     }
   }
 
