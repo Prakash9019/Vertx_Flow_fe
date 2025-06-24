@@ -380,6 +380,7 @@ if (error) return <div className="text-center py-8 text-red-500">Error: {error}<
 
             {/* Scrollable Investor List */}
             <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide">
+
               {investors.map((investor) => (
                   <div
                   key={investor.id}
