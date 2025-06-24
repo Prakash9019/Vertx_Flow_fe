@@ -212,8 +212,7 @@ const handleClearFilters = () => {
 };
 
 
-if (loading) return <div className="text-center py-8">Loading investors...</div>;
-if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>;
+
 
   const handleGeographyToggle = (geography) => {
     setSelectedGeographies(prev => 
@@ -379,59 +378,63 @@ if (error) return <div className="text-center py-8 text-red-500">Error: {error}<
             </div>
 
             {/* Scrollable Investor List */}
-            <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide">
+            <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide scrollbar-hidden">
+              {loading ? (
+                <div className="text-center py-8 text-white">Loading...</div>
+              ) : error ? (
+                <div className="text-center py-8 text-red-500">Error: {error}</div>
+              ) : (
+                investors.map((investor) => (
+                    <div
+                    key={investor.id}
+                    className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
+                  >
+                    <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
+                      <img
+                        src={investor.profile_image || investor.avatar || fallbackAvatar}
+                        alt={investor.name}
+                        className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white" />
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-normal text-base truncate font-['Inter']">
+                            {investor.name}
+                          </span>
 
-              {investors.map((investor) => (
-                  <div
-                  key={investor.id}
-                  className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
-                >
-                  <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
-                    <img
-                      src={investor.profile_image || investor.avatar || fallbackAvatar}
-                      alt={investor.name}
-                      className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white" />
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-normal text-base truncate font-['Inter']">
-                          {investor.name}
-                        </span>
-
-                        <div className="flex gap-1">
-                          <img
-                            src={LinkedIn || "/placeholder.svg"}
-                            alt="LinkedIn"
-                            className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-[#0077B5]"
-                          />
-                          <img
-                            src={Link || "/placeholder.svg"}
-                            alt="Link"
-                            className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
-                          />
-                          <img
-                            src={Mail || "/placeholder.svg"}
-                            alt="Mail"
-                            className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
-                          />
-                          <img
-                            src={Twitter || "/placeholder.svg"}
-                            alt="Twitter"
-                            className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
-                          />
+                          <div className="flex gap-1">
+                            <img
+                              src={LinkedIn || "/placeholder.svg"}
+                              alt="LinkedIn"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-[#0077B5]"
+                            />
+                            <img
+                              src={Link || "/placeholder.svg"}
+                              alt="Link"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                            />
+                            <img
+                              src={Mail || "/placeholder.svg"}
+                              alt="Mail"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                            />
+                            <img
+                              src={Twitter || "/placeholder.svg"}
+                              alt="Twitter"
+                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1 overflow-hidden">
+                          <span className="text-white text-xs truncate max-w-[5rem] font-['Inter'] text-[0.625rem]">
+                            {investor.company || investor.firm || investor.fund}
+                          </span>
+                          <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0 font-['Inter']">
+                            {investor.type}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-1 overflow-hidden">
-                        <span className="text-white text-xs truncate max-w-[5rem] font-['Inter'] text-[0.625rem]">
-                          {investor.company || investor.firm || investor.fund}
-                        </span>
-                        <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0 font-['Inter']">
-                          {investor.type}
-                        </span>
-                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+                    <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
 
 {/* Check Size */}
 <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
@@ -535,8 +538,9 @@ Submit
 </div>
 </div>
 
-                </div>
-              ))}
+                  </div>
+                ))
+              )}
             </div>
 
             {/* Pagination */}

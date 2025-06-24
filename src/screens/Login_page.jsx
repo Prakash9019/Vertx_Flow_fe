@@ -6,8 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import  API_KEY  from "../../key";
 
 function Login_Page() {
-  const [userEmail, setUserEmail] = useState("");
-  const [storedEmail, setStoredEmail] = useState("");
+     const [userEmail, setUserEmail] = useState("");
+    const [storedEmail, setStoredEmail] = useState("");
   const [otpFormDisplay, setOtpFormDisplay] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
