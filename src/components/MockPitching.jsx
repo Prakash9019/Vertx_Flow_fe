@@ -1473,7 +1473,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   )
 }
 
-function MockPitching({ onBack }) {
+function MockPitching({ onBack, loading  }) {
   const { profileData } = useStartupProfile()
   const socketRef = useRef(null);
   const [investors, setInvestors] = useState([])
@@ -1812,6 +1812,19 @@ function MockPitching({ onBack }) {
       profileData={profileData}
     />
   }
+
+  if (loading) {
+  return (
+    <div className="flex items-center justify-center h-screen bg-black text-white">
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-white border-opacity-50"></div>
+        <p className="mt-4 text-sm text-white">Loading AI investors</p>
+      </div>
+    </div>
+
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
