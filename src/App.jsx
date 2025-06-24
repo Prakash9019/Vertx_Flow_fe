@@ -67,7 +67,7 @@ function App() {
     {path:"/PlayGround", element:<PlayGround /> },
    
     
-    { path:"/flow/outbound", element:<GenerateEmail />},
+     { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising/raise", element:<FundraisingManagePage /> },
     {path:"/fundraising/raise/manage", element:<FundraisingManagePage /> },
     {path:"/fundraising/raise/find", element:<FundraisingManagePage /> },
