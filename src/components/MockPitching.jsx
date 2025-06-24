@@ -448,6 +448,27 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const silenceTimerRef = useRef(null)
   const questionIndexRef = useRef(0)
   const [currentAudio, setCurrentAudio] = useState(null)
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    // Start camera after permissions are granted
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      })
+      .catch((err) => {
+        console.error("Camera access denied:", err);
+      });
+    // Cleanup: stop camera when component unmounts
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [])
+
   useEffect(() => {
     return () => {
       try {
@@ -1130,6 +1151,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       )}
 
       <div className="w-full h-full flex gap-8">
+        {/* LEFT CARD: Show camera feed and profile info */}
         <div
           className="flex-1 relative transition-all duration-700 ease-in-out"
           style={{
@@ -1137,45 +1159,40 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
             overflow: "hidden",
             background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
-        >          <div
+        >
+          {/* Name and company above camera */}
+          <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
               color: "#FFF",
               fontFamily: "Inter",
               fontSize: "0.875rem",
               fontWeight: 500,
+              zIndex: 2,
             }}
           >
-            {profileData?.accountName && profileData?.companyName 
+            {profileData?.accountName && profileData?.companyName
               ? `${profileData.accountName} | ${profileData.companyName}`
               : "User | Company"}
           </div>
-
+          {/* Camera feed */}
           <div className="w-full h-full flex items-center justify-center">
-            <div
-              className="rounded-full overflow-hidden bg-gray-600"
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
               style={{
-                width: "9.375rem",
-                height: "9.375rem",
+                width: "80%",
+                height: "80%",
+                borderRadius: "1rem",
+                objectFit: "cover",
+                background: "#222",
               }}
-            >              <img
-                src="/api/placeholder/150/150"
-                alt={profileData?.accountName || "User"}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = "none"
-                  e.target.nextSibling.style.display = "flex"
-                }}
-              />              <div
-                className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
-                style={{ display: "none" }}
-              >
-                {profileData?.accountName?.charAt(0) || "U"}
-              </div>
-            </div>
+            />
           </div>
 
-          <div className="absolute bottom-6 left-6 flex gap-4">
+          <div className="absolute bottom-4 left-4 flex gap-2">
             <button
               onClick={() => setIsMuted(!isMuted)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
@@ -1203,7 +1220,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
             </button>
           </div>
 
-          <div className="absolute bottom-6 right-6">
+          <div className="absolute bottom-4 right-4">
             <button
               onClick={() => setIsVideoOff(!isVideoOff)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
