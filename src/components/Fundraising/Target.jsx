@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import API_KEY from "../../../key"
 import { usePermissions } from "../../hooks/usePermissions"
 import NewListPopup from "./new-list-popup"
@@ -46,6 +46,7 @@ export default function Target({ onListSelect }) {
   const [editedName, setEditedName] = useState("")
   const [showDeleteNotification, setShowDeleteNotification] = useState(false)
   const [error, setError] = useState(null)
+  const [showNoPermissionToast, setShowNoPermissionToast] = useState(false);
   // Use permission hook for all permission-related state
   const { 
     hasFullAccess, 
@@ -144,10 +145,11 @@ export default function Target({ onListSelect }) {
 
   const handleNewListClick = () => {
     if (!canCreate) {
-      alert('You do not have permission to create new lists. Please contact your founder for access.');
+      setShowNoPermissionToast(true);
+      setTimeout(() => setShowNoPermissionToast(false), 3000);
       return;
     }
-    setIsNewListPopupOpen(true)
+    setIsNewListPopupOpen(true);
   }
 
   const handleNewListSave = async (listData) => {
@@ -1095,6 +1097,19 @@ export default function Target({ onListSelect }) {
 
   return (
     <div className="pt-12" onClick={closeMenu}>
+      {/* Toast for no permission */}
+      <div
+        className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+          showNoPermissionToast ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+        }`}
+      >
+        <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+          <span className="text-white font-inter text-sm sm:text-base font-medium">
+            Please take access from the founder to create a new list.
+          </span>
+        </div>
+      </div>
+
       {/* Header Section */}
       <div className="mb-8">
         {/* Search and New List Section */}
@@ -1124,7 +1139,11 @@ export default function Target({ onListSelect }) {
             </button>
           )}
           {!canCreate && (
-            <div className="flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed">
+            <div
+              onClick={handleNewListClick}
+              className="flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed"
+              style={{ pointerEvents: "auto" }}
+            >
               <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem] opacity-50" />
               <span className="text-gray-400 font-['Inter'] text-sm font-medium">New list</span>
             </div>

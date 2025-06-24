@@ -18,13 +18,15 @@ function Evaluate_Page() {
   const [analysisData, setAnalysisData] = useState([]);  const [score,setScore]=useState(0);
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
   const [loading, setLoading] = useState(true);
+  const [showNoAccessToast, setShowNoAccessToast] = useState(false);
   const {profileData,user_id, startupId } =useStartupProfile();
   const { hasFullAccess, canEvaluate, canUpload, userRole, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
 
   const handleAddNowClick = () => {
     if (!canUpload) {
-      alert('You don\'t have access from founder.');
+      setShowNoAccessToast(true);
+      setTimeout(() => setShowNoAccessToast(false), 3000);
       return;
     }
     setShowUploader(true);
@@ -592,6 +594,19 @@ function Evaluate_Page() {
           )}
         </div>
       </div>
+
+      {/* No Access Toast Notification */}
+<div
+  className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+    showNoAccessToast ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+  }`}
+>
+  <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+    <span className="text-white font-inter text-sm sm:text-base font-medium">
+      You don't have access from founder.
+    </span>
+  </div>
+</div>
     </div>
   );
 }
