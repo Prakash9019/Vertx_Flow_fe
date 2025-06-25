@@ -393,15 +393,15 @@ function FundraisingManagePage() {
                   ) : (
                     // No Active Round Display
                     <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16]">
-                      <h3 className="text-white absolute top-20 left-1/2 transform -translate-x-1/2 font-inter text-sm font-semibold text-center px-4">
+                      <h3 className="text-white absolute top-20 left-0 right-0 mx-auto font-inter text-sm font-semibold text-center px-4">
                         No fundraising round is currently open.
                       </h3>
-                      <p className="absolute top-[6.81rem] left-1/2 transform -translate-x-1/2 text-[#B8B8B8] font-inter text-xs font-normal text-center max-w-2xl px-4">
+                      <p className="absolute mt-1 top-[6.81rem] left-0 right-0 mx-auto text-[#B8B8B8] font-inter text-xs font-normal text-center max-w-2xl px-12">
                         Open a new round to add the fundraising information and track progress.
                       </p>
                       <button
                         onClick={handleAddRoundClick}
-                        className="transition-colors flex items-center justify-center absolute top-36 left-1/2 transform -translate-x-1/2 w-[5.625rem] h-[1.875rem] rounded bg-[#33005C] hover:bg-purple-700"
+                        className="mt-3 transition-colors flex items-center justify-center absolute top-36 left-0 right-0 mx-auto w-[5.625rem] h-[1.875rem] rounded bg-[#33005C] hover:bg-purple-700"
                       >
                         <span className="text-white font-inter text-[0.625rem] font-semibold">
                           + Add Round
