@@ -260,63 +260,60 @@ const handleClearFilters = () => {
         <div className="mb-12">
           <div className="bg-[#0F0E16] p-6 rounded-[0.625rem]">
             {/* Search and Filters */}
-            <div className="flex flex-col items-center mb-6 min-w-0 md:flex-col md:justify-between lg:flex-row lg:justify-between">
-              {/* Search Input */}
-              <div className="relative flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-[12.5rem]">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-[0.875rem] h-[0.875rem]"
-                />
-                <input
-                  type="text"
-                  value={filters.search}
-                  onChange={handleSearchChange}
-                  placeholder="Search database..."
-                  className="w-full h-[1.875rem] rounded-[0.1875rem] bg-black text-gray-400 font-normal text-[0.625rem] pl-8 pr-2 border-none outline-none"
-                />
-              </div>
+            <div class="flex flex-col items-center mb-6 min-w-0 md:flex-col md:justify-between lg:flex-row lg:justify-between md:gap-y-6 lg:gap-y-0">
+  <div class="relative flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-[12.5rem]">
+    <Search
+      class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-[0.875rem] h-[0.875rem]"
+    />
+    <input
+      type="text"
+      value={filters.search}
+      onChange={handleSearchChange}
+      placeholder="Search database..."
+      class="w-full h-[1.875rem] rounded-[0.1875rem] bg-black text-gray-400 font-normal text-[0.625rem] pl-8 pr-2 border-none outline-none"
+    />
+  </div>
 
-              {/* Filter Dropdowns Container */}
-              <div className="flex flex-col mt-4 min-w-0 md:mt-6 lg:ml-6 lg:flex-row lg:gap-x-10 sm:gap-x-4">
-                <div className="flex flex-wrap gap-2 sm:gap-4 md:gap-6 xl:gap-8 justify-center sm:justify-start">
-                  {/* Global HQ Filter */}
-                  <Dropdown
-                    label="Type"
-                    options={Type}
-                    selected={filters.type}
-                    setSelected={(val) =>
-                      setFilters((prev) => ({ ...prev, type: val }))
-                    }
-                  />
-                  <Dropdown
-                    label="Stage"
-                    options={STAGE_OPTIONS}
-                    isMulti
-                    selected={filters.stage}
-                    setSelected={(val) =>
-                      setFilters((prev) => ({ ...prev, stage: val }))
-                    }
-                  />
-                  <Dropdown
-                    label="Industry"
-                    options={INDUSTRY_OPTIONS}
-                    isMulti
-                    selected={filters.industry}
-                    setSelected={(val) =>
-                      setFilters((prev) => ({ ...prev, industry: val }))
-                    }
-                  />
-                  <Dropdown
-                    label="Geography"
-                    options={COUNTRY_OPTIONS}
-                    isMulti
-                    selected={filters.countries}
-                    setSelected={(val) =>
-                      setFilters((prev) => ({ ...prev, countries: val }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
+  <div class="flex flex-col mt-4 min-w-0 md:mt-0 lg:ml-6 lg:flex-row lg:gap-x-10 sm:gap-x-4">
+    <div class="flex flex-wrap gap-2 sm:gap-4 md:gap-6 xl:gap-8 justify-center sm:justify-start">
+      <Dropdown
+        label="Type"
+        options={Type}
+        selected={filters.type}
+        setSelected={(val) =>
+          setFilters((prev) => ({ ...prev, type: val }))
+        }
+      />
+      <Dropdown
+        label="Stage"
+        options={STAGE_OPTIONS}
+        isMulti
+        selected={filters.stage}
+        setSelected={(val) =>
+          setFilters((prev) => ({ ...prev, stage: val }))
+        }
+      />
+      <Dropdown
+        label="Industry"
+        options={INDUSTRY_OPTIONS}
+        isMulti
+        selected={filters.industry}
+        setSelected={(val) =>
+          setFilters((prev) => ({ ...prev, industry: val }))
+        }
+      />
+      <Dropdown
+        label="Geography"
+        options={COUNTRY_OPTIONS}
+        isMulti
+        selected={filters.countries}
+        setSelected={(val) =>
+          setFilters((prev) => ({ ...prev, countries: val }))
+        }
+      />
+    </div>
+  </div>
+</div>
 
             {/* Table Header */}
             <div className="flex items-center py-4 px-4 xl:px-6 overflow-x-auto min-w-full">
