@@ -319,59 +319,59 @@ const handleClearFilters = () => {
             </div>
 
             {/* Table Header */}
-            <div className="flex items-center py-4 px-4 xl:px-6">
-              {/* Fixed Width Container for Investor Name Header */}
-              <div className="w-[17rem] flex-shrink-0">
-                <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em]">
+            <div className="flex items-center py-4 px-4 xl:px-6 overflow-x-auto min-w-full">
+              {/* Investor Name Header - Adjust width for smaller screens */}
+              <div className="flex-shrink-0 w-[10rem] sm:w-[12rem] md:w-[15rem] lg:w-[17rem]">
+                <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] whitespace-nowrap">
                   INVESTOR NAME
                 </div>
               </div>
 
-              {/* Details Headers Section */}
-              <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0">
-                {/* Check Size Header */}
-                <div className="flex justify-center flex-shrink-0 w-[3rem]">
-                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
+              {/* Details Headers Section - Ensure proper spacing and min-width */}
+              <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-fit">
+                {/* CHECK SIZE Header */}
+                <div className="flex justify-center flex-shrink-0 w-[3rem] sm:w-[4rem]">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     CHECK SIZE
                   </div>
                 </div>
 
-                {/* Stage Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem]">
-                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
+                {/* STAGE Header */}
+                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem]">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     STAGE
                   </div>
                 </div>
 
-                {/* Industry Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem]">
-                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
+                {/* INDUSTRY Header */}
+                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem] md:w-[6rem] lg:w-[7rem] xl:w-[8rem]">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     INDUSTRY
                   </div>
                 </div>
 
-                {/* Geography Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem]">
-                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
+                {/* GEOGRAPHY Header */}
+                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem] md:w-[6rem] lg:w-[7rem] xl:w-[8rem]">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     GEOGRAPHY
                   </div>
                 </div>
 
-                {/* Match Header */}
-                <div className="flex justify-center flex-shrink-0 w-[3rem]">
-                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
+                {/* MATCH Header */}
+                <div className="flex justify-center flex-shrink-0 w-[3rem] sm:w-[4rem]">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     MATCH
                   </div>
                 </div>
 
-                {/* Submit Deck Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem]">
-                  <div className="text-white font-semibold text-[0.5rem] uppercase tracking-[0.05em] text-center whitespace-nowrap">
+                {/* SUBMIT DECK Header */}
+                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem] md:w-[6rem] lg:w-[7rem] xl:w-[8rem]">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     SUBMIT DECK
                   </div>
                 </div>
 
-                {/* Options Header */}
+                {/* Options Header - maintains fixed space */}
                 <div className="flex-shrink-0 w-[1.5rem]"></div>
               </div>
             </div>
