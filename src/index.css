@@ -1,30 +1,53 @@
 @import "tailwindcss";
 
-/* Add this to your global CSS file (e.g., styles.css) */
-.scrollbar-hidden::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hidden {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
-  }
-  
-  .scanning-line {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, #AD6FDE, transparent);
-    animation: scan 2.5s linear infinite;
-  }
-  
-  @keyframes scan {
-    0% {
-      top: 0%;
-    }
-    100% {
-      top: 100%;
-    }
-  }
-  
+html, body {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+/* Optional utility: hide scrollbars in specific elements */
+.scrollbar-hide {
+  -ms-overflow-style: none !important;  /* IE/Edge */
+  scrollbar-width: none !important;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  width: 0px !important;
+  height: 0px !important;
+  display: none !important;
+}
+
+/* MAIN WRAPPER that handles scroll but hides scrollbar */
+.scroll-container {
+  height: 100vh;
+  overflow-y: auto;
+  -ms-overflow-style: none;      /* IE and Edge */
+  scrollbar-width: none;         /* Firefox */
+}
+.scroll-container::-webkit-scrollbar {
+  display: none;                 /* Chrome, Safari, Opera */
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #1e1e1e;    /* dark gray/black thumb */
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Optional: hover effect */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #333;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1e1e1e transparent;
+}

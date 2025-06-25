@@ -46,7 +46,8 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
         </svg>
       </button>
       {isOpen && (
-        <ul className="absolute z-10 bg-zinc-800 text-white mt-1 rounded-sm max-h-48 overflow-y-auto w-full shadow-md">
+      <ul className="absolute z-10 bg-zinc-800 text-white mt-1 rounded-sm max-h-48 overflow-y-auto scrollbar-hide w-full shadow-md">
+
           {options.map((option) => (
             <li
               key={option}

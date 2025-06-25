@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import API_KEY from "../../../key"
 import { usePermissions } from "../../hooks/usePermissions"
 import NewListPopup from "./new-list-popup"
@@ -30,32 +30,31 @@ import DefaultAvatar from "../../assets/DefaultAvatar.svg"
 const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 export default function Target({ onListSelect }) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false)
-  const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false)
-  const [userTargetLists, setUserTargetLists] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [activeMenuId, setActiveMenuId] = useState(null)
-  const [selectedList, setSelectedList] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [activeDropdown, setActiveDropdown] = useState(null)
-  const itemsPerPage = 10
-  const [showSettings, setShowSettings] = useState(false)
-  const [showInviteCollab, setShowInviteCollab] = useState(false)
-  const [isEditingName, setIsEditingName] = useState(false)
-  const [editedName, setEditedName] = useState("")
-  const [showDeleteNotification, setShowDeleteNotification] = useState(false)
-  const [error, setError] = useState(null)
-  // Use permission hook for all permission-related state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false);
+  const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false);
+  const [userTargetLists, setUserTargetLists] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState(null);
+  const [selectedList, setSelectedList] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const itemsPerPage = 10;
+  const [showSettings, setShowSettings] = useState(false);
+  const [showInviteCollab, setShowInviteCollab] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [showDeleteNotification, setShowDeleteNotification] = useState(false);
+  const [error, setError] = useState(null);
+    // Use permission hook for all permission-related state
   const { 
-    hasFullAccess, 
     canCreate, 
     canEdit, 
     canView,
     canDelete, 
-    userRole, 
     isFounder, 
-    loading: permissionsLoading 
+    loading: permissionsLoading,
+    checkPermissionWithNotification
   } = usePermissions();
 
   // Create userPermissions object for components that expect it
@@ -141,14 +140,12 @@ export default function Target({ onListSelect }) {
       </div>
     );
   }
-
   const handleNewListClick = () => {
-    if (!canCreate) {
-      alert('You do not have permission to create new lists. Please contact your founder for access.');
+    if (!checkPermissionWithNotification('create a new target list')) {
       return;
     }
-    setIsNewListPopupOpen(true)
-  }
+    setIsNewListPopupOpen(true);
+  };
 
   const handleNewListSave = async (listData) => {
     try {
@@ -494,32 +491,6 @@ export default function Target({ onListSelect }) {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
     }  }
-
-  // Refresh lists after creating a new one
-  const handleCreateList = async (listData) => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_KEY}/api/list/new`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(listData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to create list: ${response.status}`);
-      }
-
-      // Refresh the lists after creating a new one
-      await fetchLists();
-      setIsNewListPopupOpen(false);
-    } catch (error) {
-      console.error('Error creating list:', error);
-    }
-  };
-
   // If a list is selected, show the detail view
   if (selectedList) {
     const hasInvestors = investors.length > 0
@@ -673,7 +644,7 @@ export default function Target({ onListSelect }) {
                     />
                   </div>                  <button 
                     onClick={() => {
-                      if (activeList?.id) {
+                      if (selectedList?.id) {
                         setShowInviteCollab(true);
                         // Set a delay to trigger QR generation after modal is open
                         setTimeout(() => {
@@ -683,7 +654,7 @@ export default function Target({ onListSelect }) {
                       } else {
                         alert('Please select a list first');
                       }
-                    }} 
+                    }}
                     className="flex items-center justify-center gap-2 bg-black text-gray-400 hover:text-white transition-colors w-[6.75rem] h-9 rounded-[0.125rem]"
                   >
                     <img src={QRIcon || "/placeholder.svg"} alt="QR Icon" className="w-4 h-4" />
@@ -1092,9 +1063,9 @@ export default function Target({ onListSelect }) {
       </div>
     )
   }
-
   return (
     <div className="pt-12" onClick={closeMenu}>
+
       {/* Header Section */}
       <div className="mb-8">
         {/* Search and New List Section */}
@@ -1124,7 +1095,11 @@ export default function Target({ onListSelect }) {
             </button>
           )}
           {!canCreate && (
-            <div className="flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed">
+            <div
+              onClick={handleNewListClick}
+              className="flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed"
+              style={{ pointerEvents: "auto" }}
+            >
               <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem] opacity-50" />
               <span className="text-gray-400 font-['Inter'] text-sm font-medium">New list</span>
             </div>

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_KEY from '../../key';
+import { usePermissionNotification } from './usePermissionNotification';
 
 export const usePermissions = () => {
   const [userRole, setUserRole] = useState(null);
   const [permissions, setPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasFullAccess, setHasFullAccess] = useState(false);
+  const { showPermissionDenied } = usePermissionNotification();
 
   useEffect(() => {
     checkUserPermissions();
@@ -39,9 +41,18 @@ export const usePermissions = () => {
     } catch (error) {
       console.error('Error checking user permissions:', error);
       setHasFullAccess(false);
-    } finally {
-      setLoading(false);
+    } finally {      setLoading(false);
     }
+  };
+
+  const checkPermissionWithNotification = (action = null, customMessage = null) => {
+    if (!hasFullAccess) {
+      const message = customMessage || 
+        (action ? `You don't have permission to ${action}` : "You don't have access from founder");
+      showPermissionDenied(message);
+      return false;
+    }
+    return true;
   };
   return {
     userRole,
@@ -55,6 +66,7 @@ export const usePermissions = () => {
     canDelete: hasFullAccess,
     canView: hasFullAccess,
     canUpload: hasFullAccess,
-    canEvaluate: hasFullAccess
+    canEvaluate: hasFullAccess,
+    checkPermissionWithNotification
   };
 };

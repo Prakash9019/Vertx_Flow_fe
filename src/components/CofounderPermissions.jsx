@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_KEY from '../../key';
 
@@ -8,6 +9,7 @@ const CofounderPermissions = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [startup, setStartup] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCofounderPermissions();
@@ -61,11 +63,18 @@ const CofounderPermissions = ({ onClose }) => {
 
       // Show success message
       alert(response.data.message);
-    } catch (error) {
-      console.error('Error updating permissions:', error);
+    } catch (error) {      console.error('Error updating permissions:', error);
       alert(error.response?.data?.message || 'Failed to update permissions');
     }
-  };  if (loading) {
+  };
+
+  const handleAddCofounder = () => {
+    // Close the modal and navigate to the add cofounder page
+    onClose();
+    navigate('/addfounder');
+  };
+
+  if (loading) {
     const loadingModal = (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
         <div className="bg-gray-900 rounded-lg p-6 max-w-md w-full mx-4">
@@ -116,16 +125,28 @@ const CofounderPermissions = ({ onClose }) => {
           <div className="mb-4 p-4 bg-red-600 text-white rounded-lg">
             {error}
           </div>
-        )}
-
-        {cofounders.length === 0 ? (
+        )}        {cofounders.length === 0 ? (
           <div className="text-center text-gray-400 py-8">
             <p>No co-founders found for your startup.</p>
             <p className="text-sm mt-2">Invite co-founders to see them here.</p>
+            <button
+              onClick={handleAddCofounder}
+              className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            >
+              Add Co-founder
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-white mb-4">Co-founders ({cofounders.length})</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-white">Co-founders ({cofounders.length})</h3>
+              <button
+                onClick={handleAddCofounder}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+              >
+                Add Co-founder
+              </button>
+            </div>
             
             {cofounders.map((cofounder) => (
               <div key={cofounder._id} className="bg-gray-800 rounded-lg p-4">

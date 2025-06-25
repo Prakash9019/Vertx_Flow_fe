@@ -443,11 +443,49 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  // const [sessionId, setSessionId] = useState(propSessionId || null)
   const socketRef = useRef(null)
   const silenceTimerRef = useRef(null)
   const questionIndexRef = useRef(0)
   const [currentAudio, setCurrentAudio] = useState(null)
+  const videoRef = useRef(null)
+  const cameraStreamRef = useRef(null) // <-- Add this ref
+
+  // Start/stop camera stream based on isVideoOff
+  useEffect(() => {
+    if (!isVideoOff) {
+      // Turn ON camera
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then((stream) => {
+          cameraStreamRef.current = stream
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream
+          }
+        })
+        .catch((err) => {
+          console.error("Camera access denied:", err)
+        })
+    } else {
+      // Turn OFF camera
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach(track => track.stop())
+        cameraStreamRef.current = null
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null
+      }
+    }
+    // Cleanup on unmount
+    return () => {
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach(track => track.stop())
+        cameraStreamRef.current = null
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null
+      }
+    }
+  }, [isVideoOff])
+
   useEffect(() => {
     return () => {
       try {
@@ -1130,6 +1168,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       )}
 
       <div className="w-full h-full flex gap-8">
+        {/* LEFT CARD: Show camera feed and profile info */}
         <div
           className="flex-1 relative transition-all duration-700 ease-in-out"
           style={{
@@ -1137,51 +1176,98 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
             overflow: "hidden",
             background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
-        >          <div
+        >
+          {/* Name and company above camera */}
+          <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
               color: "#FFF",
               fontFamily: "Inter",
               fontSize: "0.875rem",
               fontWeight: 500,
+              zIndex: 2,
             }}
           >
-            {profileData?.accountName && profileData?.companyName 
+            {profileData?.accountName && profileData?.companyName
               ? `${profileData.accountName} | ${profileData.companyName}`
               : "User | Company"}
           </div>
-
+          {/* Camera feed */}
           <div className="w-full h-full flex items-center justify-center">
-            <div
-              className="rounded-full overflow-hidden bg-gray-600"
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
               style={{
-                width: "9.375rem",
-                height: "9.375rem",
+                width: "80%",
+                height: "80%",
+                borderRadius: "1rem",
+                objectFit: "cover",
+                background: "#222",
+                backgroundColor: isVideoOff ? "#222" : undefined,
+                display: isVideoOff ? "none" : "block",
               }}
-            >              <img
-                src="/api/placeholder/150/150"
-                alt={profileData?.accountName || "User"}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = "none"
-                  e.target.nextSibling.style.display = "flex"
+            />
+            {isVideoOff && (
+              <div
+                style={{
+                  width: "80%",
+                  height: "80%",
+                  borderRadius: "1rem",
+                  background: "#222",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  fontSize: "2rem",
+                  fontWeight: 500,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
                 }}
-              />              <div
-                className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
-                style={{ display: "none" }}
               >
-                {profileData?.accountName?.charAt(0) || "U"}
+                Camera Off
               </div>
-            </div>
+            )}
           </div>
-
-          <div className="absolute bottom-6 left-6 flex gap-4">
+          {/* Video toggle button */}
+          <div className="absolute bottom-4 right-4">
             <button
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={() => setIsVideoOff(v => !v)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
               style={{
                 width: "3.5rem",
                 height: "3.5rem",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
+              }}
+              aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
+            >
+              {isVideoOff ? (
+                <img
+                  src={VideoOffIcon}
+                  alt="Video Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={VideoIcon}
+                  alt="Video On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
+            </button>
+          </div>
+
+          <div className="absolute bottom-4 left-4 flex gap-2">
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+              style={{
+                width: "3.125rem",
+                height: "3.125rem",
                 background: "transparent",
                 borderWidth: "1px",
                 borderColor: "#FFF",
@@ -1201,34 +1287,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
                 />
               )}
             </button>
-          </div>
 
-          <div className="absolute bottom-6 right-6">
-            <button
-              onClick={() => setIsVideoOff(!isVideoOff)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
-              style={{
-                width: "3.5rem",
-                height: "3.5rem",
-                background: "transparent",
-                borderWidth: "1px",
-                borderColor: "#FFF",
-              }}
-            >
-              {isVideoOff ? (
-                <img
-                  src={VideoOffIcon}
-                  alt="Video Off"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              ) : (
-                <img
-                  src={VideoIcon}
-                  alt="Video On"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              )}
-            </button>
           </div>
         </div>
 
@@ -1473,7 +1532,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   )
 }
 
-function MockPitching({ onBack }) {
+function MockPitching({ onBack, loading  }) {
   const { profileData } = useStartupProfile()
   const socketRef = useRef(null);
   const [investors, setInvestors] = useState([])
@@ -1565,20 +1624,12 @@ function MockPitching({ onBack }) {
 
   const handleJoinCall = async () => {
     try {
-      console.log('Requesting microphone permission...')
-      // Request only audio permissions since we only need microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-
-      console.log('Microphone permission granted')
-      // Keep the stream active for better audio performance
+      console.log('Requesting microphone and camera permission...')
+      // Request both audio and video permissions
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      console.log('Microphone and camera permission granted')
+      // Keep the stream active for better audio/video performance
       window.audioStream = stream
-
-      // Generate unique session ID if not already set
-      // if (!sessionId) {
-      //   const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      //   setSessionId(newSessionId)
-      //   console.log('Generated new session ID:', newSessionId)
-      // }
 
       setIsTransitioning(true)
 
@@ -1595,7 +1646,7 @@ function MockPitching({ onBack }) {
       }, 300)
     } catch (error) {
       console.error('Error requesting media permissions:', error)
-      alert('Please allow microphone access to join the call')
+      alert('Please allow microphone and camera access to join the call')
     }
   }
 
@@ -1812,6 +1863,19 @@ function MockPitching({ onBack }) {
       profileData={profileData}
     />
   }
+
+  if (loading) {
+  return (
+    <div className="flex items-center justify-center h-screen bg-black text-white">
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+        <p className="mt-4 text-sm text-white">Loading AI investors</p>
+      </div>
+    </div>
+
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
