@@ -1869,10 +1869,8 @@ function MockPitching({ onBack, loading  }) {
     <div className="flex items-center justify-center h-screen bg-black text-white">
       <div className="flex flex-col items-center">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
-        <p className="mt-4 text-sm text-white">Loading AI investors</p>
       </div>
     </div>
-
   );
 }
 

@@ -45,8 +45,9 @@ export default function Target({ onListSelect }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [showDeleteNotification, setShowDeleteNotification] = useState(false);
-  const [error, setError] = useState(null);
-    // Use permission hook for all permission-related state
+  const [error, setError] = useState(null); // Restore error state
+
+  // Use permission hook for all permission-related state
   const { 
     canCreate, 
     canEdit, 
@@ -74,65 +75,57 @@ export default function Target({ onListSelect }) {
     blue: "linear-gradient(180deg, #456BBD 0%, #6C04BF 100%)"
   };
 
-  // Fetch user target lists
-  const fetchLists = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        throw new Error('Authentication required');
-      }
-      
-      const response = await fetch(`${API_KEY}/api/list`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch lists: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log('Fetched lists:', result);
-      
-      // Map backend lists to frontend format
-      let lists = Array.isArray(result) ? result : result.data || [];
-      if (!Array.isArray(lists)) {
-        console.error('Invalid lists data:', lists);
-        lists = [];
-      }
-
-      const formattedLists = lists.map(list => ({
-        id: list._id,
-        name: list.name,
-        cover: list.coverColor || 'default',
-        createdBy: isFounder ? "Company" : "Founder",
-        createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
-        investors: Array.isArray(list.investors) ? list.investors : []
-      }));
-      console.log(formattedLists.investors)
-      setUserTargetLists(formattedLists);
-    } catch (error) {
-      console.error('Error fetching lists:', error);
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Only fetch lists when permissions are loaded
   useEffect(() => {
     if (!permissionsLoading) {
+      const fetchLists = async () => {
+        try {
+          setIsLoading(true);
+          setError(null); // Clear error before fetching
+          const token = localStorage.getItem('authToken');
+          if (!token) {
+            throw new Error('Authentication required');
+          }
+          const response = await fetch(`${API_KEY}/api/list`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to fetch lists: ${response.status}`);
+          }
+          const result = await response.json();
+          console.log('Fetched lists:', result);
+          // Map backend lists to frontend format
+          let lists = Array.isArray(result) ? result : result.data || [];
+          if (!Array.isArray(lists)) {
+            console.error('Invalid lists data:', lists);
+            lists = [];
+          }
+          const formattedLists = lists.map(list => ({
+            id: list._id,
+            name: list.name,
+            cover: list.coverColor || 'default',
+            createdBy: isFounder ? "Company" : "Founder",
+            createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
+            investors: Array.isArray(list.investors) ? list.investors : []
+          }));
+          console.log(formattedLists.investors)
+          setUserTargetLists(formattedLists);
+        } catch (error) {
+          setError(error.message || String(error)); // Set error for UI
+          console.error('Error fetching lists:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
       fetchLists();
     }
-  }, [permissionsLoading]);
+  }, [permissionsLoading, isFounder]); // Add fetchLists to dependencies
   
-  // Add error display
+  // Add error display (restore error handling logic)
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -490,7 +483,8 @@ export default function Target({ onListSelect }) {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
-    }  }
+    }
+  }
   // If a list is selected, show the detail view
   if (selectedList) {
     const hasInvestors = investors.length > 0
@@ -1108,8 +1102,8 @@ export default function Target({ onListSelect }) {
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="w-full h-20 flex items-center justify-center">
-            <div className="text-white">Loading lists...</div>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
           </div>
         )}
         

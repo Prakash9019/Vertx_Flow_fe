@@ -384,11 +384,9 @@ function FundraisingManagePage() {
                   ) : isLoading ? (
                     // Loading state
                     <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16] flex items-center justify-center">
-                      <div className="text-white font-inter text-sm">Loading funding rounds...</div>                    </div>
-                  ) : isLoading ? (
-                    // Loading state
-                    <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16] flex items-center justify-center">
-                      <div className="text-white font-inter text-sm">Loading funding rounds...</div>
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                      </div>
                     </div>
                   ) : (
                     // No Active Round Display

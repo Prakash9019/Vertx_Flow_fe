@@ -610,14 +610,17 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
                             key={investor.id || investor._id}
                             investor={investor}
                             isSelected={selectedInvestor && (selectedInvestor.id === investor.id || selectedInvestor._id === investor._id)}
-                            onClick={() => handleInvestorClick(investor)}
+                            onClick={() => handleInvestorClick(investor)
+                            }
                           />
                         ))
                       ) : (
                         <div className="text-center text-[#B8B8B8] py-8">No investors added yet.</div>
                       )
                     ) : isLoading ? (
-                      <div className="text-center text-[#B8B8B8] py-8">Searching investors...</div>
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                      </div>
                     ) : hasResults ? (
                       searchResults.map((investor) => (
                         <InvestorCard
