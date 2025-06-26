@@ -35,16 +35,16 @@ function PlayGround() {
 
 
   return (
-    <div className="min-h-screen bg-black text-white flex relative">
+    <div className="min-h-screen bg-black text-white flex relative ">
       {/* Sidebar */}
       <div className="bg-black text-white">
         <Sidebar />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 h-screen overflow-hidden">
+      <div className="flex-1 h-screen overflow-scroll md:overflow-hidden">
         <div 
-          className="pl-[2.8rem] pr-[2.8rem] pt-20 pb-24 h-full flex flex-col gap-4">
+          className="pl-7 md:pl-[2.8rem] pr-7 md:pr-[2.8rem] pt-12 md:pt-20 pb-15 md:pb-24 h-full flex flex-col gap-2 md:gap-4">
           {/* Hero Section */}
           <div 
             style={{
@@ -53,7 +53,7 @@ function PlayGround() {
             className="bg-cover bg-center bg-no-repeat rounded-lg min-h-[200px] relative flex flex-col items-center justify-center text-center flex-1">
             <div className="max-w-4xl px-8">
               <h1 
-                className="text-white mb-8 leading-tight  text-center font-sans text-xl font-light"
+                className="text-white mt-1 mb-4 md:mb-8 leading-tight  text-center font-sans text-lg font-light"
                 style={{fontFamily: "Inter, sans-serif"}}>
                 Playground helps you practice your pitch<br />
                 and build confidence by talking to an AI<br />
@@ -73,14 +73,14 @@ function PlayGround() {
             className="grid grid-cols-1 md:grid-cols-3 gap-[0.8rem] flex-none">
             {/* Mock Pitching Card */}
             <div 
-              className="relative rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
+              className="relative max-h-[200px] min-w-full md:max-h-full rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${MockPitchingImage}")`
               }}>
-              <div className="absolute inset-0 flex flex-col justify-between p-6 items-center text-center">
+              <div className="absolute inset-0 flex flex-col justify-between p-2 md:p-6 items-center text-center">
                 <div>
                   <h3 
-                    className="text-white mt-8 text-xl font-semibold"
+                    className="text-white mt-0 md:mt-8 text-xl font-semibold"
                     style={{ fontFamily: "Inter, sans-serif" }}>
                     Mock Pitching
                   </h3>
@@ -93,7 +93,7 @@ function PlayGround() {
                 
                 <button
                   onClick={handlePitchNowClick}
-                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[5.0625rem] h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
+                  className="bg-white mt-2 text-black mb-auto md:mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[7.5rem] h-9  md:py-0 md:w-[5.0625rem] md:h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
                   style={{
                     fontFamily: "Inter, sans-serif",
                   }}>
@@ -104,15 +104,15 @@ function PlayGround() {
 
             {/* Deck Generation Card */}
             <div
-              className="relative rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
+              className="relative rounded-lg max-h-[200px] min-w-full md:max-h-full overflow-hidden bg-cover bg-center aspect-[4/3]"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${DeckGeneration}")`
               }}
             >
-              <div className="absolute inset-0 flex flex-col justify-between p-6 items-center text-center">
+              <div className="absolute inset-0 flex flex-col justify-between p-2 md:p-6 items-center text-center">
                 <div>
                   <h3
-                    className="text-white mt-8 text-xl font-semibold"
+                    className="text-white mt-0 md:mt-8 text-xl font-semibold"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Deck Generation
@@ -125,7 +125,7 @@ function PlayGround() {
                   </p>
                 </div>
                 <button
-                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[5.0625rem] h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
+                  className="bg-white mt-2 text-black mb-auto md:mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[7.5rem] h-9  md:py-0 md:w-[5.0625rem] md:h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
                   style={{
                     fontFamily: "Inter, sans-serif",
                   }}>
@@ -136,15 +136,15 @@ function PlayGround() {
 
             {/* Mock Outreach Card */}
             <div
-              className="relative rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
+              className="relative max-h-[240px] min-w-full md:max-h-full rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${MockOutreach}")`
               }}
             >
-              <div className="absolute inset-0 flex flex-col justify-between p-6 items-center text-center">
+              <div className="absolute inset-0 flex flex-col justify-between p-2 md:p-6 items-center text-center">
                 <div>
                   <h3
-                    className="text-white mt-8 text-xl font-semibold"
+                    className="text-white mt-0 md:mt-8 text-xl font-semibold"
                     style={{ fontFamily: "Inter, sans-serif" }}
                   >
                     Mock Outreach
@@ -158,7 +158,7 @@ function PlayGround() {
                 </div>
                 
                 <button
-                  className="bg-white text-black mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[5.0625rem] h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
+                  className="bg-white mt-2 text-black mb-auto md:mb-6 transition-colors hover:bg-gray-100 text-center text-[0.625rem] font-semibold w-[7.5rem] h-9  md:py-0 md:w-[5.0625rem] md:h-[1.6875rem] rounded-[0.1875rem] border-none cursor-pointer"
                   style={{
                     fontFamily: "Inter, sans-serif",
                   }}
