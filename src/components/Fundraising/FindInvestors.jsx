@@ -19,23 +19,24 @@ const transformInvestorData = (investor) => {
       avatar: investor.profile_image || fallbackAvatar,
       company: investor.fund || "",
       fund: investor.fund || "",
-      location: investor.global_hq || "", // Join array back to string for display
+      location: investor.global_hq || "", 
       bio: investor.overview || "",
       type: investor.type || "VC",
-      checkSize: investor.cheque_range || "$N/A", // From string field
-      stage: investor.stage || "N/A", // Join array for display
-      stageCount: investor.stage, // Count for stage
-      industry: investor.industry || "N/A", // Join array for display
-      industryCount: investor.industry, // Count for industry
-      geography: investor.countries || "N/A", // Join array for display
-      geographyCount: investor.countries.length,  // Count for geography
+      checkSize: investor.cheque_range || "$N/A", 
+      stage: Array.isArray(investor.stage) ? investor.stage : (investor.stage ? [investor.stage] : []),
+      stageCount: Array.isArray(investor.stage) ? investor.stage.length : (investor.stage ? 1 : 0),
+      industry: Array.isArray(investor.industry) ? investor.industry : (investor.industry ? [investor.industry] : []),
+      industryCount: Array.isArray(investor.industry) ? investor.industry.length : (investor.industry ? 1 : 0),
+      countries: Array.isArray(investor.countries) ? investor.countries : (investor.countries ? [investor.countries] : []),
+      geography: Array.isArray(investor.countries) ? investor.countries : (investor.countries ? [investor.countries] : []),
+      geographyCount: Array.isArray(investor.countries) ? investor.countries.length : (investor.countries ? 1 : 0),
       email: investor.email || "",
-      linkedin: investor.linkedin_personal || "", // Map to 'linkedin'
+      linkedin: investor.linkedin_personal || "", 
       twitter: investor.twitter || "",
       crunchbase: investor.crunchbase || "",
       website: investor.website || "",
-      match: "0%", // Fixed as per previous examples
-      matchValue: 0, // Fixed as per previous examples
+      match: "0%", 
+      matchValue: 0, 
   };
 };
 
@@ -68,8 +69,7 @@ const COUNTRY_OPTIONS = [
 ];
 
 function FindInvestors() {
-  const [activeFindTab, setActiveFindTab] = useState("Investors");
-  const [advancedFiltersOn, setAdvancedFiltersOn] = useState(false);
+  const [activeFindTab] = useState("Investors");
   const [investors, setInvestors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -87,11 +87,6 @@ function FindInvestors() {
   });
 
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [geographyDropdownOpen, setGeographyDropdownOpen] = useState(false);
-  const [selectedGeographies, setSelectedGeographies] = useState([]);
-  const itemsPerPage = 10;
-
-
 
   // Function to get match color based on percentage
   const getMatchColor = (matchValue) => {
@@ -108,51 +103,60 @@ function FindInvestors() {
   // const endIndex = startIndex + itemsPerPage;
   // const currentInvestors = investorData.slice(startIndex, endIndex);
 
-    // Debounce function for search input
-    const debounce = (func, delay) => {
-      let timeout;
-      return function(...args) {
-          const context = this;
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func.apply(context, args), delay);
-      };
-  };
-
-  const fetchInvestors = useCallback(debounce(async () => {
+  const fetchInvestors = useCallback(async () => {
       setLoading(true);
       setError(null);
       try {
           const queryParams = new URLSearchParams({
               page: currentPage,
               limit: 10, // 10 docs per page as requested
-              search: filters.search,
           });
+
+          // Only add search parameter if it's not empty
+          if (filters.search && filters.search.trim() !== '') {
+              queryParams.append('search', filters.search.trim());
+          }
 
           // Add filter parameters for array fields
           Object.keys(filters).forEach(key => {
+              if (key === 'search') return; // Skip search as we handled it above
+              
               if (Array.isArray(filters[key]) && filters[key].length > 0) {
                   queryParams.append(key, filters[key].join(',')); // Send as comma-separated string to backend
-              } else if (filters[key] && !Array.isArray(filters[key])) {
+              } else if (filters[key] && !Array.isArray(filters[key]) && filters[key].trim() !== '') {
                   queryParams.append(key, filters[key]);
               }
           });
 
+          console.log('Fetching investors with params:', queryParams.toString());
           const response = await fetch(`${API_KEY}/api/investors?${queryParams.toString()}`);
-          console.log(response.data)
+          
           if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+              const errorText = await response.text();
+              console.error('API Error Response:', errorText);
+              throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
           }
+          
           const data = await response.json();
-          setInvestors(data.data.map(transformInvestorData)); // Transform data for display
-          setTotalPages(data.totalPages);
-          setTotalCount(data.totalCount);
+          console.log('API Response Data:', data);
+          
+          if (data.data && Array.isArray(data.data)) {
+              setInvestors(data.data.map(transformInvestorData)); // Transform data for display
+              setTotalPages(data.totalPages || 1);
+              setTotalCount(data.totalCount || 0);
+          } else {
+              console.error('Invalid data structure received:', data);
+              setInvestors([]);
+              setTotalPages(1);
+              setTotalCount(0);
+          }
       } catch (err) {
           setError(err.message);
           console.error("Error fetching investors:", err);
       } finally {
           setLoading(false);
       }
-  }, 300), [currentPage, filters]); // Debounce the fetch call
+  }, [currentPage, filters]); // Include dependencies properly
 
   useEffect(() => {
     fetchInvestors();
@@ -170,25 +174,6 @@ function FindInvestors() {
     }
   };
  // Handler for filter changes (dropdowns)
- const handleFilterChange = (e) => {
-  const { name, value, selectedOptions } = e.target;
-  // For multi-select dropdowns, collect all selected options
-  if (e.target.multiple) {
-      const selectedValues = Array.from(selectedOptions).map(option => option.value);
-      setFilters(prevFilters => ({
-          ...prevFilters,
-          [name]: selectedValues
-      }));
-  } else { // For single-select dropdowns or text inputs
-      setFilters(prevFilters => ({
-          ...prevFilters,
-          [name]: value
-      }));
-  }
-  setCurrentPage(1); // Reset to first page on filter change
-};
-
-// Handler for search input
 const handleSearchChange = (e) => {
   const { value } = e.target;
   setFilters(prevFilters => ({
@@ -198,39 +183,9 @@ const handleSearchChange = (e) => {
   setCurrentPage(1); // Reset to first page on search change
 };
 
-// Handler to clear all filters
-const handleClearFilters = () => {
-  setFilters({
-      search: '',
-      global_hq: [],
-      countries: [],
-      stage: [],
-      industry: [],
-      type: '',
-      cheque_range: '',
-  });
-  setCurrentPage(1); // Reset to first page
-};
-
-
-
-
-  const handleGeographyToggle = (geography) => {
-    setSelectedGeographies(prev => 
-      prev.includes(geography) 
-        ? prev.filter(g => g !== geography)
-        : [...prev, geography]
-    );
-  };
-
-  const resetAllGeographies = () => {
-    setSelectedGeographies([]);
-  };
-
   return (
     <div className="pt-12 font-inter" onClick={() => {
       setActiveDropdown(null);
-      setGeographyDropdownOpen(false);
     }}>
       {/* Find Tab Navigation - Fixed */}
       {/* <div className="flex gap-12 mb-12">
@@ -316,60 +271,63 @@ const handleClearFilters = () => {
 </div>
 
             {/* Table Header */}
-            <div className="flex items-center py-4 px-4 xl:px-6 overflow-x-auto min-w-full">
-              {/* Investor Name Header - Adjust width for smaller screens */}
-              <div className="flex-shrink-0 w-[10rem] sm:w-[12rem] md:w-[15rem] lg:w-[17rem]">
-                <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] whitespace-nowrap">
-                  INVESTOR NAME
+            <div className="bg-[#33005C]/20 rounded-t-lg border-b border-gray-700/50">
+              <div className="grid grid-cols-12 items-center px-2 xl:px-4 py-3 gap-1 xl:gap-2">
+                {/* Investor Header - 4 columns */}
+                <div className="col-span-4 flex justify-start">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] whitespace-nowrap">
+                    INVESTOR
+                  </div>
                 </div>
-              </div>
 
-              {/* Details Headers Section - Ensure proper spacing and min-width */}
-              <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-fit">
-                {/* CHECK SIZE Header */}
-                <div className="flex justify-center flex-shrink-0 w-[3rem] sm:w-[4rem]">
+                {/* Check Size Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
                   <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     CHECK SIZE
                   </div>
                 </div>
 
-                {/* STAGE Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem]">
+                {/* Stage Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
                   <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     STAGE
                   </div>
                 </div>
 
-                {/* INDUSTRY Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem] md:w-[6rem] lg:w-[7rem] xl:w-[8rem]">
+                {/* Industry Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
                   <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     INDUSTRY
                   </div>
                 </div>
 
-                {/* GEOGRAPHY Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem] md:w-[6rem] lg:w-[7rem] xl:w-[8rem]">
+                {/* Geography Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
                   <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     GEOGRAPHY
                   </div>
                 </div>
 
-                {/* MATCH Header */}
-                <div className="flex justify-center flex-shrink-0 w-[3rem] sm:w-[4rem]">
+                {/* Match Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
                   <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     MATCH
                   </div>
                 </div>
 
-                {/* SUBMIT DECK Header */}
-                <div className="flex justify-center flex-shrink-0 w-[4rem] sm:w-[5rem] md:w-[6rem] lg:w-[7rem] xl:w-[8rem]">
+                {/* Submit Deck Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
                   <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
                     SUBMIT DECK
                   </div>
                 </div>
 
-                {/* Options Header - maintains fixed space */}
-                <div className="flex-shrink-0 w-[1.5rem]"></div>
+                {/* Options Header - 1 column */}
+                <div className="col-span-1 flex justify-center">
+                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
+                    OPTIONS
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -383,157 +341,162 @@ const handleClearFilters = () => {
                 investors.map((investor) => (
                     <div
                     key={investor.id}
-                    className="flex items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 h-24 xl:h-[6.25rem] px-4 xl:px-6"
+                    className="grid grid-cols-12 items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem] px-2 xl:px-4 py-3 gap-1 xl:gap-2"
                   >
-                    <div className="flex items-center gap-x-4 w-[17rem] flex-shrink-0">
+                    {/* Investor Info - Takes up 4 columns */}
+                    <div className="col-span-4 flex items-center gap-x-3 min-w-0">
                       <img
                         src={investor.profile_image || investor.avatar || fallbackAvatar}
                         alt={investor.name}
-                        className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white" />
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white font-normal text-base truncate font-['Inter']">
+                        className="rounded object-cover w-10 h-10 xl:w-12 xl:h-12 bg-white flex-shrink-0" />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-white font-normal text-sm truncate font-['Inter'] max-w-[8rem]">
                             {investor.name}
                           </span>
-
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 flex-shrink-0">
                             <img
                               src={LinkedIn || "/placeholder.svg"}
                               alt="LinkedIn"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-[#0077B5]"
+                              className="w-2 h-2 cursor-pointer text-[#0077B5]"
                             />
                             <img
                               src={Link || "/placeholder.svg"}
                               alt="Link"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                              className="w-2 h-2 cursor-pointer text-gray-400"
                             />
                             <img
                               src={Mail || "/placeholder.svg"}
                               alt="Mail"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                              className="w-2 h-2 cursor-pointer text-gray-400"
                             />
                             <img
                               src={Twitter || "/placeholder.svg"}
                               alt="Twitter"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
+                              className="w-2 h-2 cursor-pointer text-gray-400"
                             />
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-1 overflow-hidden">
-                          <span className="text-white text-xs truncate max-w-[5rem] font-['Inter'] text-[0.625rem]">
+                        <div className="flex items-center gap-2 mt-1 min-w-0">
+                          <span className="text-white text-xs truncate font-['Inter'] text-[0.625rem] max-w-[6rem]">
                             {investor.company || investor.firm || investor.fund}
                           </span>
-                          <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0 font-['Inter']">
+                          <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 px-2 py-0.5 flex items-center justify-center flex-shrink-0 font-['Inter'] min-w-max">
                             {investor.type}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
+                    {/* Check Size - 1 column */}
+                    <div className="col-span-1 flex justify-center">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] min-w-max max-w-full">
+                        <span className="truncate">{investor.checkSize || "—"}</span>
+                      </div>
+                    </div>
 
-{/* Check Size */}
-<div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
-{investor.checkSize || "—"}
-</div>
+                    {/* Stage - 1 column */}
+                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                        <span className="truncate">
+                          {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+                        </span>
+                      </div>
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
+                         investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
+                      </div>
+                    </div>
 
-{/* Stage */}
-<div className="flex flex-col gap-y-1 flex-shrink-0">
-<div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
-  {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
-</div>
-<div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-  {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
-   investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
-</div>
-</div>
+                    {/* Industry - 1 column */}
+                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                        <span className="truncate">
+                          {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+                        </span>
+                      </div>
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
+                         investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
+                      </div>
+                    </div>
 
-{/* Industry */}
-<div className="flex flex-col gap-y-1 flex-shrink-0">
-<div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
-  {investor.industry?.[0] || investor.sectors?.[0] || "—"}
-</div>
-{investor.industry.length>0 && <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-  {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
-   investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
-</div>}
-</div>
+                    {/* Geography - 1 column */}
+                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                        <span className="truncate">
+                          {investor.countries?.[0] || investor.geography?.[0] || investor.global_hq || "—"}
+                        </span>
+                      </div>
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.countries?.length > 1 ? `+${investor.countries.length - 1}` : 
+                         investor.geography?.length > 1 ? `+${investor.geography.length - 1}` : "+0"}
+                      </div>
+                    </div>
 
-{/* Geography */}
-<div className="flex items-center gap-1 flex-shrink-0">
-<div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
-  <div className="w-5 h-3 flex items-center justify-center">
-    <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
-  </div>
-</div>
-<div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-  {investor.geography || (investor.geography?.length > 0 ? `+${investor.geography.length}` : "+0")}
-</div>
-</div>
+                    {/* Match Value - 1 column */}
+                    <div className="col-span-1 flex items-center gap-1 justify-center">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ background: getMatchColor(investor.matchValue) }}
+                      ></div>
+                      <span className="text-white text-sm font-semibold font-['Inter']">{investor.match || "—"}</span>
+                    </div>
 
-{/* Match Value */}
-<div className="flex items-center gap-1 flex-shrink-0">
-<div
-  className="w-2.5 h-2.5 rounded-full"
-  style={{ background: getMatchColor(investor.matchValue) }}
-></div>
-<span className="text-white text-base font-semibold font-['Inter']">{investor.match || "—"}</span>
-</div>
+                    {/* Submit Button - 1 column */}
+                    <div className="col-span-1 flex justify-center">
+                      <button
+                        className="text-white text-xs font-medium rounded px-2 py-1 font-['Inter'] text-[0.625rem] transition-all hover:scale-105 min-w-[3rem] max-w-[4rem] truncate"
+                        style={{
+                          background:
+                            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                        }}
+                      >
+                        Submit
+                      </button>
+                    </div>
 
-{/* Submit Button */}
-<button
-className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem] transition-all hover:scale-105"
-style={{
-  background:
-    "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
-}}
->
-Submit
-</button>
+                    {/* Dropdown - 0.5 column */}
+                    <div className="col-span-1 flex justify-center">
+                      <div className="relative">
+                        <button
+                          className="hover:opacity-70 transition-colors p-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                          }}
+                        >
+                          <MoreVertical className="w-4 h-4 text-gray-400" />
+                        </button>
 
-{/* Dropdown */}
-<div className="relative flex-shrink-0">
-<button
-  className="hover:opacity-70 transition-colors"
-  onClick={(e) => {
-    e.stopPropagation();
-    setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
-  }}
->
-  <MoreVertical className="w-6 h-6 text-gray-400" />
-</button>
-
-{activeDropdown === investor.id && (
-  <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
-    <div className="py-1">
-      {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
-        { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
-        { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
-      ].filter(item => {
-        if (item.requiresEdit && !canEdit) return false;
-        if (item.requiresView && !canView) return false;
-        return true;
-      }).map((item, index) => (
-        <button
-          key={index}
-          onClick={(e) => {
-            e.stopPropagation();
-            item.action();
-          }}
-          className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
-        >
-          <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
-            {item.icon}
-          </div>
-          {item.text}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
-</div>
-</div>
-
+                        {activeDropdown === investor.id && (
+                          <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                            <div className="py-1">
+                              {[
+                                { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
+                                { text: "Remove from list", icon: "🗑️", action: () => console.log("Remove from list clicked") },
+                                { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
+                              ].map((item, index) => (
+                                <button
+                                  key={index}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    item.action();
+                                    setActiveDropdown(null);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                                >
+                                  <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                                    {item.icon}
+                                  </div>
+                                  {item.text}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ))
               )}
