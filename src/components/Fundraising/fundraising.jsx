@@ -212,7 +212,7 @@ function FundraisingManagePage() {
           >
           <div className="absolute inset-0 z-0 bg-black/80"></div>
             <div
-              className="relative z-10 flex flex-col justify-between h-full pl-[3.44rem] pr-[3.87rem] pt-[4.06rem] pb-6"
+              className="relative z-10 flex flex-col justify-between h-full pl-8 md:pl-[3.44rem] pr-9 md:pr-[3.87rem] pt-10 md:pt-[4.06rem] pb-6"
             >
               <div>
                 <h1
@@ -232,7 +232,7 @@ function FundraisingManagePage() {
         )}
 
         {/* Navigation Tabs - Hidden when target list is selected */}
-        {!(activeTab === "Target" && isTargetListSelected) && (          <div className="flex gap-4 pl-[3.44rem] pr-[3.87rem] mt-[1.69rem]">
+        {!(activeTab === "Target" && isTargetListSelected) && (          <div className="flex gap-4 pl-8 md:pl-[3.44rem] pr-9 md:pr-[3.87rem] mt-3 md:mt-[1.69rem]">
             {tabsArray.map((tab) => (
               <button
                 key={tab}
@@ -254,16 +254,16 @@ function FundraisingManagePage() {
         )}
 
         {/* Tab Content */}
-        <div
-          style={{
-            paddingLeft: activeTab === "Target" && isTargetListSelected ? "0" : "3.44rem",
-            paddingRight: activeTab === "Target" && isTargetListSelected ? "0" : "3.87rem",
-          }}
+        <div className="pl-8 md:pl-14 pr-9 md:pr-16"
+          // style={{
+          //   paddingLeft: activeTab === "Target" && isTargetListSelected ? "0" : "3.44rem",
+          //   paddingRight: activeTab === "Target" && isTargetListSelected ? "0" : "3.87rem",
+          // }}
         >
           {activeTab === "Manage" && (
-            <div className="pt-12">
+            <div className="pt-8 md:pt-12">
               <div className="mb-8">
-                <div className="flex items-center mb-8">
+                <div className="flex items-center mb-6 md:mb-8">
                   <div className="bg-purple-500 mr-2 w-[0.3125rem] h-7"></div>
                   <h2 className="text-white text-lg sm:text-xl md:text-2xl xl:text-[1.5rem] font-semibold font-inter">
                     Manage your fundraising
@@ -391,15 +391,15 @@ function FundraisingManagePage() {
                   ) : (
                     // No Active Round Display
                     <div className="backdrop-blur-sm rounded-lg border border-gray-800/50 relative w-full h-60 bg-[#0F0E16]">
-                      <h3 className="text-white absolute top-20 left-0 right-0 mx-auto font-inter text-sm font-semibold text-center px-4">
+                      <h3 className="text-white absolute top-13 md:top-20 left-0 right-0 mx-auto font-inter text-sm font-semibold text-center px-4">
                         No fundraising round is currently open.
                       </h3>
-                      <p className="absolute mt-1 top-[6.81rem] left-0 right-0 mx-auto text-[#B8B8B8] font-inter text-xs font-normal text-center max-w-2xl px-12">
+                      <p className="absolute top-24 md:top-[6.81rem] left-0 right-0 mx-auto text-[#B8B8B8] font-inter text-xs font-normal text-center max-w-2xl px-4">
                         Open a new round to add the fundraising information and track progress.
                       </p>
                       <button
                         onClick={handleAddRoundClick}
-                        className="mt-3 transition-colors flex items-center justify-center absolute top-36 left-0 right-0 mx-auto w-[5.625rem] h-[1.875rem] rounded bg-[#33005C] hover:bg-purple-700"
+                        className=" md:mt-0 transition-colors flex items-center justify-center absolute top-36 left-0 right-0 mx-auto w-[5.625rem] h-[1.875rem] rounded bg-[#33005C] hover:bg-purple-700"
                       >
                         <span className="text-white font-inter text-[0.625rem] font-semibold">
                           + Add Round

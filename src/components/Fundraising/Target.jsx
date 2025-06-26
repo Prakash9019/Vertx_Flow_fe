@@ -1063,7 +1063,7 @@ export default function Target({ onListSelect }) {
       {/* Header Section */}
       <div className="mb-8">
         {/* Search and New List Section */}
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex flex-col sm:flex-row gap-2 justify-between items-center mb-10">
           {/* Search Bar */}
           <div className="relative w-80">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -1112,7 +1112,7 @@ export default function Target({ onListSelect }) {
           <div
             key={list.id}
             onClick={() => handleListClick(list)}
-            className="rounded-lg cursor-pointer transition-all hover:bg-opacity-80 mb-4 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-8 flex items-center gap-8"
+            className=" cursor-pointer transition-all hover:bg-opacity-80 mb-4 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-8 flex items-center gap-8"
           >
             {/* Profile Cover */}
             <div
@@ -1186,16 +1186,16 @@ export default function Target({ onListSelect }) {
               investors: [],
             })
           }
-          className="rounded-lg cursor-pointer transition-all hover:bg-opacity-80 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-8 flex items-center gap-8"
+          className=" cursor-pointer transition-all hover:bg-opacity-80 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-3 sm:p-8 flex items-center gap-3 sm:gap-8"
         >
           {/* Profile Placeholder */}
-          <div className="w-30 h-30 rounded flex-shrink-0 bg-gradient-to-br from-purple-600 to-blue-500"></div>
+          <div className="w-10 h-10 md:w-30 md:h-30 rounded flex-shrink-0 bg-gradient-to-br from-purple-600 to-blue-500"></div>
 
           {/* Content */}
           <div className="flex-1">
-            <h3 className="text-white font-['Inter'] text-2xl font-semibold mb-2">Matched Investors for you</h3>
+            <h3 className="text-white font-['Inter'] text-xs sm:text-lg md:text-2xl font-semibold mb-2">Matched Investors for you</h3>
 
-            <div className="flex items-center gap-2 mb-2 text-[0.625rem]">
+            <div className="flex items-center gap-1 sm:gap-2 mb-2 text-[7px] sm:text-[0.625rem]">
               <span className="font-['Inter'] font-normal text-white">Created by VERTX</span>
               <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
               <span className="font-['Inter'] font-normal text-white">28/05/2025</span>
