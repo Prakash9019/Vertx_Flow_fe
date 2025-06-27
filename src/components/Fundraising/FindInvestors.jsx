@@ -13,6 +13,19 @@ const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD
 
 // Transformer function for investor data - based on the final display needs
 const transformInvestorData = (investor) => {
+  // Get match percentage from API (try match, match_percentage, or default to 0)
+  let matchValue = 0;
+  let match = "0%";
+  if (typeof investor.match === "number") {
+    matchValue = investor.match;
+    match = `${investor.match}%`;
+  } else if (typeof investor.match_percentage === "number") {
+    matchValue = investor.match_percentage;
+    match = `${investor.match_percentage}%`;
+  } else if (typeof investor.match === "string" && investor.match.endsWith("%")) {
+    match = investor.match;
+    matchValue = parseInt(investor.match);
+  }
   return {
       id: investor._id,
       name: investor.name || "Unnamed Investor",
@@ -35,8 +48,8 @@ const transformInvestorData = (investor) => {
       twitter: investor.twitter || "",
       crunchbase: investor.crunchbase || "",
       website: investor.website || "",
-      match: "0%", 
-      matchValue: 0, 
+      match, // Use real match percentage
+      matchValue, // Use real match value
   };
 };
 
@@ -69,7 +82,7 @@ const COUNTRY_OPTIONS = [
 ];
 
 function FindInvestors() {
-  const [activeFindTab] = useState("Investors");
+  const [activeFindTab, setActiveFindTab] = useState("Investors");
   const [investors, setInvestors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -140,8 +153,20 @@ function FindInvestors() {
           const data = await response.json();
           console.log('API Response Data:', data);
           
+          // In fetchInvestors, set match and matchValue from API if present
           if (data.data && Array.isArray(data.data)) {
-              setInvestors(data.data.map(transformInvestorData)); // Transform data for display
+            setInvestors(data.data.map(inv => {
+              const transformed = transformInvestorData(inv);
+              // Use real match percentage if present
+              if (typeof inv.match === 'number' || typeof inv.match === 'string') {
+                let matchNum = Number(inv.match);
+                if (!isNaN(matchNum)) {
+                  transformed.matchValue = matchNum;
+                  transformed.match = matchNum + '%';
+                }
+              }
+              return transformed;
+            }));
               setTotalPages(data.totalPages || 1);
               setTotalCount(data.totalCount || 0);
           } else {
@@ -187,9 +212,9 @@ const handleSearchChange = (e) => {
     <div className="pt-12 font-inter" onClick={() => {
       setActiveDropdown(null);
     }}>
-      {/* Find Tab Navigation - Fixed */}
-      {/* <div className="flex gap-12 mb-12">
-        {findTabsArray.map((tab) => (
+      {/* Find Tab Navigation */}
+      <div className="flex gap-12 mb-12">
+        {["Venture Firms", "Investors"].map((tab) => (
           <div key={tab} className="relative">
             <button 
               onClick={() => setActiveFindTab(tab)}
@@ -202,35 +227,42 @@ const handleSearchChange = (e) => {
             {activeFindTab === tab && (
               <div 
                 className={`absolute bottom-0 left-0 h-1 rounded-full bg-[#AD6FDE] ${
-                  tab === "Venture Firms" ? 'w-[7.5rem]' : 
-                  tab === "Investors" ? 'w-[4.5rem]' : 'w-[4rem]'
+                  tab === "Venture Firms" ? 'w-[7.5rem]' : 'w-[4.5rem]'
                 }`}
               ></div>
             )}
           </div>
         ))}
-      </div> */}
+      </div>
 
       {activeFindTab === "Investors" && (
         <div className="mb-12">
           <div className="bg-[#0F0E16] p-6 rounded-[0.625rem]">
             {/* Search and Filters */}
-            <div class="flex flex-col items-center mb-6 min-w-0 md:flex-col md:justify-between lg:flex-row lg:justify-between md:gap-y-6 lg:gap-y-0">
-  <div class="relative flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-[12.5rem]">
+            <div className="flex flex-col items-center mb-6 min-w-0 md:flex-col md:justify-between lg:flex-row lg:justify-between md:gap-y-6 lg:gap-y-0">
+              <div className="relative flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-[12.5rem]">
     <Search
-      class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-[0.875rem] h-[0.875rem]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-[0.875rem] h-[0.875rem]"
     />
     <input
       type="text"
       value={filters.search}
       onChange={handleSearchChange}
       placeholder="Search database..."
-      class="w-full h-[1.875rem] rounded-[0.1875rem] bg-black text-gray-400 font-normal text-[0.625rem] pl-8 pr-2 border-none outline-none"
+                  className="w-full h-[1.875rem] rounded-[0.1875rem] bg-black text-gray-400 font-normal text-[0.625rem] pl-8 pr-2 border-none outline-none"
     />
+                {loading && (
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <svg className="animate-spin h-4 w-4 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                  </span>
+                )}
   </div>
 
-  <div class="flex flex-col mt-4 min-w-0 md:mt-0 lg:ml-6 lg:flex-row lg:gap-x-10 sm:gap-x-4">
-    <div class="flex flex-wrap gap-2 sm:gap-4 md:gap-6 xl:gap-8 justify-center sm:justify-start">
+              <div className="flex flex-col mt-4 min-w-0 md:mt-0 lg:ml-6 lg:flex-row lg:gap-x-10 sm:gap-x-4">
+                <div className="flex flex-wrap gap-2 sm:gap-4 md:gap-6 xl:gap-8 justify-center sm:justify-start">
       <Dropdown
         label="Type"
         options={Type}
@@ -271,7 +303,7 @@ const handleSearchChange = (e) => {
 </div>
 
             {/* Table Header */}
-            <div className="bg-[#33005C]/20 rounded-t-lg border-b border-gray-700/50">
+            <div>
               <div className="grid grid-cols-12 items-center px-2 xl:px-4 py-3 gap-1 xl:gap-2">
                 {/* Investor Header - 4 columns */}
                 <div className="col-span-4 flex justify-start">
@@ -424,8 +456,8 @@ const handleSearchChange = (e) => {
                     {/* Geography - 1 column */}
                     <div className="col-span-1 flex flex-col gap-y-1 items-center">
                       <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
-                        <span className="truncate">
-                          {investor.countries?.[0] || investor.geography?.[0] || investor.global_hq || "—"}
+                        <span className="truncate flex items-center gap-1">
+                          {investor.countries?.[0] || "—"}
                         </span>
                       </div>
                       <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
@@ -436,10 +468,9 @@ const handleSearchChange = (e) => {
 
                     {/* Match Value - 1 column */}
                     <div className="col-span-1 flex items-center gap-1 justify-center">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                        style={{ background: getMatchColor(investor.matchValue) }}
-                      ></div>
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${getMatchColor(investor.matchValue)}`}
+                      ></span>
                       <span className="text-white text-sm font-semibold font-['Inter']">{investor.match || "—"}</span>
                     </div>
 
@@ -558,7 +589,7 @@ const handleSearchChange = (e) => {
       {activeFindTab === "Venture Firms" && (
         <div className="py-8 text-center text-gray-400">
           <h3 className="text-2xl mb-4">Venture Firms</h3>
-          <p>Venture Firms content will go here...</p>
+          <p>Browse top venture capital firms. (Coming soon: filters, search, and more details!)</p>
         </div>
       )}
 
