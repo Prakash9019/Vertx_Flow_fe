@@ -808,37 +808,37 @@ export default function Target({ onListSelect }) {
 
                 <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0 pl-4">
                   <div className="flex justify-center flex-shrink-0 w-12">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
                       CHECK SIZE
                     </div>
                   </div>
 
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
                       STAGE
                     </div>
                   </div>
 
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
                       INDUSTRY
                     </div>
                   </div>
 
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
                       GEOGRAPHY
                     </div>
                   </div>
 
                   <div className="flex justify-center flex-shrink-0 w-12">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       MATCH
                     </div>
                   </div>
 
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] tracking-[0.05em]">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       SUBMIT DECK
                     </div>
                   </div>
@@ -901,107 +901,107 @@ export default function Target({ onListSelect }) {
 
                     <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
 
-{/* Check Size */}
-<div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
-  {investor.checkSize || "—"}
-</div>
+                    {/* Check Size */}
+                    <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
+                      {investor.checkSize || "—"}
+                    </div>
 
-{/* Stage */}
-<div className="flex flex-col gap-y-1 flex-shrink-0">
-  <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
-    {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
-  </div>
-  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-    {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
-     investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
-  </div>
-</div>
+                    {/* Stage */}
+                    <div className="flex flex-col gap-y-1 flex-shrink-0">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
+                        {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+                      </div>
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
+                        investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
+                      </div>
+                    </div>
 
-{/* Industry */}
-<div className="flex flex-col gap-y-1 flex-shrink-0">
-  <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
-    {investor.industry?.[0] || investor.sectors?.[0] || "—"}
-  </div>
- {investor.industry.length>0 && <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-    {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
-     investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
-  </div>}
-</div>
+                    {/* Industry */}
+                    <div className="flex flex-col gap-y-1 flex-shrink-0">
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
+                        {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+                      </div>
+                    {investor.industry.length>0 && <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
+                        investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
+                      </div>}
+                    </div>
 
-{/* Geography */}
-<div className="flex items-center gap-1 flex-shrink-0">
-  <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
-    <div className="w-5 h-3 flex items-center justify-center">
-      <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
-    </div>
-  </div>
-  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-    {investor.geography || (investor.geography?.length > 0 ? `+${investor.geography.length}` : "+0")}
-  </div>
-</div>
+                    {/* Geography */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
+                        <div className="w-5 h-3 flex items-center justify-center">
+                          <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
+                        </div>
+                      </div>
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.geography || (investor.geography?.length > 0 ? `+${investor.geography.length}` : "+0")}
+                      </div>
+                    </div>
 
-{/* Match Value */}
-<div className="flex items-center gap-1 flex-shrink-0">
-  <div
-    className="w-2.5 h-2.5 rounded-full"
-    style={{ background: getMatchColor(investor.matchValue) }}
-  ></div>
-  <span className="text-white text-base font-semibold font-['Inter']">{investor.match || "—"}</span>
-</div>
+                    {/* Match Value */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ background: getMatchColor(investor.matchValue) }}
+                      ></div>
+                      <span className="text-white text-base font-semibold font-['Inter']">{investor.match || "—"}</span>
+                    </div>
 
-{/* Submit Button */}
-<button
-  className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem] transition-all hover:scale-105"
-  style={{
-    background:
-      "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
-  }}
->
-  Submit
-</button>
+                    {/* Submit Button */}
+                    <button
+                      className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem] transition-all hover:scale-105"
+                      style={{
+                        background:
+                          "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                      }}
+                    >
+                      Submit
+                    </button>
 
-{/* Dropdown */}
-<div className="relative flex-shrink-0">
-  <button
-    className="hover:opacity-70 transition-colors"
-    onClick={(e) => {
-      e.stopPropagation();
-      setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
-    }}
-  >
-    <MoreVertical className="w-6 h-6 text-gray-400" />
-  </button>
+                    {/* Dropdown */}
+                    <div className="relative flex-shrink-0">
+                      <button
+                        className="hover:opacity-70 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                        }}
+                      >
+                        <MoreVertical className="w-6 h-6 text-gray-400" />
+                      </button>
 
-  {activeDropdown === investor.id && (
-    <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
-      <div className="py-1">
-        {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
-          { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
-          { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
-        ].filter(item => {
-          if (item.requiresEdit && !canEdit) return false;
-          if (item.requiresView && !canView) return false;
-          return true;
-        }).map((item, index) => (
-          <button
-            key={index}
-            onClick={(e) => {
-              e.stopPropagation();
-              item.action();
-            }}
-            className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
-          >
-            <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
-              {item.icon}
-            </div>
-            {item.text}
-          </button>
-        ))}
-      </div>
-    </div>
-  )}
-</div>
-</div>
+                      {activeDropdown === investor.id && (
+                        <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                          <div className="py-1">
+                            {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
+                              { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
+                              { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
+                            ].filter(item => {
+                              if (item.requiresEdit && !canEdit) return false;
+                              if (item.requiresView && !canView) return false;
+                              return true;
+                            }).map((item, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  item.action();
+                                }}
+                                className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                              >
+                                <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                                  {item.icon}
+                                </div>
+                                {item.text}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
                   </div>
                 ))}
@@ -1068,43 +1068,46 @@ export default function Target({ onListSelect }) {
 
       {/* Header Section */}
       <div className="mb-8">
+        
         {/* Search and New List Section */}
-        <div className="flex flex-col sm:flex-row gap-2 justify-between items-center mb-10">
-          {/* Search Bar */}
-          <div className="relative w-80">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <img src={SearchIcon || "/placeholder.svg"} alt="Search Icon" className="w-4 h-4 text-gray-400" />
-            </div>
+      <div className="flex flex-row flex-wrap justify-between items-center mb-10 gap-2">
+        {/* Search Bar */}
+        {/* Adjusted width for extra-small screens to be more aggressive */}
+        <div className="relative flex-grow min-w-[150px] max-w-[calc(100%-130px)] sm:max-w-sm md:max-w-md lg:max-w-80">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <img src={SearchIcon || "/placeholder.svg"} alt="Search Icon" className="w-4 h-4 text-gray-400" />
+          </div>
 
-            <input
-              type="text"
-              placeholder="Search target list..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-80 h-10 rounded border-2 border-black bg-[#0F0E16] pl-10 pr-4 focus:outline-none font-['Inter'] text-xs font-normal text-[#B8B8B8]"
-            />          </div>
-
-          {/* New List Button - Only show for users with create permissions */}
-          {canCreate && (
-            <button
-              onClick={handleNewListClick}
-              className="flex items-center justify-center transition-colors hover:bg-purple-700 w-30 h-10 rounded bg-[#5F248D] gap-2"
-            >
-              <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem]" />
-              <span className="text-white font-['Inter'] text-sm font-medium">New list</span>
-            </button>
-          )}
-          {!canCreate && (
-            <div
-              onClick={handleNewListClick}
-              className="flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed"
-              style={{ pointerEvents: "auto" }}
-            >
-              <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem] opacity-50" />
-              <span className="text-gray-400 font-['Inter'] text-sm font-medium">New list</span>
-            </div>
-          )}
+          <input
+            type="text"
+            placeholder="Search target list..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-10 rounded border-2 border-black bg-[#0F0E16] pl-10 pr-4 focus:outline-none font-['Inter'] text-xs font-normal text-[#B8B8B8]"
+          />
         </div>
+
+        {/* New List Button - No changes needed here, flex-shrink-0 is important */}
+        {canCreate && (
+          <button
+            onClick={handleNewListClick}
+            className="flex-shrink-0 flex items-center justify-center transition-colors hover:bg-purple-700 w-30 h-10 rounded bg-[#5F248D] gap-2"
+          >
+            <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem]" />
+            <span className="text-white font-['Inter'] text-sm font-medium">New list</span>
+          </button>
+        )}
+        {!canCreate && (
+          <div
+            onClick={handleNewListClick}
+            className="flex-shrink-0 flex items-center justify-center w-30 h-10 rounded bg-gray-600 gap-2 cursor-not-allowed"
+            style={{ pointerEvents: "auto" }}
+          >
+            <img src={AddIcon || "/placeholder.svg"} alt="Add" className="w-[1.125rem] h-[1.125rem] opacity-50" />
+            <span className="text-gray-400 font-['Inter'] text-sm font-medium">New list</span>
+          </div>
+        )}
+      </div>
 
         {/* Loading indicator */}
         {isLoading && (
@@ -1122,7 +1125,7 @@ export default function Target({ onListSelect }) {
           >
             {/* Profile Cover */}
             <div
-              className="w-30 h-30 rounded flex-shrink-0 flex items-center justify-center"
+              className=" w-15 sm:w-30 h-15 sm:h-30 rounded flex-shrink-0 flex items-center justify-center"
               style={{
                 background: list.cover === "default" ? "#0F0E16" : coverOptions[list.cover],
                 border: list.cover === "default" ? "1px dashed #5F248D" : "none",
@@ -1137,21 +1140,26 @@ export default function Target({ onListSelect }) {
 
             {/* Content */}
             <div className="flex-1">
-              <h3 className="text-white font-['Inter'] text-2xl font-semibold mb-2">{list.name}</h3>
+              <h3 className="text-white font-['Inter'] text-lg sm:text-2xl font-semibold mb-2">{list.name}</h3>
 
-              <div className="flex items-center gap-2 mb-2 text-[0.625rem]">
+              {/* Adjusted flex behavior for smaller screens */}
+              <div className="flex flex-wrap items-center gap-2 mb-2 text-[7px] sm:text-[0.625rem]">
                 <span className="font-['Inter'] font-normal text-white">Created by {list.createdBy}</span>
                 <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
                 <span className="font-['Inter'] font-normal text-white">{list.createdDate}</span>
-                <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
-                <span className="font-['Inter'] font-normal text-white">{list.updatedDate}</span>
+                {/* Only show updatedDate on larger sm screens if space allows, or allow wrapping */}
+                <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full sm:flex"></div>
+                <span className="font-['Inter'] font-normal text-white">
+                  {list.updatedDate}
+                </span>
               </div>
 
               {/* Investor Count Badge */}
               <div className="flex items-center justify-center w-21 h-[1.3125rem] rounded-[6.25rem] bg-[#33005C] text-white font-['Inter'] text-[0.5rem] font-semibold">
                 {list.investorCount} INVESTORS
               </div>
-            </div>            {/* Three Dots Menu - Only show if list has investors and user has permissions */}
+            </div>           
+            {/* Three Dots Menu - Only show if list has investors and user has permissions */}
             {list.investorCount > 0 && canView && (
               <div className="relative">
                 <button

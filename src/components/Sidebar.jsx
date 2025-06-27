@@ -459,7 +459,7 @@ const Sidebar = () => {
       <div className='fixed bottom-0 left-0 right-0 border-t border-gray-800 z-50 min-w-screen bg-black text-white flex hover:cursor-pointer justify-around items-center py-3'>
         {/* Home */}
         <div
-          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isHome ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 ${isHome ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
           onClick={() => handleNavigation("homepage")}
         >
           <NavIconFooter
@@ -469,7 +469,7 @@ const Sidebar = () => {
         </div>
         {/* Flash */}
         <div
-          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isFlash ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 ${isFlash ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
           onClick={() => handleNavigation("flash")}
         >
           <NavIconFooter
@@ -479,7 +479,7 @@ const Sidebar = () => {
         </div>
         {/* Evaluate */}
         <div
-          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isEvaluate ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 ${isEvaluate ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
           onClick={() => handleNavigation("evaluate")}
         >
           <NavIconFooter
@@ -489,7 +489,7 @@ const Sidebar = () => {
         </div>
         {/* Fundraising */}
         <div
-          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isFundraisingActive ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130  ${isFundraisingActive ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
           onClick={() => handleNavigation("fundraising/raise")}
         >
           <NavIconFooter
@@ -499,7 +499,7 @@ const Sidebar = () => {
         </div>
         {/* Playground */}
         <div
-          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 transition-all duration-400 ${isPlayground ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
+          className={`flex hover:cursor-pointer flex-col items-center hover:scale-130  ${isPlayground ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
           onClick={() => handleNavigation("playground")}
         >
           <NavIconFooter
@@ -507,9 +507,6 @@ const Sidebar = () => {
             label="Playground"
           />
         </div>
-
-
-
       </div>
     )}
     </>
