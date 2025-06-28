@@ -41,11 +41,11 @@ function EvaluateReportComponent({ data }) {
 
                 return (
                   <div
-                  key={range.label}
-                  className={`flex-1 py-1 px-3 text-center whitespace-pre-line transition-transform duration-200 ease-in-out ${
-                    range.color
-                  } ${rounded} ${isActive ? "border-2 border-white scale-110" : "scale-100"}`}
-                >
+                    key={range.label}
+                    className={`flex-1 py-1 px-3 text-center whitespace-pre-line ${
+                      range.color
+                    } ${rounded} ${isActive ? "border-2 border-white scale(1.2)" : ""}`}
+                  >
                 
                     <p
                       className={`font-semibold text-[10px] sm:text-xs ${
