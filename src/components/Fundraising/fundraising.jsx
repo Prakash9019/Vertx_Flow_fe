@@ -232,7 +232,8 @@ function FundraisingManagePage() {
         )}
 
         {/* Navigation Tabs - Hidden when target list is selected */}
-        {!(activeTab === "Target" && isTargetListSelected) && (          <div className="flex gap-4 pl-8 md:pl-[3.44rem] pr-9 md:pr-[3.87rem] mt-3 md:mt-[1.69rem]">
+        {!(activeTab === "Target" && isTargetListSelected) && (        
+            <div className="flex gap-4 pl-8 md:pl-[3.44rem] pr-9 md:pr-[3.87rem] mt-3 md:mt-[1.69rem]">
             {tabsArray.map((tab) => (
               <button
                 key={tab}

@@ -1942,7 +1942,7 @@ function MockPitching({ onBack, loading  }) {
             </p>
           </div>
 
-          <div className="space-y-6">
+          <div className=" mb-12 pb-12">
             {investors.map((investor) => (
               <div
                 key={investor.id}

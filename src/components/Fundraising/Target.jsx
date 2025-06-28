@@ -1177,7 +1177,7 @@ export default function Target({ onListSelect }) {
           onClick={() =>
             handleListClick({
               id: "matched-investors",
-              name: "Everyone's VC",
+              name: "Matched Investors for you",
               cover: "purple",
               createdBy: "VERTX",
               createdDate: "28/05/2025",
