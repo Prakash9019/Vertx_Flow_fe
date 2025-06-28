@@ -211,7 +211,7 @@ const Sidebar = () => {
             <ul>
               {/* Home */}
               <li
-                className={`px-4 py-2 flex items-center ${collapsed ? 'justify-between' : 'justify-between'} ${isHome ? 'bg-gray-900' : ''} hover:bg-gray-900 cursor-pointer`}
+                className={`px-4 py-2 flex items-center ${collapsed ? 'justify-between' : 'justify-between'} ${isHome ? 'bg-[#0F0E16]' : ''} hover:bg-[#0F0E16] cursor-pointer`}
                 onClick={() => { navigate("/homepage") }}
               >
                 <span className={`${collapsed ? 'hidden' : 'block'} ${isHome ? 'text-white' : 'text-[#B8B8B8]'} font-medium text-sm`}>Home</span>
@@ -225,7 +225,7 @@ const Sidebar = () => {
 
               {/* Getting Started */}
               <li
-                className={`px-4 py-2 flex items-center ${collapsed ? 'justify-between' : 'justify-between'} ${isGettingStarted ? 'bg-gray-900' : ''} hover:bg-gray-900 cursor-pointer`}
+                className={`px-4 py-2 flex items-center ${collapsed ? 'justify-between' : 'justify-between'} ${isGettingStarted ? 'bg-[#0F0E16]' : ''} hover:bg-[#0F0E16] cursor-pointer`}
                 onClick={() => { navigate("/flow/match flow") }}
               >
                 <span className={`${collapsed ? 'hidden' : 'block'} ${isGettingStarted ? 'text-white' : 'text-[#B8B8B8]'} font-medium text-sm`}>Getting Started</span>
@@ -245,7 +245,7 @@ const Sidebar = () => {
           {/* Features with icons */}
           <nav className="py-2">
             <ul>
-              <li className={`px-4 py-2 flex items-center hover:bg-gray-900 cursor-pointer`}>
+              <li className={`px-4 py-2 flex items-center hover:bg-[#0F0E16] cursor-pointer`}>
                <img
                   src={flash}
                   alt="Flash"
@@ -258,7 +258,7 @@ const Sidebar = () => {
                 </div>
               </li>
               <li
-                className={`px-4 py-2 flex items-center ${isEvaluate ? 'bg-gray-900' : ''} hover:bg-gray-900 cursor-pointer`}
+                className={`px-4 py-2 flex items-center ${isEvaluate ? 'bg-[#0F0E16]' : ''} hover:bg-[#0F0E16] cursor-pointer`}
                 onClick={() => { navigate("/evaluate") }}
               >
                 {/* Evaluate */}
@@ -274,8 +274,8 @@ const Sidebar = () => {
               <li>
   <div
     className={`px-4 py-2 flex items-center relative group ${
-      isFundraisingActive ? 'bg-gray-900' : ''
-    } hover:bg-gray-900 cursor-pointer`}
+      isFundraisingActive ? 'bg-[#0F0E16]' : ''
+    } hover:bg-[#0F0E16] cursor-pointer`}
     onClick={() => navigate("/fundraising/raise")}
   >
     <img
@@ -331,7 +331,7 @@ const Sidebar = () => {
                 {fundraisingExpanded && !collapsed && (
                   <ul className="ml-12">
                     <li
-                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      className="px-4 py-2 hover:bg-[#0F0E16] cursor-pointer"
                       onClick={() => handleFundraisingOptionClick('Dashboard')}
                     >
                       <span
@@ -346,7 +346,7 @@ const Sidebar = () => {
                       </span>
                     </li>
                     <li
-                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      className="px-4 py-2 hover:bg-[#0F0E16] cursor-pointer"
                       onClick={() => { handleFundraisingOptionClick('Raise'); navigate("/fundraising/raise") }}
                     >
                       <span
@@ -361,7 +361,7 @@ const Sidebar = () => {
                       </span>
                     </li>
                     <li
-                      className="px-4 py-2 hover:bg-gray-900 cursor-pointer"
+                      className="px-4 py-2 hover:bg-[#0F0E16] cursor-pointer"
                       onClick={() => handleFundraisingOptionClick('Reach')}
                     >
                       <span
@@ -380,7 +380,7 @@ const Sidebar = () => {
               </li>
 
               <li
-                className={`px-4 py-2 flex items-center hover:bg-gray-900 ${isPlayground ? 'bg-gray-900' : ''} cursor-pointer`}
+                className={`px-4 py-2 flex items-center hover:bg-[#0F0E16] ${isPlayground ? 'bg-[#0F0E16]' : ''} cursor-pointer`}
                 onClick={() => { navigate("/playground") }}
               >
                 <img
@@ -405,7 +405,7 @@ const Sidebar = () => {
         <div className="mt-auto">
           <ul>
           <li 
-              className={`px-4 py-3 flex items-center justify-between hover:bg-gray-900 ${userRole === 'founder' ? 'cursor-pointer' : ''}`}
+              className={`px-4 py-3 flex items-center justify-between hover:bg-[#0F0E16] ${userRole === 'founder' ? 'cursor-pointer' : ''}`}
               onClick={() => {
                 if (userRole === 'founder') {
                   setShowPermissionsModal(true);
@@ -419,7 +419,7 @@ const Sidebar = () => {
                 style={{ width: '1.25rem', height: '1.25rem' }}
               />
             </li>
-            <li className={`px-4 py-3 flex items-center justify-between hover:bg-gray-900 cursor-pointer`}>
+            <li className={`px-4 py-3 flex items-center justify-between hover:bg-[#0F0E16] cursor-pointer`}>
               <span className={`${collapsed ? 'hidden' : 'block'} text-[#B8B8B8] font-medium text-sm`}>Upgrade plan</span>
               <img
                 src={UserPlan}
@@ -427,7 +427,7 @@ const Sidebar = () => {
                 style={{ width: '1.25rem', height: '1.25rem' }}
               />
             </li>
-            <li className={`px-4 py-3 flex items-center justify-between hover:bg-gray-900 cursor-pointer`}>
+            <li className={`px-4 py-3 flex items-center justify-between hover:bg-[#0F0E16] cursor-pointer`}>
               <span className={`${collapsed ? 'hidden' : 'block'} text-[#B8B8B8] font-medium text-sm`}>Leave a feedback</span>
               <img
                 src={UserFeedback}
@@ -435,7 +435,7 @@ const Sidebar = () => {
                 style={{ width: '1.25rem', height: '1.25rem' }}
               />
             </li>
-            <li className={`px-4 py-3 flex items-center justify-between hover:bg-gray-900 cursor-pointer`} onClick={() => handleLogout()}>
+            <li className={`px-4 py-3 flex items-center justify-between hover:bg-[#0F0E16] cursor-pointer`} onClick={() => handleLogout()}>
               <span className={`${collapsed ? 'hidden' : 'block'} text-[#B8B8B8] font-medium text-sm`}>Log out</span>
               <img
                 src={LogOut}

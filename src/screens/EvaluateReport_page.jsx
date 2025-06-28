@@ -151,9 +151,6 @@ function EvaluateReport_page() {
           {activeTab === "Overview" && reportData && (
             <EvaluateReportOverview data={reportData.overview} />
           )}
-          {activeTab === "Capital" && (
-            <EvaluateReportCapital data={reportData} />
-          )}
           {activeTab === "Suggestions" && (
             <EvaluateReportSuggestions data={reportData} />
           )}

@@ -74,7 +74,7 @@ function Section({ title, items, isTeam = false, color = "purple" }) {
   };
 
   return (
-    <div className="mt-9 p-4 bg-[#0E0E11] rounded-md">
+    <div className="mt-9 p-4 bg-[#0F0E16] rounded-md">
       {/* Title with side border only */}
       <div className="mb-3">
         <span className={`pl-3 ml-[-1rem] ${borderColors[color]}`}></span>

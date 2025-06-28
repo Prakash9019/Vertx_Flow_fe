@@ -3,7 +3,7 @@ import React from "react";
 function ToggleTabHeader({ tabsArray, setActiveTab,activeTab }) {
   return (
     <div>
-       <div className="flex gap-4 pr-9 md:pr-[3.87rem] mt-3 md:mt-[1.69rem]">
+       <div className="flex gap-4 pr-9 md:pr-[3.87rem] mt-3 md:mt-[1.69rem] p-2">
             {tabsArray.map((tab) => (
               <button
                 key={tab}

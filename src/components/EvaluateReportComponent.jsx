@@ -25,7 +25,7 @@ function EvaluateReportComponent({ data }) {
           Score
         </h2>
 
-        <div className="flex flex-col md:flex-row justify-between items-center bg-[#1a1a1a] rounded-xl p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row justify-between items-center bg-[#0F0E16] rounded-xl p-4 sm:p-6">
           {/* Score Bands */}
           <div className="flex flex-col space-y-2 w-full md:w-1/2">
             <div className="flex overflow-hidden rounded-md text-white text-xs sm:text-sm">
@@ -86,7 +86,7 @@ function EvaluateReportComponent({ data }) {
           Breakdown
         </h2>
 
-        <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 overflow-x-auto">
+        <div className="bg-[#0F0E16] rounded-xl p-4 sm:p-6 overflow-x-auto">
           {data?.breakdown?.map((breakdownData, index) => (
             <div
               key={index}
