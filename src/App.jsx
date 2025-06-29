@@ -46,6 +46,8 @@ import HomePage from "./screens/Home";
 //screens for PlayGround 
 import PlayGround from "./components/PlayGround"
 import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";
+import MockPitching from "./components/MockPitching";
+import CallReportPage from "./components/callReportPage";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -74,7 +76,8 @@ function App() {
     {path:"/fundraising/raise/target", element:<FundraisingManagePage /> },
     {path:"/fundraising/raise/network", element:<FundraisingManagePage /> },
     {path:"/invite/:inviteId", element:<InviteAcceptPage /> },
-   
+    { path: "/playground/mockpitching", element: <MockPitching /> },
+    { path: "/playground/mockpitching/report", element: <CallReportPage /> },
 
   ];
 

@@ -36,6 +36,7 @@ import {
 // Import the new CallReportPage component
 import CallReportPage from "./callReportPage"
 import { useStartupProfile } from "../context/StartupProfileContext"
+import { useNavigate } from "react-router-dom"
 
 function CallEndedScreen({ onReturnHome, onViewReport }) {
   return (
@@ -1547,6 +1548,7 @@ function MockPitching({ onBack, loading  }) {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [sessionId, setSessionId] = useState(null)
   const [analysis, setAnalysis] = useState(null);
+  const navigate = useNavigate();
 
   // const [isListening, setIsListening] = useState(false)
 
@@ -1839,8 +1841,7 @@ function MockPitching({ onBack, loading  }) {
   }
 
   const handleViewReport = () => {
-    setShowCallEndedScreen(false)
-    setShowReportPage(true)
+    navigate("/playground/mockpitching/report");
   }
 
   // Show report page if triggered
@@ -2198,7 +2199,7 @@ function MockPitching({ onBack, loading  }) {
                             <div
                               key={index}
                               className="flex items-center gap-1"
-                              style={{
+                              style={ {
                                 width: tag.type === "purple" ? "7rem" : "2.5rem",
                                 height: "1.0625rem",
                                 borderRadius: tag.type === "purple" ? "0.5rem" : "0.625rem",

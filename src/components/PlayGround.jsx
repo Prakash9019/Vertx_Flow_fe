@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar"
 import MockPitching from "./MockPitching"
 import NatureRectangleImage from "../assets/NatureRectangleImage.jpg";
@@ -9,29 +10,12 @@ import DeckGeneration from "../assets/DeckGeneration.jpg";
 import MockOutreach from "../assets/MockOutreach.jpg";
 
 function PlayGround() {
+  const navigate = useNavigate();
   const [loadingMockPitching, setLoadingMockPitching] = useState(true);
 
-  const [currentView, setCurrentView] = useState('playground')
-
   const handlePitchNowClick = () => {
-  setCurrentView('mockpitching');
-  setLoadingMockPitching(true); // Start loading
-
-  // Simulate loading (e.g., fetch data, prepare backend, etc.)
-  setTimeout(() => {
-    setLoadingMockPitching(false); // Stop loading after 2 seconds
-  }, 2000);
-};
-
-
-  const handleBackToPlayground = () => {
-    setCurrentView('playground')
-  }
-
-  // If viewing MockPitching, render it full screen without sidebar
-  if (currentView === 'mockpitching') {
-  return <MockPitching onBack={handleBackToPlayground} loading={loadingMockPitching} />;
-}
+    navigate("/playground/mockpitching");
+  };
 
 
   return (
