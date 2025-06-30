@@ -19,7 +19,8 @@ function EvaluateReport_page() {
   const [reportData, setReportData] = useState(null);
   
   // Get current tab from URL hash, default to "Analysis"
-  const validTabs = ["Analysis", "Overview", "Capital", "Suggestions"];
+  const validTabs = ["Analysis", "Overview",  "Suggestions"];
+
   const getTabFromHash = () => {
     const hash = window.location.hash.substring(1); // Remove the #
     const matchedTab = validTabs.find(tab => tab.toLowerCase() === hash.toLowerCase());
@@ -94,7 +95,7 @@ function EvaluateReport_page() {
   }, []);
   // No need for cleanup since we're not using sessionStorage anymore
   const companyName = reportData?.overview?.company_name;
-  const tabsArray = ["Analysis", "Overview", "Capital", "Suggestions"];
+  const tabsArray = ["Analysis", "Overview", "Suggestions"];
 
   // If no report data, don't render the page content
   if (!reportData) {
@@ -141,18 +142,14 @@ function EvaluateReport_page() {
               tabsArray={tabsArray}
             />
           </div>
-        </div>
-
-        {/* Tab Content */}
+        </div>  
+           
         <div className="px-4 sm:px-6 md:px-12">
           {activeTab === "Analysis" && reportData && (
             <EvaluateReportComponent data={Array.isArray(reportData.breakdown) ? reportData.breakdown[0] : reportData.breakdown} />
           )}
           {activeTab === "Overview" && reportData && (
             <EvaluateReportOverview data={reportData.overview} />
-          )}
-          {activeTab === "Capital" && (
-            <EvaluateReportCapital data={reportData} />
           )}
           {activeTab === "Suggestions" && (
             <EvaluateReportSuggestions data={reportData} />

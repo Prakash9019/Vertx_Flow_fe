@@ -6,6 +6,7 @@ import Sidebar from "../components/Sidebar";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import { usePermissions } from "../hooks/usePermissions";
 import API_KEY from "../../key";
+import satsifactory from "./satsifactory.jpg";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -466,41 +467,56 @@ function Evaluate_Page() {
 
                 {/* Previous History Cards */}
                 {analysisData && analysisData.map((item, idx) => (
-                  <div key={`old-${idx}`} className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4">                    <div className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 flex flex-col items-center justify-center">
-                      <span className="text-white font-light text-lg">SATISFACTORY</span>
-                      <span className="text-white font-bold text-2xl">
-                        {((item.result.breakdown[0].score.value / 800) * 100).toFixed(0)}
-                      </span>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
-                      <p className="text-white text-sm mb-3">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
-                      {item.uploadedBy && (
-                        <p className="text-gray-400 text-xs mb-2">
-                          Uploaded by: {item.uploadedBy.name || item.uploadedBy.email} ({item.uploaderRole})
-                        </p>
-                      )}
-                    </div>
-                    <button                      
-                      onClick={() => {
-                        if (!item.canAccess) {
-                          alert('You don\'t have access from founder.');
-                          return;
-                        }
-                        navigate("/evaluate/report#analysis", {
-                          state: { reportData: item.result, pdfFiles: [item.file_name] }
-                        });
-                      }}
-                      className={`mt-auto w-full py-2 rounded text-sm font-medium ${
-                        item.canAccess 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                      }`}
-                      disabled={!item.canAccess}
-                    >
-                      {item.canAccess ? 'Access Report' : 'Access Restricted'}
-                    </button>
-                  </div>
+               <div key={`old-${idx}`} className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4">
+               <div
+                 className="relative h-40 w-full rounded mb-4 flex flex-col items-center justify-center overflow-hidden bg-no-repeat bg-center bg-contain"
+                 style={{ backgroundImage: `url(${satsifactory})` }}
+               >
+                 {/* 🖤 Transparent black overlay JUST on image */}
+                 <div className="absolute inset-0 bg-black/50 z-0" />
+             
+                 {/* ✅ Content on top of overlay */}
+                 <div className="relative z-10 flex flex-col items-center">
+                   <span className="text-white font-light text-lg">SATISFACTORY</span>
+                   <span className="text-white font-bold text-2xl">
+                     {((item.result.breakdown[0].score.value / 800) * 100).toFixed(0)}
+                   </span>
+                 </div>
+               </div>
+             
+               <div className="text-left">
+                 <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
+                 <p className="text-white text-sm mb-3">
+                   Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}
+                 </p>
+                 {item.uploadedBy && (
+                   <p className="text-gray-400 text-xs mb-2">
+                     Uploaded by: {item.uploadedBy.name || item.uploadedBy.email} ({item.uploaderRole})
+                   </p>
+                 )}
+               </div>
+             
+               <button
+                 onClick={() => {
+                   if (!item.canAccess) {
+                     alert("You don't have access from founder.");
+                     return;
+                   }
+                   navigate("/evaluate/report#analysis", {
+                     state: { reportData: item.result, pdfFiles: [item.file_name] },
+                   });
+                 }}
+                 className={`mt-auto w-full py-2 rounded text-sm font-medium ${
+                   item.canAccess
+                     ? "bg-white text-black hover:bg-gray-200"
+                     : "bg-gray-600 text-gray-300 cursor-not-allowed"
+                 }`}
+                 disabled={!item.canAccess}
+               >
+                 {item.canAccess ? "Access Report" : "Access Restricted"}
+               </button>
+             </div>
+             
                 ))}
 
                 {/* Uploaded PDF Cards - Only show when a file is selected */}
@@ -515,9 +531,9 @@ function Evaluate_Page() {
                     className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4"
                   >
                     {/* PDF thumbnail */}                    <div 
-                      className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 flex flex-col items-center justify-center"
+                      className="relative h-40 w-full rounded mb-4 p-2 flex bg-black/50 flex-col items-center justify-center bg-no-repeat bg-center bg-contain"
                       style={{
-                        backgroundColor: pdfThumbnails[file.name] ? 'transparent' : '#6B7280'
+                        backgroundColor: pdfThumbnails[file.name] ? 'transparent' : `url(${satsifactory})`
                       }}
                     >
                       {pdfThumbnails[file.name] ? (
