@@ -1218,7 +1218,7 @@ useEffect(() => {
               fontFamily: "Inter",
               fontSize: "0.875rem",
               fontWeight: 500,
-              zIndex: 2,
+              zIndex: 10,
             }}
           >
             {profileData?.accountName && profileData?.companyName
@@ -1245,7 +1245,7 @@ useEffect(() => {
 
             {isVideoOff && (
               <div
-                className="w-full h-full flex items-center justify-center flex-col"
+                className="w-full h-full flex items-center justify-center"
                 style={{
                   position: "absolute",
                   top: 0,
@@ -1257,7 +1257,7 @@ useEffect(() => {
                 }}
               >
                 <div
-                  className="flex items-center justify-center rounded-full border-[10px] border-purple-400 mb-8"
+                  className="flex items-center justify-center rounded-full border-[10px] border-purple-400"
                   style={{
                     width: "10.625rem",
                     height: "10.625rem",
@@ -1285,17 +1285,6 @@ useEffect(() => {
                     >
                       {profileData?.accountName?.charAt(0) || "U"}
                     </div>
-                  </div>
-                </div>
-                <div
-                  className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6"
-                  style={{ minWidth: "16rem" }}
-                >
-                  <div className="text-white text-xl font-bold mb-2">
-                    {profileData?.accountName || "User"}
-                  </div>
-                  <div className="text-gray-400 text-base">
-                    {profileData?.companyName || "Company"}
                   </div>
                 </div>
               </div>
