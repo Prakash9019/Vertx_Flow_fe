@@ -213,7 +213,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   height: "9.375rem",
                 }}
               >
-                {"P"}
+                {profileData?.accountName?.charAt(0) || "U"}
               </div>
             </div>            <div
               className="absolute top-4 left-4 px-3 py-1"
@@ -1233,8 +1233,8 @@ useEffect(() => {
               playsInline
               muted
               style={{
-                width: "80%",
-                height: "80%",
+                width: "96%",
+                height: "96%",
                 borderRadius: "1rem",
                 objectFit: "cover",
                 background: "#222",
