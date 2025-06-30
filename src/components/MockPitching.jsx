@@ -18,6 +18,9 @@ import MicIcon from "../assets/MicIcon.svg";
 import MicOffIcon from "../assets/MicOffIcon.svg";
 import PresentationIcon from "../assets/PresentationIcon.svg";
 import CaptionIcon from "../assets/CaptionIcon.svg";
+import { UseVideoAnalysis } from "./UseVideoAnalysis.jsx"; // Adjust path as needed
+
+
 
 import {
   Search,
@@ -449,6 +452,9 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const [currentAudio, setCurrentAudio] = useState(null)
   const videoRef = useRef(null)
   const cameraStreamRef = useRef(null) // <-- Add this ref
+  const { videoRef: analysisVideoRef, canvasRef } = UseVideoAnalysis(socketRef, sessionId);
+
+  
 
   // Start/stop camera stream based on isVideoOff
   useEffect(() => {
@@ -515,6 +521,28 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       }
     }
   }, [])
+
+useEffect(() => {
+  if (!socketRef.current) return;
+
+  socketRef.current.on("video_analysis_update", (data) => {
+    console.log("📊 Live metrics:", data);
+    // You can save to state and show in UI
+  });
+
+  socketRef.current.on("video_insights", (data) => {
+    console.log("🧠 Final video insights:", data);
+    // You can show this in Call Report
+  });
+
+  return () => {
+    socketRef.current.off("video_analysis_update");
+    socketRef.current.off("video_insights");
+  };
+}, [socketRef.current]);
+
+
+
 
 
   const questions = [
@@ -686,6 +714,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
 
         socket.on('connect', () => {
           console.log('✅ Connected to AI server');
+          
           socket.emit('session_started', {
             session_id: uniqueSessionId,
             persona: 'skeptical',
@@ -693,7 +722,10 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
           });
           console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
         });
-
+        
+        socket.emit('start_video_analysis', { session_id: uniqueSessionId });
+        console.log('📸 Emitted start_video_analysis');
+        
         socket.on('response', (data) => {
           console.log('🧠 AI response:', data);
 
@@ -1232,6 +1264,9 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
             )}
           </div>
           {/* Video toggle button */}
+          <video ref={analysisVideoRef} autoPlay muted playsInline style={{ display: "none" }} />
+          <canvas ref={canvasRef} style={{ display: "none" }} />
+
           <div className="absolute bottom-4 right-4">
             <button
               onClick={() => setIsVideoOff(v => !v)}
