@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect} from "react";
 import { ArrowLeft, Play, Search } from "lucide-react";
 import logo from "../assets/logo.svg";
 import ContactsIcon from "../assets/ContactsIcon.svg";
@@ -6,8 +6,12 @@ import AddIcon from "../assets/AddIcon.svg";
 import SpeedometerIcon from "../assets/SpeedometerIcon.svg";
 import TuneIcon from "../assets/TuneIcon.svg";
 import { ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 const BottomNavigation = ({ onBack }) => {
+  const navigate = useNavigate();
+
   return (
     <div
       className="fixed bottom-2 left-0 w-full flex items-center justify-center"
@@ -52,6 +56,7 @@ const BottomNavigation = ({ onBack }) => {
         />
 
         <button
+        onClick={() => navigate("/playground/mockpitching/report")}
           className="flex items-center justify-center hover:opacity-80 transition-opacity"
           style={{
             width: "2.5rem",
@@ -92,6 +97,7 @@ const BottomNavigation = ({ onBack }) => {
         </button>
 
         <div
+        
           style={{
             width: "0.0625rem",
             height: "3.125rem",
@@ -100,7 +106,7 @@ const BottomNavigation = ({ onBack }) => {
         />
 
         <button
-          onClick={onBack}
+          onClick={() => navigate("/playground")}
           className="flex items-center justify-center hover:opacity-80 transition-opacity text-xs font-medium"
           style={{
             width: "2.5rem",
@@ -118,6 +124,12 @@ const BottomNavigation = ({ onBack }) => {
 };
 
 const CallDetailView = ({ analysis, onBack }) => {
+  const [savedReports, setSavedReports] = useState([]);
+
+useEffect(() => {
+  const reports = JSON.parse(localStorage.getItem("callReports")) || [];
+  setSavedReports(reports.reverse()); // latest on top
+}, []);
   const [activeTab, setActiveTab] = useState("Analysis");
   const [expandedIndex, setExpandedIndex] = useState(null);
 const toggleExpand = (index) => {
@@ -145,7 +157,7 @@ const toggleExpand = (index) => {
         style={{
           height: "14.25rem",
           backgroundColor: "#f0f0f0",
-          backgroundImage: "url(../src/assets/imgBackground.png)",
+          backgroundImage: "url(/imgBackground.png)",
           backgroundRepeat: "no-repeat",
           backgroundSize: "100% 100%",
           backgroundPosition: "center",
@@ -716,62 +728,81 @@ const toggleExpand = (index) => {
   );
 };
 
-const CallReportPage = ({ investor, analysis, onBack }) => {
+const CallReportPage = ({ investor, analysis:initialAnalysis, onBack }) => {
   const [showDetailView, setShowDetailView] = useState(false);
-  const handleViewClick = () => setShowDetailView(true);
-  if (showDetailView) return <CallDetailView analysis={analysis} onBack={() => setShowDetailView(false)} />;
+  const [reportHistory, setReportHistory] = useState([]);
+  const [analysis, setAnalysis] = useState(initialAnalysis);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("pitch_reports") || "[]");
+    setReportHistory(stored);
+
+    if (!initialAnalysis) {
+      const selected = JSON.parse(localStorage.getItem("selected_report"));
+      if (selected) setAnalysis(selected);
+    }
+  }, []);
+
+  useEffect(() => {
+  if (!analysis) {
+    const selected = JSON.parse(localStorage.getItem("selected_report"));
+    if (selected) setAnalysis(selected);
+  }
+}, []);
+  const handleViewClick = (report) => {
+    setAnalysis(report);  
+    setShowDetailView(true);
+    
+  }
+
+  const formatTimeAgo = (timestamp) => {
+  const now = new Date();
+  const time = new Date(timestamp);
+  const diffMs = now - time;
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (seconds < 60) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  if (hours < 24) return `${hours} h ago`;
+
+  // fallback to formatted date
+  return time.toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+
+  const handleDelete = (indexToDelete) => {
+  const updatedReports = reportHistory.filter((_, idx) => idx !== indexToDelete);
+  setReportHistory(updatedReports);
+  localStorage.setItem("pitch_reports", JSON.stringify(updatedReports));
+};
+
+    if (showDetailView) return <CallDetailView analysis={analysis} onBack={() => setShowDetailView(false)} />;
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
-      {/* Main Content */}
-      <div
-        style={{
-          paddingLeft: "1.88rem",
-          paddingRight: "1.88rem",
-          paddingTop: "2.75rem",
-          paddingBottom: "6rem", // To ensure content isn't hidden behind bottom nav
-        }}
-      >
-        {/* Search Bar */}
+     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
+      <div style={{ paddingLeft: "1.88rem", paddingRight: "1.88rem", paddingTop: "2.75rem", paddingBottom: "6rem" }}>
         <div className="relative mb-8">
           <div className="relative">
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-              style={{
-                width: "1.38644rem",
-                height: "1.38644rem",
-              }}
-            />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" style={{ width: "1.38644rem", height: "1.38644rem" }} />
             <input
               type="text"
               placeholder="Search calls..."
               className="w-full pl-12 pr-16 py-4 rounded focus:outline-none"
-              style={{
-                width: "100%",
-                height: "3.25rem",
-                borderRadius: "0.25rem",
-                background: "#0F0E16",
-                color: "#B8B8B8",
-                fontFamily: "Inter",
-                fontSize: "0.875rem",
-                fontWeight: 400,
-                border: "none",
-                paddingLeft: "3rem",
-              }}
+              style={{ width: "100%", height: "3.25rem", borderRadius: "0.25rem", background: "#0F0E16", color: "#B8B8B8", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 400, border: "none", paddingLeft: "3rem" }}
             />
           </div>
         </div>
 
         {/* Table Header */}
-        <div
-          className="flex justify-between items-center mb-4"
-          style={{
-            color: "#FFF",
-            fontFamily: "Inter",
-            fontSize: "0.875rem",
-            fontWeight: 400,
-          }}
-        >
+        <div className="flex justify-between items-center mb-4" style={{ color: "#FFF", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 400 }}>
           <div style={{ width: "20%" }}>Investor</div>
           <div style={{ width: "20%" }}>Connected on</div>
           <div style={{ width: "20%" }}>Duration</div>
@@ -780,118 +811,92 @@ const CallReportPage = ({ investor, analysis, onBack }) => {
           <div style={{ width: "10%" }}>Report</div>
         </div>
 
-        {/* Table Row */}
+        {/* Render Report History */}
+
         <div
-          className="flex justify-between items-center p-6"
-          style={{
-            width: "100%",
-            borderRadius: "0.3125rem",
-            background: "#0F0E16",
-          }}
-        >
-          <div style={{ width: "20%", display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div
-              className="bg-gray-600 overflow-hidden flex items-center justify-center"
-              style={{
-                width: "2.5rem",
-                height: "2.5rem",
-                borderRadius: "0.1875rem",
-              }}
-            >
-              <img
-                src={investor?.image || "/placeholder.svg"}
-                alt={investor?.name || "Investor"}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                  e.target.nextSibling.style.display = "flex";
-                }}
-              />
-              <div
-                className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold"
-                style={{ display: "none" }}
-              >
-                {investor?.name?.charAt(0) || "P"}
+  className="overflow-y-auto hide-scrollbar"
+  style={{
+    maxHeight: "60vh", // adjustable based on your design
+    paddingRight: "0.5rem", // space for scrollbar
+  }}
+>
+        {reportHistory.map((report, index) => (
+          <div
+            key={index}
+            className="flex justify-between items-center p-6 mb-2"
+            style={{ width: "100%", borderRadius: "0.3125rem", background: "#0F0E16" }}
+          >
+            <div style={{ width: "20%", display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div className="bg-gray-600 overflow-hidden flex items-center justify-center" style={{ width: "2.5rem", height: "2.5rem", borderRadius: "0.1875rem" }}>
+                <img
+                  src={report.investorImage || "/placeholder.svg"}
+                  alt={report.investorName || "Investor"}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    e.target.nextSibling.style.display = "flex";
+                  }}
+                />
+                <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold" style={{ display: "none" }}>
+                  {report.investorName?.charAt(0) || "P"}
+                </div>
               </div>
+              <span style={{ color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
+                {report.investorName || "Persona One"}
+              </span>
             </div>
-            <span
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 600,
-              }}
-            >
-              {investor?.name || "Persona One"}
-            </span>
-          </div>
 
-          <div
-            style={{
-              width: "20%",
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1rem",
-              fontWeight: 600,
-            }}
-          >
-            {analysis?.timestamp ? new Date(analysis.timestamp).toLocaleString() : "Now"}
-          </div>
+            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
+              {/* {new Date(report.timestamp).toLocaleString()} */}
+              {formatTimeAgo(report.timestamp)}
 
-          <div
-            style={{
-              width: "20%",
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1rem",
-              fontWeight: 600,
-            }}
-          >
-            {analysis?.session_duration_minutes ? `${Math.floor(analysis.session_duration_minutes)}:${String(Math.floor((analysis.session_duration_minutes % 1) * 60)).padStart(2, '0')}` : "0:00"}
-          </div>
+            </div>
 
-          <div
-            style={{
-              width: "20%",
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1rem",
-              fontWeight: 600,
-            }}
-          >
-            {analysis?.overall_score || "-"}
-          </div>
+            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
+              {Math.floor(report.duration / 60)}:{String(report.duration % 60).padStart(2, '0')}
+            </div>
 
-          <div
-            style={{
-              width: "20%",
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "1rem",
-              fontWeight: 600,
-            }}
-          >
-            {analysis?.overall_rating || "-"}
-          </div>
+            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
+              {report.score}
+            </div>
 
-          <div style={{ width: "10%" }}>
-            <button
-              onClick={handleViewClick}
-              className="hover:opacity-80 transition-opacity"
-              style={{
-                color: "#AD6FDE",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 500,
-              }}
-            >
-              View
-            </button>
+            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
+              {report.result}
+            </div>
+
+            <div style={{ width: "10%", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <button
+                onClick={() => handleViewClick(report.report)}
+                className="hover:opacity-80 transition-opacity"
+                style={{
+                  color: "#AD6FDE",
+                  fontFamily: "Inter",
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                }}
+              >
+                View
+              </button>
+
+              {/* <button
+                onClick={() => handleDelete(index)}
+                className="hover:opacity-70 transition-opacity text-red-400 text-sm"
+                style={{
+                  fontFamily: "Inter",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                }}
+              >
+                Delete
+              </button> */}
+            </div>
+
           </div>
-        </div>
+        ))}
+
+</div>
       </div>
 
-      {/* Bottom Navigation - Only show when not in detail view */}
       <BottomNavigation onBack={onBack} />
     </div>
   );

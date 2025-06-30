@@ -1846,9 +1846,23 @@ function MockPitching({ onBack, loading  }) {
       console.log("✅ Session ended:", result);
       if(result.analysis){
         console.log("📊 Analysis data:", result.analysis);
+
+       const previous = JSON.parse(localStorage.getItem("pitch_reports") || "[]");
+        const newReport = {
+          timestamp: Date.now(),
+          score: result.analysis.overall_score,
+          result: result.analysis.overall_rating,
+          report: result.analysis,
+          investorName: callingInvestor?.name || "Persona One",
+          investorImage: callingInvestor?.image || null,
+          duration: Math.floor(result.analysis.session_duration_minutes * 60),
+        };
+        localStorage.setItem("pitch_reports", JSON.stringify([newReport, ...previous]));
+
         setAnalysis(result.analysis || result); 
         // Optional: show analysis or report
         setShowReportPage(true);
+
 
       }
 
@@ -2655,6 +2669,7 @@ function MockPitching({ onBack, loading  }) {
           />
 
           <button
+          onClick={() => navigate("/playground/mockpitching/report")}
             className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110"
             style={{
               width: "2.5rem",
@@ -2699,7 +2714,7 @@ function MockPitching({ onBack, loading  }) {
           />
 
           <button
-            onClick={onBack}
+            onClick={() => navigate("/playground")}
             className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium"
             style={{
               width: "2.5rem",
