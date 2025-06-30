@@ -270,17 +270,18 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
             </div>
 
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
               <button
-                onClick={() => setIsVideoOff(!isVideoOff)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+                onClick={() => setIsVideoOff(v => !v)}
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
                 style={{
-                  width: "3.125rem",
-                  height: "3.125rem",
+                  width: "3.5rem",
+                  height: "3.5rem",
                   background: "transparent",
                   borderWidth: "1px",
                   borderColor: "#FFF",
                 }}
+                aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
               >
                 {isVideoOff ? (
                   <img
@@ -296,7 +297,6 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   />
                 )}
               </button>
-
             </div>
           </div>
         </div>
@@ -1242,33 +1242,67 @@ useEffect(() => {
                 display: isVideoOff ? "none" : "block",
               }}
             />
+
             {isVideoOff && (
               <div
+                className="w-full h-full flex items-center justify-center flex-col"
                 style={{
-                  width: "80%",
-                  height: "80%",
-                  borderRadius: "1rem",
-                  background: "#222",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontSize: "2rem",
-                  fontWeight: 500,
                   position: "absolute",
                   top: 0,
                   left: 0,
+                  width: "100%",
+                  height: "100%",
+                  background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
+                  zIndex: 2,
                 }}
               >
-                Camera Off
+                <div
+                  className="flex items-center justify-center rounded-full border-[10px] border-purple-400 mb-8"
+                  style={{
+                    width: "10.625rem",
+                    height: "10.625rem",
+                  }}
+                >
+                  <div
+                    className="rounded-full overflow-hidden bg-gray-600"
+                    style={{
+                      width: "9.375rem",
+                      height: "9.375rem",
+                    }}
+                  >
+                    <img
+                      src={profileData?.image || "/api/placeholder/150/150"}
+                      alt={profileData?.accountName || "User"}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.nextSibling.style.display = "flex";
+                      }}
+                    />
+                    <div
+                      className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
+                      style={{ display: "none" }}
+                    >
+                      {profileData?.accountName?.charAt(0) || "U"}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6"
+                  style={{ minWidth: "16rem" }}
+                >
+                  <div className="text-white text-xl font-bold mb-2">
+                    {profileData?.accountName || "User"}
+                  </div>
+                  <div className="text-gray-400 text-base">
+                    {profileData?.companyName || "Company"}
+                  </div>
+                </div>
               </div>
             )}
           </div>
-          {/* Video toggle button */}
-          <video ref={analysisVideoRef} autoPlay muted playsInline style={{ display: "none" }} />
-          <canvas ref={canvasRef} style={{ display: "none" }} />
 
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
             <button
               onClick={() => setIsVideoOff(v => !v)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
@@ -1297,7 +1331,7 @@ useEffect(() => {
             </button>
           </div>
 
-          <div className="absolute bottom-4 left-4 flex gap-2">
+          <div className="absolute bottom-4 left-4 flex gap-2" style={{ zIndex: 4 }}>
             <button
               onClick={() => setIsMuted(!isMuted)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
