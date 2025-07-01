@@ -456,6 +456,80 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const { videoRef: analysisVideoRef, canvasRef } = UseVideoAnalysis(socketRef, sessionId);
 
   
+  const handleStartSession = () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Speech recognition is not supported in this browser.");
+    return;
+  }
+
+  const newRecognition = new SpeechRecognition();
+  newRecognition.continuous = true;
+  newRecognition.interimResults = true;
+  newRecognition.lang = "en-US";
+
+  newRecognition.onresult = (event) => {
+    let fullText = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      fullText += event.results[i][0].transcript;
+    }
+
+    setTranscript(fullText.trim());
+
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    silenceTimerRef.current = setTimeout(() => {
+      sendMessage(fullText.trim());
+      setTranscript("");
+    }, 3000); // Reduced to 3s for quicker flow
+  };
+
+  newRecognition.onerror = (e) => {
+    console.error("Speech recognition error:", e.error);
+    setIsListening(false);
+  };
+
+  newRecognition.onend = () => {
+    console.log("Recognition ended");
+    if (isListening) {
+      setTimeout(() => {
+        try {
+          newRecognition.start();
+        } catch (err) {
+          console.error("Error restarting recognition:", err);
+        }
+      }, 300);
+    }
+  };
+
+  try {
+    newRecognition.start();
+    setRecognition(newRecognition);
+    setIsListening(true);
+  } catch (e) {
+    console.error("Error starting recognition:", e);
+  }
+};
+
+const handleEndSession = () => {
+  setIsListening(false);
+  if (recognition) {
+    try {
+      recognition.stop();
+    } catch (e) {
+      console.warn("Failed to stop recognition:", e);
+    }
+  }
+
+  if (silenceTimerRef.current) {
+    clearTimeout(silenceTimerRef.current);
+  }
+
+  setTranscript("");
+  setCaptionLines(["", ""]);
+};
+
+
+  
 
   // Start/stop camera stream based on isVideoOff
   useEffect(() => {
@@ -793,6 +867,8 @@ useEffect(() => {
     };
 
     initSession();
+
+    
   }, []);
 
 
@@ -1417,7 +1493,7 @@ useEffect(() => {
                     "Click speak to start speaking"}
               </p>
 
-              <div className="flex justify-center gap-4">
+              {/* <div className="flex justify-center gap-4">
                 <button
                   onClick={() => {
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -1503,7 +1579,136 @@ useEffect(() => {
                 >
                   Send
                 </button>
-              </div>
+              </div> */}
+              {/* <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    if (!isListening) {
+                      setIsListening(true);
+                      if (recognition) {
+                        try {
+                          recognition.start();
+                        } catch (e) {
+                          console.error("Recognition start failed", e);
+                        }
+                      }
+                    } else {
+                      setIsListening(false);
+                      if (recognition) {
+                        recognition.stop();
+                      }
+                    }
+                  }}
+                  className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
+                  style={{
+                    background: isListening ? "#E10004" : "#1C60CE",
+                    color: "white",
+                    fontWeight: "500",
+                  }}
+                >
+                  {isListening ? "End Session" : "Start Session"}
+                </button>
+              </div> */}
+              {/* <div className="flex justify-center gap-4">
+                      <button
+                        onClick={() => {
+                          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                          if (!SpeechRecognition) {
+                            alert("Speech recognition is not supported in this browser.");
+                            return;
+                          }
+
+                          if (isListening) {
+                            try {
+                              recognition?.abort();
+                              recognition?.stop();
+                            } catch (e) {
+                              console.warn("Error stopping recognition:", e);
+                            }
+                            setIsListening(false);
+                          } else {
+                            try {
+                              const newRecognition = new SpeechRecognition();
+                              newRecognition.continuous = true;
+                              newRecognition.interimResults = true;
+                              newRecognition.lang = "en-US";
+
+                              newRecognition.onresult = (event) => {
+                                let fullText = "";
+                                for (let i = event.resultIndex; i < event.results.length; i++) {
+                                  fullText += event.results[i][0].transcript;
+                                }
+
+                                setTranscript(fullText.trim());
+
+                                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+                                silenceTimerRef.current = setTimeout(() => {
+                                  sendMessage(fullText.trim());
+                                  setTranscript(""); // Clear after sending
+                                }, 4000); // Silence delay
+                              };
+
+                              newRecognition.onerror = (e) => {
+                                console.error("Speech recognition error:", e.error);
+                              };
+
+                              newRecognition.onend = () => {
+                                console.log("Recognition ended");
+                                if (isListening) {
+                                  setTimeout(() => newRecognition.start(), 200);
+                                }
+                              };
+
+                              newRecognition.start();
+                              setRecognition(newRecognition);
+                              setIsListening(true);
+                            } catch (e) {
+                              console.error("Error starting recognition:", e);
+                            }
+                          }
+                        }}
+                        className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
+                        style={{
+                          background: isListening ? "#E10004" : "#1C60CE",
+                          color: "white",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {isListening ? "End Session" : "Start Session"}
+                      </button>
+                    </div> */}
+              <div className="flex justify-center gap-4">
+                  {!isListening && (
+                    <button
+                      onClick={handleStartSession}
+                      className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
+                      style={{
+                        background: "#1C60CE",
+                        color: "white",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Start Session
+                    </button>
+                  )}
+
+                  {isListening && (
+                    <button
+                      onClick={handleEndSession}
+                      className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
+                      style={{
+                        background: "#E10004",
+                        color: "white",
+                        fontWeight: "500",
+                      }}
+                    >
+                      End Session
+                    </button>
+                  )}
+                </div>
+
+
+
 
               {transcript && (
                 <div className="mt-4 p-3 bg-gray-700 bg-opacity-50 rounded-md max-h-32 overflow-y-auto">
