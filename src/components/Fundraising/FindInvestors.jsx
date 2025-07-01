@@ -263,23 +263,22 @@ const handleSearchChange = (e) => {
 
               <div className="flex flex-col mt-4 min-w-0 md:mt-0 lg:ml-6 lg:flex-row lg:gap-x-10 sm:gap-x-4">
                 <div className="flex flex-wrap gap-2 sm:gap-4 md:gap-6 xl:gap-8 justify-center sm:justify-start">
-      <Dropdown
-        label="Type"
-        options={Type}
-        selected={filters.type}
-        setSelected={(val) =>
-          setFilters((prev) => ({ ...prev, type: val }))
-        }
-      />
-      <Dropdown
-        label="Stage"
-        options={STAGE_OPTIONS}
-        isMulti
-        selected={filters.stage}
-        setSelected={(val) =>
-          setFilters((prev) => ({ ...prev, stage: val }))
-        }
-      />
+     <Dropdown
+  label="Type"
+  options={Type}
+  isMulti
+  selected={filters.type}
+  setSelected={(val) => setFilters((prev) => ({ ...prev, type: val }))}
+ />
+
+     <Dropdown
+  label="Stage"
+  options={STAGE_OPTIONS}
+  isMulti
+  selected={filters.stage}
+  setSelected={(val) => setFilters((prev) => ({ ...prev, stage: val }))}
+ />
+
       <Dropdown
         label="Industry"
         options={INDUSTRY_OPTIONS}
@@ -302,66 +301,37 @@ const handleSearchChange = (e) => {
   </div>
 </div>
 
-            {/* Table Header */}
-            <div>
-              <div className="grid grid-cols-12 items-center px-2 xl:px-4 py-3 gap-1 xl:gap-2">
-                {/* Investor Header - 4 columns */}
-                <div className="col-span-4 flex justify-start">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] whitespace-nowrap">
-                    INVESTOR
-                  </div>
-                </div>
+        <div className="w-full py-3">
+  <div className="grid grid-cols-10 gap-5 xl:gap-4 pl-4 xl:pl-6">
+    {/* Investor col-span-4 */}
+    <div className="col-span-3 text-white text-[0.6rem] sm:text-xs font-semibold uppercase">
+      INVESTOR NAME
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      CHECK SIZE
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      STAGE
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      INDUSTRY
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      GEOGRAPHY
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      MATCH
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      SUBMIT
+    </div>
+    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
+      {/* 3-dot placeholder */}
+    </div>
+  </div>
+</div>
 
-                {/* Check Size Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    CHECK SIZE
-                  </div>
-                </div>
 
-                {/* Stage Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    STAGE
-                  </div>
-                </div>
-
-                {/* Industry Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    INDUSTRY
-                  </div>
-                </div>
-
-                {/* Geography Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    GEOGRAPHY
-                  </div>
-                </div>
-
-                {/* Match Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    MATCH
-                  </div>
-                </div>
-
-                {/* Submit Deck Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    SUBMIT DECK
-                  </div>
-                </div>
-
-                {/* Options Header - 1 column */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                    OPTIONS
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Scrollable Investor List */}
             <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide scrollbar-hidden">
@@ -373,7 +343,7 @@ const handleSearchChange = (e) => {
                 investors.map((investor) => (
                     <div
                     key={investor.id}
-                    className="grid grid-cols-12 items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem] px-2 xl:px-4 py-3 gap-1 xl:gap-2"
+                    className="flex justify-between items-center w-full px-2 xl:px-4 py-3 hover:bg-gray-800/30 bg-black transition-colors rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem]"
                   >
                     {/* Investor Info - Takes up 4 columns */}
                     <div className="col-span-4 flex items-center gap-x-3 min-w-0">
