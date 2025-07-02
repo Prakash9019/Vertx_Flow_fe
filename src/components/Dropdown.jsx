@@ -29,35 +29,93 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
   };
 
   return (
-    <div className="relative w-44" ref={dropdownRef}>
+    <div className="relative" style={{ width: '86px', height: '30px' }} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-zinc-900 text-white py-1.5 px-3 text-xs rounded-sm w-full flex justify-between items-center relative"
+        style={{
+          position: 'relative',
+          width: '86px',
+          height: '30px',
+          background: '#000000',
+          border: '1px solid #33005C',
+          borderRadius: '3px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0 10px'
+        }}
       >
-        {isMulti
-          ? selected.length > 0
-            ? label
-            : label
-          : selected || label}
+        <span style={{
+          fontFamily: 'Inter',
+          fontStyle: 'normal',
+          fontWeight: 400,
+          fontSize: '10px',
+          lineHeight: '12px',
+          color: '#B8B8B8'
+        }}>
+          {isMulti
+            ? selected.length > 0
+              ? label
+              : label
+            : selected || label}
+        </span>
         {isMulti && selected.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-purple-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-zinc-900">{selected.length}</span>
+          <div style={{ 
+            position: 'absolute',
+            top: '-6px',
+            right: '-6px',
+            width: '13px', 
+            height: '13px', 
+            background: '#33005C', 
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ 
+              fontFamily: 'Inter', 
+              fontStyle: 'normal', 
+              fontWeight: 500, 
+              fontSize: '8px', 
+              lineHeight: '10px', 
+              color: '#FFFFFF'
+            }}>{selected.length}</span>
+          </div>
         )}
-        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2"
+        <svg style={{ width: '8px', height: '8px' }} fill="none" stroke="#B8B8B8" strokeWidth="2"
              viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round"
                 d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {isOpen && (
-      <ul className="absolute z-10 bg-zinc-800 text-white mt-1 rounded-sm max-h-48 overflow-y-auto scrollbar-hide w-full shadow-md">
+      <ul style={{
+        position: 'absolute',
+        zIndex: 10,
+        background: '#1A1A1A',
+        width: '86px',
+        marginTop: '1px',
+        borderRadius: '3px',
+        maxHeight: '150px',
+        overflowY: 'auto',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        padding: 0
+      }}>
 
           {options.map((option) => (
             <li
               key={option}
               onClick={() => handleSelect(option)}
-              className={`px-3 py-2 text-xs hover:bg-zinc-700 cursor-pointer ${
-                isMulti && selected.includes(option) ? "bg-zinc-700" : ""
-              }`}
+              style={{
+                padding: '6px 8px',
+                fontSize: '10px',
+                cursor: 'pointer',
+                fontFamily: 'Inter',
+                color: '#B8B8B8',
+                backgroundColor: isMulti && selected.includes(option) ? '#33005C' : 'transparent',
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#33005C'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = isMulti && selected.includes(option) ? '#33005C' : 'transparent'}
             >
               {option}
             </li>
