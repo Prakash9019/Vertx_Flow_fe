@@ -34,43 +34,88 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
   };
 
   return (
-    <div className="relative w-44" ref={dropdownRef}>
-      {/* Trigger Button */}
+    <div className="relative" style={{ width: '86px', height: '30px' }} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-zinc-900 text-white py-1.5 px-3 text-xs rounded-sm w-full flex justify-between items-center relative"
+        style={{
+          position: 'relative',
+          width: '86px',
+          height: '30px',
+          background: '#000000',
+          border: (isMulti && selected.length > 0) || (!isMulti && selected) ? '1px solid #33005C' : '1px solid #1A1A1A',
+          borderRadius: '3px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0 10px'
+        }}
       >
-        {isMulti ? label : selected || label}
-
-        {/* Selected Count Badge */}
+        <span style={{
+          fontFamily: 'Inter',
+          fontStyle: 'normal',
+          fontWeight: 400,
+          fontSize: '10px',
+          lineHeight: '12px',
+          color: '#B8B8B8'
+        }}>
+          {isMulti
+            ? selected.length > 0
+              ? label
+              : label
+            : selected || label}
+        </span>
         {isMulti && selected.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-purple-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-zinc-900">
-            {selected.length}
-          </span>
+          <div style={{
+            position: 'absolute',
+            top: '-6px',
+            right: '-6px',
+            width: '13px',
+            height: '13px',
+            background: '#33005C',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{
+              fontFamily: 'Inter',
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: '8px',
+              lineHeight: '10px',
+              color: '#FFFFFF'
+            }}>{selected.length}</span>
+          </div>
         )}
-
-        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2"
+        <svg style={{ width: '8px', height: '8px' }} fill="none" stroke="#B8B8B8" strokeWidth="2"
           viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          <path strokeLinecap="round" strokeLinejoin="round"
+            d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
-      {/* Dropdown Content */}
       {isOpen && (
-        <ul className="absolute z-10 bg-zinc-800 text-white mt-1 rounded-sm max-h-48 overflow-y-auto scrollbar-hide w-full shadow-md">
-          
-          {/* Selected Count Header */}
-          {isMulti && selected.length > 0 && (
-            <li className="px-3 py-2 text-xs text-gray-400 border-b border-gray-700">
-              {selected.length} selected
-            </li>
-          )}
-
-          {/* Options List */}
+        <ul
+          style={{
+            position: 'absolute',
+            zIndex: 10,
+            background: '#1A1A1A',
+            width: '86px',
+            marginTop: '1px',
+            borderRadius: '3px',
+            maxHeight: '150px',
+            overflowY: 'auto',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            padding: 0
+          }}
+        >
           {options.map((option, index) => (
             <div
               key={index}
-              className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-[#33005C] text-sm text-white"
+              className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-[#33005C] text-[10px] text-white font-[Inter]"
+              style={{
+                backgroundColor: isSelected(option) ? '#33005C' : 'transparent',
+              }}
               onClick={() => handleSelect(option)}
             >
               <span>{option}</span>
