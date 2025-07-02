@@ -140,7 +140,7 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
               Reset All
             </div>
           )}
-        </ul>
+        </ul> 
       )}
     </div>
   );
