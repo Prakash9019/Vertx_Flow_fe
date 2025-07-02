@@ -37,7 +37,7 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
           width: '86px',
           height: '30px',
           background: '#000000',
-          border: '1px solid #33005C',
+          border: (isMulti && selected.length > 0) || (!isMulti && selected) ? '1px solid #33005C' : '1px solid #1A1A1A',
           borderRadius: '3px',
           display: 'flex',
           justifyContent: 'space-between',
