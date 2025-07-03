@@ -1856,6 +1856,10 @@ function MockPitching({ onBack, loading  }) {
   const [sessionId, setSessionId] = useState(null)
   const [analysis, setAnalysis] = useState(null);
   const navigate = useNavigate();
+  const filteredInvestors = investors.filter(investor =>
+  investor.name.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
 
   // const [isListening, setIsListening] = useState(false)
 
@@ -2265,7 +2269,7 @@ function MockPitching({ onBack, loading  }) {
           </div>
 
           <div className=" mb-12 pb-12">
-            {investors.map((investor) => (
+            {filteredInvestors.map((investor) => (
               <div
                 key={investor.id}
                 className={`flex items-${selectedInvestor ? "start" : "center"} justify-between p-6 cursor-pointer hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02]`}
