@@ -457,7 +457,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const { videoRef: analysisVideoRef, canvasRef } = UseVideoAnalysis(socketRef, sessionId);
 
   
-  const handleStartSession = () => {
+ const handleStartSession = () => {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     alert("Speech recognition is not supported in this browser.");
@@ -487,7 +487,14 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   };
 
   newRecognition.onerror = (e) => {
-    console.error("Speech recognition error:", e.error);
+    // console.error("Speech recognition error:", e.error);
+    // setIsListening(false);
+    // setIsSpeaking(false);
+     if (e.error === "aborted") {
+        console.log("🎤 Speech recognition aborted (expected)");
+    } else {
+        console.error("Speech recognition error:", e.error);
+    }
     setIsListening(false);
     setIsSpeaking(false);
   };
@@ -513,7 +520,19 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   } catch (e) {
     console.error("Error starting recognition:", e);
   }
+
+  // 🔷 Emit AI greeting when session starts
+  if (socketRef.current && sessionId) {
+    socketRef.current.emit('text_message', {
+      text: 'start conversation',
+      persona: 'skeptical',
+      session_id: sessionId,
+      system: 'workflow'
+    });
+    console.log('🤖 Sent initial message to AI to start conversation');
+  }
 };
+
 
 const handleEndSession = () => {
   setIsListening(false);
@@ -811,6 +830,15 @@ useEffect(() => {
         socket.emit('start_video_analysis', { session_id: uniqueSessionId });
         console.log('📸 Emitted start_video_analysis');
       });
+
+      // socket.emit('text_message', {
+      //     text: 'start conversation',  // Or a specific trigger like "start"
+      //     persona: 'skeptical',
+      //     session_id: uniqueSessionId,
+      //     system: 'workflow'
+      //   });
+
+      //   console.log('🤖 Sent initial message to AI to start conversation');
 
       // Re-emit session_started on reconnect
       socket.on('reconnect', () => {
@@ -1133,6 +1161,7 @@ useEffect(() => {
       console.error('No audio URL provided')
       setIsLoading(false)
       return
+      
     }
 
     console.log('Attempting to play audio from URL:', audioUrl)
@@ -1212,6 +1241,24 @@ useEffect(() => {
       console.log('Audio playback finished')
       setIsLoading(false) // Set loading to false when audio finishes
 
+      if (recognition && !isListening) {
+        try {
+            recognition.start();
+            setIsListening(true);
+            console.log("🎤 Speech recognition restarted after AI finished speaking.");
+        } catch (e) {
+            console.error("Failed to restart recognition:", e);
+        }
+    }
+
+      // if (recognition && !isListening) {
+      //     try {
+      //       recognition.start();
+      //       setIsListening(true);
+      //     } catch (e) {
+      //       console.error("Failed to restart recognition:", e);
+      //     }
+      //   }
       // Don't automatically restart speech recognition
       // Let the user control when to start listening again
     }
