@@ -447,6 +447,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false) // Add state to track if user is speaking
   const socketRef = useRef(null)
   const silenceTimerRef = useRef(null)
   const questionIndexRef = useRef(0)
@@ -475,21 +476,25 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
     }
 
     setTranscript(fullText.trim());
+    setIsSpeaking(true); // User is speaking
 
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     silenceTimerRef.current = setTimeout(() => {
       sendMessage(fullText.trim());
       setTranscript("");
+      setIsSpeaking(false); // User stopped speaking
     }, 3000); // Reduced to 3s for quicker flow
   };
 
   newRecognition.onerror = (e) => {
     console.error("Speech recognition error:", e.error);
     setIsListening(false);
+    setIsSpeaking(false);
   };
 
   newRecognition.onend = () => {
     console.log("Recognition ended");
+    setIsSpeaking(false);
     if (isListening) {
       setTimeout(() => {
         try {
@@ -512,6 +517,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
 
 const handleEndSession = () => {
   setIsListening(false);
+  setIsSpeaking(false);
   if (recognition) {
     try {
       recognition.stop();
@@ -1330,21 +1336,83 @@ useEffect(() => {
             background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
         >
-          {/* Name and company above camera */}
-          <div
-            className="absolute top-6 left-6 px-4 py-2"
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              zIndex: 10,
-            }}
-          >
-            {profileData?.accountName && profileData?.companyName
-              ? `${profileData.accountName} | ${profileData.companyName}`
-              : "User | Company"}
+          {/* Name and company above camera - only when speaking */}
+          {isSpeaking && (
+            <div
+              className="absolute top-6 left-6 px-4 py-2"
+              style={{
+                color: "#FFF",
+                fontFamily: "Inter",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                zIndex: 10,
+              }}
+            >
+              {profileData?.accountName && profileData?.companyName
+                ? `${profileData.accountName} | ${profileData.companyName}`
+                : "User | Company"}
+            </div>
+          )}
+          
+          {/* Video control button - always visible */}
+          <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
+            <button
+              onClick={() => setIsVideoOff(v => !v)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
+              style={{
+                width: "3.5rem",
+                height: "3.5rem",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
+              }}
+              aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
+            >
+              {isVideoOff ? (
+                <img
+                  src={VideoOffIcon}
+                  alt="Video Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={VideoIcon}
+                  alt="Video On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
+            </button>
           </div>
+
+          {/* Microphone control button - always visible */}
+          <div className="absolute bottom-4 left-4 flex gap-2" style={{ zIndex: 4 }}>
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+              style={{
+                width: "3.125rem",
+                height: "3.125rem",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
+              }}
+            >
+              {isMuted ? (
+                <img
+                  src={MicOffIcon}
+                  alt="Mic Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={MicIcon}
+                  alt="Mic On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
+            </button>
+          </div>
+          
           {/* Camera feed */}
           <div className="w-full h-full flex items-center justify-center">
             <video
@@ -1353,13 +1421,14 @@ useEffect(() => {
               playsInline
               muted
               style={{
-                width: "96%",
-                height: "96%",
-                borderRadius: "1rem",
+                width: isSpeaking ? "96%" : "100%",
+                height: isSpeaking ? "96%" : "100%",
+                borderRadius: isSpeaking ? "1rem" : "0.625rem",
                 objectFit: "cover",
                 background: "#222",
                 backgroundColor: isVideoOff ? "#222" : undefined,
                 display: isVideoOff ? "none" : "block",
+                transition: "all 0.3s ease-in-out",
               }}
             />
 
@@ -1409,64 +1478,6 @@ useEffect(() => {
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
-            <button
-              onClick={() => setIsVideoOff(v => !v)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
-              style={{
-                width: "3.5rem",
-                height: "3.5rem",
-                background: "transparent",
-                borderWidth: "1px",
-                borderColor: "#FFF",
-              }}
-              aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
-            >
-              {isVideoOff ? (
-                <img
-                  src={VideoOffIcon}
-                  alt="Video Off"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              ) : (
-                <img
-                  src={VideoIcon}
-                  alt="Video On"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              )}
-            </button>
-          </div>
-
-          <div className="absolute bottom-4 left-4 flex gap-2" style={{ zIndex: 4 }}>
-            <button
-              onClick={() => setIsMuted(!isMuted)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
-              style={{
-                width: "3.125rem",
-                height: "3.125rem",
-                background: "transparent",
-                borderWidth: "1px",
-                borderColor: "#FFF",
-              }}
-            >
-              {isMuted ? (
-                <img
-                  src={MicOffIcon}
-                  alt="Mic Off"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              ) : (
-                <img
-                  src={MicIcon}
-                  alt="Mic On"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              )}
-            </button>
-
           </div>
         </div>
 
