@@ -732,6 +732,8 @@ const CallReportPage = ({ investor, analysis:initialAnalysis, onBack }) => {
   const [showDetailView, setShowDetailView] = useState(false);
   const [reportHistory, setReportHistory] = useState([]);
   const [analysis, setAnalysis] = useState(initialAnalysis);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -792,19 +794,38 @@ const CallReportPage = ({ investor, analysis:initialAnalysis, onBack }) => {
         <div className="relative mb-8">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" style={{ width: "1.38644rem", height: "1.38644rem" }} />
-            <input
+            {/* <input
               type="text"
               placeholder="Search calls..."
               className="w-full pl-12 pr-16 py-4 rounded focus:outline-none"
               style={{ width: "100%", height: "3.25rem", borderRadius: "0.25rem", background: "#0F0E16", color: "#B8B8B8", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 400, border: "none", paddingLeft: "3rem" }}
-            />
+            /> */}
+            <input
+                      type="text"
+                      placeholder="Search calls..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                      className="w-full pl-12 pr-16 py-4 rounded focus:outline-none"
+                      style={{
+                        width: "100%",
+                        height: "3.25rem",
+                        borderRadius: "0.25rem",
+                        background: "#0F0E16",
+                        color: "#B8B8B8",
+                        fontFamily: "Inter",
+                        fontSize: "0.875rem",
+                        fontWeight: 400,
+                        border: "none",
+                        paddingLeft: "3rem",
+                      }}
+                    />
           </div>
         </div>
 
         {/* Table Header */}
         <div className="flex justify-between items-center mb-4" style={{ color: "#FFF", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 400 }}>
           <div style={{ width: "20%" }}>Investor</div>
-          <div style={{ width: "20%" }}>Connected on</div>
+          <div style={{ width: "20%", paddingLeft: "1rem"  }}>Connected on</div>
           <div style={{ width: "20%" }}>Duration</div>
           <div style={{ width: "20%" }}>Score</div>
           <div style={{ width: "20%" }}>Result</div>
@@ -820,65 +841,152 @@ const CallReportPage = ({ investor, analysis:initialAnalysis, onBack }) => {
     paddingRight: "0.5rem", // space for scrollbar
   }}
 >
-        {reportHistory.map((report, index) => (
+       {(() => {
+  const filteredReports = reportHistory.filter((report) => {
+    const name = report.investorName?.toLowerCase() || "";
+    const connectedAgo = formatTimeAgo(report.timestamp).toLowerCase();
+    return name.includes(searchTerm) || connectedAgo.includes(searchTerm);
+  });
+
+  if (filteredReports.length === 0) {
+    return (
+      <div className="text-center text-gray-400 text-lg py-8">
+        No reports found.
+      </div>
+    );
+  }
+
+  return filteredReports.map((report, index) => (
+    <div
+      key={index}
+      className="flex justify-between items-center p-6 mb-2"
+      style={{
+        width: "100%",
+        borderRadius: "0.3125rem",
+        background: "#0F0E16",
+      }}
+    >
+      {/* Investor */}
+      <div
+        style={{
+          width: "20%",
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+        }}
+      >
+        <div
+          className="bg-gray-600 overflow-hidden flex items-center justify-center"
+          style={{
+            width: "2.5rem",
+            height: "2.5rem",
+            borderRadius: "0.1875rem",
+          }}
+        >
+          <img
+            src={report.investorImage || "/placeholder.svg"}
+            alt={report.investorName || "Investor"}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "flex";
+            }}
+          />
           <div
-            key={index}
-            className="flex justify-between items-center p-6 mb-2"
-            style={{ width: "100%", borderRadius: "0.3125rem", background: "#0F0E16" }}
+            className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold"
+            style={{ display: "none" }}
           >
-            <div style={{ width: "20%", display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div className="bg-gray-600 overflow-hidden flex items-center justify-center" style={{ width: "2.5rem", height: "2.5rem", borderRadius: "0.1875rem" }}>
-                <img
-                  src={report.investorImage || "/placeholder.svg"}
-                  alt={report.investorName || "Investor"}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
-                  }}
-                />
-                <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold" style={{ display: "none" }}>
-                  {report.investorName?.charAt(0) || "P"}
-                </div>
-              </div>
-              <span style={{ color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
-                {report.investorName || "Persona One"}
-              </span>
-            </div>
+            {report.investorName?.charAt(0) || "P"}
+          </div>
+        </div>
+        <span
+          style={{
+            color: "#FFF",
+            fontFamily: "Inter",
+            fontSize: "1rem",
+            fontWeight: 600,
+          }}
+        >
+          {report.investorName || "Persona One"}
+        </span>
+      </div>
 
-            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
-              {/* {new Date(report.timestamp).toLocaleString()} */}
-              {formatTimeAgo(report.timestamp)}
+      {/* Connected On */}
+      <div
+        style={{
+          width: "20%",
+          color: "#FFF",
+          fontFamily: "Inter",
+          fontSize: "1rem",
+          fontWeight: 600,
+          paddingLeft: "1rem",
+        }}
+      >
+        {formatTimeAgo(report.timestamp)}
+      </div>
 
-            </div>
+      {/* Duration */}
+      <div
+        style={{
+          width: "20%",
+          color: "#FFF",
+          fontFamily: "Inter",
+          fontSize: "1rem",
+          fontWeight: 600,
+        }}
+      >
+        {Math.floor(report.duration / 60)}:
+        {String(report.duration % 60).padStart(2, "0")}
+      </div>
 
-            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
-              {Math.floor(report.duration / 60)}:{String(report.duration % 60).padStart(2, '0')}
-            </div>
+      {/* Score */}
+      <div
+        style={{
+          width: "20%",
+          color: "#FFF",
+          fontFamily: "Inter",
+          fontSize: "1rem",
+          fontWeight: 600,
+        }}
+      >
+        {report.score}
+      </div>
 
-            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
-              {report.score}
-            </div>
+      {/* Result */}
+      <div
+        style={{
+          width: "20%",
+          color: "#FFF",
+          fontFamily: "Inter",
+          fontSize: "1rem",
+          fontWeight: 600,
+        }}
+      >
+        {report.result}
+      </div>
 
-            <div style={{ width: "20%", color: "#FFF", fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>
-              {report.result}
-            </div>
-
-            <div style={{ width: "10%", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <button
-                onClick={() => handleViewClick(report.report)}
-                className="hover:opacity-80 transition-opacity"
-                style={{
-                  color: "#AD6FDE",
-                  fontFamily: "Inter",
-                  fontSize: "1rem",
-                  fontWeight: 500,
-                }}
-              >
-                View
-              </button>
-
-              {/* <button
+      {/* Actions */}
+      <div
+        style={{
+          width: "10%",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+        }}
+      >
+        <button
+          onClick={() => handleViewClick(report.report)}
+          className="hover:opacity-80 transition-opacity"
+          style={{
+            color: "#AD6FDE",
+            fontFamily: "Inter",
+            fontSize: "1rem",
+            fontWeight: 500,
+          }}
+        >
+          View
+        </button>
+           {/* <button
                 onClick={() => handleDelete(index)}
                 className="hover:opacity-70 transition-opacity text-red-400 text-sm"
                 style={{
@@ -889,10 +997,11 @@ const CallReportPage = ({ investor, analysis:initialAnalysis, onBack }) => {
               >
                 Delete
               </button> */}
-            </div>
+      </div>
+    </div>
+  ));
+})()}
 
-          </div>
-        ))}
 
 </div>
       </div>
