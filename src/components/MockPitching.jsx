@@ -754,122 +754,166 @@ useEffect(() => {
   //     stopSpeechRecognition()
   //   }
   // }, [])
-  useEffect(() => {
-    const initSession = async () => {
-      let socket;
 
-      try {
-        // Generate a unique session ID
-        const uniqueSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Step 1: Start session via backend
-        const res = await fetch('https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            persona: 'skeptical',
-            system: 'workflow',
-            session_id: uniqueSessionId
-          })
-        });
-
-        const data = await res.json();
-        // Use our unique session ID instead of the one from the API
-        setSessionId(uniqueSessionId); // ✅ Save valid sessionId
-        console.log('✅ Session started with ID:', uniqueSessionId);
-
-        // Step 2: Connect to WebSocket
-        socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
-          transports: ['websocket', 'polling'],
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-          timeout: 20000
-        });
-        socketRef.current = socket;
-
-        socket.on('connect', () => {
-          console.log('✅ Connected to AI server');
-          
-          socket.emit('session_started', {
-            session_id: uniqueSessionId,
-            persona: 'skeptical',
-            system: 'workflow'
-          });
-          console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
-        });
-        
-        socket.emit('start_video_analysis', { session_id: uniqueSessionId });
-        console.log('📸 Emitted start_video_analysis');
-        
-        socket.on('response', (data) => {
-          console.log('🧠 AI response:', data);
-
-          if (recognition) {
-            try {
-              recognition.stop();
-            } catch (_) { }
-          }
-
-          if (data.audio_url) {
-            const fullAudioUrl = data.audio_url.startsWith('http')
-              ? data.audio_url
-              : `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url.startsWith('/') ? '' : '/'}${data.audio_url}`;
-
-            console.log('🔊 Playing audio:', fullAudioUrl);
-            playAudio(fullAudioUrl);
-          } else {
-            console.warn('⚠️ No audio URL in response');
-            setIsLoading(false);
-          }
-
-          if (data.message && showCaptions) {
-            updateCaptionLines(data.message);
-          }
-        });
-
-        socket.on('session_started', (data) => {
-          console.log('🟢 Server confirmed session:', data.session_id);
-        });
-
-        socket.on('connect_error', (err) => {
-          console.error('❌ Socket connect error:', err);
-          setIsLoading(false);
-        });
-
-        socket.on('connect_timeout', () => {
-          console.error('⏰ Socket timeout');
-          setIsLoading(false);
-        });
-
-        socket.on('error', (err) => {
-          console.error('🔥 Socket error:', err);
-          setIsLoading(false);
-          if (socket && !socket.connected) {
-            socket.connect();
-          }
-        });
-
-        const timer = setInterval(() => {
-          setCallDuration((prev) => prev + 1);
-        }, 1000);
-
-        // Cleanup
-        return () => {
-          clearInterval(timer);
-          if (socketRef.current) socketRef.current.disconnect();
-          stopSpeechRecognition();
-        };
-
-      } catch (err) {
-        console.error('❌ Error in initSession:', err);
-        setIsLoading(false);
-      }
-    };
-
-    initSession();
 
     
-  }, []);
+  useEffect(() => {
+  const initSession = async () => {
+    let socket;
+
+    try {
+      const uniqueSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const res = await fetch('https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          persona: 'skeptical',
+          system: 'workflow',
+          session_id: uniqueSessionId
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error("Failed to start session");
+
+      setSessionId(uniqueSessionId);
+      console.log('✅ Session started with ID:', uniqueSessionId);
+
+      socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
+        transports: ['websocket'],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+      });
+
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        console.log('✅ Connected to AI server');
+
+        // Emit session_started
+        socket.emit('session_started', {
+          session_id: uniqueSessionId,
+          persona: 'skeptical',
+          system: 'workflow'
+        });
+        console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
+
+        // Emit video analysis only after connected
+        socket.emit('start_video_analysis', { session_id: uniqueSessionId });
+        console.log('📸 Emitted start_video_analysis');
+      });
+
+      // Re-emit session_started on reconnect
+      socket.on('reconnect', () => {
+        console.log('🔁 Reconnected');
+        socket.emit('session_started', {
+          session_id: uniqueSessionId,
+          persona: 'skeptical',
+          system: 'workflow'
+        });
+        console.log('📨 Re-emitted session_started on reconnect');
+      });
+
+      // CLEAN old listeners first
+      socket.off('response');
+      socket.on('response', (data) => {
+        console.log('🧠 AI response:', data);
+        if (recognition) {
+          try {
+            recognition.stop();
+          } catch (_) { }
+        }
+
+        if (data.audio_url) {
+          const fullAudioUrl = data.audio_url.startsWith('http')
+            ? data.audio_url
+            : `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url.startsWith('/') ? '' : '/'}${data.audio_url}`;
+          playAudio(fullAudioUrl);
+        } else {
+          console.warn('⚠️ No audio URL in response');
+          setIsLoading(false);
+        }
+
+        if (data.message && showCaptions) {
+          updateCaptionLines(data.message);
+        }
+      });
+
+      socket.off('disconnect');
+      socket.on('disconnect', (reason) => {
+  console.warn('❌ Socket disconnected:', reason);
+
+  if (reason === 'io server disconnect') {
+    // Server-side disconnect — reconnect manually
+    console.log('🔄 Attempting reconnect (server disconnect)');
+    socket.connect();
+  } else if (reason === 'transport close' || reason === 'ping timeout') {
+    // Unexpected network-related drop
+    console.log('📡 Reconnecting due to network interruption');
+    socket.connect();
+  } else if (reason === 'io client disconnect') {
+    // Clean disconnection by the client (e.g., user ended session)
+    console.log('✅ Socket cleanly disconnected by client');
+    // No reconnect here
+  } else {
+    // Fallback case
+    console.log('ℹ️ Disconnected for unknown reason. Not reconnecting.');
+  }
+});
+
+
+      socket.off('connect_error');
+      socket.on('connect_error', (err) => {
+        console.error('❌ Socket connect error:', err);
+        setIsLoading(false);
+      });
+
+      socket.off('connect_timeout');
+      socket.on('connect_timeout', () => {
+        console.error('⏰ Socket timeout');
+        setIsLoading(false);
+      });
+
+      socket.off('error');
+      socket.on('error', (err) => {
+        console.error('🔥 Socket error:', err);
+        setIsLoading(false);
+        if (!socket.connected) socket.connect();
+      });
+
+      socket.off('session_started');
+      socket.on('session_started', (data) => {
+        console.log('🟢 Server confirmed session:', data.session_id);
+      });
+
+      // Optional keep-alive ping every 15s
+      // const pingInterval = setInterval(() => {
+      //   if (socket.connected) socket.emit('ping');
+      // }, 15000);
+
+      const timer = setInterval(() => {
+        setCallDuration(prev => prev + 1);
+      }, 1000);
+
+      // Cleanup
+      return () => {
+        clearInterval(timer);
+        // clearInterval(pingInterval);
+        if (socketRef.current) socketRef.current.disconnect();
+        stopSpeechRecognition();
+      };
+    } catch (err) {
+      console.error('❌ Error in initSession:', err);
+      setIsLoading(false);
+    }
+  };
+
+  initSession();
+}, []);
+
 
 
   // Start speech recognition - no longer used

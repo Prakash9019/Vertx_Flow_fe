@@ -4,7 +4,6 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -95,34 +94,41 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
       </button>
 
       {isOpen && (
-        <ul
-          style={{
-            position: 'absolute',
-            zIndex: 10,
-            background: '#1A1A1A',
-            width: '86px',
-            marginTop: '1px',
-            borderRadius: '3px',
-            maxHeight: '150px',
-            overflowY: 'auto',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            padding: 0
-          }}
-        >
-          {options.map((option, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-[#33005C] text-[10px] text-white font-[Inter]"
-              style={{
-                backgroundColor: isSelected(option) ? '#33005C' : 'transparent',
-              }}
+        <ul style={{
+          position: 'absolute',
+          zIndex: 10,
+          background: '#1A1A1A',
+          width: '86px',
+          marginTop: '1px',
+          borderRadius: '3px',
+          maxHeight: '150px',
+          overflowY: 'auto',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          padding: 0
+        }}>
+          {options.map((option) => (
+            <li
+              key={option}
               onClick={() => handleSelect(option)}
+              style={{
+                padding: '6px 8px',
+                fontSize: '10px',
+                cursor: 'pointer',
+                fontFamily: 'Inter',
+                color: '#B8B8B8',
+                backgroundColor: isSelected(option) ? '#33005C' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#33005C'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = isSelected(option) ? '#33005C' : 'transparent'}
             >
               <span>{option}</span>
               {isSelected(option) && (
-                <span className="text-green-400">✔</span>
+                <span style={{ color: 'green', fontSize: '10px' }}>✔</span>
               )}
-            </div>
+            </li>
           ))}
 
           {/* Optional: Reset Button */}
@@ -134,7 +140,7 @@ const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) =>
               Reset All
             </div>
           )}
-        </ul>
+        </ul> 
       )}
     </div>
   );
