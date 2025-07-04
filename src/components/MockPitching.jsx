@@ -1829,8 +1829,8 @@ if (!socket || !socket.connected) {
               </div>
             </div>
 
-            <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6">
-              {isLoading ? (
+            {/* <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6"> */}
+              {/* {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
                   <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -1841,7 +1841,7 @@ if (!socket || !socket.connected) {
                 {isLoading ? "AI is responding..." :
                   isListening ? "Listening... Click Stop when done" :
                     "Click speak to start speaking"}
-              </p>
+              </p> */}
 
               {/* <div className="flex justify-center gap-4">
                 <button
@@ -2027,7 +2027,7 @@ if (!socket || !socket.connected) {
                         {isListening ? "End Session" : "Start Session"}
                       </button>
                     </div> */}
-              <div className="flex justify-center gap-4">
+              {/* <div className="flex justify-center gap-4"> */}
               
                   {/* {!isListening && (
                     <button
@@ -2043,7 +2043,7 @@ if (!socket || !socket.connected) {
                     </button>
                   )} */}
 
-                  {isListening && (
+                  {/* {isListening && (
                     <button
                       onClick={handleEndSession}
                       className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
@@ -2055,18 +2055,18 @@ if (!socket || !socket.connected) {
                     >
                       End Session
                     </button>
-                  )}
-                </div>
+                  )} */}
+                {/* </div> */}
 
 
 
 
-              {transcript && (
+              {/* {transcript && (
                 <div className="mt-4 p-3 bg-gray-700 bg-opacity-50 rounded-md max-h-32 overflow-y-auto">
                   <p className="text-white text-sm">{transcript}</p>
                 </div>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
           </div>
         </div>
       </div>
