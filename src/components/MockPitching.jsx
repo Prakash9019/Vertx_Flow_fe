@@ -436,13 +436,15 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
   )
 }
 
-function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId, profileData }) {
+function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId,sessionIdRef, profileData, personaKey }) {
   const [callDuration, setCallDuration] = useState(0)
   const [showCaptions, setShowCaptions] = useState(false)
   const [captionLines, setCaptionLines] = useState(["", ""])
   const [currentQuestion, setCurrentQuestion] = useState("What are you building exactly?")
   const [isListening, setIsListening] = useState(false)
-  const [recognition, setRecognition] = useState(null)
+  // const [recognition, setRecognition] = useState(null)
+const recognitionRef = useRef(null);  // replace useState for recognition
+
   const [transcript, setTranscript] = useState("")
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOff, setIsVideoOff] = useState(false)
@@ -457,7 +459,95 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   const { videoRef: analysisVideoRef, canvasRef } = UseVideoAnalysis(socketRef, sessionId);
 
   
- const handleStartSession = () => {
+//  const handleStartSession = (sid = sessionId) => {
+//   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+//   if (!SpeechRecognition) {
+//     alert("Speech recognition is not supported in this browser.");
+//     return;
+//   }
+
+//   const newRecognition = new SpeechRecognition();
+//   newRecognition.continuous = true;
+//   newRecognition.interimResults = true;
+//   newRecognition.lang = "en-US";
+
+//   newRecognition.onresult = (event) => {
+//     let fullText = "";
+//     for (let i = event.resultIndex; i < event.results.length; i++) {
+//       fullText += event.results[i][0].transcript;
+//     }
+
+//     setTranscript(fullText.trim());
+//     setIsSpeaking(true); // User is speaking
+
+//     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+//       silenceTimerRef.current = setTimeout(() => {
+//         if (sessionId && socketRef.current) {
+//           sendMessage(fullText.trim());
+//         } else {
+//           console.warn("Delaying message — session or socket not ready");
+//           setTimeout(() => {
+//             if (sessionId && socketRef.current) {
+//               sendMessage(fullText.trim());
+//             } else {
+//               console.error("Message skipped — still no session/socket");
+//             }
+//           }, 1000);
+//         }
+//         setTranscript("");
+//         setIsSpeaking(false);
+//       }, 3000);
+//  // Reduced to 3s for quicker flow
+//   };
+
+//   newRecognition.onerror = (e) => {
+//     // console.error("Speech recognition error:", e.error);
+//     // setIsListening(false);
+//     // setIsSpeaking(false);
+//      if (e.error === "aborted") {
+//         console.log("🎤 Speech recognition aborted (expected)");
+//     } else {
+//         console.error("Speech recognition error:", e.error);
+//     }
+//     setIsListening(false);
+//     setIsSpeaking(false);
+//   };
+
+//   newRecognition.onend = () => {
+//     console.log("Recognition ended");
+//     setIsSpeaking(false);
+//     if (isListening) {
+//       setTimeout(() => {
+//         try {
+//           newRecognition.start();
+//         } catch (err) {
+//           console.error("Error restarting recognition:", err);
+//         }
+//       }, 300);
+//     }
+//   };
+
+//   try {
+//     newRecognition.start();
+//     setRecognition(newRecognition);
+//     setIsListening(true);
+//   } catch (e) {
+//     console.error("Error starting recognition:", e);
+//   }
+
+//   // 🔷 Emit AI greeting when session starts
+//   if (socketRef.current && sid) {
+//     socketRef.current.emit('text_message', {
+//       text: 'start conversation',
+//       persona: personaKey || 'skeptical',
+//       session_id: sid,
+//       system: 'workflow'
+//     });
+//     console.log('🤖 Sent initial message to AI to start conversation');
+//   }
+// };
+const handleStartSession = (sid) => {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     alert("Speech recognition is not supported in this browser.");
@@ -475,25 +565,35 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
       fullText += event.results[i][0].transcript;
     }
 
-    setTranscript(fullText.trim());
-    setIsSpeaking(true); // User is speaking
+    const cleaned = fullText.trim();
+    setTranscript(cleaned);
+    setIsSpeaking(true);
 
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
     silenceTimerRef.current = setTimeout(() => {
-      sendMessage(fullText.trim());
+      if (cleaned && sid && socketRef.current) {
+        sendMessage(cleaned);
+      } else {
+        console.warn("Delaying message — session or socket not ready");
+        setTimeout(() => {
+          if (cleaned && sid && socketRef.current) {
+            sendMessage(cleaned);
+          } else {
+            console.error("Message skipped — still no session/socket");
+          }
+        }, 1000);
+      }
       setTranscript("");
-      setIsSpeaking(false); // User stopped speaking
-    }, 3000); // Reduced to 3s for quicker flow
+      setIsSpeaking(false);
+    }, 3000);
   };
 
   newRecognition.onerror = (e) => {
-    // console.error("Speech recognition error:", e.error);
-    // setIsListening(false);
-    // setIsSpeaking(false);
-     if (e.error === "aborted") {
-        console.log("🎤 Speech recognition aborted (expected)");
+    if (e.error === "aborted") {
+      console.log("🎤 Speech recognition aborted (expected)");
     } else {
-        console.error("Speech recognition error:", e.error);
+      console.error("Speech recognition error:", e.error);
     }
     setIsListening(false);
     setIsSpeaking(false);
@@ -505,7 +605,10 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
     if (isListening) {
       setTimeout(() => {
         try {
-          newRecognition.start();
+          if (recognitionRef.current && !isSpeaking) {
+        recognitionRef.current.start();
+        console.log("🔁 Recognition restarted after end");
+        }
         } catch (err) {
           console.error("Error restarting recognition:", err);
         }
@@ -513,33 +616,29 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
     }
   };
 
-  try {
-    newRecognition.start();
-    setRecognition(newRecognition);
-    setIsListening(true);
-  } catch (e) {
-    console.error("Error starting recognition:", e);
-  }
+  // setRecognition(newRecognition);
+recognitionRef.current = newRecognition;
+  setIsListening(false); // We'll start after AI speaks
+  console.log("✅ handleStartSession called with SID:", sid);
 
-  // 🔷 Emit AI greeting when session starts
-  if (socketRef.current && sessionId) {
-    socketRef.current.emit('text_message', {
-      text: 'start conversation',
-      persona: 'skeptical',
-      session_id: sessionId,
-      system: 'workflow'
+  if (socketRef.current && sid) {
+    socketRef.current.emit("text_message", {
+      text: "start conversation",
+      persona: personaKey || "skeptical",
+      session_id: sid,
+      system: "workflow",
     });
-    console.log('🤖 Sent initial message to AI to start conversation');
+    console.log("🤖 Sent initial message to AI to start conversation");
   }
 };
-
 
 const handleEndSession = () => {
   setIsListening(false);
   setIsSpeaking(false);
-  if (recognition) {
+  if (recognitionRef.current) {
     try {
-      recognition.stop();
+      // recognition.stop();
+       recognitionRef.current.stop();
     } catch (e) {
       console.warn("Failed to stop recognition:", e);
     }
@@ -552,6 +651,15 @@ const handleEndSession = () => {
   setTranscript("");
   setCaptionLines(["", ""]);
 };
+
+// useEffect(() => {
+//   const timeout = setTimeout(() => {
+//     handleStartSession();
+//   }, 500); // Let socket/session initialize
+
+//   return () => clearTimeout(timeout);
+// }, []);
+
 
 
   
@@ -599,7 +707,11 @@ const handleEndSession = () => {
         setTranscript('')
         setIsLoading(false)
 
-        if (recognition) recognition.stop()
+        // if (recognition) recognition.stop()
+        if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+
         if (currentAudio) {
           currentAudio.pause()
           currentAudio.currentTime = 0
@@ -782,7 +894,7 @@ useEffect(() => {
 
 
     
-  useEffect(() => {
+ useEffect(() => {
   const initSession = async () => {
     let socket;
 
@@ -792,7 +904,7 @@ useEffect(() => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          persona: 'skeptical',
+          persona: personaKey || 'skeptical',
           system: 'workflow',
           session_id: uniqueSessionId
         })
@@ -802,6 +914,8 @@ useEffect(() => {
       if (!res.ok) throw new Error("Failed to start session");
 
       setSessionId(uniqueSessionId);
+      sessionIdRef.current = uniqueSessionId; 
+      console.log("✅ sessionIdRef set to", sessionIdRef.current);
       console.log('✅ Session started with ID:', uniqueSessionId);
 
       socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
@@ -821,43 +935,36 @@ useEffect(() => {
         // Emit session_started
         socket.emit('session_started', {
           session_id: uniqueSessionId,
-          persona: 'skeptical',
+          persona: personaKey || 'skeptical',
           system: 'workflow'
         });
         console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
 
-        // Emit video analysis only after connected
+        // ✅ Directly start the session on client-side
+        handleStartSession(uniqueSessionId);
+
+        // Emit video analysis
         socket.emit('start_video_analysis', { session_id: uniqueSessionId });
         console.log('📸 Emitted start_video_analysis');
       });
 
-      // socket.emit('text_message', {
-      //     text: 'start conversation',  // Or a specific trigger like "start"
-      //     persona: 'skeptical',
-      //     session_id: uniqueSessionId,
-      //     system: 'workflow'
-      //   });
-
-      //   console.log('🤖 Sent initial message to AI to start conversation');
-
       // Re-emit session_started on reconnect
       socket.on('reconnect', () => {
-        console.log('🔁 Reconnected');
         socket.emit('session_started', {
           session_id: uniqueSessionId,
-          persona: 'skeptical',
+          persona: personaKey || 'skeptical',
           system: 'workflow'
         });
-        console.log('📨 Re-emitted session_started on reconnect');
+        console.log('🔁 Re-emitted session_started on reconnect');
       });
 
-      // CLEAN old listeners first
+      // AI response handler
       socket.off('response');
       socket.on('response', (data) => {
         console.log('🧠 AI response:', data);
-        if (recognition) {
+        if (recognitionRef.current) {
           try {
-            recognition.stop();
+            recognitionRef.current.stop();
           } catch (_) { }
         }
 
@@ -876,28 +983,23 @@ useEffect(() => {
         }
       });
 
+      // Disconnection handling
       socket.off('disconnect');
       socket.on('disconnect', (reason) => {
-  console.warn('❌ Socket disconnected:', reason);
+        console.warn('❌ Socket disconnected:', reason);
 
-  if (reason === 'io server disconnect') {
-    // Server-side disconnect — reconnect manually
-    console.log('🔄 Attempting reconnect (server disconnect)');
-    socket.connect();
-  } else if (reason === 'transport close' || reason === 'ping timeout') {
-    // Unexpected network-related drop
-    console.log('📡 Reconnecting due to network interruption');
-    socket.connect();
-  } else if (reason === 'io client disconnect') {
-    // Clean disconnection by the client (e.g., user ended session)
-    console.log('✅ Socket cleanly disconnected by client');
-    // No reconnect here
-  } else {
-    // Fallback case
-    console.log('ℹ️ Disconnected for unknown reason. Not reconnecting.');
-  }
-});
-
+        if (reason === 'io server disconnect') {
+          console.log('🔄 Attempting reconnect (server disconnect)');
+          socket.connect();
+        } else if (reason === 'transport close' || reason === 'ping timeout') {
+          console.log('📡 Reconnecting due to network interruption');
+          socket.connect();
+        } else if (reason === 'io client disconnect') {
+          console.log('✅ Socket cleanly disconnected by client');
+        } else {
+          console.log('ℹ️ Disconnected for unknown reason. Not reconnecting.');
+        }
+      });
 
       socket.off('connect_error');
       socket.on('connect_error', (err) => {
@@ -918,24 +1020,14 @@ useEffect(() => {
         if (!socket.connected) socket.connect();
       });
 
-      socket.off('session_started');
-      socket.on('session_started', (data) => {
-        console.log('🟢 Server confirmed session:', data.session_id);
-      });
-
-      // Optional keep-alive ping every 15s
-      // const pingInterval = setInterval(() => {
-      //   if (socket.connected) socket.emit('ping');
-      // }, 15000);
-
+      // Call timer to track call duration
       const timer = setInterval(() => {
         setCallDuration(prev => prev + 1);
       }, 1000);
 
-      // Cleanup
+      // Cleanup on unmount
       return () => {
         clearInterval(timer);
-        // clearInterval(pingInterval);
         if (socketRef.current) socketRef.current.disconnect();
         stopSpeechRecognition();
       };
@@ -946,7 +1038,8 @@ useEffect(() => {
   };
 
   initSession();
-}, []);
+}, [personaKey]);
+
 
 
 
@@ -996,7 +1089,7 @@ useEffect(() => {
 
     try {
       recognitionInstance.start()
-      setRecognition(recognitionInstance)
+      recognitionRef.current=recognitionInstance;
     } catch (error) {
       setIsListening(false)
     }
@@ -1012,10 +1105,22 @@ useEffect(() => {
 
   // Function to send message to AI
   const sendMessage = (text) => {
-    if (!text.trim() || !sessionId || !socketRef.current) {
-      console.error('Cannot send message: missing text, sessionId, or socket connection')
-      return
-    }
+    const sid = sessionIdRef.current;
+const socket = socketRef.current;
+
+if (!text.trim()) {
+  console.error("Cannot send: text is empty");
+  return;
+}
+if (!sid) {
+  console.error("Cannot send: sessionId is missing");
+  return;
+}
+if (!socket || !socket.connected) {
+  console.error("Cannot send: socket is not connected");
+  return;
+}
+
 
     // Don't send if we're already waiting for a response
     if (isLoading) {
@@ -1027,16 +1132,16 @@ useEffect(() => {
     setIsListening(false) // Stop listening mode
 
     // Stop speech recognition while sending message
-    if (recognition) {
-      recognition.stop()
-    }
+    if (recognitionRef.current) {
+  recognitionRef.current.stop();
+}
 
     const messageData = {
       text: text.trim(),
-      persona: 'skeptical', // Use a specific persona ID that exists on the server
-      session_id: sessionId,
+      persona: personaKey || 'skeptical',
+      session_id: sid,
       system: 'workflow'
-    }
+    };
 
     console.log('Sending message to AI:', messageData)
 
@@ -1104,7 +1209,17 @@ useEffect(() => {
 
       recognitionInstance.onerror = (event) => {
         console.error("Speech recognition error:", event.error)
-        setIsListening(false)
+        // setIsListening(false)
+        if (e.error !== "aborted") {
+            setTimeout(() => {
+              try {
+                recognitionRef.current.start();
+                console.log("🔁 Restarted recognition after error");
+              } catch (err) {
+                console.error("Error restarting recognition after error:", err);
+              }
+            }, 300);
+          }
       }
 
       recognitionInstance.onend = () => {
@@ -1115,7 +1230,7 @@ useEffect(() => {
         }
       }
 
-      setRecognition(recognitionInstance)
+      recognitionRef.current=recognitionInstance;
     }
 
     return () => {
@@ -1156,113 +1271,246 @@ useEffect(() => {
 
 
   // Play audio from URL
-  const playAudio = (audioUrl) => {
-    if (!audioUrl) {
-      console.error('No audio URL provided')
-      setIsLoading(false)
-      return
-      
-    }
-
-    console.log('Attempting to play audio from URL:', audioUrl)
-
-    // Stop any currently playing audio
-    if (currentAudio) {
-      currentAudio.pause()
-      currentAudio.currentTime = 0
-    }
-
-    // Create new audio element
-    const audio = new Audio()
-
-    // Add event listeners
-    audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e)
-      console.error('Audio error code:', e.target.error ? e.target.error.code : 'unknown')
-      setIsLoading(false)
-
-      // Try with a direct fetch to check if the URL is accessible
-      fetch(audioUrl)
-        .then(response => {
-          console.log('Audio URL fetch response:', response.status)
-          if (!response.ok) {
-            console.error('Audio URL not accessible:', response.status)
-          }
-        })
-        .catch(err => console.error('Error fetching audio URL:', err))
-    })
-
-    audio.addEventListener('canplaythrough', () => {
-      console.log('Audio ready to play')
-    })
-
-    audio.addEventListener('playing', () => {
-      console.log('Audio is now playing')
-    })
-
-    // Add cache busting parameter
-    const finalUrl = audioUrl + (audioUrl.includes('?') ? '&' : '?') + `t=${Date.now()}`
-    console.log('Final audio URL with cache busting:', finalUrl)
-    audio.src = finalUrl
-    audio.crossOrigin = 'anonymous' // Try with CORS enabled
-
-    setCurrentAudio(audio)
-
-    // Play the audio
-    const playPromise = audio.play()
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          console.log('Audio playback started successfully')
-          setIsLoading(false)
-        })
-        .catch(error => {
-          console.error('Error playing audio:', error)
-          setIsLoading(false)
-
-          // Try an alternative approach - create an audio element in the DOM
-          const audioElement = document.createElement('audio')
-          audioElement.src = finalUrl
-          audioElement.controls = false
-          audioElement.style.display = 'none'
-          document.body.appendChild(audioElement)
-
-          audioElement.onended = () => {
-            document.body.removeChild(audioElement)
-            setIsLoading(false) // Don't set loading to true here
-          }
-
-          audioElement.play().catch(e => console.error('Alternative audio playback failed:', e))
-        })
-    }
-
-    audio.onended = () => {
-      console.log('Audio playback finished')
-      setIsLoading(false) // Set loading to false when audio finishes
-
-      if (recognition && !isListening) {
-        try {
-            recognition.start();
-            setIsListening(true);
-            console.log("🎤 Speech recognition restarted after AI finished speaking.");
-        } catch (e) {
-            console.error("Failed to restart recognition:", e);
-        }
-    }
-
-      // if (recognition && !isListening) {
-      //     try {
-      //       recognition.start();
-      //       setIsListening(true);
-      //     } catch (e) {
-      //       console.error("Failed to restart recognition:", e);
-      //     }
-      //   }
-      // Don't automatically restart speech recognition
-      // Let the user control when to start listening again
-    }
+ const playAudio = (audioUrl) => {
+  if (!audioUrl) {
+    console.error('No audio URL provided');
+    setIsLoading(false);
+    return;
   }
+
+  console.log('Attempting to play audio from URL:', audioUrl);
+
+  // Stop any currently playing audio
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+
+  const audio = new Audio();
+  const finalUrl = audioUrl + (audioUrl.includes('?') ? '&' : '?') + `t=${Date.now()}`;
+
+  audio.src = finalUrl;
+  audio.crossOrigin = 'anonymous';
+  // currentAudio.current = audio;
+  setCurrentAudio(audio);
+
+  audio.addEventListener('canplaythrough', () => {
+    console.log('Audio ready to play');
+  });
+
+  audio.addEventListener('playing', () => {
+    console.log('Audio is now playing');
+  });
+
+  audio.onerror = (e) => {
+    console.error('Audio error:', e);
+    setIsLoading(false);
+
+    // Try direct fetch to debug CORS or availability issues
+    fetch(audioUrl)
+      .then(response => {
+        console.log('Audio URL fetch response:', response.status);
+        if (!response.ok) {
+          console.error('Audio URL not accessible:', response.status);
+        }
+      })
+      .catch(err => console.error('Error fetching audio URL:', err));
+  };
+
+  audio.onended = () => {
+    console.log('🔊 Audio playback finished');
+    setIsLoading(false);
+
+    // if (!isListening) {
+    //     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    //     if (!SpeechRecognition) {
+    //         console.error("Speech recognition not supported");
+    //         return;
+    //     }
+
+    //     const newRecognition = new SpeechRecognition();
+    //     newRecognition.continuous = true;
+    //     newRecognition.interimResults = true;
+    //     newRecognition.lang = "en-US";
+
+    //     newRecognition.onresult = (event) => {
+    //         let fullText = "";
+    //         for (let i = event.resultIndex; i < event.results.length; i++) {
+    //             fullText += event.results[i][0].transcript;
+    //         }
+
+    //         const cleaned = fullText.trim();
+    //         setTranscript(cleaned);
+    //         setIsSpeaking(true);
+
+    //         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+    //         silenceTimerRef.current = setTimeout(() => {
+    //             if (cleaned && sessionId && socketRef.current) {
+    //                 sendMessage(cleaned);
+    //             } else {
+    //                 console.warn("Delaying message — session or socket not ready");
+    //             }
+    //             setTranscript("");
+    //             setIsSpeaking(false);
+    //         }, 3000);
+    //     };
+
+    //     newRecognition.onerror = (e) => {
+    //         if (e.error === "aborted") {
+    //             console.log("🎤 Speech recognition aborted (expected)");
+    //         } else {
+    //             console.error("Speech recognition error:", e.error);
+    //         }
+    //         setIsListening(false);
+    //         setIsSpeaking(false);
+    //     };
+
+    //     newRecognition.onend = () => {
+    //         console.log("Recognition ended");
+    //         setIsSpeaking(false);
+    //         if (isListening) {
+    //             setTimeout(() => {
+    //                 try {
+    //                     newRecognition.start();
+    //                     console.log("🎤 Restarted recognition after end");
+    //                 } catch (err) {
+    //                     console.error("Error restarting recognition:", err);
+    //                 }
+    //             }, 300);
+    //         }
+    //     };
+
+    //     try {
+    //         newRecognition.start();
+    //         // setRecognition(newRecognition);
+    //         recognitionRef.current.start();
+    //         setIsListening(true);
+    //         console.log("🎤 New speech recognition started after AI finished.");
+    //     } catch (e) {
+    //         console.error("Failed to start recognition:", e);
+    //     }
+    // }
+    if (!isListening) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        console.error("Speech recognition not supported");
+        return;
+    }
+
+    const newRecognition = new SpeechRecognition();
+    newRecognition.continuous = true;
+    newRecognition.interimResults = true;
+    newRecognition.lang = "en-US";
+
+    newRecognition.onresult = (event) => {
+        let fullText = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            fullText += event.results[i][0].transcript;
+        }
+
+        const cleaned = fullText.trim();
+        setTranscript(cleaned);
+        setIsSpeaking(true);
+
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+        silenceTimerRef.current = setTimeout(() => {
+            if (cleaned && sessionIdRef.current && socketRef.current) {
+                sendMessage(cleaned);
+            } else {
+                console.warn("Delaying message — session or socket not ready");
+            }
+            setTranscript("");
+            setIsSpeaking(false);
+        }, 3000);
+    };
+
+    newRecognition.onerror = (e) => {
+        if (e.error === "aborted") {
+            console.log("🎤 Speech recognition aborted (expected)");
+        } else {
+            console.error("Speech recognition error:", e.error);
+        }
+        setIsListening(false);
+        setIsSpeaking(false);
+    };
+
+    newRecognition.onend = () => {
+        console.log("Recognition ended");
+        setIsSpeaking(false);
+        if (isListening) {
+            setTimeout(() => {
+                try {
+                    recognitionRef.current.start();
+                    console.log("🎤 Restarted recognition after end");
+                } catch (err) {
+                    console.error("Error restarting recognition:", err);
+                }
+            }, 300);
+        }
+    };
+
+    recognitionRef.current = newRecognition;
+
+    try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        console.log("🎤 New speech recognition started after AI finished.");
+    } catch (e) {
+        console.error("Failed to start recognition:", e);
+    }
+}
+
+};
+
+
+  // audio.onended = () => {
+  //   console.log('🔊 Audio playback finished');
+  //   setIsLoading(false);
+
+  //   // ✅ Now start recognition
+  //   if (recognition && !isListening) {
+  //     try {
+  //       recognition.start();
+  //       setIsListening(true);
+  //       console.log("🎤 Speech recognition restarted after AI finished speaking.");
+  //     } catch (e) {
+  //       console.error("Failed to restart recognition:", e);
+  //     }
+  //   }
+  // };
+
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        console.log('Audio playback started successfully');
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error playing audio:', error);
+        setIsLoading(false);
+
+        // Fallback: try DOM audio element
+        const audioElement = document.createElement('audio');
+        audioElement.src = finalUrl;
+        audioElement.controls = false;
+        audioElement.style.display = 'none';
+        document.body.appendChild(audioElement);
+
+        audioElement.onended = () => {
+          document.body.removeChild(audioElement);
+          setIsLoading(false);
+        };
+
+        audioElement.play().catch(e => {
+          console.error('Alternative audio playback failed:', e);
+        });
+      });
+  }
+};
+
 
   const toggleCaptions = () => {
     setShowCaptions(!showCaptions)
@@ -1581,8 +1829,8 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6">
-              {isLoading ? (
+            {/* <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6">
+              {/* {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
                   <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -1593,7 +1841,7 @@ useEffect(() => {
                 {isLoading ? "AI is responding..." :
                   isListening ? "Listening... Click Stop when done" :
                     "Click speak to start speaking"}
-              </p>
+              </p> */}
 
               {/* <div className="flex justify-center gap-4">
                 <button
@@ -1779,8 +2027,9 @@ useEffect(() => {
                         {isListening ? "End Session" : "Start Session"}
                       </button>
                     </div> */}
-              <div className="flex justify-center gap-4">
-                  {!isListening && (
+              {/* <div className="flex justify-center gap-4"> */}
+              
+                  {/* {!isListening && (
                     <button
                       onClick={handleStartSession}
                       className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
@@ -1792,9 +2041,9 @@ useEffect(() => {
                     >
                       Start Session
                     </button>
-                  )}
+                  )} */}
 
-                  {isListening && (
+                  {/* {isListening && (
                     <button
                       onClick={handleEndSession}
                       className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
@@ -1806,18 +2055,20 @@ useEffect(() => {
                     >
                       End Session
                     </button>
-                  )}
-                </div>
+                  )} */}
+                {/* </div> */}
 
 
 
 
-              {transcript && (
+              {/* {transcript && (
                 <div className="mt-4 p-3 bg-gray-700 bg-opacity-50 rounded-md max-h-32 overflow-y-auto">
                   <p className="text-white text-sm">{transcript}</p>
                 </div>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
+            
+
           </div>
         </div>
       </div>
@@ -1912,8 +2163,10 @@ function MockPitching({ onBack, loading  }) {
   const [showReportPage, setShowReportPage] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [sessionId, setSessionId] = useState(null)
+  const sessionIdRef = useRef(null);
   const [analysis, setAnalysis] = useState(null);
   const navigate = useNavigate();
+
   const filteredInvestors = investors.filter(investor =>
   investor.name.toLowerCase().includes(searchQuery.toLowerCase())
 );
@@ -2009,6 +2262,11 @@ function MockPitching({ onBack, loading  }) {
         setIsInVideoCall(true)
         setIsCallActive(false)
         setShowFullCallInterface(false)
+
+        // setTimeout(() => {
+        //   const evt = new Event('startSessionTrigger');
+        //   window.dispatchEvent(evt);
+        // }, 100);
 
         // Complete transition
         setTimeout(() => {
@@ -2244,7 +2502,9 @@ function MockPitching({ onBack, loading  }) {
       isTransitioning={isTransitioning}
       sessionId={sessionId}
       setSessionId={setSessionId}
+      sessionIdRef={sessionIdRef} 
       profileData={profileData}
+      personaKey={getPersonaKey(callingInvestor)}
     />
   }
 
@@ -2547,7 +2807,7 @@ function MockPitching({ onBack, loading  }) {
                             color: "#FFF",
                             fontFamily: "Inter",
                             fontSize: "1rem",
-                            fontWeight: "500",
+                            fontWeight: 500,
                             marginBottom: "0rem",
                           }}
                         >
@@ -3064,6 +3324,13 @@ function MockPitching({ onBack, loading  }) {
       </div>
     </div>
   )
+}
+
+// Helper to extract personaKey from investor object
+function getPersonaKey(investor) {
+  if (!investor || !investor.tags) return "skeptical";
+  const tag = investor.tags.find(t => t.type === "brown");
+  return tag ? tag.text : "skeptical";
 }
 
 export default MockPitching
