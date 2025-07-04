@@ -103,8 +103,10 @@ function CallEndedScreen({ onReturnHome, onViewReport }) {
 
 function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = false, profileData }) {
   const [isMuted, setIsMuted] = useState(false)
-  const [isVideoOff, setIsVideoOff] = useState(false)
+  const [isVideoOff, setIsVideoOff] = useState(true)
   const [hasMediaPermissions, setHasMediaPermissions] = useState(false)
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
 
   // Request media permissions when component mounts
   useEffect(() => {
@@ -113,10 +115,37 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
     }
   }, [showFullInterface])
 
+  // Handle camera stream
+  useEffect(() => {
+    if (!isVideoOff && showFullInterface) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(stream => {
+          streamRef.current = stream
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream
+          }
+        })
+        .catch(err => console.error('Camera access denied:', err))
+    } else {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop())
+        streamRef.current = null
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null
+      }
+    }
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop())
+      }
+    }
+  }, [isVideoOff, showFullInterface])
+
   // Function to request media permissions
   const requestMediaPermissions = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
       setHasMediaPermissions(true)
       // Stop the stream since we're just checking permissions
       stream.getTracks().forEach(track => track.stop())
@@ -191,55 +220,93 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
             }}
           >
-            <div className="w-full h-full flex items-center justify-center">
-              <img
-                src={investor?.image || "/api/placeholder/150/150"}
-                alt={investor?.name || "Investor"}
-                className="rounded-full object-cover"
-                style={{
-                  width: "9.375rem",
-                  height: "9.375rem",
-                }}
-                onError={(e) => {
-                  e.target.style.display = "none"
-                  e.target.nextSibling.style.display = "flex"
-                }}
-              />
+            {!isVideoOff ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                <div
+                  className="absolute top-4 left-4 px-3 py-1"
+                  style={{
+                    color: "#FFF",
+                    fontFamily: "Inter",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    background: "rgba(0, 0, 0, 0.5)",
+                    borderRadius: "0.25rem",
+                  }}
+                >
+                  {profileData?.accountName && profileData?.companyName 
+                    ? `${profileData.accountName} | ${profileData.companyName}`
+                    : "User | Company"}
+                </div>
+              </>
+            ) : (
+              <>
+                <div
+                  className="absolute top-4 left-4 px-3 py-1"
+                  style={{
+                    color: "#FFF",
+                    fontFamily: "Inter",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    background: "rgba(0, 0, 0, 0.5)",
+                    borderRadius: "0.25rem",
+                  }}
+                >
+                  {profileData?.accountName && profileData?.companyName 
+                    ? `${profileData.accountName} | ${profileData.companyName}`
+                    : "User | Company"}
+                </div>
+                <div className="w-full h-full flex items-center justify-center">
+                  <img
+                    src={investor?.image || "/api/placeholder/150/150"}
+                    alt={investor?.name || "Investor"}
+                    className="rounded-full object-cover"
+                    style={{
+                      width: "9.375rem",
+                      height: "9.375rem",
+                    }}
+                    onError={(e) => {
+                      e.target.style.display = "none"
+                      e.target.nextSibling.style.display = "flex"
+                    }}
+                  />
+                  <div
+                    className="rounded-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
+                    style={{
+                      display: "none",
+                      width: "9.375rem",
+                      height: "9.375rem",
+                    }}
+                  >
+                    {profileData?.accountName?.charAt(0) || "U"}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {isVideoOff && (
               <div
-                className="rounded-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
+                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2"
                 style={{
-                  display: "none",
-                  width: "9.375rem",
-                  height: "9.375rem",
+                  color: "#FFF",
+                  fontFamily: "Inter",
+                  fontSize: "1rem",
+                  fontWeight: 500,
                 }}
               >
-                {profileData?.accountName?.charAt(0) || "U"}
+                Calling...
               </div>
-            </div>            <div
-              className="absolute top-4 left-4 px-3 py-1"
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-              }}
-            >
-              {profileData?.accountName && profileData?.companyName 
-                ? `${profileData.accountName} | ${profileData.companyName}`
-                : "User | Company"}
-            </div>
-
-            <div
-              className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2"
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 500,
-              }}
-            >
-              Calling...
-            </div>
+            )}
 
             <div className="absolute bottom-4 left-4 flex gap-2">
               <button
@@ -1631,23 +1698,21 @@ if (!socket || !socket.connected) {
             background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
           }}
         >
-          {/* Name and company above camera - only when speaking */}
-          {isSpeaking && (
-            <div
-              className="absolute top-6 left-6 px-4 py-2"
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                zIndex: 10,
-              }}
-            >
-              {profileData?.accountName && profileData?.companyName
-                ? `${profileData.accountName} | ${profileData.companyName}`
-                : "User | Company"}
-            </div>
-          )}
+          {/* Founder name and company - always visible at top */}
+          <div
+            className="absolute top-6 left-6 px-4 py-2"
+            style={{
+              color: "#FFF",
+              fontFamily: "Inter",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              zIndex: 10,
+            }}
+          >
+            {profileData?.accountName && profileData?.companyName
+              ? `${profileData.accountName} | ${profileData.companyName}`
+              : "Founder | Startup"}
+          </div>
           
           {/* Video control button - always visible */}
           <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
@@ -1784,6 +1849,7 @@ if (!socket || !socket.connected) {
             background: "linear-gradient(180deg, #9F67FF 0%, #0F0F0F 100%), #C4C4C4",
           }}
         >
+          {/* Investor name and type - always visible at top */}
           <div
             className="absolute top-6 left-6 px-4 py-2"
             style={{
@@ -1793,7 +1859,7 @@ if (!socket || !socket.connected) {
               fontWeight: 500,
             }}
           >
-            Persona One | Example Capital
+            {investor?.name || "Persona One"} | {investor?.role || "Venture Capitalist"}
           </div>
 
           <div className="w-full h-full flex items-center justify-center flex-col">
