@@ -1829,7 +1829,7 @@ if (!socket || !socket.connected) {
               </div>
             </div>
 
-            {/* <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6">
+            {/* <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6"> */}
               {/* {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
@@ -2067,8 +2067,6 @@ if (!socket || !socket.connected) {
                 </div>
               )} */}
             {/* </div> */}
-            
-
           </div>
         </div>
       </div>
