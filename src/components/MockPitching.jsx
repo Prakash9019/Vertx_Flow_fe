@@ -436,7 +436,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
   )
 }
 
-function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId, profileData }) {
+function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sessionId, setSessionId, profileData, personaKey }) {
   const [callDuration, setCallDuration] = useState(0)
   const [showCaptions, setShowCaptions] = useState(false)
   const [captionLines, setCaptionLines] = useState(["", ""])
@@ -525,7 +525,7 @@ function VideoCallInterface({ investor, onEndCall, isTransitioning = false, sess
   if (socketRef.current && sessionId) {
     socketRef.current.emit('text_message', {
       text: 'start conversation',
-      persona: 'skeptical',
+      persona: personaKey || 'skeptical',
       session_id: sessionId,
       system: 'workflow'
     });
@@ -783,101 +783,99 @@ useEffect(() => {
 
     
   useEffect(() => {
-  const initSession = async () => {
-    let socket;
+    const initSession = async () => {
+      let socket;
 
-    try {
-      const uniqueSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const res = await fetch('https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          persona: 'skeptical',
-          system: 'workflow',
-          session_id: uniqueSessionId
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error("Failed to start session");
-
-      setSessionId(uniqueSessionId);
-      console.log('✅ Session started with ID:', uniqueSessionId);
-
-      socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
-        transports: ['websocket'],
-        reconnection: true,
-        reconnectionAttempts: 10,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 20000,
-      });
-
-      socketRef.current = socket;
-
-      socket.on('connect', () => {
-        console.log('✅ Connected to AI server');
-
-        // Emit session_started
-        socket.emit('session_started', {
-          session_id: uniqueSessionId,
-          persona: 'skeptical',
-          system: 'workflow'
+      try {
+        const uniqueSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const res = await fetch('https://ai-mock-pitching-427457295403.europe-west1.run.app/api/pitch/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            persona: personaKey || 'skeptical',
+            system: 'workflow',
+            session_id: uniqueSessionId
+          })
         });
-        console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
 
-        // Emit video analysis only after connected
-        socket.emit('start_video_analysis', { session_id: uniqueSessionId });
-        console.log('📸 Emitted start_video_analysis');
-      });
+        const data = await res.json();
+        if (!res.ok) throw new Error("Failed to start session");
 
-      // socket.emit('text_message', {
-      //     text: 'start conversation',  // Or a specific trigger like "start"
-      //     persona: 'skeptical',
-      //     session_id: uniqueSessionId,
-      //     system: 'workflow'
-      //   });
+        setSessionId(uniqueSessionId);
+        console.log('✅ Session started with ID:', uniqueSessionId);
 
-      //   console.log('🤖 Sent initial message to AI to start conversation');
-
-      // Re-emit session_started on reconnect
-      socket.on('reconnect', () => {
-        console.log('🔁 Reconnected');
-        socket.emit('session_started', {
-          session_id: uniqueSessionId,
-          persona: 'skeptical',
-          system: 'workflow'
+        socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
+          transports: ['websocket'],
+          reconnection: true,
+          reconnectionAttempts: 10,
+          reconnectionDelay: 1000,
+          reconnectionDelayMax: 5000,
+          timeout: 20000,
         });
-        console.log('📨 Re-emitted session_started on reconnect');
-      });
 
-      // CLEAN old listeners first
-      socket.off('response');
-      socket.on('response', (data) => {
-        console.log('🧠 AI response:', data);
-        if (recognition) {
-          try {
-            recognition.stop();
-          } catch (_) { }
-        }
+        socketRef.current = socket;
 
-        if (data.audio_url) {
-          const fullAudioUrl = data.audio_url.startsWith('http')
-            ? data.audio_url
-            : `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url.startsWith('/') ? '' : '/'}${data.audio_url}`;
-          playAudio(fullAudioUrl);
-        } else {
-          console.warn('⚠️ No audio URL in response');
-          setIsLoading(false);
-        }
+        socket.on('connect', () => {
+          console.log('✅ Connected to AI server');
 
-        if (data.message && showCaptions) {
-          updateCaptionLines(data.message);
-        }
-      });
+          // Emit session_started
+          socket.emit('session_started', {
+            session_id: uniqueSessionId,
+            persona: personaKey || 'skeptical',
+            system: 'workflow'
+          });
+          console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
 
-      socket.off('disconnect');
-      socket.on('disconnect', (reason) => {
+          // Emit video analysis only after connected
+          socket.emit('start_video_analysis', { session_id: uniqueSessionId });
+          console.log('📸 Emitted start_video_analysis');
+        });
+
+        // socket.emit('text_message', {
+        //     text: 'start conversation',  // Or a specific trigger like "start"
+        //     persona: 'skeptical',
+        //     session_id: uniqueSessionId,
+        //     system: 'workflow'
+        //   });
+
+        //   console.log('🤖 Sent initial message to AI to start conversation');
+
+        // Re-emit session_started on reconnect
+        socket.on('reconnect', () => {
+          socket.emit('session_started', {
+            session_id: uniqueSessionId,
+            persona: personaKey || 'skeptical',
+            system: 'workflow'
+          });
+        });
+
+        // CLEAN old listeners first
+        socket.off('response');
+        socket.on('response', (data) => {
+          console.log('🧠 AI response:', data);
+          if (recognition) {
+            try {
+              recognition.stop();
+            } catch (_) { }
+          }
+
+          if (data.audio_url) {
+            const fullAudioUrl = data.audio_url.startsWith('http')
+              ? data.audio_url
+              : `https://ai-mock-pitching-427457295403.europe-west1.run.app${data.audio_url.startsWith('/') ? '' : '/'}${data.audio_url}`;
+            playAudio(fullAudioUrl);
+          } else {
+            console.warn('⚠️ No audio URL in response');
+            setIsLoading(false);
+          }
+
+          if (data.message && showCaptions) {
+            updateCaptionLines(data.message);
+          }
+        });
+
+        socket.off('disconnect');
+        socket.on('disconnect', (reason) => {
   console.warn('❌ Socket disconnected:', reason);
 
   if (reason === 'io server disconnect') {
@@ -946,7 +944,7 @@ useEffect(() => {
   };
 
   initSession();
-}, []);
+}, [personaKey]);
 
 
 
@@ -1033,10 +1031,10 @@ useEffect(() => {
 
     const messageData = {
       text: text.trim(),
-      persona: 'skeptical', // Use a specific persona ID that exists on the server
+      persona: personaKey || 'skeptical',
       session_id: sessionId,
       system: 'workflow'
-    }
+    };
 
     console.log('Sending message to AI:', messageData)
 
@@ -2245,6 +2243,7 @@ function MockPitching({ onBack, loading  }) {
       sessionId={sessionId}
       setSessionId={setSessionId}
       profileData={profileData}
+      personaKey={getPersonaKey(callingInvestor)}
     />
   }
 
@@ -2547,7 +2546,7 @@ function MockPitching({ onBack, loading  }) {
                             color: "#FFF",
                             fontFamily: "Inter",
                             fontSize: "1rem",
-                            fontWeight: "500",
+                            fontWeight: 500,
                             marginBottom: "0rem",
                           }}
                         >
@@ -3064,6 +3063,13 @@ function MockPitching({ onBack, loading  }) {
       </div>
     </div>
   )
+}
+
+// Helper to extract personaKey from investor object
+function getPersonaKey(investor) {
+  if (!investor || !investor.tags) return "skeptical";
+  const tag = investor.tags.find(t => t.type === "brown");
+  return tag ? tag.text : "skeptical";
 }
 
 export default MockPitching
