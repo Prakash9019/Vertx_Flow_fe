@@ -94,7 +94,7 @@ function EvaluateReport_page() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   // No need for cleanup since we're not using sessionStorage anymore
-  const companyName = reportData?.overview?.company_name;
+  const companyName = reportData?.overview?.companyName;
   const tabsArray = ["Analysis", "Overview", "Suggestions"];
 
   // If no report data, don't render the page content

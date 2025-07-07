@@ -291,8 +291,8 @@ function Step2({ cb }) {
     setLoad(true);
   
     const data = {
-      founder_name: "Surya",             // You may want to make this dynamic
-      company_name: company,
+      accountname: "Surya",             // You may want to make this dynamic
+      companyName: company,
       what_building: description,           // Map appropriately
       industry: industry,
       sectors: sectors,
@@ -785,10 +785,10 @@ function Step3() {
                 onChange={(e) => {
                   if (e.target.checked) {
                     setCount(count + 1);
-                    setSelected([...selected, match.company_name]);
+                    setSelected([...selected, match.companyName]);
                   } else {
                     setSelected(
-                      selected.filter((sel) => sel != match.company_name)
+                      selected.filter((sel) => sel != match.companyName)
                     );
                     if (count <= 0) {
                       setCount(0);

@@ -8,7 +8,7 @@ const InvestorsPitch = () => {
   const navigate = useNavigate();
   const {
     startupData, updateStartupField, submitStartupProfile,
-    isSubmitting, error, setError, successMessage, loadingData,
+    isSubmitting, error, setError, loadingData,
   } = useStartupProfile();
   const [currentPitch, setCurrentPitch] = useState('');
 
@@ -29,14 +29,16 @@ const InvestorsPitch = () => {
       return;
     }
     setError(null);
+    
+    // Save profile and redirect after a brief delay to ensure backend processing
+    // The AI analysis will run in background as part of submitStartupProfile
     const success = await submitStartupProfile();
     if (success) {
-      setTimeout(() => navigate("/usage"), 1500);
+      // Add a small delay to ensure backend has processed the data
+      setTimeout(() => {
+        navigate("/homepage");
+      }, 500);
     }
-  };
-
-  const handleBack = () => {
-    navigate("/profile/industry");
   };
 
   if (loadingData && !startupData.stage) {
