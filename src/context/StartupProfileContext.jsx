@@ -174,17 +174,20 @@ export const StartupProfileProvider = ({ children }) => {
         });
       }
       
-      // Automatically trigger AI analysis after successful profile save (fire-and-forget)
-      // This runs in background and doesn't block the user flow
+      // Trigger AI analysis immediately after successful profile save
+      // This is critical for ensuring analysis is ready when user reaches FindInvestors page
       if (user_id) {
         console.log('Triggering AI analysis for user:', user_id);
-        axios.get(`${API_KEY}/api/ai-model-profile/${user_id}/ai-match`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }).then(() => {
-          console.log('AI analysis completed successfully');
-        }).catch(aiError => {
+        try {
+          const aiResponse = await axios.get(`${API_KEY}/api/ai-model-profile/${user_id}/ai-match`, {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30000 // 30 second timeout for AI analysis
+          });
+          console.log('AI analysis completed successfully:', aiResponse.data ? 'Data received' : 'No data');
+        } catch (aiError) {
           console.warn('AI analysis failed but profile was saved:', aiError.response?.data || aiError.message);
-        });
+          // Don't fail the entire operation if AI analysis fails
+        }
       }
       
       return true;
@@ -225,6 +228,7 @@ export const StartupProfileProvider = ({ children }) => {
       user_id,
       startupId,
       isSubmitting,
+      setIsSubmitting,
       error,
       successMessage,
       fetchStartupData,
