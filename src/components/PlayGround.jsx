@@ -42,7 +42,7 @@ function PlayGround() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 h-screen overflow-scroll md:overflow-hidden">
+      <div className="flex-1 h-screen overflow-scroll ">
         <div 
           className="pl-7 md:pl-[2.8rem] pr-7 md:pr-[2.8rem] pt-12 md:pt-20 pb-15 md:pb-24 h-full flex flex-col gap-2 md:gap-4">
           {/* Hero Section */}
@@ -73,7 +73,7 @@ function PlayGround() {
             className="grid grid-cols-1 md:grid-cols-3 gap-[0.8rem] flex-none">
             {/* Mock Pitching Card */}
             <div 
-              className="relative max-h-[200px] min-w-full md:max-h-full rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
+              className="relative max-h-[200px] min-w-full md:max-h-full rounded-lg  bg-cover bg-center aspect-[4/3]"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${MockPitchingImage}")`
               }}>
@@ -104,7 +104,7 @@ function PlayGround() {
 
             {/* Deck Generation Card */}
             <div
-              className="relative rounded-lg max-h-[200px] min-w-full md:max-h-full overflow-hidden bg-cover bg-center aspect-[4/3]"
+              className="relative rounded-lg max-h-[200px] min-w-full md:max-h-full  bg-cover bg-center aspect-[4/3]"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${DeckGeneration}")`
               }}
@@ -136,7 +136,7 @@ function PlayGround() {
 
             {/* Mock Outreach Card */}
             <div
-              className="relative max-h-[240px] min-w-full md:max-h-full rounded-lg overflow-hidden bg-cover bg-center aspect-[4/3]"
+              className="relative max-h-[240px] min-w-full md:max-h-full rounded-lg  bg-cover bg-center aspect-[4/3]"
               style={{
                 backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url("${MockOutreach}")`
               }}
