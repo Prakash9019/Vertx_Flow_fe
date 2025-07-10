@@ -40,6 +40,8 @@ function Usage_Page() {
       navigate("/");
       alert("Select a role and options");
     } else {
+      // Set onboarding flag so user is not sent back to /usage again
+      localStorage.setItem('vertx_onboarding_role_complete', 'true');
       navigate("/addfounder");
     }
   };

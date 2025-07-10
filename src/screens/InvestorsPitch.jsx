@@ -44,63 +44,45 @@ const InvestorsPitch = () => {
       }
 
       // Wait for AI analysis to complete before redirecting
-      console.log('Profile saved, starting AI analysis...');
       setProcessingStatus('Analyzing your profile with AI...');
-      
-      // Give a moment for the backend to process, then check AI status
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Check AI analysis status and wait for completion
       let analysisComplete = false;
       let attempts = 0;
-      const maxAttempts = 30; // Wait up to 60 seconds (30 * 2 seconds)
-      
+      const maxAttempts = 30;
       while (!analysisComplete && attempts < maxAttempts) {
         try {
           setProcessingStatus(`Finding your best investor matches... (${attempts + 1}/${maxAttempts})`);
-          
           const token = localStorage.getItem('authToken');
           const response = await fetch(`${API_KEY}/api/investors/ai-status/${user_id}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
           });
-          
           if (response.ok) {
             const data = await response.json();
-            console.log('AI Analysis Status:', data);
-            
             if (data.isComplete && data.matchCount > 0) {
               analysisComplete = true;
               setProcessingStatus(`Found ${data.matchCount} investor matches! Redirecting...`);
-              console.log(`AI analysis complete! Found ${data.matchCount} matches`);
             } else {
-              console.log(`AI analysis in progress... (attempt ${attempts + 1}/${maxAttempts})`);
               await new Promise(resolve => setTimeout(resolve, 2000));
             }
           } else {
-            console.warn('Failed to check AI analysis status, proceeding anyway');
             break;
           }
-        } catch (error) {
-          console.warn('Error checking AI analysis status:', error);
+        } catch {
           break;
         }
         attempts++;
       }
-      
-      if (analysisComplete) {
-        console.log('AI analysis completed, redirecting to homepage');
-      } else {
-        console.log('AI analysis taking longer than expected, redirecting anyway');
-        setProcessingStatus('Analysis taking longer than expected, redirecting...');
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause to show success message
-      navigate("/homepage");
-      
-    } catch (error) {
-      console.error('Error during profile submission:', error);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Onboarding flow logic:
+      // Only check onboarding flag and route accordingly
+      // Always force /usage for every new user after pitch
+      localStorage.removeItem('vertx_onboarding_role_complete');
+      navigate("/usage");
+      return;
+    } catch {
       setError("An error occurred while saving your profile. Please try again.");
     } finally {
       setIsSubmitting(false);
