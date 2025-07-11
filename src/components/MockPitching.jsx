@@ -244,9 +244,13 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                     borderRadius: "0.25rem",
                   }}
                 >
-                  {profileData?.accountName && profileData?.companyName 
-                    ? `${profileData.accountName} | ${profileData.companyName}`
-                    : "User | Company"}
+                  {profileData && profileData.accountname && profileData.companyName 
+                    ? `${profileData.accountname} | ${profileData.companyName}`
+                    : profileData && profileData.accountname 
+                      ? `${profileData.accountname} | Company` 
+                      : profileData && profileData.companyName 
+                        ? `User | ${profileData.companyName}` 
+                        : "User | Company"}
                 </div>
               </>
             ) : (
@@ -262,9 +266,13 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                     borderRadius: "0.25rem",
                   }}
                 >
-                  {profileData?.accountName && profileData?.companyName 
-                    ? `${profileData.accountName} | ${profileData.companyName}`
-                    : "User | Company"}
+                  {profileData && profileData.accountname && profileData.companyName 
+                    ? `${profileData.accountname} | ${profileData.companyName}`
+                    : profileData && profileData.accountname 
+                      ? `${profileData.accountname} | Company` 
+                      : profileData && profileData.companyName 
+                        ? `User | ${profileData.companyName}` 
+                        : "User | Company"}
                 </div>
                 <div className="w-full h-full flex items-center justify-center">
                   <img
@@ -288,7 +296,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                       height: "9.375rem",
                     }}
                   >
-                    {profileData?.accountName?.charAt(0) || "U"}
+                    {profileData?.accountname?.charAt(0) || "U"}
                   </div>
                 </div>
               </>
@@ -1709,9 +1717,13 @@ if (!socket || !socket.connected) {
               zIndex: 10,
             }}
           >
-            {profileData?.accountName && profileData?.companyName
-              ? `${profileData.accountName} | ${profileData.companyName}`
-              : "Founder | Startup"}
+            {profileData && profileData.accountname && profileData.companyName
+              ? `${profileData.accountname} | ${profileData.companyName}`
+              : profileData && profileData.accountname
+                ? `${profileData.accountname} | Startup`
+                : profileData && profileData.companyName
+                  ? `Founder | ${profileData.companyName}`
+                  : "Founder | Startup"}
           </div>
           
           {/* Video control button - always visible */}
@@ -1832,7 +1844,7 @@ if (!socket || !socket.connected) {
                       className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
                       style={{ display: "none" }}
                     >
-                      {profileData?.accountName?.charAt(0) || "U"}
+                      {profileData?.accountname?.charAt(0) || "U"}
                     </div>
                   </div>
                 </div>
