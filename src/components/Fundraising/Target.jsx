@@ -740,7 +740,7 @@ export default function Target({ onListSelect }) {
                     placeholder="Emails, comma separated"
                     className="flex-1 bg-black text-white px-4 border-none outline-none placeholder-gray-400 h-9 rounded-[0.125rem] font-['Inter'] text-xs font-normal"
                   />
-                  <button className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center w-[6.75rem] h-9 rounded-[0.125rem] font-['Inter'] text-sm font-medium text-center">
+                  <button className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center w-[6.75rem] h-9 rounded-[0.125rem] font-['Inter'] text-sm  text-center">
                     Invite
                   </button>
                 </div>
@@ -808,7 +808,7 @@ export default function Target({ onListSelect }) {
               <div className="flex justify-end pt-4">
                 <button
                   onClick={() => setShowSettings(false)}
-                  className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center rounded-[0.125rem] w-20 h-8 text-center font-['Inter'] text-sm font-medium"
+                  className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center rounded-[0.125rem] w-20 h-8 text-center font-['Inter'] text-sm "
                 >
                   Save
                 </button>
