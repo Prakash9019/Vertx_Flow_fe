@@ -1773,7 +1773,7 @@ if (!socket || !socket.connected) {
       <img
         src={EndCallIcon}
         alt="End Call Icon"
-        className="w-3 h-3 sm:w-3.5 h-3.5"
+        className="w-3 sm:w-3.5 h-3.5"
       />
       End Call
     </button>
