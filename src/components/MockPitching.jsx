@@ -34,6 +34,11 @@ import {
   Video,
   VideoOff,
   Captions,
+  Play,
+  Plus,
+  Gauge,
+  SlidersHorizontal,
+  ArrowLeft,
 } from "lucide-react"
 
 // Import the new CallReportPage component
@@ -203,172 +208,80 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{
-        background: "rgba(0, 0, 0, 0.9)",
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
     >
-      <div className="w-full h-full flex">
-        <div className="flex-1 flex items-center justify-center relative">
+      <div className="w-full h-full flex flex-col lg:flex-row">
+        <div className="flex-1 flex items-center justify-center relative p-4 sm:p-8">
           <div
-            className="relative transition-all duration-500 ease-in-out"
-            style={{
-              width: "40rem",
-              height: "22.5rem",
-              borderRadius: "0.625rem",
-              overflow: "hidden",
-              background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
-            }}
+            className="relative transition-all duration-500 ease-in-out w-full max-w-[40rem] h-auto aspect-video sm:w-[40rem] sm:h-[22.5rem] rounded-xl overflow-hidden bg-gradient-to-b from-[#1C60CE] to-[#0F0F0F]"
           >
-            {!isVideoOff ? (
-              <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-                <div
-                  className="absolute top-4 left-4 px-3 py-1"
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    background: "rgba(0, 0, 0, 0.5)",
-                    borderRadius: "0.25rem",
-                  }}
-                >
-                  {profileData && profileData.accountname && profileData.companyName 
-                    ? `${profileData.accountname} | ${profileData.companyName}`
-                    : profileData && profileData.accountname 
-                      ? `${profileData.accountname} | Company` 
-                      : profileData && profileData.companyName 
-                        ? `User | ${profileData.companyName}` 
-                        : "User | Company"}
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  className="absolute top-4 left-4 px-3 py-1"
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    background: "rgba(0, 0, 0, 0.5)",
-                    borderRadius: "0.25rem",
-                  }}
-                >
-                  {profileData && profileData.accountname && profileData.companyName 
-                    ? `${profileData.accountname} | ${profileData.companyName}`
-                    : profileData && profileData.accountname 
-                      ? `${profileData.accountname} | Company` 
-                      : profileData && profileData.companyName 
-                        ? `User | ${profileData.companyName}` 
-                        : "User | Company"}
-                </div>
-                <div className="w-full h-full flex items-center justify-center">
-                  <img
-                    src={investor?.image || "/api/placeholder/150/150"}
-                    alt={investor?.name || "Investor"}
-                    className="rounded-full object-cover"
-                    style={{
-                      width: "9.375rem",
-                      height: "9.375rem",
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = "none"
-                      e.target.nextSibling.style.display = "flex"
-                    }}
-                  />
-                  <div
-                    className="rounded-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
-                    style={{
-                      display: "none",
-                      width: "9.375rem",
-                      height: "9.375rem",
-                    }}
-                  >
-                    {profileData?.accountname?.charAt(0) || "U"}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {isVideoOff && (
-              <div
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2"
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "1rem",
-                  fontWeight: 500,
+            <div className="w-full h-full flex items-center justify-center">
+              <img
+                src={investor?.image || "/api/placeholder/150/150"}
+                alt={investor?.name || "Investor"}
+                className="rounded-full object-cover w-24 h-24 sm:w-[9.375rem] sm:h-[9.375rem]"
+                onError={(e) => {
+                  e.target.style.display = "none"
+                  e.target.nextSibling.style.display = "flex"
                 }}
+              />
+              <div
+                className="rounded-full bg-gray-600 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold w-24 h-24 sm:w-[9.375rem] sm:h-[9.375rem] hidden"
               >
-                Calling...
+                {"P"}
               </div>
-            )}
+            </div>
+            <div
+              className="absolute top-4 left-4 px-3 py-1 text-white font-inter text-sm font-medium"
+            >
+              {profileData?.accountName && profileData?.companyName
+                ? `${profileData.accountName} | ${profileData.companyName}`
+                : "User | Company"}
+            </div>
+
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 text-white font-inter text-base font-medium"
+            >
+              Calling...
+            </div>
 
             <div className="absolute bottom-4 left-4 flex gap-2">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
-                style={{
-                  width: "3.125rem",
-                  height: "3.125rem",
-                  background: "transparent",
-                  borderWidth: "1px",
-                  borderColor: "#FFF",
-                }}
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-white"
               >
                 {isMuted ? (
                   <img
                     src={MicOffIcon}
                     alt="Mic Off"
-                    style={{ width: "1.5rem", height: "1.5rem" }}
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 ) : (
                   <img
                     src={MicIcon}
                     alt="Mic On"
-                    style={{ width: "1.5rem", height: "1.5rem" }}
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 )}
               </button>
-
             </div>
 
             <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
               <button
-                onClick={() => setIsVideoOff(v => !v)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
-                style={{
-                  width: "3.5rem",
-                  height: "3.5rem",
-                  background: "transparent",
-                  borderWidth: "1px",
-                  borderColor: "#FFF",
-                }}
-                aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
+                onClick={() => setIsVideoOff(!isVideoOff)}
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-white"
               >
                 {isVideoOff ? (
                   <img
                     src={VideoOffIcon}
                     alt="Video Off"
-                    style={{ width: "1.5rem", height: "1.5rem" }}
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 ) : (
                   <img
                     src={VideoIcon}
                     alt="Video On"
-                    style={{ width: "1.5rem", height: "1.5rem" }}
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 )}
               </button>
@@ -377,34 +290,18 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
         </div>
 
         <div
-          className="flex flex-col items-center justify-center transition-all duration-500 ease-in-out"
-          style={{
-            width: "33rem",
-            height: "100vh",
-            background: "rgba(0, 0, 0, 0.8)",
-            padding: "2rem 1rem",
-          }}
+          className="w-full lg:w-[33rem] h-auto lg:h-screen flex flex-col items-center justify-center transition-all duration-500 ease-in-out bg-black bg-opacity-80 p-4 sm:p-8"
         >
-          <div className="text-center mb-8">
+          <div className="text-center mb-4 sm:mb-8 ">
             <h2
-              className="mb-4"
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1.5rem",
-                fontWeight: 500,
-              }}
+              className="mb-2 sm:mb-4 text-white font-inter text-xl sm:text-2xl font-medium"
             >
               Ready to join?
             </h2>
 
             <div className="flex justify-center mb-4">
               <div
-                className="rounded-full overflow-hidden bg-gray-600"
-                style={{
-                  width: "2.5rem",
-                  height: "2.5rem",
-                }}
+                className="rounded-full overflow-hidden bg-gray-600 w-8 h-8 sm:w-10 sm:h-10"
               >
                 <img
                   src={investor?.image || "/api/placeholder/40/40"}
@@ -416,8 +313,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                   }}
                 />
                 <div
-                  className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold"
-                  style={{ display: "none" }}
+                  className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-base font-bold hidden"
                 >
                   {investor?.name?.charAt(0) || "P"}
                 </div>
@@ -425,13 +321,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             </div>
 
             <p
-              className="mb-8"
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "1rem",
-                fontWeight: 500,
-              }}
+              className="mb-4 sm:mb-8 text-white font-inter text-sm sm:text-base font-medium"
             >
               {investor?.name || "Persona One"} is in this call
             </p>
@@ -439,18 +329,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             <div className="space-y-3 w-full flex flex-col items-center">
               <button
                 onClick={onJoinCall}
-                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-                style={{
-                  width: "15rem",
-                  height: "3.25rem",
-                  borderRadius: "0.1875rem",
-                  background: "#FFF",
-                  color: "#000",
-                  fontFamily: "Inter",
-                  fontSize: "1rem",
-                  fontWeight: 600,
-                  border: "none",
-                }}
+                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 w-full max-w-[15rem] h-12 sm:h-[3.25rem] rounded-[0.1875rem] bg-white text-black font-inter text-base font-semibold border-none"
               >
                 {hasMediaPermissions ? (
                   <>
@@ -464,18 +343,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               </button>
 
               <button
-                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-                style={{
-                  width: "15rem",
-                  height: "3.25rem",
-                  borderRadius: "0.1875rem",
-                  background: "#0F0E16",
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "1rem",
-                  fontWeight: 500,
-                  border: "1px solid #D9D9D9",
-                }}
+                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-full max-w-[15rem] h-12 sm:h-[3.25rem] rounded-[0.1875rem] bg-[#0F0E16] text-white font-inter text-base font-medium border border-gray-300"
               >
                 Invite Co-founder
               </button>
@@ -484,25 +352,16 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
         </div>
       </div>
 
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-60">
+      {/* END CALL BUTTON - Simplified for consistent centering */}
+      <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-60">
         <button
           onClick={onEndCall}
-          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-          style={{
-            width: "12.5rem",
-            height: "2.5rem",
-            borderRadius: "0.125rem",
-            background: "#E10004",
-            color: "#FFF",
-            fontFamily: "Inter",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-          }}
+          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-[12.5rem] h-10 sm:h-[2.5rem] rounded-[0.125rem] bg-[#E10004] text-white font-inter text-xs font-semibold"
         >
           <img
             src={EndCallIcon}
             alt="End Call Icon"
-            style={{ width: "0.875rem", height: "0.875rem" }}
+            className="w-3.5 h-3.5"
           />
           End Call
         </button>
@@ -1616,612 +1475,310 @@ if (!socket || !socket.connected) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 transition-all duration-700 ease-in-out ${isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
-      style={{
-        background: "#000000",
-        paddingLeft: "4rem",
-        paddingRight: "4rem",
-        paddingTop: topPadding,
-        paddingBottom: "12rem",
-        transition: "padding-top 0.3s ease, opacity 0.7s ease, transform 0.7s ease",
-      }}
+  className={`fixed inset-0 z-50 transition-all duration-700 ease-in-out ${isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"}
+      bg-black px-4 sm:px-8 md:px-16 pb-24 sm:pb-32 md:pb-48
+      ${topPadding}
+      transition-all duration-300 ease-in opacity-700 ease-transform-700`}
+>
+  {showCaptions && (
+    <div
+      className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out pt-4 sm:pt-8"
     >
-      {showCaptions && (
+      <div className="flex items-center gap-1 sm:gap-2 px-3 py-1 sm:px-4 sm:py-2">
         <div
-          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out"
-          style={{ paddingTop: "2rem" }}
+          className="rounded-full overflow-hidden w-6 h-6 sm:w-7.5 sm:h-7.5"
         >
-          <div className="flex items-center gap-2 px-4 py-2">
-            <div
-              className="rounded-full overflow-hidden"
-              style={{
-                width: "1.875rem",
-                height: "1.875rem",
-              }}
-            >
-              <img src="/api/placeholder/30/30" alt="Avatar" className="w-full h-full object-cover" />
-            </div>
-            <span
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-              }}
-            >
-              {currentQuestion}
-            </span>
-          </div>
+          <img src="/api/placeholder/30/30" alt="Avatar" className="w-full h-full object-cover" />
         </div>
-      )}
-
-      {showCaptions && (captionLines[0] || captionLines[1]) && (
-        <div
-          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out"
-          style={{ paddingTop: "6rem" }}
+        <span
+          className="text-white font-inter text-xs sm:text-sm font-medium"
         >
-          <div className="px-6 py-3 max-w-4xl text-center">
-            <div
-              style={{
-                color: "#FFF",
-                textAlign: "center",
-                fontFamily: "Inter",
-                fontSize: "2rem",
-                fontWeight: 300,
-                lineHeight: "1.5",
-              }}
-            >
-              {captionLines[0] && (
-                <div style={{ marginBottom: captionLines[1] ? "0.5rem" : "0" }}>{captionLines[0]}</div>
-              )}
-              {captionLines[1] && <div>{captionLines[1]}</div>}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showCaptions && isListening && (
-        <div className="absolute top-0 right-8 z-10 flex items-center gap-2" style={{ paddingTop: "2rem" }}>
-          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-          <span
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "0.75rem",
-              fontWeight: 400,
-            }}
-          >
-            Listening...
-          </span>
-        </div>
-      )}
-
-      <div className="w-full h-full flex gap-8">
-        {/* LEFT CARD: Show camera feed and profile info */}
-        <div
-          className="flex-1 relative transition-all duration-700 ease-in-out"
-          style={{
-            borderRadius: "0.625rem",
-            overflow: "hidden",
-            background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
-          }}
-        >
-          {/* Founder name and company - always visible at top */}
-          <div
-            className="absolute top-6 left-6 px-4 py-2"
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              zIndex: 10,
-            }}
-          >
-            {profileData && profileData.accountname && profileData.companyName
-              ? `${profileData.accountname} | ${profileData.companyName}`
-              : profileData && profileData.accountname
-                ? `${profileData.accountname} | Startup`
-                : profileData && profileData.companyName
-                  ? `Founder | ${profileData.companyName}`
-                  : "Founder | Startup"}
-          </div>
-          
-          {/* Video control button - always visible */}
-          <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
-            <button
-              onClick={() => setIsVideoOff(v => !v)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border"
-              style={{
-                width: "3.5rem",
-                height: "3.5rem",
-                background: "transparent",
-                borderWidth: "1px",
-                borderColor: "#FFF",
-              }}
-              aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
-            >
-              {isVideoOff ? (
-                <img
-                  src={VideoOffIcon}
-                  alt="Video Off"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              ) : (
-                <img
-                  src={VideoIcon}
-                  alt="Video On"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              )}
-            </button>
-          </div>
-
-          {/* Microphone control button - always visible */}
-          <div className="absolute bottom-4 left-4 flex gap-2" style={{ zIndex: 4 }}>
-            <button
-              onClick={() => setIsMuted(!isMuted)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
-              style={{
-                width: "3.125rem",
-                height: "3.125rem",
-                background: "transparent",
-                borderWidth: "1px",
-                borderColor: "#FFF",
-              }}
-            >
-              {isMuted ? (
-                <img
-                  src={MicOffIcon}
-                  alt="Mic Off"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              ) : (
-                <img
-                  src={MicIcon}
-                  alt="Mic On"
-                  style={{ width: "1.5rem", height: "1.5rem" }}
-                />
-              )}
-            </button>
-          </div>
-          
-          {/* Camera feed */}
-          <div className="w-full h-full flex items-center justify-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={{
-                width: isSpeaking ? "96%" : "100%",
-                height: isSpeaking ? "96%" : "100%",
-                borderRadius: isSpeaking ? "1rem" : "0.625rem",
-                objectFit: "cover",
-                background: "#222",
-                backgroundColor: isVideoOff ? "#222" : undefined,
-                display: isVideoOff ? "none" : "block",
-                transition: "all 0.3s ease-in-out",
-              }}
-            />
-
-            {isVideoOff && (
-              <div
-                className="w-full h-full flex items-center justify-center"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
-                  zIndex: 2,
-                }}
-              >
-                <div
-                  className="flex items-center justify-center rounded-full border-[10px] border-purple-400"
-                  style={{
-                    width: "10.625rem",
-                    height: "10.625rem",
-                  }}
-                >
-                  <div
-                    className="rounded-full overflow-hidden bg-gray-600"
-                    style={{
-                      width: "9.375rem",
-                      height: "9.375rem",
-                    }}
-                  >
-                    <img
-                      src={profileData?.image || "/api/placeholder/150/150"}
-                      alt={profileData?.accountName || "User"}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
-                    />
-                    <div
-                      className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
-                      style={{ display: "none" }}
-                    >
-                      {profileData?.accountname?.charAt(0) || "U"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div
-          className="flex-1 relative transition-all duration-700 ease-in-out flex flex-col"
-          style={{
-            borderRadius: "0.625rem",
-            overflow: "hidden",
-            background: "linear-gradient(180deg, #9F67FF 0%, #0F0F0F 100%), #C4C4C4",
-          }}
-        >
-          {/* Investor name and type - always visible at top */}
-          <div
-            className="absolute top-6 left-6 px-4 py-2"
-            style={{
-              color: "#FFF",
-              fontFamily: "Inter",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-            }}
-          >
-            {investor?.name || "Persona One"} | {investor?.role || "Venture Capitalist"}
-          </div>
-
-          <div className="w-full h-full flex items-center justify-center flex-col">
-            <div
-              className="flex items-center justify-center rounded-full border-[10px] border-purple-400 mb-8"
-              style={{
-                width: "10.625rem",
-                height: "10.625rem",
-              }}
-            >
-              <div
-                className="rounded-full overflow-hidden bg-gray-600"
-                style={{
-                  width: "9.375rem",
-                  height: "9.375rem",
-                }}
-              >
-                <img
-                  src={investor?.image || "/api/placeholder/150/150"}
-                  alt={investor?.name || "Persona One"}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none"
-                    e.target.nextSibling.style.display = "flex"
-                  }}
-                />
-                <div
-                  className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
-                  style={{ display: "none" }}
-                >
-                  {investor?.name?.charAt(0) || "P"}
-                </div>
-              </div>
-            </div>
-
-            {/* <div className="text-center py-4 px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-6"> */}
-              {/* {isLoading ? (
-                <div className="flex items-center justify-center space-x-2 mb-2">
-                  <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
-                  <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-3 h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                </div>
-              ) : null}
-              <p className="text-white mb-4">
-                {isLoading ? "AI is responding..." :
-                  isListening ? "Listening... Click Stop when done" :
-                    "Click speak to start speaking"}
-              </p> */}
-
-              {/* <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-                    if (!SpeechRecognition) {
-                      alert('Speech recognition not supported in this browser')
-                      return
-                    }
-
-                    if (isListening) {
-                      // Stop listening
-                      if (recognition) {
-                        try {
-                          recognition.abort()
-                          recognition.stop()
-                        } catch (e) { }
-                      }
-                      setIsListening(false)
-                    } else {
-                      // Start listening with a new instance
-                      if (recognition) {
-                        try {
-                          recognition.abort()
-                          recognition.stop()
-                        } catch (e) { }
-                      }
-
-                      setTimeout(() => {
-                        try {
-                          const recognitionInstance = new SpeechRecognition()
-                          recognitionInstance.continuous = true
-                          recognitionInstance.interimResults = false
-                          recognitionInstance.lang = 'en-US'
-
-                          recognitionInstance.onresult = (event) => {
-                            const last = event.results.length - 1
-                            const transcript = event.results[last][0].transcript
-                            setTranscript(prev => prev ? prev + ' ' + transcript.trim() : transcript.trim())
-                          }
-
-                          recognitionInstance.onend = () => {
-                            if (isListening) {
-                              try {
-                                recognitionInstance.start()
-                              } catch (e) { }
-                            }
-                          }
-
-                          recognitionInstance.start()
-                          setRecognition(recognitionInstance)
-                          setIsListening(true)
-                        } catch (e) {
-                          console.error('Failed to start recognition:', e)
-                        }
-                      }, 100)
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
-                  style={{
-                    background: isListening ? "#E10004" : "#1C60CE",
-                    color: "white",
-                    fontWeight: "500",
-                    opacity: isLoading ? "0.5" : "1",
-                  }}
-                >
-                  {isListening ? "Stop" : "speak"}
-                </button>
-
-                <button
-                  onClick={() => {
-                    if (transcript) {
-                      sendMessage(transcript)
-                    }
-                  }}
-                  disabled={!transcript || isLoading}
-                  className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
-                  style={{
-                    background: "#AD6FDE",
-                    color: "white",
-                    fontWeight: "500",
-                    opacity: (!transcript || isLoading) ? "0.5" : "1",
-                  }}
-                >
-                  Send
-                </button>
-              </div> */}
-              {/* <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    if (!isListening) {
-                      setIsListening(true);
-                      if (recognition) {
-                        try {
-                          recognition.start();
-                        } catch (e) {
-                          console.error("Recognition start failed", e);
-                        }
-                      }
-                    } else {
-                      setIsListening(false);
-                      if (recognition) {
-                        recognition.stop();
-                      }
-                    }
-                  }}
-                  className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
-                  style={{
-                    background: isListening ? "#E10004" : "#1C60CE",
-                    color: "white",
-                    fontWeight: "500",
-                  }}
-                >
-                  {isListening ? "End Session" : "Start Session"}
-                </button>
-              </div> */}
-              {/* <div className="flex justify-center gap-4">
-                      <button
-                        onClick={() => {
-                          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                          if (!SpeechRecognition) {
-                            alert("Speech recognition is not supported in this browser.");
-                            return;
-                          }
-
-                          if (isListening) {
-                            try {
-                              recognition?.abort();
-                              recognition?.stop();
-                            } catch (e) {
-                              console.warn("Error stopping recognition:", e);
-                            }
-                            setIsListening(false);
-                          } else {
-                            try {
-                              const newRecognition = new SpeechRecognition();
-                              newRecognition.continuous = true;
-                              newRecognition.interimResults = true;
-                              newRecognition.lang = "en-US";
-
-                              newRecognition.onresult = (event) => {
-                                let fullText = "";
-                                for (let i = event.resultIndex; i < event.results.length; i++) {
-                                  fullText += event.results[i][0].transcript;
-                                }
-
-                                setTranscript(fullText.trim());
-
-                                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                                silenceTimerRef.current = setTimeout(() => {
-                                  sendMessage(fullText.trim());
-                                  setTranscript(""); // Clear after sending
-                                }, 4000); // Silence delay
-                              };
-
-                              newRecognition.onerror = (e) => {
-                                console.error("Speech recognition error:", e.error);
-                              };
-
-                              newRecognition.onend = () => {
-                                console.log("Recognition ended");
-                                if (isListening) {
-                                  setTimeout(() => newRecognition.start(), 200);
-                                }
-                              };
-
-                              newRecognition.start();
-                              setRecognition(newRecognition);
-                              setIsListening(true);
-                            } catch (e) {
-                              console.error("Error starting recognition:", e);
-                            }
-                          }
-                        }}
-                        className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
-                        style={{
-                          background: isListening ? "#E10004" : "#1C60CE",
-                          color: "white",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {isListening ? "End Session" : "Start Session"}
-                      </button>
-                    </div> */}
-              {/* <div className="flex justify-center gap-4"> */}
-              
-                  {/* {!isListening && (
-                    <button
-                      onClick={handleStartSession}
-                      className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
-                      style={{
-                        background: "#1C60CE",
-                        color: "white",
-                        fontWeight: "500",
-                      }}
-                    >
-                      Start Session
-                    </button>
-                  )} */}
-
-                  {/* {isListening && (
-                    <button
-                      onClick={handleEndSession}
-                      className="px-4 py-2 rounded-md transition-all duration-300 transform hover:scale-105"
-                      style={{
-                        background: "#E10004",
-                        color: "white",
-                        fontWeight: "500",
-                      }}
-                    >
-                      End Session
-                    </button>
-                  )} */}
-                {/* </div> */}
-
-
-
-
-              {/* {transcript && (
-                <div className="mt-4 p-3 bg-gray-700 bg-opacity-50 rounded-md max-h-32 overflow-y-auto">
-                  <p className="text-white text-sm">{transcript}</p>
-                </div>
-              )} */}
-            {/* </div> */}
-          </div>
-        </div>
-      </div>
-
-      <div
-        className="fixed left-0 w-full flex justify-between items-center px-8"
-        style={{
-          bottom: "2rem",
-        }}
-      >
-        <div
-          style={{
-            color: "#FFF",
-            fontFamily: "Inter",
-            fontSize: "1.25rem",
-            fontWeight: 400,
-          }}
-        >
-          {formatTime(callDuration)} | Mock Pitching
-        </div>
-
-        <div className="flex gap-4">
-          <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
-            <img
-              src={PresentationIcon}
-              alt="Presentation Icon"
-              style={{ width: "1.25rem", height: "1.25rem" }}
-            />
-          </button>
-
-
-          <button
-            onClick={toggleCaptions}
-            className="hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110"
-            style={{
-              width: showCaptions ? "2.5rem" : "auto",
-              height: showCaptions ? "2.5rem" : "auto",
-              background: showCaptions ? "#1C60CE" : "transparent",
-            }}
-          >
-            <img
-              src={CaptionIcon}
-              alt="Captions"
-              style={{
-                width: "1.25rem",
-                height: "1.25rem",
-              }}
-            />
-          </button>
-
-        </div>
-      </div>
-
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-60">
-        <button
-          onClick={onEndCall}
-          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-          style={{
-            width: "12.5rem",
-            height: "2.5rem",
-            borderRadius: "0.125rem",
-            background: "#E10004",
-            color: "#FFF",
-            fontFamily: "Inter",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-          }}
-        >
-          <img
-            src={EndCallIcon}
-            alt="End Call Icon"
-            style={{ width: "0.875rem", height: "0.875rem" }}
-          />
-          End Call
-        </button>
+          {currentQuestion}
+        </span>
       </div>
     </div>
+  )}
+
+  {showCaptions && (captionLines[0] || captionLines[1]) && (
+    <div
+      className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out pt-12 sm:pt-16 md:pt-24"
+    >
+      <div className="px-3 py-2 sm:px-6 sm:py-3 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl text-center">
+        <div
+          className="text-white text-center font-inter text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-normal"
+        >
+          {captionLines[0] && (
+            <div style={{ marginBottom: captionLines[1] ? "0.5rem" : "0" }}>{captionLines[0]}</div>
+          )}
+          {captionLines[1] && <div>{captionLines[1]}</div>}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {showCaptions && isListening && (
+    <div className="absolute top-0 right-4 sm:right-8 z-10 flex items-center gap-1 sm:gap-2 pt-4 sm:pt-8">
+      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full animate-pulse" />
+      <span
+        className="text-white font-inter text-xxs sm:text-xs font-normal"
+      >
+        Listening...
+      </span>
+    </div>
+  )}
+
+    <div className="w-full h-full flex flex-col md:flex-row gap-4 md:gap-8">
+    {/* LEFT CARD: Show camera feed and profile info */}
+    <div
+      className="flex-1 relative transition-all duration-700 ease-in-out rounded-[0.625rem] overflow-hidden bg-gradient-to-b from-[#1C60CE] to-[#0F0F0F]"
+    >
+      {/* Name and company above camera */}
+      <div
+        className="absolute top-4 left-4 px-2 py-1 sm:px-4 sm:py-2 text-white font-inter text-xs sm:text-sm font-medium z-[2]"
+      >
+        {profileData?.accountName && profileData?.companyName
+          ? `${profileData.accountName} | ${profileData.companyName}`
+          : "User | Company"}
+      </div>
+      {/* Camera feed */}
+      <div className="w-full h-full flex items-center justify-center">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className={`w-4/5 h-4/5 rounded-xl sm:rounded-2xl object-cover bg-[#222] ${isVideoOff ? "hidden" : "block"}`}
+        />
+        {isVideoOff && (
+          <div
+            className="w-4/5 h-4/5 rounded-xl sm:rounded-2xl bg-[#222] flex items-center justify-center text-white text-2xl sm:text-3xl md:text-4xl absolute"
+          >
+            Camera Off
+          </div>
+        )}
+      </div>
+      {/* Video toggle button */}
+      <div className="absolute bottom-4 right-4">
+        <button
+          onClick={() => setIsVideoOff(v => !v)}
+          className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-transparent border-[1px] border-white"
+          aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
+        >
+          {isVideoOff ? (
+            <img className="w-5 h-5 sm:w-6 h-6"
+              src={VideoOffIcon}
+              alt="Video Off"
+            />
+          ) : (
+            <img
+              src={VideoIcon}
+              alt="Video On"
+              className="w-5 h-5 sm:w-6 h-6"
+            />
+          )}
+        </button>
+      </div>
+
+      <div className="absolute bottom-4 left-4 flex gap-2">
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-[1px] border-white"
+        >
+          {isMuted ? (
+            <img
+              src={MicOffIcon}
+              alt="Mic Off"
+              className="w-5 h-5 sm:w-6 sm:h-6"
+            />
+          ) : (
+            <img
+              src={MicIcon}
+              alt="Mic On"
+              className="w-5 h-5 sm:w-6 sm:h-6"
+            />
+          )}
+        </button>
+
+      </div>
+    </div>
+
+    <div
+      className="flex-1 relative transition-all duration-700 ease-in-out flex flex-col rounded-[0.625rem] overflow-hidden bg-gradient-to-b from-[#9F67FF] to-[#0F0F0F] bg-[#C4C4C4]"
+    >
+      <div className="absolute top-4 left-4 px-2 py-1 sm:px-4 sm:py-2 text-white font-inter text-xs sm:text-sm font-medium">
+        Persona One | Example Capital
+      </div>
+
+      <div className="w-full h-full flex items-center justify-center flex-col">
+        <div className="flex items-center justify-center rounded-full border-[6px] sm:border-[10px] border-purple-400 mb-4 sm:mb-8 w-[8rem] h-[8rem] sm:w-[10.625rem] sm:h-[10.625rem]">
+          <div
+            className="rounded-full overflow-hidden w-[7.5rem] h-[7.5rem] sm:w-[9.375rem] sm:h-[9.375rem] bg-gray-600"
+          >
+            <img
+              src={investor?.image || "/api/placeholder/150/150"}
+              alt={investor?.name || "Persona One"}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = "none"
+                e.target.nextSibling.style.display = "flex"
+              }}
+            />
+            <div className="w-full h-full bg-gray-600 flex items-center justify-center text-2xl sm:text-3xl md:text-4xl font-bold hidden">
+              {investor?.name?.charAt(0) || "P"}
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center py-2 px-4 sm:py-4 sm:px-8 bg-gray-800 bg-opacity-50 rounded-lg mb-4 sm:mb-6 mx-4 sm:mx-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
+              <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-purple-500 animate-pulse"></div>
+              <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-purple-500 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          ) : null}
+          <p className="text-white text-sm sm:text-base mb-2 sm:mb-4">
+            {isLoading ? "AI is responding..." :
+              isListening ? "Listening... Click Stop when done" :
+                "Click speak to start speaking"}
+          </p>
+
+          <div className="flex justify-center gap-2 sm:gap-4">
+            <button
+              onClick={() => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+                if (!SpeechRecognition) {
+                  alert('Speech recognition not supported in this browser')
+                  return
+                }
+
+                if (isListening) {
+                  // Stop listening
+                  if (recognition) {
+                    try {
+                      recognition.abort()
+                      recognition.stop()
+                    } catch (e) { }
+                  }
+                  setIsListening(false)
+                } else {
+                  // Start listening with a new instance
+                  if (recognition) {
+                    try {
+                      recognition.abort()
+                      recognition.stop()
+                    } catch (e) { }
+                  }
+
+                  setTimeout(() => {
+                    try {
+                      const recognitionInstance = new SpeechRecognition()
+                      recognitionInstance.continuous = true
+                      recognitionInstance.interimResults = false
+                      recognitionInstance.lang = 'en-US'
+
+                      recognitionInstance.onresult = (event) => {
+                        const last = event.results.length - 1
+                        const transcript = event.results[last][0].transcript
+                        setTranscript(prev => prev ? prev + ' ' + transcript.trim() : transcript.trim())
+                      }
+
+                      recognitionInstance.onend = () => {
+                        if (isListening) {
+                          try {
+                            recognitionInstance.start()
+                          } catch (e) { }
+                        }
+                      }
+
+                      recognitionInstance.start()
+                      setRecognition(recognitionInstance)
+                      setIsListening(true)
+                    } catch (e) {
+                      console.error('Failed to start recognition:', e)
+                    }
+                  }, 100)
+                }
+              }}
+              disabled={isLoading}
+              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-md transition-all duration-300 transform hover:scale-105 text-sm sm:text-base"
+              style={{
+                background: isListening ? "#E10004" : "#1C60CE",
+                color: "white",
+                fontWeight: "500",
+                opacity: isLoading ? "0.5" : "1",
+              }}
+            >
+              {isListening ? "Stop" : "Speak"}
+            </button>
+
+            <button
+              onClick={() => {
+                if (transcript) {
+                  sendMessage(transcript)
+                }
+              }}
+              disabled={!transcript || isLoading}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md transition-all duration-300 transform hover:scale-105 bg-[#AD6FDE] text-white font-medium text-sm sm:text-base ${(!transcript || isLoading) ? "opacity-50" : "opacity-100"}`}
+            >
+              Send
+            </button>
+          </div>
+
+          {transcript && (
+            <div className="mt-3 p-2 sm:p-3 bg-gray-700 bg-opacity-50 rounded-md max-h-24 sm:max-h-32 overflow-y-auto text-left">
+              <p className="text-white text-xs sm:text-sm">{transcript}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    className="fixed left-0 w-full flex justify-between items-center px-4 sm:px-8 bottom-4 sm:bottom-8"
+  >
+    <div className="text-white font-inter text-sm sm:text-base md:text-xl font-normal">
+      {formatTime(callDuration)} | Mock Pitching
+    </div>
+
+    <div className="flex gap-2 sm:gap-4">
+      <button className="text-white hover:opacity-80 transition-all duration-300 transform hover:scale-110">
+        <img
+          src={PresentationIcon}
+          alt="Presentation Icon"
+          className="w-4 h-4 sm:w-5 h-5"
+        />
+      </button>
+
+      <button
+        onClick={toggleCaptions}
+        className={`hover:opacity-80 flex items-center justify-center rounded-full transition-all duration-300 transform hover:scale-110 ${showCaptions ? "w-8 h-8 sm:w-10 h-10 bg-[#1C60CE]" : "w-auto h-auto bg-transparent"}`}
+      >
+        <img
+          src={CaptionIcon}
+          alt="Captions"
+          className="w-4 h-4 sm:w-5 h-5"
+        />
+      </button>
+
+    </div>
+  </div>
+
+  <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-60 w-full px-4 sm:px-0">
+    <button
+      onClick={onEndCall}
+      className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-full max-w-xs sm:w-50 h-10 rounded-[0.125rem] bg-[#E10004] text-white font-inter text-xs sm:text-sm font-semibold mx-auto"
+    >
+      <img
+        src={EndCallIcon}
+        alt="End Call Icon"
+        className="w-3 h-3 sm:w-3.5 h-3.5"
+      />
+      End Call
+    </button>
+  </div>
+</div>
   )
 }
 
@@ -2604,8 +2161,9 @@ function MockPitching({ onBack, loading  }) {
 
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
-      {isCallActive && (        <CallingPage
+    <div className="min-h-screen bg-black text-white font-['Inter']">
+      {isCallActive && (
+        <CallingPage
           investor={callingInvestor}
           onEndCall={handleEndCall}
           onJoinCall={handleJoinCall}
@@ -2615,23 +2173,14 @@ function MockPitching({ onBack, loading  }) {
       )}
 
       <div
-        style={{
-          paddingLeft: "1.88rem",
-          paddingRight: "1.88rem",
-          paddingTop: "2.75rem",
-          display: "flex",
-          gap: "1.5rem",
-          position: "relative",
-        }}
+        className="px-4 pt-8 flex flex-col lg:flex-row lg:gap-6 relative lg:px-[1.88rem] lg:pt-[2.75rem]"
       >
         <div
-          style={{
-            width: selectedInvestor ? "37%" : "100%",
-            transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-            overflowY: "auto",
-            height: "100vh",
-          }}
+          className={`transition-all duration-500 ease-in-out overflow-y-auto h-auto lg:h-screen w-full ${
+            selectedInvestor ? "lg:w-[37%]" : "lg:w-full"
+          } mb-8 lg:mb-0`} 
         >
+          {/* Search Bar */}
           <div className="relative mb-8">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -2640,31 +2189,13 @@ function MockPitching({ onBack, loading  }) {
                 placeholder="Search investors..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-16 py-4 rounded focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-purple-500"
-                style={{
-                  height: "3.25rem",
-                  borderRadius: "0.25rem",
-                  background: "#0F0E16",
-                  color: "#B8B8B8",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 400,
-                  border: "none",
-                }}
+                className="w-full pl-12 pr-16 py-4 focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-purple-500 h-13 rounded-md bg-[#0F0E16] text-[#B8B8B8] text-sm font-normal border-none"
               />
               <Filter className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
             </div>
           </div>
-
           <div className="mb-8">
-            <p
-              style={{
-                color: "#FFF",
-                fontFamily: "Inter",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-              }}
-            >
+            <p className="text-white text-sm font-medium">
               Meet the most capable AI investors. Choose an AI persona to deliver your first pitch and get instant
               feedback.
             </p>
@@ -2674,25 +2205,15 @@ function MockPitching({ onBack, loading  }) {
             {filteredInvestors.map((investor) => (
               <div
                 key={investor.id}
-                className={`flex items-${selectedInvestor ? "start" : "center"} justify-between p-6 cursor-pointer hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02]`}
-                style={{
-                  width: "100%",
-                  height: "11.25rem",
-                  borderRadius: "0.3125rem",
-                  background: "#0F0E16",
-                }}
                 onClick={() => handleInvestorClick(investor)}
+                className={`flex items-${selectedInvestor ? "start" : "center"} flex-col sm:flex-row items-center sm:items-start justify-between p-4 sm:p-6 cursor-pointer hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02] w-full h-auto sm:h-[11.25rem] rounded-[0.3125rem] bg-[#0F0E16]`}
               >
                 {!selectedInvestor ? (
                   <>
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full sm:w-auto">
+                      {/* Investor Image */}
                       <div
-                        className="bg-gray-600 overflow-hidden flex items-center justify-center"
-                        style={{
-                          width: "9.375rem",
-                          height: "9.375rem",
-                          borderRadius: "0.3125rem",
-                        }}
+                        className="bg-gray-600 overflow-hidden flex items-center justify-center w-24 h-24 sm:w-[9.375rem] sm:h-[9.375rem] rounded-[0.3125rem] flex-shrink-0"
                       >
                         <img
                           src={investor.image || "/placeholder.svg"}
@@ -2704,96 +2225,46 @@ function MockPitching({ onBack, loading  }) {
                           }}
                         />
                         <div
-                          className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 text-4xl font-bold"
-                          style={{ display: "none" }}
+                          className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 text-4xl font-bold hidden"
                         >
                           {investor.name.charAt(0)}
                         </div>
                       </div>
 
-                      <div className="flex-1">
-                        <h3
-                          className="mb-2"
-                          style={{
-                            color: "#FFF",
-                            fontFamily: "Inter",
-                            fontSize: "1.5rem",
-                            fontWeight: 500,
-                          }}
-                        >
+                      {/* Investor Details */}
+                      <div className="flex-1 text-center sm:text-left">
+                        <h3 className="mb-2 text-white text-xl sm:text-2xl font-medium">
                           {investor.name}
                         </h3>
                         <div className="mb-4">
-                          <span
-                            style={{
-                              color: "#656565",
-                              fontFamily: "Inter",
-                              fontSize: "1.125rem",
-                              fontWeight: 400,
-                            }}
-                          >
+                          <span className="text-[#656565] text-base sm:text-lg font-normal">
                             {investor.role}{" "}
                           </span>
-                          <span
-                            style={{
-                              color: "#FFF",
-                              fontFamily: "Inter",
-                              fontSize: "1.125rem",
-                              fontWeight: 500,
-                            }}
-                          >
+                          <span className="text-white text-base sm:text-lg font-medium">
                             {investor.company}
                           </span>
                         </div>
 
-                        <div className="flex gap-2 items-center flex-wrap">
+                        <div className="flex gap-2 items-center flex-wrap justify-center sm:justify-start">
                           {investor.tags.map((tag, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-1"
-                              style={{
-                                width: tag.type === "purple" ? "7rem" : "2.5rem",
-                                height: "1.0625rem",
-                                borderRadius: tag.type === "purple" ? "0.5rem" : "0.625rem",
-                                background: tag.type === "purple" ? "#AD6FDE" : "#621D04",
-                                padding: "0 0.5rem",
-                                justifyContent: "center",
-                              }}
+                              className={`flex items-center gap-1 h-[1.0625rem] px-2 justify-center text-[0.5rem] font-medium ${
+                                tag.type === "purple" ? "rounded-lg bg-[#AD6FDE] w-28" : "rounded-xl bg-[#621D04] w-10"
+                              }`}
                             >
-                              {tag.type === "purple" && <Phone style={{ width: "0.625rem", height: "0.625rem" }} />}
-                              <span
-                                style={{
-                                  color: "#FFF",
-                                  fontFamily: "Inter",
-                                  fontSize: "0.5rem",
-                                  fontWeight: 500,
-                                }}
-                              >
+                              {tag.type === "purple" && <Phone className="w-[0.625rem] h-[0.625rem]" />}
+                              <span className="text-white">
                                 {tag.text}
                               </span>
                             </div>
                           ))}
 
                           <div
-                            className="flex items-center gap-1"
-                            style={{
-                              width: "2.5rem",
-                              height: "1.0625rem",
-                              borderRadius: "0.625rem",
-                              background: "linear-gradient(180deg, #CC9C00 0%, #5D4100 100%)",
-                              padding: "0 0.5rem",
-                              justifyContent: "center",
-                            }}
+                            className="flex items-center gap-1 w-10 h-[1.0625rem] rounded-xl bg-gradient-to-b from-[#CC9C00] to-[#5D4100] px-2 justify-center text-[0.5rem] font-medium"
                           >
-                            <Star style={{ width: "0.625rem", height: "0.625rem" }} />
-                            <span
-                              style={{
-                                color: "#FFF",
-                                fontFamily: "Inter",
-                                fontSize: "0.5rem",
-                                fontWeight: 500,
-                              }}
-                            >
+                            <Star className="w-[0.625rem] h-[0.625rem]" />
+                            <span className="text-white">
                               {investor.rating}
                             </span>
                           </div>
@@ -2801,36 +2272,15 @@ function MockPitching({ onBack, loading  }) {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    {/* Action Buttons for unselected investor */}
+                    <div className="flex flex-col gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
                       <button
-                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
-                        style={{
-                          width: "15rem",
-                          height: "1.95rem",
-                          borderRadius: "0.1875rem",
-                          border: "1px solid rgba(255, 255, 255, 0.04)",
-                          background: "rgba(255, 255, 255, 0.08)",
-                          color: "#D9D9D9",
-                          fontFamily: "Inter",
-                          fontSize: "0.625rem",
-                          fontWeight: 500,
-                        }}
+                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-full sm:w-[15rem] h-[1.95rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] text-[0.625rem] font-medium"
                       >
                         View Profile
                       </button>
                       <button
-                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
-                        style={{
-                          width: "15rem",
-                          height: "1.95rem",
-                          borderRadius: "0.1875rem",
-                          border: "1px solid rgba(255, 255, 255, 0.04)",
-                          background: "rgba(255, 255, 255, 0.08)",
-                          color: "#D9D9D9",
-                          fontFamily: "Inter",
-                          fontSize: "0.625rem",
-                          fontWeight: 500,
-                        }}
+                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-full sm:w-[15rem] h-[1.95rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] text-[0.625rem] font-medium"
                       >
                         Save Profile
                       </button>
@@ -2839,33 +2289,18 @@ function MockPitching({ onBack, loading  }) {
                           e.stopPropagation()
                           handleCallInvestor(investor)
                         }}
-                        className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-                        style={{
-                          width: "15rem",
-                          height: "1.95rem",
-                          borderRadius: "0.125rem",
-                          background: "#FFF",
-                          color: "#000",
-                          fontFamily: "Inter",
-                          fontSize: "0.625rem",
-                          fontWeight: 500,
-                          border: "none",
-                        }}
+                        className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-full sm:w-[15rem] h-[1.95rem] rounded-[0.125rem] bg-white text-black text-[0.625rem] font-medium border-none"
                       >
-                        <Phone style={{ width: "0.9rem", height: "0.9rem" }} />
+                        <Phone className="w-[0.9rem] h-[0.9rem]" />
                         Call Investor
                       </button>
                     </div>
                   </>
                 ) : (
+                  
                   <div className="flex items-start gap-6 w-full">
                     <div
-                      className="bg-gray-600 overflow-hidden flex items-center justify-center"
-                      style={{
-                        width: "9.375rem",
-                        height: "9.375rem",
-                        borderRadius: "0.3125rem",
-                      }}
+                      className="bg-gray-600 overflow-hidden flex items-center justify-center w-[9.375rem] h-[9.375rem] rounded-[0.3125rem]"
                     >
                       <img
                         src={investor.image || "/placeholder.svg"}
@@ -2877,8 +2312,7 @@ function MockPitching({ onBack, loading  }) {
                         }}
                       />
                       <div
-                        className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 text-4xl font-bold"
-                        style={{ display: "none" }}
+                        className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 text-4xl font-bold hidden"
                       >
                         {investor.name.charAt(0)}
                       </div>
@@ -2886,42 +2320,24 @@ function MockPitching({ onBack, loading  }) {
 
                     <div className="flex-1 flex flex-col justify-between h-full">
                       <div>
-                        <h3
-                          style={{
-                            color: "#FFF",
-                            fontFamily: "Inter",
-                            fontSize: "1rem",
-                            fontWeight: 500,
-                            marginBottom: "0rem",
-                          }}
-                        >
+                        <h3 className="text-white font-['Inter'] text-base font-medium mb-0">
                           {investor.name}
                         </h3>
 
-                        <div style={{ marginBottom: "0.5rem" }}>
+                        <div className="mb-2">
                           <span
-                            style={{
-                              color: "#656565",
-                              fontFamily: "Inter",
-                              fontSize: "0.625rem",
-                              fontWeight: 400,
-                            }}
+                            className="text-[#656565] font-['Inter'] text-[0.625rem] font-normal"
                           >
                             {investor.role}{" "}
                           </span>
                           <span
-                            style={{
-                              color: "#FFF",
-                              fontFamily: "Inter",
-                              fontSize: "0.625rem",
-                              fontWeight: 500,
-                            }}
+                            className="text-white font-['Inter'] text-[0.625rem] font-medium"
                           >
                             {investor.company}
                           </span>
                         </div>
 
-                        <div className="flex gap-2 items-center" style={{ marginBottom: "0.5rem" }}>
+                        <div className="flex gap-2 items-center mb-2">
                           {investor.tags.map((tag, index) => (
                             <div
                               key={index}
@@ -2936,76 +2352,32 @@ function MockPitching({ onBack, loading  }) {
                               }}
                             >
                               {tag.type === "purple" && <Phone style={{ width: "0.625rem", height: "0.625rem" }} />}
-                              <span
-                                style={{
-                                  color: "#FFF",
-                                  fontFamily: "Inter",
-                                  fontSize: "0.5rem",
-                                  fontWeight: 500,
-                                }}
-                              >
+                              <span className="text-white font-['Inter'] text-[0.5rem] font-medium">
                                 {tag.text}
                               </span>
                             </div>
                           ))}
 
                           <div
-                            className="flex items-center gap-1"
-                            style={{
-                              width: "2.5rem",
-                              height: "1.0625rem",
-                              borderRadius: "0.625rem",
-                              background: "linear-gradient(180deg, #CC9C00 0%, #5D4100 100%)",
-                              padding: "0 0.5rem",
-                              justifyContent: "center",
-                            }}
+                            className="flex items-center gap-1 w-10 h-[1.0625rem] rounded-xl bg-gradient-to-b from-[#CC9C00] to-[#5D4100] px-2 justify-center"
                           >
-                            <Star style={{ width: "0.625rem", height: "0.625rem" }} />
-                            <span
-                              style={{
-                                color: "#FFF",
-                                fontFamily: "Inter",
-                                fontSize: "0.5rem",
-                                fontWeight: 500,
-                              }}
-                            >
+                            <Star className="w-[0.625rem] h-[0.625rem]" />
+                            <span className="text-white font-['Inter'] text-[0.5rem] font-medium">
                               {investor.rating}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col" style={{ gap: "0.25rem" }}>
+                      <div className="flex flex-col gap-1">
                         <div className="flex gap-2">
                           <button
-                            className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
-                            style={{
-                              width: "6.125rem",
-                              height: "1.625rem",
-                              borderRadius: "0.1875rem",
-                              border: "1px solid rgba(255, 255, 255, 0.04)",
-                              background: "rgba(255, 255, 255, 0.08)",
-                              color: "#D9D9D9",
-                              fontFamily: "Inter",
-                              fontSize: "0.5rem",
-                              fontWeight: 500,
-                            }}
+                            className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-[6.125rem] h-[1.625rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] font-['Inter'] text-[0.5rem] font-medium"
                           >
                             View Profile
                           </button>
                           <button
-                            className="hover:opacity-80 transition-all duration-300 transform hover:scale-105"
-                            style={{
-                              width: "6.125rem",
-                              height: "1.625rem",
-                              borderRadius: "0.1875rem",
-                              border: "1px solid rgba(255, 255, 255, 0.04)",
-                              background: "rgba(255, 255, 255, 0.08)",
-                              color: "#D9D9D9",
-                              fontFamily: "Inter",
-                              fontSize: "0.5rem",
-                              fontWeight: 500,
-                            }}
+                            className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-[6.125rem] h-[1.625rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] font-['Inter'] text-[0.5rem] font-medium"
                           >
                             Save Profile
                           </button>
@@ -3015,18 +2387,7 @@ function MockPitching({ onBack, loading  }) {
                             e.stopPropagation()
                             handleCallInvestor(investor)
                           }}
-                          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-                          style={{
-                            width: "12.5rem",
-                            height: "1.625rem",
-                            borderRadius: "0.125rem",
-                            background: "#FFF",
-                            color: "#000",
-                            fontFamily: "Inter",
-                            fontSize: "0.5rem",
-                            fontWeight: 500,
-                            border: "none",
-                          }}
+                          className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-[12.5rem] h-[1.625rem] rounded-[0.125rem] bg-white text-black font-['Inter'] text-[0.5rem] font-medium border-none"
                         >
                           <Phone style={{ width: "0.9rem", height: "0.9rem" }} />
                           Call Investor
@@ -3042,365 +2403,190 @@ function MockPitching({ onBack, loading  }) {
 
         {selectedInvestor && (
           <div
-            style={{
-              width: "59%",
-              padding: "1.5rem 2rem",
-              background: "#0F0E16",
-              borderRadius: "0.3125rem",
-              transition: "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-              position: "fixed",
-              top: "2.75rem",
-              right: "1.88rem",
-              height: "100vh",
-              overflowY: "auto",
-              transform: "translateX(0)",
-              opacity: 1,
-            }}
+  className="md:w-[59%] w-full p-6 px-4 bg-[#0F0E16] rounded-[0.3125rem] transition duration-500 ease-in-out fixed top-[2.75rem] right-0 md:right-[1.88rem] h-screen overflow-y-auto translate-x-0 opacity-100 pt-8"
+>
+  {/* Added pt-8 to main container for more top padding */}
+  <div className="flex flex-col items-center gap-6 mb-8 mt-0 md:mt-15 md:flex-row">
+    {/* Removed mt-6 and set to mt-0 here, as pt-8 on parent handles top spacing */}
+    <div
+      className="bg-gray-600 overflow-hidden flex items-center justify-center w-[12rem] h-[12rem] md:w-[15.625rem] md:h-[15.625rem] rounded-[0.3125rem] flex-shrink-0"
+    >
+      <img
+        src={selectedInvestor.image || "/placeholder.svg"}
+        alt={selectedInvestor.name}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.target.style.display = "none";
+          e.target.nextSibling.style.display = "flex";
+        }}
+      />
+      <div
+        className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold hidden text-[3rem] md:text-[4rem]"
+      >
+        {selectedInvestor.name.charAt(0)}
+      </div>
+    </div>
+
+    <div className="flex-1 flex flex-col justify-center items-center text-center md:items-start md:text-left">
+      <h3 className="text-white font-['Inter'] text-xl md:text-2xl font-semibold mb-2">
+        {selectedInvestor.name}
+      </h3>
+
+      <div className="mb-1">
+        <span className="text-[#656565] font-['Inter'] text-sm font-normal">
+          Venture Capitalist
+        </span>
+      </div>
+      <div className="mb-4">
+        <span className="text-white font-['Inter'] text-sm font-medium">
+          {selectedInvestor.company}
+        </span>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
+        {selectedInvestor.tags.map((tag, index) => (
+          <div
+            key={index}
+            className={`flex items-center gap-1 h-[1.0625rem] px-2 justify-center ${
+              tag.type === "purple"
+                ? "rounded-lg bg-[#AD6FDE]"
+                : "rounded-xl bg-[#621D04]"
+            }`}
           >
-            <div className="flex gap-6 mb-8 mt-15">
-              <div
-                className="bg-gray-600 overflow-hidden flex items-center justify-center"
-                style={{
-                  width: "15.625rem",
-                  height: "15.625rem",
-                  borderRadius: "0.3125rem",
-                }}
-              >
-                <img
-                  src={selectedInvestor.image || "/placeholder.svg"}
-                  alt={selectedInvestor.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none"
-                    e.target.nextSibling.style.display = "flex"
-                  }}
-                />
-                <div
-                  className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold"
-                  style={{ display: "none", fontSize: "4rem" }}
-                >
-                  {selectedInvestor.name.charAt(0)}
-                </div>
-              </div>
-
-              <div className="flex-1 flex flex-col justify-center items-center text-center">
-                <h3
-                  style={{
-                    color: "#FFF",
-                    fontFamily: "Inter",
-                    fontSize: "1.5rem",
-                    fontWeight: 600,
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  {selectedInvestor.name}
-                </h3>
-
-                <div style={{ marginBottom: "0.25rem" }}>
-                  <span
-                    style={{
-                      color: "#656565",
-                      fontFamily: "Inter",
-                      fontSize: "0.875rem",
-                      fontWeight: 400,
-                    }}
-                  >
-                    Venture Capitalist
-                  </span>
-                </div>
-
-                <div style={{ marginBottom: "1rem" }}>
-                  <span
-                    style={{
-                      color: "#FFF",
-                      fontFamily: "Inter",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {selectedInvestor.company}
-                  </span>
-                </div>
-
-                <div className="flex gap-2 mb-4 justify-center">
-                  {selectedInvestor.tags.map((tag, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-1"
-                      style={{
-                        height: "1.0625rem",
-                        borderRadius: tag.type === "purple" ? "0.5rem" : "0.625rem",
-                        background: tag.type === "purple" ? "#AD6FDE" : "#621D04",
-                        padding: "0 0.5rem",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {tag.type === "purple" && (
-                        <img
-                          src={CallIcon || "/placeholder.svg"}
-                          alt="Call"
-                          style={{ width: "0.625rem", height: "0.625rem" }}
-                        />
-                      )}
-                      <span
-                        style={{
-                          color: "#FFF",
-                          fontFamily: "Inter",
-                          fontSize: "0.5rem",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {tag.text}
-                      </span>
-                    </div>
-                  ))}
-
-                  <div
-                    className="flex items-center gap-1"
-                    style={{
-                      height: "1.0625rem",
-                      borderRadius: "0.625rem",
-                      background: "linear-gradient(180deg, #CC9C00 0%, #5D4100 100%)",
-                      padding: "0 0.5rem",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <img
-                      src={StarIcon || "/placeholder.svg"}
-                      alt="Star"
-                      style={{ width: "0.625rem", height: "0.625rem" }}
-                    />
-                    <span
-                      style={{
-                        color: "#FFF",
-                        fontFamily: "Inter",
-                        fontSize: "0.5rem",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {selectedInvestor.rating}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-4 flex flex-col items-center w-[75%] px-4">
-                  <div
-                    className="flex items-center gap-2 mb-2 w-full max-w-[16rem]"
-                    style={{
-                      position: "relative",
-                    }}
-                  >
-                    <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300">
-                      <img
-                        src={PlayIcon || "/placeholder.svg"}
-                        alt="Play"
-                        style={{ width: "1.25rem", height: "1.25rem" }}
-                      />
-                    </div>
-
-                    <div
-                      style={{
-                        flex: 1,
-                        height: "0.25rem",
-                        background: "#333",
-                        borderRadius: "0.125rem",
-                        position: "relative",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "40%",
-                          height: "100%",
-                          background: "#FFF",
-                          borderRadius: "0.125rem",
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleCallInvestor(selectedInvestor)
-                  }}
-                  className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105"
-                  style={{
-                    width: "12.5rem",
-                    height: "2.25rem",
-                    borderRadius: "0.125rem",
-                    background: "#FFF",
-                    color: "#000",
-                    fontFamily: "Inter",
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    border: "none",
-                  }}
-                >
-                  <img
-                    src={CallIcon2 || "/placeholder.svg"}
-                    alt="Call"
-                    style={{ width: "0.875rem", height: "0.875rem" }}
-                  />
-                  Call Investor
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <h4
-                className="mb-3"
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "1.25rem",
-                  fontWeight: 600,
-                }}
-              >
-                Objective
-              </h4>
-              <p
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 400,
-                  lineHeight: "1.6",
-                }}
-              >
-                {selectedInvestor.description}
-              </p>
-            </div>
-
-            <div className="mb-6">
-              <h4
-                className="mb-3"
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "1.25rem",
-                  fontWeight: 600,
-                }}
-              >
-                Instruction
-              </h4>
-              <p
-                style={{
-                  color: "#FFF",
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 400,
-                  lineHeight: "1.6",
-                }}
-              >
-                {selectedInvestor.instruction}
-              </p>
-            </div>
+            {tag.type === "purple" && (
+              <img
+                src={CallIcon || "/placeholder.svg"}
+                alt="Call"
+                className="w-[0.625rem] h-[0.625rem]"
+              />
+            )}
+            <span className="text-white font-['Inter'] text-[0.5rem] font-medium">
+              {tag.text}
+            </span>
           </div>
+        ))}
+
+        <div className="flex items-center gap-1 h-[1.0625rem] rounded-xl bg-gradient-to-b from-[#CC9C00] to-[#5D4100] px-2 justify-center">
+          <img
+            src={StarIcon || "/placeholder.svg"}
+            alt="Star"
+            className="w-[0.625rem] h-[0.625rem]"
+          />
+          <span className="text-white font-['Inter'] text-[0.5rem] font-medium">
+            {selectedInvestor.rating}
+          </span>
+        </div>
+      </div>
+
+      <div className="mb-4 flex flex-col items-center w-full px-4 md:w-[75%] md:px-0 md:items-start">
+        <div className="flex items-center gap-2 mb-2 w-full max-w-[16rem] relative">
+          <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300">
+            <img
+              src={PlayIcon || "/placeholder.svg"}
+              alt="Play"
+              className="w-5 h-5"
+            />
+          </div>
+
+          <div className="flex-1 h-1 bg-gray-700 rounded-[0.125rem] relative overflow-hidden">
+            <div className="w-[40%] h-full bg-white rounded-[0.125rem] absolute top-0 left-0" />
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleCallInvestor(selectedInvestor);
+        }}
+        className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-[12.5rem] h-9 rounded-[0.125rem] bg-white text-black font-['Inter'] text-sm font-medium border-none"
+      >
+        <img
+          src={CallIcon2 || "/placeholder.svg"}
+          alt="Call"
+          className="w-[0.875rem] h-[0.875rem]"
+        />
+        Call Investor
+      </button>
+    </div>
+  </div>
+
+  <div className="mb-6 px-4 md:px-0">
+    <h4 className="mb-3 text-white font-['Inter'] text-lg md:text-xl font-semibold">
+      Objective
+    </h4>
+    <p className="text-white font-['Inter'] text-sm font-normal leading-relaxed">
+      {selectedInvestor.description}
+    </p>
+  </div>
+
+  <div className="mb-6 px-4 md:px-0">
+    <h4 className="mb-3 text-white font-['Inter'] text-lg md:text-xl font-semibold">
+      Instruction
+    </h4>
+    <p className="text-white font-['Inter'] text-sm font-normal leading-relaxed">
+      {selectedInvestor.instruction}
+    </p>
+  </div>
+</div>
         )}
       </div>
 
       <div
-        className="fixed bottom-2 left-0 w-full flex items-center justify-center"
-        style={{ height: "4.375rem", background: "rgba(0, 0, 0, 0.90)" }}
+        className="fixed bottom-2 left-0 w-full flex items-center justify-center h-[4.375rem] bg-black/[0.90]"
       >
         <div
-          className="flex items-center"
-          style={{
-            width: "20.75rem",
-            height: "3.125rem",
-            borderRadius: "0.5rem",
-            background: "rgba(255, 255, 255, 0.94)",
-            padding: "0 1rem",
-            gap: "1rem",
-          }}
-        >
+        className="flex items-center w-[20.75rem] h-[3.125rem] rounded-lg bg-white/[0.94] px-4 gap-4"
+      >
           <button
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110"
-            style={{
-              width: "2.375rem",
-              height: "2.375rem",
-              borderRadius: "0.25rem",
-              background: "#000",
-            }}
+            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-[2.375rem] h-[2.375rem] rounded-md bg-black"
           >
             <img
-              src={logo || "/placeholder.svg"}
-              alt="logo"
-              style={{
-                width: "1.2rem",
-                height: "1.2rem",
-              }}
-            />
+            src={logo || "/placeholder.svg"}
+            alt="logo"
+            className="w-[1.2rem] h-[1.2rem]"
+          />
           </button>
 
           <div
-            style={{
-              width: "0.0625rem",
-              height: "3.125rem",
-              background: "rgba(184, 184, 184, 0.40)",
-            }}
+            className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/[0.40]"
           />
-
           <button
-          onClick={() => navigate("/playground/mockpitching/report")}
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110"
-            style={{
-              width: "2.5rem",
-              height: "2.25rem",
-              borderRadius: "0.25rem",
-              background: "#AD6FDE",
-            }}
+            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-10 h-9 rounded-md bg-[#AD6FDE]"
           >
             <img
               src={ContactsIcon || "/placeholder.svg"}
               alt="Contacts"
-              style={{ width: "1.2rem", height: "1.2rem" }}
+              className="w-[1.2rem] h-[1.2rem]"
             />
           </button>
 
           <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
             <img
-              src={AddIcon || "/placeholder.svg"}
-              alt="Add"
-              style={{ width: "1.5rem", height: "1.5rem", filter: "invert(100%)" }}
-            />
+            src={AddIcon || "/placeholder.svg"}
+            alt="Add"
+            className="w-6 h-6 invert"
+          />
           </button>
 
           <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img
-              src={SpeedometerIcon || "/placeholder.svg"}
-              alt="Speedometer"
-              style={{ width: "1.5rem", height: "1.5rem" }}
-            />
-          </button>
+          <img
+            src={SpeedometerIcon || "/placeholder.svg"}
+            alt="Speedometer"
+            className="w-6 h-6"
+          />
+        </button>
 
           <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img src={TuneIcon || "/placeholder.svg"} alt="Tune" style={{ width: "1.5rem", height: "1.5rem" }} />
+            <img src={TuneIcon || "/placeholder.svg"} alt="Tune" className="w-6 h-6" />
           </button>
 
           <div
-            style={{
-              width: "0.0625rem",
-              height: "3.125rem",
-              background: "rgba(184, 184, 184, 0.40)",
-            }}
-          />
-
+          className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/[0.40]"
+        />
           <button
-            onClick={() => navigate("/playground")}
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium"
-            style={{
-              width: "2.5rem",
-              height: "1.875rem",
-              borderRadius: "0.1875rem",
-              background: "#33005C",
-              color: "#AD6FDE",
-            }}
+            onClick={onBack}
+            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium w-10 h-[1.875rem] rounded-[0.1875rem] bg-[#33005C] text-[#AD6FDE]"
           >
             EXIT
           </button>
