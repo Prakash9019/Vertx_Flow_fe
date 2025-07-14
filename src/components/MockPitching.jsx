@@ -1793,9 +1793,9 @@ if (!socket || !socket.connected) {
               playsInline
               muted
               style={{
-                width: isSpeaking ? "96%" : "100%",
-                height: isSpeaking ? "96%" : "100%",
-                borderRadius: isSpeaking ? "1rem" : "0.625rem",
+                width: isSpeaking ? "98%" : "100%",
+                height: isSpeaking ? "98%" : "100%",
+                borderRadius: isSpeaking ? "0.625rem" : "0.625rem",
                 objectFit: "cover",
                 background: "#222",
                 backgroundColor: isVideoOff ? "#222" : undefined,
