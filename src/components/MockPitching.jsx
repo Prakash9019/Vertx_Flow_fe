@@ -2229,6 +2229,7 @@ function MockPitching({ onBack, loading  }) {
   const { profileData } = useStartupProfile()
   const socketRef = useRef(null);
   const [investors, setInvestors] = useState([])
+  const [investorsLoading, setInvestorsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedInvestor, setSelectedInvestor] = useState(null)
   const [isCallActive, setIsCallActive] = useState(false)
@@ -2279,6 +2280,7 @@ function MockPitching({ onBack, loading  }) {
 
 
   useEffect(() => {
+    setInvestorsLoading(true)
     fetch("https://ai-mock-pitching-427457295403.europe-west1.run.app/api/personas")
       .then((res) => res.json())
       .then((data) => {
@@ -2304,6 +2306,9 @@ function MockPitching({ onBack, loading  }) {
       })
       .catch((err) => {
         console.error("Failed to fetch investors:", err)
+      })
+      .finally(() => {
+        setInvestorsLoading(false)
       })
   }, [])
 
@@ -2584,15 +2589,18 @@ function MockPitching({ onBack, loading  }) {
     />
   }
 
-  if (loading) {
-  return (
-    <div className="flex items-center justify-center h-screen bg-black text-white">
-      <div className="flex flex-col items-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+  if (loading || investorsLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <p className="text-white font-inter text-sm font-medium">
+            {loading ? "Loading..." : "Loading available investors..."}
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 
   return (
