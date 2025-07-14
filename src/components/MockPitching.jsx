@@ -1579,28 +1579,102 @@ if (!socket || !socket.connected) {
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-4 flex gap-2">
-        <button
-          onClick={() => setIsMuted(!isMuted)}
-          className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-[1px] border-white"
-        >
-          {isMuted ? (
-            <img
-              src={MicOffIcon}
-              alt="Mic Off"
-              className="w-5 h-5 sm:w-6 sm:h-6"
+          {/* Microphone control button - always visible */}
+          <div className="absolute bottom-4 left-4 flex gap-2" style={{ zIndex: 4 }}>
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border"
+              style={{
+                width: "3.125rem",
+                height: "3.125rem",
+                background: "transparent",
+                borderWidth: "1px",
+                borderColor: "#FFF",
+              }}
+            >
+              {isMuted ? (
+                <img
+                  src={MicOffIcon}
+                  alt="Mic Off"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              ) : (
+                <img
+                  src={MicIcon}
+                  alt="Mic On"
+                  style={{ width: "1.5rem", height: "1.5rem" }}
+                />
+              )}
+            </button>
+          </div>
+          
+          {/* Camera feed */}
+          <div className="w-full h-full flex items-center justify-center">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              style={{
+                width: isSpeaking ? "96%" : "100%",
+                height: isSpeaking ? "96%" : "100%",
+                borderRadius: isSpeaking ? "1rem" : "0.625rem",
+                objectFit: "cover",
+                background: "#222",
+                backgroundColor: isVideoOff ? "#222" : undefined,
+                display: isVideoOff ? "none" : "block",
+                transition: "all 0.3s ease-in-out",
+              }}
             />
-          ) : (
-            <img
-              src={MicIcon}
-              alt="Mic On"
-              className="w-5 h-5 sm:w-6 sm:h-6"
-            />
-          )}
-        </button>
 
-      </div>
-    </div>
+            {isVideoOff && (
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  background: "linear-gradient(180deg, #1C60CE 0%, #0F0F0F 100%)",
+                  zIndex: 2,
+                }}
+              >
+                <div
+                  className="flex items-center justify-center rounded-full border-[10px] border-purple-400"
+                  style={{
+                    width: "10.625rem",
+                    height: "10.625rem",
+                  }}
+                >
+                  <div
+                    className="rounded-full overflow-hidden bg-gray-600"
+                    style={{
+                      width: "9.375rem",
+                      height: "9.375rem",
+                    }}
+                  >
+                    <img
+                      src={profileData?.image || "/api/placeholder/150/150"}
+                      alt={profileData?.accountName || "User"}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.nextSibling.style.display = "flex";
+                      }}
+                    />
+                    <div
+                      className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
+                      style={{ display: "none" }}
+                    >
+                      {profileData?.accountname?.charAt(0) || "U"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
     <div
       className="flex-1 relative transition-all duration-700 ease-in-out flex flex-col rounded-[0.625rem] overflow-hidden bg-gradient-to-b from-[#9F67FF] to-[#0F0F0F] bg-[#C4C4C4]"
