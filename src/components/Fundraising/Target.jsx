@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import API_KEY from "../../../key"
 import { usePermissions } from "../../hooks/usePermissions"
 import NewListPopup from "./new-list-popup"
@@ -27,7 +27,7 @@ import SearchIcon from "../../assets/SearchIcon.svg"
 import DefaultAvatar from "../../assets/DefaultAvatar.svg"
 
 // Simple base64 fallback avatar
-const fallbackAvatar = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 export default function Target({ onListSelect }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,9 +45,8 @@ export default function Target({ onListSelect }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [showDeleteNotification, setShowDeleteNotification] = useState(false);
-  const [error, setError] = useState(null); // Restore error state
-
-  // Use permission hook for all permission-related state
+  const [error, setError] = useState(null);
+    // Use permission hook for all permission-related state
   const { 
     canCreate, 
     canEdit, 
@@ -75,57 +74,137 @@ export default function Target({ onListSelect }) {
     blue: "linear-gradient(180deg, #456BBD 0%, #6C04BF 100%)"
   };
 
+
+  
+  // Filter the lists based on the search term
+  const filteredUserTargetLists = useMemo(() => {
+    if (!searchTerm) {
+      return userTargetLists;
+    }
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    return userTargetLists.filter(list =>
+      list.name.toLowerCase().includes(lowerCaseSearchTerm)
+    );
+  }, [userTargetLists, searchTerm]); // Re-run filter when lists or search term changes
+
+
+  // Fetch user target lists
+  const fetchLists = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      
+      const response = await fetch(`${API_KEY}/api/list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch lists: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Fetched lists:', result);
+      
+      // Map backend lists to frontend format
+      let lists = Array.isArray(result) ? result : result.data || [];
+      if (!Array.isArray(lists)) {
+        console.error('Invalid lists data:', lists);
+        lists = [];
+      }
+
+      const formattedLists = lists.map(list => ({
+        id: list._id,
+        name: list.name,
+        cover: list.coverColor || 'default',
+        createdBy: isFounder ? "Company" : "Founder", // Assuming isFounder is correctly set
+        createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
+        investorCount: Array.isArray(list.investors) ? list.investors.length : 0,
+        investors: Array.isArray(list.investors) ? list.investors : [],
+        // Add updatedDate if available from backend, otherwise default
+        updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
+      }));
+      setUserTargetLists(formattedLists);
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  // Fetch user target lists
+  // const fetchLists = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     setError(null);
+  //     const token = localStorage.getItem('authToken');
+      
+  //     if (!token) {
+  //       throw new Error('Authentication required');
+  //     }
+      
+  //     const response = await fetch(`${API_KEY}/api/list`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`,
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to fetch lists: ${response.status}`);
+  //     }
+      
+  //     const result = await response.json();
+  //     console.log('Fetched lists:', result);
+      
+  //     // Map backend lists to frontend format
+  //     let lists = Array.isArray(result) ? result : result.data || [];
+  //     if (!Array.isArray(lists)) {
+  //       console.error('Invalid lists data:', lists);
+  //       lists = [];
+  //     }
+
+  //     const formattedLists = lists.map(list => ({
+  //       id: list._id,
+  //       name: list.name,
+  //       cover: list.coverColor || 'default',
+  //       createdBy: isFounder ? "Company" : "Founder",
+  //       createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
+  //       investors: Array.isArray(list.investors) ? list.investors : []
+  //     }));
+  //     console.log(formattedLists.investors)
+  //     setUserTargetLists(formattedLists);
+  //   } catch (error) {
+  //     console.error('Error fetching lists:', error);
+  //     setError(error.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   // Only fetch lists when permissions are loaded
+ 
+ 
+ 
+// Only fetch lists when permissions are loaded
   useEffect(() => {
     if (!permissionsLoading) {
-      const fetchLists = async () => {
-        try {
-          setIsLoading(true);
-          setError(null); // Clear error before fetching
-          const token = localStorage.getItem('authToken');
-          if (!token) {
-            throw new Error('Authentication required');
-          }
-          const response = await fetch(`${API_KEY}/api/list`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          if (!response.ok) {
-            throw new Error(`Failed to fetch lists: ${response.status}`);
-          }
-          const result = await response.json();
-          console.log('Fetched lists:', result);
-          // Map backend lists to frontend format
-          let lists = Array.isArray(result) ? result : result.data || [];
-          if (!Array.isArray(lists)) {
-            console.error('Invalid lists data:', lists);
-            lists = [];
-          }
-          const formattedLists = lists.map(list => ({
-            id: list._id,
-            name: list.name,
-            cover: list.coverColor || 'default',
-            createdBy: isFounder ? "Company" : "Founder",
-            createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
-            investors: Array.isArray(list.investors) ? list.investors : []
-          }));
-          console.log(formattedLists.investors)
-          setUserTargetLists(formattedLists);
-        } catch (error) {
-          setError(error.message || String(error)); // Set error for UI
-          console.error('Error fetching lists:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
       fetchLists();
     }
-  }, [permissionsLoading, isFounder]); // Add fetchLists to dependencies
+  }, [permissionsLoading]);
   
-  // Add error display (restore error handling logic)
+  // Add error display
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -483,8 +562,7 @@ export default function Target({ onListSelect }) {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
-    }
-  }
+    }  }
   // If a list is selected, show the detail view
   if (selectedList) {
     const hasInvestors = investors.length > 0
@@ -662,7 +740,7 @@ export default function Target({ onListSelect }) {
                     placeholder="Emails, comma separated"
                     className="flex-1 bg-black text-white px-4 border-none outline-none placeholder-gray-400 h-9 rounded-[0.125rem] font-['Inter'] text-xs font-normal"
                   />
-                  <button className="bg-white text-black hover:bg-gray-100 transition-colors flex items-center justify-center w-[6.75rem] h-9 rounded-[0.125rem] font-['Inter'] text-sm font-medium text-center">
+                  <button className="bg-white text-black hover:bg-gray-100 transition-colors font-medium flex items-center justify-center w-[6.75rem] h-9 rounded-[0.125rem] font-['Inter'] text-sm  text-center">
                     Invite
                   </button>
                 </div>
@@ -1105,13 +1183,24 @@ export default function Target({ onListSelect }) {
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+          <div className="w-full h-20 flex items-center justify-center">
+            <div className="text-white">Loading lists...</div>
           </div>
         )}
         
+        {!isLoading && filteredUserTargetLists.length === 0 && searchTerm && (
+        <div className="w-full text-center text-[#B8B8B8] mt-8 p-5">
+          No lists found matching "{searchTerm}".
+        </div>
+      )}
+      {!isLoading && filteredUserTargetLists.length === 0 && !searchTerm && (
+        <div className="w-full text-center text-[#B8B8B8] mt-8 p-5">
+          You don't have any lists yet.
+        </div>
+      )}
+
         {/* User Created Target Lists */}
-        {!isLoading && userTargetLists.map((list) => (
+        {!isLoading && filteredUserTargetLists.map((list) => (
           <div
             key={list.id}
             onClick={() => handleListClick(list)}
@@ -1185,7 +1274,7 @@ export default function Target({ onListSelect }) {
           onClick={() =>
             handleListClick({
               id: "matched-investors",
-              name: "Matched Investors for you",
+              name: "Everyone's VC",
               cover: "purple",
               createdBy: "VERTX",
               createdDate: "28/05/2025",
