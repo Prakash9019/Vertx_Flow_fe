@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import rectangleImage from '../../assets/Rectangle 82.png';
 import { usePermissions } from '../../hooks/usePermissions';
 import API_KEY from '../../../key';
+import Icon from "../../assets/info.svg"
 // import { useState } from "react";
 
 function AddRoundPopup({ isOpen, onClose, onNext }) {
@@ -1038,7 +1039,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
                       }}
                     >
                       <img
-                        src="../src/assets/info.svg"
+                        src={Icon}
                         alt="icon"
                         style={{ marginRight: "0.44rem", width: "16px", height: "16px" }}
                       />
