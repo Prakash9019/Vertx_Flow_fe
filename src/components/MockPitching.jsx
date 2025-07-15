@@ -2297,7 +2297,8 @@ function MockPitching({ onBack, loading  }) {
             ],
             rating: "4/5",
             description: persona.personality || "No description available",
-            instruction: persona.approach || "No instruction available",
+            instruction: persona.instruction || "No instruction available",
+            objective: persona.objective || "No objective available",
           }))
           setInvestors(formatted)
         } else {
@@ -3272,7 +3273,7 @@ function MockPitching({ onBack, loading  }) {
                   lineHeight: "1.6",
                 }}
               >
-                {selectedInvestor.description}
+                {selectedInvestor.objective || selectedInvestor.description}
               </p>
             </div>
 
@@ -3297,7 +3298,7 @@ function MockPitching({ onBack, loading  }) {
                   lineHeight: "1.6",
                 }}
               >
-                {selectedInvestor.instruction}
+                {selectedInvestor.instruction || "No instruction available"}
               </p>
             </div>
           </div>
