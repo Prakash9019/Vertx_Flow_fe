@@ -208,6 +208,288 @@ const handleSearchChange = (e) => {
   setCurrentPage(1); // Reset to first page on search change
 };
 
+
+const getFlagOrContinent = (name) => {
+  if (!name) return <span>—</span>;
+
+  const aliasMap = {
+    "USA": "United States",
+    "US": "United States",
+    "UK": "United Kingdom",
+    "UAE": "United Arab Emirates",
+    "LatAm": "LATAM",
+    "aisa-specific": "Asia",
+    "Asia-specific": "Asia",
+    "asia specific": "Asia"
+  };
+
+  const regionBadgeMap = {
+    "LATAM": "🌎 Latin America",
+    "Global": "🌐 Global",
+    "Asia": "🌏 Asia Specific"
+  };
+
+  const normalized = aliasMap[name] || name;
+
+  if (countryCodeMap[normalized]) {
+    return (
+      <img
+        src={`https://flagcdn.com/w40/${countryCodeMap[normalized].toLowerCase()}.png`}
+        alt={normalized}
+        className="w-4 h-3 rounded-sm"
+        onError={(e) => { e.target.style.display = "none"; }}
+      />
+    );
+  }
+
+  if (continentEmojiMap[normalized]) {
+    return (
+      <span className="flex items-center text-xs text-white">
+        {continentEmojiMap[normalized]} {normalized}
+      </span>
+    );
+  }
+
+  if (regionBadgeMap[normalized]) {
+    return (
+      <span className="flex items-center text-xs text-white">
+        {regionBadgeMap[normalized]}
+      </span>
+    );
+  }
+
+  console.warn("❗ Unknown geography label:", name);
+  return <span>—</span>;
+};
+
+
+//countries name
+const countryCodeMap = {
+  "Afghanistan": "af",
+  "Albania": "al",
+  "Algeria": "dz",
+  "Andorra": "ad",
+  "Angola": "ao",
+  "Antigua and Barbuda": "ag",
+  "Argentina": "ar",
+  "Armenia": "am",
+  "Australia": "au",
+  "Austria": "at",
+  "Azerbaijan": "az",
+  "Bahamas": "bs",
+  "Bahrain": "bh",
+  "Bangladesh": "bd",
+  "Barbados": "bb",
+  "Belarus": "by",
+  "Belgium": "be",
+  "Belize": "bz",
+  "Benin": "bj",
+  "Bhutan": "bt",
+  "Bolivia": "bo",
+  "Bosnia and Herzegovina": "ba",
+  "Botswana": "bw",
+  "Brazil": "br",
+  "Brunei": "bn",
+  "Bulgaria": "bg",
+  "Burkina Faso": "bf",
+  "Burundi": "bi",
+  "Cabo Verde": "cv",
+  "Cambodia": "kh",
+  "Cameroon": "cm",
+  "Canada": "ca",
+  "Central African Republic": "cf",
+  "Chad": "td",
+  "Chile": "cl",
+  "China": "cn",
+  "Colombia": "co",
+  "Comoros": "km",
+  "Congo (Congo-Brazzaville)": "cg",
+  "Costa Rica": "cr",
+  "Croatia": "hr",
+  "Cuba": "cu",
+  "Cyprus": "cy",
+  "Czechia (Czech Republic)": "cz",
+  "Democratic Republic of the Congo": "cd",
+  "Denmark": "dk",
+  "Djibouti": "dj",
+  "Dominica": "dm",
+  "Dominican Republic": "do",
+  "Ecuador": "ec",
+  "Egypt": "eg",
+  "El Salvador": "sv",
+  "Equatorial Guinea": "gq",
+  "Eritrea": "er",
+  "Estonia": "ee",
+  "Eswatini": "sz",
+  "Ethiopia": "et",
+  "Fiji": "fj",
+  "Finland": "fi",
+  "France": "fr",
+  "Gabon": "ga",
+  "Gambia": "gm",
+  "Georgia": "ge",
+  "Germany": "de",
+  "Ghana": "gh",
+  "Greece": "gr",
+  "Grenada": "gd",
+  "Guatemala": "gt",
+  "Guinea": "gn",
+  "Guinea-Bissau": "gw",
+  "Guyana": "gy",
+  "Haiti": "ht",
+  "Honduras": "hn",
+  "Hungary": "hu",
+  "Iceland": "is",
+  "India": "in",
+  "Indonesia": "id",
+  "Iran": "ir",
+  "Iraq": "iq",
+  "Ireland": "ie",
+  "Israel": "il",
+  "Italy": "it",
+  "Jamaica": "jm",
+  "Japan": "jp",
+  "Jordan": "jo",
+  "Kazakhstan": "kz",
+  "Kenya": "ke",
+  "Kiribati": "ki",
+  "Kuwait": "kw",
+  "Kyrgyzstan": "kg",
+  "Laos": "la",
+  "Latvia": "lv",
+  "Lebanon": "lb",
+  "Lesotho": "ls",
+  "Liberia": "lr",
+  "Libya": "ly",
+  "Liechtenstein": "li",
+  "Lithuania": "lt",
+  "Luxembourg": "lu",
+  "Madagascar": "mg",
+  "Malawi": "mw",
+  "Malaysia": "my",
+  "Maldives": "mv",
+  "Mali": "ml",
+  "Malta": "mt",
+  "Marshall Islands": "mh",
+  "Mauritania": "mr",
+  "Mauritius": "mu",
+  "Mexico": "mx",
+  "Micronesia": "fm",
+  "Moldova": "md",
+  "Monaco": "mc",
+  "Mongolia": "mn",
+  "Montenegro": "me",
+  "Morocco": "ma",
+  "Mozambique": "mz",
+  "Myanmar (Burma)": "mm",
+  "Namibia": "na",
+  "Nauru": "nr",
+  "Nepal": "np",
+  "Netherlands": "nl",
+  "New Zealand": "nz",
+  "Nicaragua": "ni",
+  "Niger": "ne",
+  "Nigeria": "ng",
+  "North Korea": "kp",
+  "North Macedonia": "mk",
+  "Norway": "no",
+  "Oman": "om",
+  "Pakistan": "pk",
+  "Palau": "pw",
+  "Palestine State": "ps",
+  "Panama": "pa",
+  "Papua New Guinea": "pg",
+  "Paraguay": "py",
+  "Peru": "pe",
+  "Philippines": "ph",
+  "Poland": "pl",
+  "Portugal": "pt",
+  "Qatar": "qa",
+  "Romania": "ro",
+  "Russia": "ru",
+  "Rwanda": "rw",
+  "Saint Kitts and Nevis": "kn",
+  "Saint Lucia": "lc",
+  "Saint Vincent and the Grenadines": "vc",
+  "Samoa": "ws",
+  "San Marino": "sm",
+  "Sao Tome and Principe": "st",
+  "Saudi Arabia": "sa",
+  "Senegal": "sn",
+  "Serbia": "rs",
+  "Seychelles": "sc",
+  "Sierra Leone": "sl",
+  "Singapore": "sg",
+  "Slovakia": "sk",
+  "Slovenia": "si",
+  "Solomon Islands": "sb",
+  "Somalia": "so",
+  "South Africa": "za",
+  "South Korea": "kr",
+  "South Sudan": "ss",
+  "Spain": "es",
+  "Sri Lanka": "lk",
+  "Sudan": "sd",
+  "Suriname": "sr",
+  "Sweden": "se",
+  "Switzerland": "ch",
+  "Syria": "sy",
+  "Taiwan": "tw",
+  "Tajikistan": "tj",
+  "Tanzania": "tz",
+  "Thailand": "th",
+  "Timor-Leste": "tl",
+  "Togo": "tg",
+  "Tonga": "to",
+  "Trinidad and Tobago": "tt",
+  "Tunisia": "tn",
+  "Turkey": "tr",
+  "Turkmenistan": "tm",
+  "Tuvalu": "tv",
+  "Uganda": "ug",
+  "Ukraine": "ua",
+  "United Arab Emirates": "ae",
+  "United Kingdom": "gb",
+  "United States": "us",
+  "Uruguay": "uy",
+  "Uzbekistan": "uz",
+  "Vanuatu": "vu",
+  "Vatican City": "va",
+  "Venezuela": "ve",
+  "Vietnam": "vn",
+  "Yemen": "ye",
+  "Zambia": "zm",
+  "Zimbabwe": "zw",
+
+  // ✅ Alternate Names / Abbreviations
+  "USA": "us",
+  "US": "us",
+  "UK": "gb",
+  "UAE": "ae",
+  "South Korea": "kr",
+  "North Korea": "kp",
+  "Ivory Coast": "ci",
+  "DR Congo": "cd",
+  "Czech Republic": "cz",
+  "Republic of the Congo": "cg",
+  "Burma": "mm",
+  "Syria (Arab Republic)": "sy"
+};
+
+const continentEmojiMap = {
+  "Africa": "🌍",
+  "Asia": "🌏",
+  "Europe": "🌍",
+  "North America": "🌎",
+  "South America": "🌎",
+  "Oceania": "🌏",
+  "Antarctica": "❄️"
+};
+
+
+
+
+
   return (
     <div className="pt-12 font-inter" onClick={() => {
       setActiveDropdown(null);
@@ -336,7 +618,10 @@ const handleSearchChange = (e) => {
             {/* Scrollable Investor List */}
             <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide scrollbar-hidden">
               {loading ? (
-                <div className="text-center py-8 text-white">Loading...</div>
+               <div className="flex items-center justify-center h-[15rem] text-white">
+  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+</div>
+
               ) : error ? (
                 <div className="text-center py-8 text-red-500">Error: {error}</div>
               ) : (
@@ -424,17 +709,16 @@ const handleSearchChange = (e) => {
                     </div>
 
                     {/* Geography - 1 column */}
-                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
-                        <span className="truncate flex items-center gap-1">
-                          {investor.countries?.[0] || "—"}
-                        </span>
-                      </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.countries?.length > 1 ? `+${investor.countries.length - 1}` : 
-                         investor.geography?.length > 1 ? `+${investor.geography.length - 1}` : "+0"}
-                      </div>
-                    </div>
+                   <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                          <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                           <span className="flex items-center justify-center gap-1">
+                            {getFlagOrContinent(investor.countries?.[0])}
+                          </span>
+
+
+                          </div>
+                        </div>
+
 
                     {/* Match Value - 1 column */}
                     <div className="col-span-1 flex items-center gap-1 justify-center">
