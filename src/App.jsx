@@ -7,6 +7,7 @@ import Login_Page from "./screens/Login_page"; // Assuming correct path and name
 import PrivateRoute from "./components/PrivateRoute";
 import GoogleAuthCallback from "./components/GoogleAuthCallback";
 import AuthError from "./screens/AuthError";
+import Payment_Page from "./screens/Payment_Page";
 
 // Screens for Profile Setup
 import ProfileSetup_Page from "./screens/ProfileSetup_Page";
@@ -67,6 +68,7 @@ function App() {
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },
+    {path:"/payment", element: <Payment_Page /> },
    
     
      { path:"/flow/outbound", element:<GenerateEmail />},
