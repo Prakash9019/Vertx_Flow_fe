@@ -16,30 +16,70 @@ const Payment_Page = () => {
         setLoading(true);
         const response = await axios.get('http://localhost:5000/api/payments/plans');
         
+        // Log the raw response to understand the data structure
+        console.log('Raw API Response:', response.data);
+        
         // Check the response format and ensure plans is an array
         if (response.data) {
           // If response.data is an array, use it directly
           if (Array.isArray(response.data)) {
-            setPlans(response.data);
+            console.log('Response is an array with length:', response.data.length);
+            
+            // Add quarterly price calculation if not provided
+            const processedPlans = response.data.map(plan => {
+              if (!plan.quarterlyPrice && plan.monthlyPrice) {
+                return {
+                  ...plan,
+                  quarterlyPrice: Math.round(plan.monthlyPrice * 2) // 33% discount for quarterly
+                };
+              }
+              return plan;
+            });
+            
+            setPlans(processedPlans);
           } 
           // If response.data has a plans property that's an array
           else if (response.data.plans && Array.isArray(response.data.plans)) {
-            setPlans(response.data.plans);
+            console.log('Response has plans array with length:', response.data.plans.length);
+            
+            // Add quarterly price calculation if not provided
+            const processedPlans = response.data.plans.map(plan => {
+              if (!plan.quarterlyPrice && plan.monthlyPrice) {
+                return {
+                  ...plan,
+                  quarterlyPrice: Math.round(plan.monthlyPrice * 2) // 33% discount for quarterly
+                };
+              }
+              return plan;
+            });
+            
+            setPlans(processedPlans);
           }
           // If response.data is an object with plan properties
           else if (typeof response.data === 'object') {
-            // Log the response to understand its structure
-            console.log('API Response:', response.data);
+            console.log('Response is an object with keys:', Object.keys(response.data));
             
             // Convert to array if it's an object with plan properties
             // This is a fallback in case the API returns an object instead of an array
             const plansArray = Object.keys(response.data).map(key => {
+              const plan = response.data[key];
+              
+              // Add quarterly price calculation if not provided
+              if (!plan.quarterlyPrice && plan.monthlyPrice) {
+                return {
+                  ...plan,
+                  _id: key,
+                  quarterlyPrice: Math.round(plan.monthlyPrice * 2) // 33% discount for quarterly
+                };
+              }
+              
               return {
-                ...response.data[key],
+                ...plan,
                 _id: key
               };
             });
             
+            console.log('Converted to plans array:', plansArray);
             setPlans(plansArray);
           } else {
             // If we can't determine the structure, set an empty array
@@ -154,7 +194,15 @@ const Payment_Page = () => {
                   <h3 className="text-5xl font-bold text-white">
                     ${billingCycle === 'monthly' 
                       ? (plan.monthlyPrice || plan.price || 0) 
-                      : (plan.quarterlyPrice || (plan.monthlyPrice ? plan.monthlyPrice * 3 * 0.67 : 0) || 0).toFixed(0)} 
+                      : (
+                          // For quarterly pricing:
+                          // 1. Use quarterlyPrice if available
+                          // 2. Otherwise calculate from monthlyPrice with 33% discount (multiply by 2 instead of 3)
+                          // 3. If neither is available, use price or default to 0
+                          plan.quarterlyPrice || 
+                          (plan.monthlyPrice ? Math.round(plan.monthlyPrice * 2) : 0) || 
+                          (plan.price ? Math.round(plan.price * 2) : 0)
+                        )} 
                     <span className="text-sm font-normal ml-1">per startup / {billingCycle}</span>
                   </h3>
                   <p className="text-white mt-1">{plan.description || `${plan.name} plan for startups`}</p>
