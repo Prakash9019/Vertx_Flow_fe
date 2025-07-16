@@ -209,6 +209,17 @@ const handleSearchChange = (e) => {
 };
 
 
+const continentIconMap = {
+  "Africa": "/public/icons/africa.png",
+  "Asia": "/public/icons/asia.png",
+  "Europe": "/public/icons/europe.png",
+  "North America": "/public/icons/north.png",
+  "South America": "/public/icons/south.png",
+  "Latin America": "/public/icons/south.png",
+  "Oceania": "🌏",
+  "Antarctica": "❄️"
+};
+
 const getFlagOrContinent = (name) => {
   if (!name) return <span>—</span>;
 
@@ -224,9 +235,9 @@ const getFlagOrContinent = (name) => {
   };
 
   const regionBadgeMap = {
-    "LATAM": "🌎 Latin America",
+    "LATAM": "/public/icons/south.png",
     "Global": "🌐 Global",
-    "Asia": "🌏 Asia Specific"
+    "Asia": "/public/icons/asia.png"
   };
 
   const normalized = aliasMap[name] || name;
@@ -241,20 +252,30 @@ const getFlagOrContinent = (name) => {
       />
     );
   }
+if (continentIconMap[normalized]) {
+  return (
+    <div className="flex items-center gap-1 text-xs text-white">
+      <img
+        src={continentIconMap[normalized]}
+        alt={normalized}
+        className="w-6 h-6 object-contain"
+      />
+      {/* <span>{normalized}</span> */}
+    </div>
+  );
+}
 
-  if (continentEmojiMap[normalized]) {
-    return (
-      <span className="flex items-center text-xs text-white">
-        {continentEmojiMap[normalized]} {normalized}
-      </span>
-    );
-  }
 
   if (regionBadgeMap[normalized]) {
     return (
-      <span className="flex items-center text-xs text-white">
-        {regionBadgeMap[normalized]}
-      </span>
+      <div className="flex items-center gap-1 text-xs text-white">
+      <img
+        src={regionBadgeMap[normalized]}
+        alt={normalized}
+        className="w-6 h-6 object-contain"
+      />
+      {/* <span>{normalized}</span> */}
+    </div>
     );
   }
 
@@ -476,15 +497,7 @@ const countryCodeMap = {
   "Syria (Arab Republic)": "sy"
 };
 
-const continentEmojiMap = {
-  "Africa": "🌍",
-  "Asia": "🌏",
-  "Europe": "🌍",
-  "North America": "🌎",
-  "South America": "🌎",
-  "Oceania": "🌏",
-  "Antarctica": "❄️"
-};
+
 
 
 
