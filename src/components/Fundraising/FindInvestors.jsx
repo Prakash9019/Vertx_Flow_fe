@@ -236,7 +236,7 @@ const getFlagOrContinent = (name) => {
       <img
         src={`https://flagcdn.com/w40/${countryCodeMap[normalized].toLowerCase()}.png`}
         alt={normalized}
-        className="w-4 h-3 rounded-sm"
+        className="w-7 h-5   rounded-sm"
         onError={(e) => { e.target.style.display = "none"; }}
       />
     );
@@ -710,14 +710,12 @@ const continentEmojiMap = {
 
                     {/* Geography - 1 column */}
                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
-                          <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                          <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-fit max-w-[4rem]">
                            <span className="flex items-center justify-center gap-1">
                             {getFlagOrContinent(investor.countries?.[0])}
                           </span>
-
-
                           </div>
-                        </div>
+                    </div>
 
 
                     {/* Match Value - 1 column */}
