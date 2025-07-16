@@ -6,7 +6,7 @@ function EvaluateReportComponent({ data }) {
   const scoreValue = data?.score?.value || 0;
   console.log(scoreValue);
   const scoreLabel = data?.score?.label || "UNKNOWN";
-  const companyName = data?.overview?.company_name;
+  const companyName = data?.overview?.companyName;
 
   const scoreRanges = [
     { label: "Critical", color: "bg-red-700", value: 0, max: 299 },

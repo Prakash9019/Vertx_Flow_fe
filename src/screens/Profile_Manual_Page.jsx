@@ -7,7 +7,7 @@ import { useStartupProfile } from "../context/StartupProfileContext";
 
 function Profile_Manual_Page() {
   const { profileData, fetchProfileData } = useStartupProfile();
-  const [accountName, setAccountName] = useState("");
+  const [accountname, setAccountname] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [message, setMessage] = useState(false);
@@ -17,11 +17,11 @@ function Profile_Manual_Page() {
   useEffect(() => {
     if (profileData?.companyName) setCompanyName(profileData.companyName);
     if (profileData?.companyWebsite) setCompanyWebsite(profileData.companyWebsite);
-    if (profileData?.accountName) setAccountName(profileData.accountName);
+    if (profileData?.accountname) setAccountname(profileData.accountname);
   }, [profileData]);
   
   const handleCreateProfile = async () => {
-    if (companyName && accountName && companyWebsite) {
+    if (companyName && accountname && companyWebsite) {
       try {
         const token = localStorage.getItem("authToken");
         console.log("Submitting to:", API_KEY + "/api/profile/manual");
@@ -35,7 +35,7 @@ function Profile_Manual_Page() {
         }
         
         console.log("Using token (first 20 chars):", token.substring(0, 20) + "...");
-        console.log("Data:", { accountName, companyName, companyWebsite });
+        console.log("Data:", { accountname, companyName, companyWebsite });
         
         const res = await fetch(API_KEY + "/api/profile/manual", {
           method: "POST",
@@ -44,7 +44,7 @@ function Profile_Manual_Page() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            accountName,
+            accountname,
             companyName,
             companyWebsite
           })
@@ -124,9 +124,9 @@ function Profile_Manual_Page() {
               <div className="flex flex-col gap-4 sm:gap-6">
                 <input
                   type="text"
-                  value={accountName}
+                  value={accountname}
                   required
-                  onChange={(e) => setAccountName(e.target.value)}
+                  onChange={(e) => setAccountname(e.target.value)}
                   placeholder="Account full name"
                   className="w-full bg-black text-white border border-gray-700 py-2.5 sm:py-3 px-3 sm:px-4 rounded-md text-sm sm:text-base focus:outline-none focus:border-purple-500"
                 />

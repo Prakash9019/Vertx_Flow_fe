@@ -40,14 +40,14 @@ export default function GenerateEmail() {
       }
   
       const data = {
-        founder_name: "Surya Prakash",
+        accountname: "Surya Prakash",
         building: "AI-driven e-commerce platform",
         co_builders: "Jane Smith, Alan Turing",
         best_contact: "john.doe@example.com",
         show_built: "https://example.com/product",
         professional_presence: "LinkedIn: john-doe",
         industry: "E-commerce",
-        company_name: "TechCo",
+        companyName: "TechCo",
         description: "A platform that uses AI to personalize the shopping experience for consumers.",
         sectors: "E-commerce AI",
         traction: "Revenue grew 20% last quarter, 500 active users",

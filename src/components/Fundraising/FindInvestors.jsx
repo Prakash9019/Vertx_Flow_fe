@@ -6,26 +6,29 @@ import Mail from "../../assets/mail.svg"
 import Twitter from "../../assets/twitter.svg"
 import API_KEY from '../../../key';
 import Dropdown from "../Dropdown.jsx"; // adjust path as per your project
+import { useStartupProfile } from "../../context/StartupProfileContext.jsx";
 
 
 // Simple base64 fallback avatar
-const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
-
+const fallbackAvatar = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
 // Transformer function for investor data - based on the final display needs
 const transformInvestorData = (investor) => {
-  // Get match percentage from API (try match, match_percentage, or default to 0)
+  // Get match percentage from API response - backend now returns match and matchValue directly
   let matchValue = 0;
   let match = "0%";
-  if (typeof investor.match === "number") {
-    matchValue = investor.match;
-    match = `${investor.match}%`;
-  } else if (typeof investor.match_percentage === "number") {
-    matchValue = investor.match_percentage;
-    match = `${investor.match_percentage}%`;
+  
+  // The backend now returns match and matchValue directly
+  if (typeof investor.matchValue === "number") {
+    matchValue = investor.matchValue;
+    match = `${investor.matchValue}%`;
   } else if (typeof investor.match === "string" && investor.match.endsWith("%")) {
     match = investor.match;
-    matchValue = parseInt(investor.match);
+    matchValue = parseInt(investor.match.replace('%', '')) || 0;
+  } else if (typeof investor.match === "number") {
+    matchValue = investor.match;
+    match = `${investor.match}%`;
   }
+  
   return {
       id: investor._id,
       name: investor.name || "Unnamed Investor",
@@ -48,8 +51,8 @@ const transformInvestorData = (investor) => {
       twitter: investor.twitter || "",
       crunchbase: investor.crunchbase || "",
       website: investor.website || "",
-      match, // Use real match percentage
-      matchValue, // Use real match value
+      match, // Use real match percentage from backend
+      matchValue, // Use real match value from backend
   };
 };
 
@@ -82,6 +85,7 @@ const COUNTRY_OPTIONS = [
 ];
 
 function FindInvestors() {
+  const { user_id } = useStartupProfile(); // Get user ID from context
   const [activeFindTab, setActiveFindTab] = useState("Investors");
   const [investors, setInvestors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +99,7 @@ function FindInvestors() {
       countries: [],
       stage: [],
       industry: [],
-      type: '', // Assuming 'type' is a single-select filter or direct input
+      type: [], // Changed to array for multi-select
       cheque_range: '', // Assuming 'cheque_range' is a single-select or direct input
   });
 
@@ -125,6 +129,11 @@ function FindInvestors() {
               limit: 10, // 10 docs per page as requested
           });
 
+          // Add userId for AI model matching if available
+          if (user_id) {
+              queryParams.append('userId', user_id);
+          }
+
           // Only add search parameter if it's not empty
           if (filters.search && filters.search.trim() !== '') {
               queryParams.append('search', filters.search.trim());
@@ -153,20 +162,11 @@ function FindInvestors() {
           const data = await response.json();
           console.log('API Response Data:', data);
           
-          // In fetchInvestors, set match and matchValue from API if present
+          // Transform and set investors data directly from API (which now includes match data)
           if (data.data && Array.isArray(data.data)) {
-            setInvestors(data.data.map(inv => {
-              const transformed = transformInvestorData(inv);
-              // Use real match percentage if present
-              if (typeof inv.match === 'number' || typeof inv.match === 'string') {
-                let matchNum = Number(inv.match);
-                if (!isNaN(matchNum)) {
-                  transformed.matchValue = matchNum;
-                  transformed.match = matchNum + '%';
-                }
-              }
-              return transformed;
-            }));
+            const transformedInvestors = data.data.map(transformInvestorData);
+            console.log('Transformed investors:', transformedInvestors.slice(0, 3)); // Log first 3 for debugging
+            setInvestors(transformedInvestors);
               setTotalPages(data.totalPages || 1);
               setTotalCount(data.totalCount || 0);
           } else {
@@ -181,7 +181,7 @@ function FindInvestors() {
       } finally {
           setLoading(false);
       }
-  }, [currentPage, filters]); // Include dependencies properly
+  }, [currentPage, filters, user_id]); // Include user_id in dependencies
 
   useEffect(() => {
     fetchInvestors();
@@ -302,8 +302,8 @@ const handleSearchChange = (e) => {
 </div>
 
         <div className="w-full py-3">
-  <div className="grid grid-cols-10 gap-5 xl:gap-4 pl-4 xl:pl-6">
-    {/* Investor col-span-4 */}
+  <div className="grid grid-cols-10 gap-5 xl:gap-4 px-2 xl:px-4">
+    {/* Investor col-span-3 */}
     <div className="col-span-3 text-white text-[0.6rem] sm:text-xs font-semibold uppercase">
       INVESTOR NAME
     </div>
@@ -343,10 +343,10 @@ const handleSearchChange = (e) => {
                 investors.map((investor) => (
                     <div
                     key={investor.id}
-                    className="flex justify-between items-center w-full px-2 xl:px-4 py-3 hover:bg-gray-800/30 bg-black transition-colors rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem]"
+                    className="grid grid-cols-10 gap-5 xl:gap-4 items-center w-full px-2 xl:px-4 py-3 hover:bg-gray-800/30 bg-black transition-colors rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem]"
                   >
-                    {/* Investor Info - Takes up 4 columns */}
-                    <div className="col-span-4 flex items-center gap-x-3 min-w-0">
+                    {/* Investor Info - Takes up 3 columns */}
+                    <div className="col-span-3 flex items-center gap-x-3 min-w-0">
                       <img
                         src={investor.profile_image || investor.avatar || fallbackAvatar}
                         alt={investor.name}

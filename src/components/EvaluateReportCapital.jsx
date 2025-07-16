@@ -3,7 +3,7 @@ import wallpaper from "../assets/wallpaper.svg";
 
 function EvaluateReportCapital({ dataGiven }) {
   const data = {
-    company_name: "Vertex",
+    companyName: "Vertex",
     description: "AI-driven platform for startup fundraising strategy.",
     market_focus: "SaaS / AI / Early-stage Tech",
     stage: "Seed",

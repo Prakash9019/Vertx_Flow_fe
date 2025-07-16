@@ -244,9 +244,13 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                     borderRadius: "0.25rem",
                   }}
                 >
-                  {profileData?.accountName && profileData?.companyName 
-                    ? `${profileData.accountName} | ${profileData.companyName}`
-                    : "User | Company"}
+                  {profileData && profileData.accountname && profileData.companyName 
+                    ? `${profileData.accountname} | ${profileData.companyName}`
+                    : profileData && profileData.accountname 
+                      ? `${profileData.accountname} | Company` 
+                      : profileData && profileData.companyName 
+                        ? `User | ${profileData.companyName}` 
+                        : "User | Company"}
                 </div>
               </>
             ) : (
@@ -262,9 +266,13 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                     borderRadius: "0.25rem",
                   }}
                 >
-                  {profileData?.accountName && profileData?.companyName 
-                    ? `${profileData.accountName} | ${profileData.companyName}`
-                    : "User | Company"}
+                  {profileData && profileData.accountname && profileData.companyName 
+                    ? `${profileData.accountname} | ${profileData.companyName}`
+                    : profileData && profileData.accountname 
+                      ? `${profileData.accountname} | Company` 
+                      : profileData && profileData.companyName 
+                        ? `User | ${profileData.companyName}` 
+                        : "User | Company"}
                 </div>
                 <div className="w-full h-full flex items-center justify-center">
                   <img
@@ -288,7 +296,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
                       height: "9.375rem",
                     }}
                   >
-                    {profileData?.accountName?.charAt(0) || "U"}
+                    {profileData?.accountname?.charAt(0) || "U"}
                   </div>
                 </div>
               </>
@@ -1709,9 +1717,13 @@ if (!socket || !socket.connected) {
               zIndex: 10,
             }}
           >
-            {profileData?.accountName && profileData?.companyName
-              ? `${profileData.accountName} | ${profileData.companyName}`
-              : "Founder | Startup"}
+            {profileData && profileData.accountname && profileData.companyName
+              ? `${profileData.accountname} | ${profileData.companyName}`
+              : profileData && profileData.accountname
+                ? `${profileData.accountname} | Startup`
+                : profileData && profileData.companyName
+                  ? `Founder | ${profileData.companyName}`
+                  : "Founder | Startup"}
           </div>
           
           {/* Video control button - always visible */}
@@ -1781,9 +1793,9 @@ if (!socket || !socket.connected) {
               playsInline
               muted
               style={{
-                width: isSpeaking ? "96%" : "100%",
-                height: isSpeaking ? "96%" : "100%",
-                borderRadius: isSpeaking ? "1rem" : "0.625rem",
+                width: isSpeaking ? "98%" : "100%",
+                height: isSpeaking ? "98%" : "100%",
+                borderRadius: isSpeaking ? "0.625rem" : "0.625rem",
                 objectFit: "cover",
                 background: "#222",
                 backgroundColor: isVideoOff ? "#222" : undefined,
@@ -1832,7 +1844,7 @@ if (!socket || !socket.connected) {
                       className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-4xl font-bold"
                       style={{ display: "none" }}
                     >
-                      {profileData?.accountName?.charAt(0) || "U"}
+                      {profileData?.accountname?.charAt(0) || "U"}
                     </div>
                   </div>
                 </div>
@@ -2217,6 +2229,7 @@ function MockPitching({ onBack, loading  }) {
   const { profileData } = useStartupProfile()
   const socketRef = useRef(null);
   const [investors, setInvestors] = useState([])
+  const [investorsLoading, setInvestorsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedInvestor, setSelectedInvestor] = useState(null)
   const [isCallActive, setIsCallActive] = useState(false)
@@ -2229,6 +2242,8 @@ function MockPitching({ onBack, loading  }) {
   const [sessionId, setSessionId] = useState(null)
   const sessionIdRef = useRef(null);
   const [analysis, setAnalysis] = useState(null);
+  const [playingSampleAudio, setPlayingSampleAudio] = useState(null);
+  const [audioProgress, setAudioProgress] = useState(0);
   const navigate = useNavigate();
 
   const filteredInvestors = investors.filter(investor =>
@@ -2266,7 +2281,18 @@ function MockPitching({ onBack, loading  }) {
   // }, [])
 
 
+  // Clean up any playing audio when component unmounts
   useEffect(() => {
+    return () => {
+      if (playingSampleAudio) {
+        playingSampleAudio.pause();
+        playingSampleAudio.currentTime = 0;
+      }
+    };
+  }, [playingSampleAudio]);
+
+  useEffect(() => {
+    setInvestorsLoading(true)
     fetch("https://ai-mock-pitching-427457295403.europe-west1.run.app/api/personas")
       .then((res) => res.json())
       .then((data) => {
@@ -2283,7 +2309,9 @@ function MockPitching({ onBack, loading  }) {
             ],
             rating: "4/5",
             description: persona.personality || "No description available",
-            instruction: persona.approach || "No instruction available",
+            instruction: persona.instruction || "No instruction available",
+            objective: persona.objective || "No objective available",
+            sampleVoiceUrl: `https://ai-mock-pitching-427457295403.europe-west1.run.app/api/sample-voice/${key}`,
           }))
           setInvestors(formatted)
         } else {
@@ -2293,11 +2321,60 @@ function MockPitching({ onBack, loading  }) {
       .catch((err) => {
         console.error("Failed to fetch investors:", err)
       })
+      .finally(() => {
+        setInvestorsLoading(false)
+      })
   }, [])
 
 
   const handleInvestorClick = (investor) => {
     setSelectedInvestor(investor)
+  }
+  
+  const handlePlaySampleAudio = (e, investor) => {
+    e.stopPropagation(); // Prevent triggering investor selection
+    
+    // Stop any currently playing audio
+    if (playingSampleAudio) {
+      playingSampleAudio.pause();
+      playingSampleAudio.currentTime = 0;
+      setPlayingSampleAudio(null);
+      setAudioProgress(0);
+    }
+    
+    // If we clicked on the same investor that was already playing, just stop it
+    if (playingSampleAudio && playingSampleAudio.dataset.investorId === investor.id.toString()) {
+      return;
+    }
+    
+    // Create and play new audio
+    const audio = new Audio(investor.sampleVoiceUrl);
+    // Store investor ID as a property on the audio object instead of using dataset
+    audio.investorId = investor.id.toString();
+    
+    // Set up event listeners
+    audio.addEventListener('timeupdate', () => {
+      const progress = (audio.currentTime / audio.duration) * 100;
+      setAudioProgress(progress);
+    });
+    
+    audio.addEventListener('ended', () => {
+      setPlayingSampleAudio(null);
+      setAudioProgress(0);
+    });
+    
+    audio.addEventListener('error', (e) => {
+      console.error('Error playing sample audio:', e);
+      setPlayingSampleAudio(null);
+      setAudioProgress(0);
+    });
+    
+    // Play the audio
+    audio.play().catch(err => {
+      console.error('Failed to play sample audio:', err);
+    });
+    
+    setPlayingSampleAudio(audio);
   }
 
   const handleCallInvestor = (investor) => {
@@ -2572,15 +2649,18 @@ function MockPitching({ onBack, loading  }) {
     />
   }
 
-  if (loading) {
-  return (
-    <div className="flex items-center justify-center h-screen bg-black text-white">
-      <div className="flex flex-col items-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+  if (loading || investorsLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <p className="text-white font-inter text-sm font-medium">
+            {loading ? "Loading..." : "Loading available investors..."}
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 
   return (
@@ -3170,7 +3250,11 @@ function MockPitching({ onBack, loading  }) {
                       position: "relative",
                     }}
                   >
-                    <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300">
+                    <div 
+                      onClick={(e) => handlePlaySampleAudio(e, selectedInvestor)}
+                      className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300"
+                      title="Play sample voice"
+                    >
                       <img
                         src={PlayIcon || "/placeholder.svg"}
                         alt="Play"
@@ -3190,13 +3274,14 @@ function MockPitching({ onBack, loading  }) {
                     >
                       <div
                         style={{
-                          width: "40%",
+                          width: `${playingSampleAudio && playingSampleAudio.dataset.investorId === selectedInvestor.id.toString() ? audioProgress : 0}%`,
                           height: "100%",
                           background: "#FFF",
                           borderRadius: "0.125rem",
                           position: "absolute",
                           top: 0,
                           left: 0,
+                          transition: "width 0.1s linear",
                         }}
                       />
                     </div>
@@ -3252,7 +3337,7 @@ function MockPitching({ onBack, loading  }) {
                   lineHeight: "1.6",
                 }}
               >
-                {selectedInvestor.description}
+                {selectedInvestor.objective || selectedInvestor.description}
               </p>
             </div>
 
@@ -3277,7 +3362,7 @@ function MockPitching({ onBack, loading  }) {
                   lineHeight: "1.6",
                 }}
               >
-                {selectedInvestor.instruction}
+                {selectedInvestor.instruction || "No instruction available"}
               </p>
             </div>
           </div>

@@ -1,4 +1,5 @@
 // Vertx_Flow_fe/src/context/StartupProfileContext.jsx
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios'; // Using axios directly for simplicity, can be replaced with a preconfigured instance
 import API_KEY from '../../key';
@@ -16,12 +17,13 @@ export const StartupProfileProvider = ({ children }) => {
     raise: '',
     revenue: '',
     industry: [], // Ensure industry is an array
+    sectors: '', // Add sectors field
     pitch: ''
   });
   const [profileData, setProfileData] = useState({
     companyName: '',
     companyWebsite: '',
-    accountName:''
+    accountname: '' // Changed from accountName to accountname
   });
   const [loadingData, setLoadingData] = useState(true); // For initial data load
   const [isSubmitting, setIsSubmitting] = useState(false); // For form submission
@@ -31,14 +33,14 @@ export const StartupProfileProvider = ({ children }) => {
   const [startupId, setstartupId ] =useState('');
   const getToken = () => localStorage.getItem('authToken');
 
-  const fetchStartupData = useCallback(async () => {
+  const fetchStartupData = useCallback(async (retryCount = 0) => {
     setLoadingData(true);
     setError(null);
     const token = getToken();
     console.log(token)
     if (!token) {
       console.warn("No auth token found for fetching startup data. User might be new or not logged in.");
-      setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
+      setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], sectors: '', pitch: '' });
       setLoadingData(false);
       return;
     }
@@ -57,26 +59,35 @@ export const StartupProfileProvider = ({ children }) => {
           raise: fetchedData.raise || '',
           revenue: fetchedData.revenue || '',
           industry: Array.isArray(fetchedData.industry) ? fetchedData.industry : (fetchedData.industry ? [fetchedData.industry] : []),
+          sectors: fetchedData.sectors || '',
           pitch: fetchedData.pitch || ''
         });
         console.log(fetchedData);
       } else {
-        setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
+        setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], sectors: '', pitch: '' });
       }
+      setLoadingData(false);
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        console.log("No startup profile found for this user. Ready for new profile creation.");
-        setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], pitch: '' });
+        // If it's a 404 and we haven't retried yet, wait a bit and retry
+        if (retryCount < 2) {
+          console.log(`No startup profile found, retrying in ${(retryCount + 1) * 1000}ms (attempt ${retryCount + 1}/3)`);
+          setTimeout(() => {
+            fetchStartupData(retryCount + 1);
+          }, (retryCount + 1) * 1000);
+          return;
+        }
+        console.log("No startup profile found for this user after retries. Ready for new profile creation.");
+        setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], sectors: '', pitch: '' });
       } else {
         console.error("Failed to fetch startup data:", err);
         setError(err.response?.data?.message || "Failed to load existing profile data. Please try again.");
       }
-    } finally {
       setLoadingData(false);
     }
   }, []);
 
-  const fetchProfileData = useCallback(async () => {
+  const fetchProfileData = useCallback(async (retryCount = 0) => {
     const token = getToken();
     if (!token) return;
     try {
@@ -87,13 +98,36 @@ export const StartupProfileProvider = ({ children }) => {
         setProfileData({
           companyName: res.data.companyName || '',
           companyWebsite: res.data.companyWebsite || '',
-          accountName: res.data.accountName ||''
+          accountname: res.data.accountname || ''
         });
       }
     } catch (err) {
-      console.error("Error fetching profile data:", err);
+      if (err.response && err.response.status === 404) {
+        // If it's a 404 and we haven't retried yet, wait a bit and retry
+        if (retryCount < 2) {
+          console.log(`No profile data found, retrying in ${(retryCount + 1) * 1000}ms (attempt ${retryCount + 1}/3)`);
+          setTimeout(() => {
+            fetchProfileData(retryCount + 1);
+          }, (retryCount + 1) * 1000);
+          return;
+        }
+        console.log("No profile data found for this user after retries.");
+      } else {
+        console.error("Error fetching profile data:", err);
+      }
     }
   }, []);
+
+  const refreshData = useCallback(async () => {
+    const token = getToken();
+    if (token) {
+      setLoadingData(true);
+      await Promise.all([
+        fetchStartupData(),
+        fetchProfileData()
+      ]);
+    }
+  }, [fetchStartupData, fetchProfileData]);
 
   const updateStartupField = (field, value) => {
     setStartupData(prevData => ({
@@ -118,7 +152,8 @@ export const StartupProfileProvider = ({ children }) => {
 
     const payload = {
       ...startupData,
-      industry: Array.isArray(startupData.industry) ? startupData.industry : (startupData.industry ? [startupData.industry] : [])
+      industry: Array.isArray(startupData.industry) ? startupData.industry : (startupData.industry ? [startupData.industry] : []),
+      sectors: Array.isArray(startupData.industry) ? startupData.industry.join(', ') : (startupData.industry || '')
     };
 
     try {
@@ -134,9 +169,27 @@ export const StartupProfileProvider = ({ children }) => {
           raise: savedData.raise || '',
           revenue: savedData.revenue || '',
           industry: Array.isArray(savedData.industry) ? savedData.industry : (savedData.industry ? [savedData.industry] : []),
+          sectors: savedData.sectors || '',
           pitch: savedData.pitch || ''
         });
       }
+      
+      // Trigger AI analysis immediately after successful profile save
+      // This is critical for ensuring analysis is ready when user reaches FindInvestors page
+      if (user_id) {
+        console.log('Triggering AI analysis for user:', user_id);
+        try {
+          const aiResponse = await axios.get(`${API_KEY}/api/ai-model-profile/${user_id}/ai-match`, {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 30000 // 30 second timeout for AI analysis
+          });
+          console.log('AI analysis completed successfully:', aiResponse.data ? 'Data received' : 'No data');
+        } catch (aiError) {
+          console.warn('AI analysis failed but profile was saved:', aiError.response?.data || aiError.message);
+          // Don't fail the entire operation if AI analysis fails
+        }
+      }
+      
       return true;
     } catch (err) {
       console.error("Failed to submit startup data:", err);
@@ -155,8 +208,12 @@ export const StartupProfileProvider = ({ children }) => {
   useEffect(() => {
     const token = getToken();
     if (token) {
-      fetchStartupData();
-      fetchProfileData();
+      // Add a small delay to allow backend processing time after profile submission
+      const delayMs = window.location.pathname === '/homepage' && document.referrer.includes('pitch') ? 1500 : 500;
+      setTimeout(() => {
+        fetchStartupData();
+        fetchProfileData();
+      }, delayMs);
     } else {
       setLoadingData(false);
     }
@@ -171,9 +228,11 @@ export const StartupProfileProvider = ({ children }) => {
       user_id,
       startupId,
       isSubmitting,
+      setIsSubmitting,
       error,
       successMessage,
       fetchStartupData,
+      refreshData,
       updateStartupField,
       submitStartupProfile,
       setError

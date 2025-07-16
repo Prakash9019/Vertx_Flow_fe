@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import Header from "../components/Header";
 import ProfileProgressBar from "../components/ProfileProgressBar";
+import API_KEY from "../../key";
 
 const InvestorsPitch = () => {
   const navigate = useNavigate();
   const {
     startupData, updateStartupField, submitStartupProfile,
-    isSubmitting, error, setError, successMessage, loadingData,
+    isSubmitting, setIsSubmitting, error, setError, loadingData, user_id
   } = useStartupProfile();
   const [currentPitch, setCurrentPitch] = useState('');
+  const [processingStatus, setProcessingStatus] = useState('');
 
   useEffect(() => {
     setCurrentPitch(startupData.pitch || "");
@@ -29,14 +31,63 @@ const InvestorsPitch = () => {
       return;
     }
     setError(null);
-    const success = await submitStartupProfile();
-    if (success) {
-      setTimeout(() => navigate("/usage"), 1500);
-    }
-  };
+    setIsSubmitting(true);
+    setProcessingStatus('Saving your profile...');
+    
+    try {
+      // Save profile first
+      const success = await submitStartupProfile();
+      if (!success) {
+        setIsSubmitting(false);
+        setProcessingStatus('');
+        return;
+      }
 
-  const handleBack = () => {
-    navigate("/profile/industry");
+      // Wait for AI analysis to complete before redirecting
+      setProcessingStatus('Analyzing your profile with AI...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Check AI analysis status and wait for completion
+      let analysisComplete = false;
+      let attempts = 0;
+      const maxAttempts = 30;
+      while (!analysisComplete && attempts < maxAttempts) {
+        try {
+          setProcessingStatus(`Finding your best investor matches... (${attempts + 1}/${maxAttempts})`);
+          const token = localStorage.getItem('authToken');
+          const response = await fetch(`${API_KEY}/api/investors/ai-status/${user_id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.isComplete && data.matchCount > 0) {
+              analysisComplete = true;
+              setProcessingStatus(`Found ${data.matchCount} investor matches! Redirecting...`);
+            } else {
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          } else {
+            break;
+          }
+        } catch {
+          break;
+        }
+        attempts++;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Onboarding flow logic:
+      // Only check onboarding flag and route accordingly
+      // Always force /usage for every new user after pitch
+      localStorage.removeItem('vertx_onboarding_role_complete');
+      navigate("/usage");
+      return;
+    } catch {
+      setError("An error occurred while saving your profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+      setProcessingStatus('');
+    }
   };
 
   if (loadingData && !startupData.stage) {
@@ -160,6 +211,11 @@ const InvestorsPitch = () => {
                     {error && (
                       <p className="text-red-500 text-[10px] xs:text-xs sm:text-sm mt-2">
                         {error}
+                      </p>
+                    )}
+                    {processingStatus && (
+                      <p className="text-blue-500 text-[10px] xs:text-xs sm:text-sm mt-2">
+                        {processingStatus}
                       </p>
                     )}
                   </div>
