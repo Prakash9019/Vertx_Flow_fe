@@ -346,37 +346,7 @@ const [isMobile, setIsMobile] = useState(false);
   </div>
 </div>
 
-        <div className="w-full py-3">
-  <div className="grid grid-cols-10 gap-5 xl:gap-4 px-2 xl:px-4">
-    {/* Investor col-span-3 */}
-    <div className="col-span-3 text-white text-[0.6rem] sm:text-xs font-semibold uppercase">
-      INVESTOR NAME
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      CHECK SIZE
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      STAGE
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      INDUSTRY
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      GEOGRAPHY
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      MATCH
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      SUBMIT
-    </div>
-    <div className="text-white text-[0.6rem] sm:text-xs font-semibold uppercase text-center">
-      {/* 3-dot placeholder */}
-    </div>
-  </div>
-</div>
-
-
+      ) : (<div></div>)}
 
 
 
@@ -438,175 +408,272 @@ const [isMobile, setIsMobile] = useState(false);
                     </div>
                   </div>
                 </div>
-            {/* Scrollable Investor List */}
-            <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide scrollbar-hidden">
-              {loading ? (
-                <div className="text-center py-8 text-white">Loading...</div>
-              ) : error ? (
-                <div className="text-center py-8 text-red-500">Error: {error}</div>
-              ) : (
-                investors.map((investor) => (
-                    <div
-                    key={investor.id}
-                    className="grid grid-cols-10 gap-5 xl:gap-4 items-center w-full px-2 xl:px-4 py-3 hover:bg-gray-800/30 bg-black transition-colors rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem]"
+
+                {/* Check Size - 1 column */}
+                <div className="col-span-1 flex justify-center">
+                  <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] min-w-max max-w-full">
+                    <span className="truncate">{investor.checkSize || "—"}</span>
+                  </div>
+                </div>
+
+                {/* Stage - 1 column */}
+                <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                  <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                    <span className="truncate">
+                      {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+                    </span>
+                  </div>
+                  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                    {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` :
+                      investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
+                  </div>
+                </div>
+
+                {/* Industry - 1 column */}
+                <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                  <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                    <span className="truncate">
+                      {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+                    </span>
+                  </div>
+                  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                    {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` :
+                      investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
+                  </div>
+                </div>
+
+                {/* Geography - 1 column */}
+                <div className="col-span-1 flex flex-col gap-y-1 items-center">
+                  <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
+                    <span className="truncate">
+                      {investor.countries?.[0] || investor.geography?.[0] || investor.global_hq || "—"}
+                    </span>
+                  </div>
+                  <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                    {investor.countries?.length > 1 ? `+${investor.countries.length - 1}` :
+                      investor.geography?.length > 1 ? `+${investor.geography.length - 1}` : "+0"}
+                  </div>
+                </div>
+
+                {/* Match Value - 1 column */}
+                <div className="col-span-1 flex items-center gap-1 justify-center">
+                  <div
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                    style={{ background: getMatchColor(investor.matchValue) }}
+                  ></div>
+                  <span className="text-white text-sm font-semibold font-['Inter']">{investor.match || "—"}</span>
+                </div>
+
+                {/* Submit Button - 1 column */}
+                <div className="col-span-1 flex justify-center">
+                  <button
+                    className="text-white text-xs font-medium rounded px-2 py-1 font-['Inter'] text-[0.625rem] transition-all hover:scale-105 min-w-[3rem] max-w-[4rem] truncate"
+                    style={{
+                      background:
+                        "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                    }}
                   >
-                    {/* Investor Info - Takes up 3 columns */}
-                    <div className="col-span-3 flex items-center gap-x-3 min-w-0">
-                      <img
-                        src={investor.profile_image || investor.avatar || fallbackAvatar}
-                        alt={investor.name}
-                        className="rounded object-cover w-10 h-10 xl:w-12 xl:h-12 bg-white flex-shrink-0" />
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-white font-normal text-sm truncate font-['Inter'] max-w-[8rem]">
-                            {investor.name}
-                          </span>
-                          <div className="flex gap-1 flex-shrink-0">
-                            <img
-                              src={LinkedIn || "/placeholder.svg"}
-                              alt="LinkedIn"
-                              className="w-2 h-2 cursor-pointer text-[#0077B5]"
-                            />
-                            <img
-                              src={Link || "/placeholder.svg"}
-                              alt="Link"
-                              className="w-2 h-2 cursor-pointer text-gray-400"
-                            />
-                            <img
-                              src={Mail || "/placeholder.svg"}
-                              alt="Mail"
-                              className="w-2 h-2 cursor-pointer text-gray-400"
-                            />
-                            <img
-                              src={Twitter || "/placeholder.svg"}
-                              alt="Twitter"
-                              className="w-2 h-2 cursor-pointer text-gray-400"
-                            />
-                          </div>
+                    Submit
+                  </button>
+                </div>
+
+                {/* Dropdown - 0.5 column */}
+                <div className="col-span-1 flex justify-center">
+                  <div className="relative">
+                    <button
+                      className="hover:opacity-70 transition-colors p-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                      }}
+                    >
+                      <MoreVertical className="w-4 h-4 text-gray-400" />
+                    </button>
+
+                    {activeDropdown === investor.id && (
+                      <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                        <div className="py-1">
+                          {[
+                            { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
+                            { text: "Remove from list", icon: "🗑️", action: () => console.log("Remove from list clicked") },
+                            { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
+                          ].map((item, index) => (
+                            <button
+                              key={index}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                item.action();
+                                setActiveDropdown(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                            >
+                              <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                                {item.icon}
+                              </div>
+                              {item.text}
+                            </button>
+                          ))}
                         </div>
-                        <div className="flex items-center gap-2 mt-1 min-w-0">
-                          <span className="text-white text-xs truncate font-['Inter'] text-[0.625rem] max-w-[6rem]">
-                            {investor.company || investor.firm || investor.fund}
-                          </span>
-                          <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 px-2 py-0.5 flex items-center justify-center flex-shrink-0 font-['Inter'] min-w-max">
-                            {investor.type}
-                          </span>
-                        </div>
                       </div>
-                    </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <div className="p-4 max-w-7xl mx-auto">
+          {loading ? (
+            <div className="text-center py-8 text-white">Loading...</div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">Error: {error}</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 justify-items-center">
+              {investors.map((investor) => (
+                <div
+                  key={investor.id}
+                  className="bg-black/70 rounded-lg shadow-lg p-4 flex flex-col items-center text-center max-w-[300px] w-full border border-gray-700/50 hover:bg-gray-800/30 transition-colors"
+                >
+                  {/* Investor Image */}
+                  <img
+                    src={investor.profile_image || investor.avatar || fallbackAvatar}
+                    alt={investor.name}
+                    className="rounded-full object-cover w-16 h-16 mb-2 bg-white"
+                  />
 
-                    {/* Check Size - 1 column */}
-                    <div className="col-span-1 flex justify-center">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] min-w-max max-w-full">
-                        <span className="truncate">{investor.checkSize || "—"}</span>
-                      </div>
-                    </div>
+                  {/* Investor Name */}
+                  <span className="text-white font-semibold text-sm mb-1 truncate w-full">
+                    {investor.name}
+                  </span>
 
-                    {/* Stage - 1 column */}
-                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
-                        <span className="truncate">
-                          {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+                  {/* Company/Firm/Fund & Type */}
+                  <div className="flex items-center justify-center gap-1 mb-2 w-full">
+                    <span className="text-gray-400 text-xs truncate">
+                      {investor.company || investor.firm || investor.fund}
+                    </span>
+                    <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 px-2 py-0.5 flex-shrink-0">
+                      {investor.type}
+                    </span>
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="flex gap-2 mb-3 justify-center">
+                    <img src={LinkedIn} alt="LinkedIn" className="w-5 h-5 cursor-pointer text-[#0077B5]" />
+                    <img src={Link} alt="Link" className="w-5 h-5 cursor-pointer text-gray-400" />
+                    <img src={Mail} alt="Mail" className="w-5 h-5 cursor-pointer text-gray-400" />
+                    <img src={Twitter} alt="Twitter" className="w-5 h-5 cursor-pointer text-gray-400" />
+                  </div>
+
+                  {/* Key Details - Check Size, Stage, Industry, Geography */}
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-1 text-xs w-full mb-3">
+                    <div className="flex flex-col items-center">
+                      <span className="text-gray-500 text-[0.6rem] uppercase font-medium">Check Size</span>
+                      <span className="bg-[#18002C] text-white px-2 py-1 rounded-sm text-[0.625rem] truncate w-full max-w-[80px]">
+                        {investor.checkSize || "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-gray-500 text-[0.6rem] uppercase font-medium">Stage</span>
+                      <span className="bg-[#18002C] text-white px-2 py-1 rounded-sm text-[0.625rem] truncate w-full max-w-[80px]">
+                        {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+                      </span>
+                      {(investor.stage?.length > 1 || investor.invests_in_rounds?.length > 1) && (
+                        <span className="text-white text-[0.5rem] font-bold mt-0.5">
+                          +{investor.stage?.length > 1 ? investor.stage.length - 1 : investor.invests_in_rounds.length - 1} more
                         </span>
-                      </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
-                         investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
-                      </div>
+                      )}
                     </div>
-
-                    {/* Industry - 1 column */}
-                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
-                        <span className="truncate">
-                          {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+                    <div className="flex flex-col items-center">
+                      <span className="text-gray-500 text-[0.6rem] uppercase font-medium">Industry</span>
+                      <span className="bg-[#18002C] text-white px-2 py-1 rounded-sm text-[0.625rem] truncate w-full max-w-[80px]">
+                        {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+                      </span>
+                      {(investor.industry?.length > 1 || investor.sectors?.length > 1) && (
+                        <span className="text-white text-[0.5rem] font-bold mt-0.5">
+                          +{investor.industry.length - 1 || investor.sectors.length - 1} more
                         </span>
-                      </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
-                         investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
-                      </div>
+                      )}
                     </div>
-
-                    {/* Geography - 1 column */}
-                    <div className="col-span-1 flex flex-col gap-y-1 items-center">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-full max-w-[4rem]">
-                        <span className="truncate flex items-center gap-1">
-                          {investor.countries?.[0] || "—"}
+                    <div className="flex flex-col items-center">
+                      <span className="text-gray-500 text-[0.6rem] uppercase font-medium">Geography</span>
+                      <span className="bg-[#18002C] text-white px-2 py-1 rounded-sm text-[0.625rem] truncate w-full max-w-[80px]">
+                        {investor.countries?.[0] || investor.geography?.[0] || investor.global_hq || "—"}
+                      </span>
+                      {(investor.countries?.length > 1 || investor.geography?.length > 1) && (
+                        <span className="text-white text-[0.5rem] font-bold mt-0.5">
+                          +{investor.countries.length - 1 || investor.geography.length - 1} more
                         </span>
-                      </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.countries?.length > 1 ? `+${investor.countries.length - 1}` : 
-                         investor.geography?.length > 1 ? `+${investor.geography.length - 1}` : "+0"}
-                      </div>
-                    </div>
-
-                    {/* Match Value - 1 column */}
-                    <div className="col-span-1 flex items-center gap-1 justify-center">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${getMatchColor(investor.matchValue)}`}
-                      ></span>
-                      <span className="text-white text-sm font-semibold font-['Inter']">{investor.match || "—"}</span>
-                    </div>
-
-                    {/* Submit Button - 1 column */}
-                    <div className="col-span-1 flex justify-center">
-                      <button
-                        className="text-white text-xs font-medium rounded px-2 py-1 font-['Inter'] text-[0.625rem] transition-all hover:scale-105 min-w-[3rem] max-w-[4rem] truncate"
-                        style={{
-                          background:
-                            "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
-                        }}
-                      >
-                        Submit
-                      </button>
-                    </div>
-
-                    {/* Dropdown - 0.5 column */}
-                    <div className="col-span-1 flex justify-center">
-                      <div className="relative">
-                        <button
-                          className="hover:opacity-70 transition-colors p-1"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
-                          }}
-                        >
-                          <MoreVertical className="w-4 h-4 text-gray-400" />
-                        </button>
-
-                        {activeDropdown === investor.id && (
-                          <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
-                            <div className="py-1">
-                              {[
-                                { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
-                                { text: "Remove from list", icon: "🗑️", action: () => console.log("Remove from list clicked") },
-                                { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
-                              ].map((item, index) => (
-                                <button
-                                  key={index}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    item.action();
-                                    setActiveDropdown(null);
-                                  }}
-                                  className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
-                                >
-                                  <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
-                                    {item.icon}
-                                  </div>
-                                  {item.text}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
-                ))
-              )}
+
+                  {/* Match Value */}
+                  <div className="flex items-center gap-1 mb-3">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ background: getMatchColor(investor.matchValue) }}
+                    ></div>
+                    <span className="text-white text-sm font-semibold">{investor.match || "—"}</span>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex justify-between items-center w-full">
+                    <button
+                      className="text-white text-xs font-medium rounded px-2 py-1 flex-1 mr-1 transition-all hover:scale-105"
+                      style={{
+                        background:
+                          "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+                      }}
+                    >
+                      Submit
+                    </button>
+                    <div className="relative">
+                      <button
+                        className="hover:opacity-70 transition-colors p-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                        }}
+                      >
+                        <MoreVertical className="w-4 h-4 text-gray-400" />
+                      </button>
+
+                      {activeDropdown === investor.id && (
+                        <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                          <div className="py-1">
+                            {[
+                              { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
+                              { text: "Remove from list", icon: "🗑️", action: () => console.log("Remove from list clicked") },
+                              { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
+                            ].map((item, index) => (
+                              <button
+                                key={index}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  item.action();
+                                  setActiveDropdown(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                              >
+                                <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                                  {item.icon}
+                                </div>
+                                {item.text}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
+        </div>
+      )}
+            
 
             {/* Pagination */}
             <div className="flex items-center justify-between mt-12 pb-12">
