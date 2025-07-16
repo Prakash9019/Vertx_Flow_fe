@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import backgroundPay from '../assets/backgroundPay.jpg';
+import API_KEY from "../../key";
 
 const Payment_Page = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Payment_Page = () => {
     const fetchPlans = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/payments/plans');
+        const response = await axios.get(`${API_KEY}/api/payments/plans`);
         
         // Log the raw response to understand the data structure
         console.log('Raw API Response:', response.data);
