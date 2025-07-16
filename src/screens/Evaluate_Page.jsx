@@ -4,7 +4,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useStartupProfile } from "../context/StartupProfileContext";
+import { usePermissions } from "../hooks/usePermissions";
 import API_KEY from "../../key";
+import satsifactory from "./satsifactory.jpg";
+
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [pdfThumbnails, setPdfThumbnails] = useState({}); // Store thumbnails by file name
@@ -13,21 +16,34 @@ function Evaluate_Page() {
   const [evaluationError, setEvaluationError] = useState(false);
   const [evaluationComplete, setEvaluationComplete] = useState(false);
   const [reportData, setReportData] = useState(null);
-  const [analysisData, setAnalysisData] = useState([]);
-  const [score,setScore]=useState(0);
+  const [analysisData, setAnalysisData] = useState([]);  const [score,setScore]=useState(0);
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
-
-  const {user_id } =useStartupProfile();
+  const [loading, setLoading] = useState(true);
+  const [showNoAccessToast, setShowNoAccessToast] = useState(false);
+  const {profileData,user_id, startupId } =useStartupProfile();
+  const { hasFullAccess, canEvaluate, canUpload, userRole, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
 
-  const handleAddNowClick = () => setShowUploader(true);
+  const handleAddNowClick = () => {
+    if (!canUpload) {
+      setShowNoAccessToast(true);
+      setTimeout(() => setShowNoAccessToast(false), 3000);
+      return;
+    }
+    setShowUploader(true);
+  };
    
   useEffect(() => {
-    if (!user_id) return;
-  
-    const fetchAnalysis = async () => {
-      try {
-        const response = await axios.get(`${API_KEY}/api/pitch/analysis/${user_id}`);
+    if (!startupId) return;
+    console.log(startupId)
+     console.log(true);
+    const fetchAnalysis = async () => {    
+        try {
+        const response = await axios.get(`${API_KEY}/api/pitch/analysis/${startupId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+          }
+        });
         setAnalysisData(response.data);
 
         console.log(response.data)
@@ -43,12 +59,12 @@ function Evaluate_Page() {
         console.error('Error fetching analysis:', err);
         // setError(err.response?.data?.message || 'Failed to fetch data');
       } finally {
-        // setLoading(false);
+        setLoading(false);
       }
     };
   
     fetchAnalysis();
-  }, [user_id]);
+  }, [startupId]);
 
   
   // Function to generate PDF thumbnail
@@ -101,7 +117,7 @@ function Evaluate_Page() {
   };
 
   const handlePdfUpload = async (e) => {
-    console.log(user_id)
+    console.log(startupId)
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     setShowUploader(false);
@@ -180,8 +196,12 @@ function Evaluate_Page() {
   //     setEvaluation(false);
   //   }
   // };
-
   const handleEvaluation = async (file) => {
+    if (!canEvaluate) {
+      alert('You don\'t have access from founder.');
+      return;
+    }
+    
     const fileName = file.name;
     setEvaluationStatus(prev => ({
       ...prev,
@@ -193,7 +213,7 @@ function Evaluate_Page() {
   
     try {
       const response = await axios.post(
-        `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?user_id=${user_id}`,
+        `https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/?startupId=${startupId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -219,37 +239,33 @@ function Evaluate_Page() {
       }));
     }
   };
-
-  
   const handleAccessReport = (status) => {
-    navigate("/evaluate/report", {
-      state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },
-    });
+    if (!canEvaluate) {
+      alert('You don\'t have access from founder.');
+      return;
+    }
+    
+    navigate("/evaluate/report#analysis", {
+      state: { reportData: status.data, pdfFiles: pdfFiles[0]?.name },    });
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex">
+        <Sidebar />
+        <div className="flex-1 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    
     <div className="min-h-screen bg-black text-white flex relative overflow-hidden">
       {/* Add CSS for scanning effect */}
-      <style jsx>{`
-        .scanning-line {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, transparent, #AD6FDE, transparent);
-          animation: scan 2.5s linear infinite;
-        }
-  
-        @keyframes scan {
-          0% {
-            top: 0%;
-          }
-          100% {
-            top: 100%;
-          }
-        }
-      `}</style>
+    
 
 {/* Sidebar */}
 <div className="bg-black text-white">
@@ -276,13 +292,13 @@ function Evaluate_Page() {
 
               {/* Heading with responsive positioning */}
               <h4 className="relative z-10 text-white font-inter text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-[2rem] font-semibold ml-4 sm:ml-8 md:ml-12 lg:ml-16 xl:ml-[6rem] px-2">
-                Company Pitch Deck Evaluator
+             {  profileData ? profileData.companyName+ " Pitch Deck Evaluator": "Company Pitch Deck Evaluator" }
               </h4>
             </div>
           </div>
 
           {/* Content with responsive specifications */}
-          {!showUploader && pdfFiles.length === 0 && analysisData.length === 0 && (
+          {!loading && !showUploader && pdfFiles.length === 0 && analysisData.length === 0 && (
             <div className="text-center mt-12 sm:mt-16 md:mt-20 lg:mt-24 xl:mt-[4.94rem] px-4">
               <p className="text-[#B8B8B8] font-inter text-sm sm:text-base font-normal mb-3 xl:mb-[0.81rem]">
                 You haven't added any deck yet, add one to evaluate now
@@ -340,13 +356,14 @@ function Evaluate_Page() {
                     </svg>
                     
                     {/* Upload PDF Text */}
+                    {/* Styles Unverified as Evaluate page was not loading */}
                     <p
-                      className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem]"
-                      style={{
-                        background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                      }}
+                      className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem] bg-[linear-gradient(180deg,#AD6FDE_34.21%,#0077B7_126.32%)] bg-clip-text text-transparent"
+                      // style={{
+                      //   background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
+                      //   WebkitBackgroundClip: 'text',
+                      //   WebkitTextFillColor: 'transparent',
+                      // }}
                     >
                       Upload PDF
                     </p>
@@ -377,15 +394,17 @@ function Evaluate_Page() {
             <div className="flex flex-col mt-8 sm:mt-10 xl:mt-[2.56rem] mx-3 sm:mx-4 xl:mx-[0.94rem] mb-32">
               {/* Cards Container with Upload Box included */}
               <div
-      className={`${
-        analysisData.length === 0 && pdfFiles.length === 0
-          ? "flex justify-center"
-          : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      } max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32`}
-    >
+  className={`scrollbar-hidden ${
+    analysisData.length === 0 && pdfFiles.length === 0
+      ? "flex justify-center"
+      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+  } max-h-[calc(100vh-300px)] overflow-y-auto pr-2 pb-32`}
+>
+
+
          {/* Upload Box as first card */}
                 {!showUploader && (
-                  <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
+                  <div className="border-dashed flex flex-col text-center relative w-full h-64 sm:h-68 md:h-76 xl:h-[18.75rem] border-3 border-[#592582] rounded-lg">
                     <label className="cursor-pointer flex flex-col items-center h-full">
                       {/* SVG Icon with responsive gap from top */}
                       <svg 
@@ -417,12 +436,12 @@ function Evaluate_Page() {
                       
                       {/* Upload PDF Text with responsive gap from icon */}
                       <p
-                        className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem]"
-                        style={{
-                          background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                        }}
+                        className="font-inter text-sm sm:text-base xl:text-[1rem] font-semibold mt-1 sm:mt-2 xl:mt-[0.38rem] bg-[linear-gradient(180deg,#AD6FDE_34.21%,#0077B7_126.32%)] bg-clip-text text-transparent"
+                        // style={{
+                        //   background: 'linear-gradient(180deg, #AD6FDE 34.21%, #0077B7 126.32%)',
+                        //   WebkitBackgroundClip: 'text',
+                        //   WebkitTextFillColor: 'transparent',
+                        // }}
                       >
                         Upload PDF
                       </p>
@@ -448,26 +467,56 @@ function Evaluate_Page() {
 
                 {/* Previous History Cards */}
                 {analysisData && analysisData.map((item, idx) => (
-                  <div key={`old-${idx}`} className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4">
-                    <div className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center">
-                      <span className="text-white font-light text-lg">SATISFACTORY</span>
-                      <span className="text-white font-bold text-2xl">
-                        {((item.result.breakdown[0].score.value / 800) * 100).toFixed(0)}
-                      </span>
-                    </div>
-                    <div className="text-left">
-                      <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
-                      <p className="text-white text-sm mb-3">Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}</p>
-                    </div>
-                    <button
-                      onClick={() => navigate("/evaluate/report", {
-                        state: { reportData: item.result, pdfFiles: [item.file_name] }
-                      })}
-                      className="mt-auto bg-white text-black w-full py-2 rounded text-sm font-medium hover:bg-gray-200"
-                    >
-                      Access Report
-                    </button>
-                  </div>
+               <div key={`old-${idx}`} className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4">
+               <div
+                 className="relative h-40 w-full rounded mb-4 flex flex-col items-center justify-center overflow-hidden bg-no-repeat bg-center bg-contain"
+                 style={{ backgroundImage: `url(${satsifactory})` }}
+               >
+                 {/* 🖤 Transparent black overlay JUST on image */}
+                 <div className="absolute inset-0 bg-black/50 z-0" />
+             
+                 {/* ✅ Content on top of overlay */}
+                 <div className="relative z-10 flex flex-col items-center">
+                   <span className="text-white font-light text-lg">SATISFACTORY</span>
+                   <span className="text-white font-bold text-2xl">
+                     {((item.result.breakdown[0].score.value / 800) * 100).toFixed(0)}
+                   </span>
+                 </div>
+               </div>
+             
+               <div className="text-left">
+                 <p className="text-white font-semibold text-base mb-1">{item.file_name}</p>
+                 <p className="text-white text-sm mb-3">
+                   Evaluated on: {new Date(item.analysis_date).toLocaleDateString()}
+                 </p>
+                 {item.uploadedBy && (
+                   <p className="text-gray-400 text-xs mb-2">
+                     Uploaded by: {item.uploadedBy.name || item.uploadedBy.email} ({item.uploaderRole})
+                   </p>
+                 )}
+               </div>
+             
+               <button
+                 onClick={() => {
+                   if (!item.canAccess) {
+                     alert("You don't have access from founder.");
+                     return;
+                   }
+                   navigate("/evaluate/report#analysis", {
+                     state: { reportData: item.result, pdfFiles: [item.file_name] },
+                   });
+                 }}
+                 className={`mt-auto w-full py-2 rounded text-sm font-medium ${
+                   item.canAccess
+                     ? "bg-white text-black hover:bg-gray-200"
+                     : "bg-gray-600 text-gray-300 cursor-not-allowed"
+                 }`}
+                 disabled={!item.canAccess}
+               >
+                 {item.canAccess ? "Access Report" : "Access Restricted"}
+               </button>
+             </div>
+             
                 ))}
 
                 {/* Uploaded PDF Cards - Only show when a file is selected */}
@@ -479,13 +528,12 @@ function Evaluate_Page() {
                   <div
                     key={index}
                     // className="flex flex-col w-full h-64 sm:h-72 md:h-80 xl:h-[18.75rem] rounded-lg border-2 border-white bg-black p-3 sm:p-4 xl:p-[0.94rem]"
-                    className="flex flex-col w-full h-80 rounded-lg border-2 border-white bg-black p-4"
+                    className="flex flex-col w-full h-76 rounded-lg border-2 border-white bg-black p-4"
                   >
-                    {/* PDF thumbnail */}
-                    <div 
-                      className="relative h-40 bg-[#6B7280] rounded mb-4 p-2 rounded flex flex-col items-center justify-center"
+                    {/* PDF thumbnail */}                    <div 
+                      className="relative h-40 w-full rounded mb-4 p-2 flex bg-black/50 flex-col items-center justify-center bg-no-repeat bg-center bg-contain"
                       style={{
-                        backgroundColor: pdfThumbnails[file.name] ? 'transparent' : '#6B7280'
+                        backgroundColor: pdfThumbnails[file.name] ? 'transparent' : `url(${satsifactory})`
                       }}
                     >
                       {pdfThumbnails[file.name] ? (
@@ -502,14 +550,14 @@ function Evaluate_Page() {
                       
                       {/* Loading Scanning Effect */}
                       { status.evaluating && !status.complete && (
-                        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                           <div className="scanning-line"></div>
                         </div>
                       )}
                       
                       {/* Evaluation Complete Overlay */}
                       {status.complete && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
                           <div className="text-white font-inter text-lg sm:text-xl md:text-2xl xl:text-[1.75rem] font-light mb-[-0.5rem] mt-2 sm:mt-4 xl:mt-[1rem]">
                             SATISFACTORY
                           </div>
@@ -527,21 +575,32 @@ function Evaluate_Page() {
                           ? "Evaluation report is ready and you can access now."
                           : `${new Date().toLocaleDateString()}`}
                       </p>
-                    </div>
-
-                    <button
-                     onClick={status.complete ? () => handleAccessReport(status) : () => handleEvaluation(file)}
+                    </div>                    <button
+                     onClick={
+                       !canEvaluate 
+                         ? () => alert('You don\'t have access from founder.')
+                         : status.complete 
+                           ? () => handleAccessReport(status) 
+                           : () => handleEvaluation(file)
+                     }
                       className={`w-full py-2 rounded text-sm font-medium cursor-pointer transition duration-200 ${
-                        status.evaluating ? 'bg-gray-500 text-white' : 'bg-white text-black hover:bg-gray-200'
+                        !canEvaluate
+                          ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                          : status.evaluating 
+                            ? 'bg-gray-500 text-white' 
+                            : 'bg-white text-black hover:bg-gray-200'
                       }`}
+                      disabled={!canEvaluate && !status.complete}
                     >
-                       {status.evaluating
-    ? "Initializing..."
-    : status.error
-    ? "Failed to evaluate"
-    : status.complete
-    ? "Access Report"
-    : "Evaluate"}
+                       {!canEvaluate
+                         ? "Access Restricted"
+                         : status.evaluating
+                           ? "Initializing..."
+                           : status.error
+                             ? "Failed to evaluate"
+                             : status.complete
+                               ? "Access Report"
+                               : "Evaluate"}
                     </button>
                   </div>
                 );
@@ -551,6 +610,19 @@ function Evaluate_Page() {
           )}
         </div>
       </div>
+
+      {/* No Access Toast Notification */}
+<div
+  className={`fixed top-4 right-4 z-[100] transition-all duration-600 ease-in-out ${
+    showNoAccessToast ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+  }`}
+>
+  <div className="max-w-xs sm:max-w-sm md:max-w-md whitespace-nowrap rounded-md border border-[#18152D] bg-black flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 shadow-lg">
+    <span className="text-white font-inter text-sm sm:text-base font-medium">
+      You don't have access from founder.
+    </span>
+  </div>
+</div>
     </div>
   );
 }

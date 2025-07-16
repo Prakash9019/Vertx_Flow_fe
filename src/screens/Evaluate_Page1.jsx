@@ -1,42 +1,107 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Background2 from "../assets/background2.jpg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar2";
+import API_KEY from "../../key";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [showUploader, setShowUploader] = useState(false);
   const [evaluation, setEvaluation] = useState(false);
   const [evaluationError, setEvaluationError] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [canUpload, setCanUpload] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleAddNowClick = () => setShowUploader(true);
-
-  const handlePdfUpload = (e) => {
-    const file = e.target.files[0];
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-
-    if (file && file.type === "application/pdf") {
-      if (file.size < maxSize) {
-        setPdfFiles([...pdfFiles, file]);
-        setShowUploader(false); // Close popup after upload
-      } else {
-        alert("File size exceeds 10MB. Please upload a smaller file.");
+  // Check user permissions on component mount
+  useEffect(() => {
+    const checkUserPermissions = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        
+        if (token) {
+          const response = await axios.get(`${API_KEY}/api/auth/founder`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          setUserRole(response.data.role);
+          
+          // Determine if user can upload
+          const hasUploadPermission = response.data.role === 'founder' || 
+            (response.data.role === 'cofounder' && response.data.permissions && response.data.permissions.fullAccess);
+          
+          setCanUpload(hasUploadPermission);
+        }
+      } catch (error) {
+        console.error('Error checking user permissions:', error);
       }
-    } else {
-      alert("Only PDF files are allowed.");
+    };
+
+    checkUserPermissions();
+  }, []);
+
+  const handleAddNowClick = () => {
+    if (!canUpload) {
+      alert('You don\'t have access from founder.');
+      return;
+    }
+    setShowUploader(true);
+  };
+  const handlePdfUpload = async (e) => {
+    try {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.type !== 'application/pdf') {
+        alert('Please upload a PDF file');
+        return;
+      }
+
+      // Create FormData to send the file
+      const formData = new FormData();
+      formData.append('pdfFile', file);
+
+      const token = localStorage.getItem('authToken');
+      const uploadResponse = await fetch(`${API_KEY}/api/pitch-analysis/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload PDF');
+      }
+
+      const uploadResult = await uploadResponse.json();
+      
+      // Set the PDF files state with the new file info
+      setPdfFiles([{
+        name: file.name,
+        path: uploadResult.filePath,
+        uploadDate: new Date().toISOString()
+      }]);
+      
+      setShowUploader(false);
+    } catch (error) {
+      console.error('Error uploading PDF:', error);
+      alert('Failed to upload PDF. Please try again.');
     }
   };
-
   const handleEvaluation = async () => {
     setEvaluation(true);
     const formData = new FormData();
     formData.append("file", pdfFiles[0]);
     console.log("hiiiiiii.....")
+    
     try {
-      const response = await axios.post(
+      // First get the analysis from the ML model
+      const analysisResponse = await axios.post(
         "https://pitch-analysis-model-427457295403.us-central1.run.app/analyze/",
         formData,
         {
@@ -46,14 +111,36 @@ function Evaluate_Page() {
         }
       );
 
-      console.log("data:-", response.data);
-      console.log("data of pdf :-", pdfFiles);
+      // Save the analysis and the PDF to our backend
+      const token = localStorage.getItem('authToken');
+      const saveResponse = await axios.post(
+        `${API_KEY}/api/pitch-analysis/save-analysis`,
+        {
+          fileName: pdfFiles[0].name,
+          analysisData: analysisResponse.data
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      const analysisId = saveResponse.data.analysis._id;
+      
+      console.log("Analysis saved successfully");
       setTimeout(() => {
         setEvaluation(false);
       }, 1000);
-      // send to next page
-      navigate("/evaluate/report", {
-        state: { reportData: response.data, pdfFiles: pdfFiles },
+      
+      // Navigate to report page with the analysis data and ID
+      navigate("/evaluate/report#analysis", {
+        state: { 
+          reportData: analysisResponse.data, 
+          pdfFiles: pdfFiles[0].name,
+          analysisId: analysisId 
+        }
       });
     } catch (error) {
       console.log("Error", error);
@@ -62,31 +149,20 @@ function Evaluate_Page() {
         setEvaluationError(false);
       }, 2000);
       setEvaluation(false);
-    }
-  };
+    }  };
 
   return (
-    <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white">
-    
-      <div className="md:col-span-3 bg-black text-white">
-        <Sidebar />
-      </div>
-
-      <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white relative">
-        <div className="flex-1 ">
-          {/* Header */}
-
-          <div className="relative">
-            {/* Hero section with exact specifications */}
-            <div 
-              className="relative rounded-md overflow-hidden flex items-center"
-              style={{
-                height: '14.75rem',
-                marginTop: '6.31rem',
-                marginLeft: '0.94rem',
-                marginRight: '0.94rem',
-                width: 'calc(100% - 1.88rem)'
-              }}
+    <div className="flex min-h-screen">
+      <Sidebar />
+      
+      <div className="flex-1 bg-black">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Hero section */}
+          <div 
+            className="relative rounded-md overflow-hidden flex items-center mb-8 bg-gradient-to-r from-[#150D29] to-[#150629]"
+            style={{
+              height: '14.75rem'
+            }}
             >
               {/* Background image */}
               <div
@@ -109,12 +185,10 @@ function Evaluate_Page() {
                   fontSize: '2rem',
                   fontWeight: 600,
                   marginLeft: '6rem'
-                }}
-              >
+                }}              >
                 Company Pitch Deck Evaluator
               </h4>
             </div>
-          </div>
 
           {/* Content with exact specifications */}
           {!showUploader && pdfFiles.length === 0 && (
@@ -132,11 +206,11 @@ function Evaluate_Page() {
                 }}
               >
                 You haven't added any deck yet, add one to evaluate now
-              </p>
-              <button
+              </p>              <button
                 onClick={handleAddNowClick}
+                disabled={!canUpload}
                 style={{
-                  color: '#FFF',
+                  color: canUpload ? '#FFF' : '#666',
                   fontFamily: 'Inter',
                   fontSize: '1rem',
                   fontWeight: 600,
@@ -144,9 +218,11 @@ function Evaluate_Page() {
                   borderRadius: '0.375rem',
                   backgroundColor: 'transparent',
                   border: 'none',
-                  cursor: 'pointer'
+                  cursor: canUpload ? 'pointer' : 'not-allowed',
+                  opacity: canUpload ? 1 : 0.5
                 }}
-                className="hover:bg-gray-500 hover:text-white active:bg-gray-500 active:text-white transition duration-300"
+                className={canUpload ? "hover:bg-gray-500 hover:text-white active:bg-gray-500 active:text-white transition duration-300" : ""}
+                title={!canUpload ? "You don't have access from founder" : ""}
               >
                 Add now
               </button>
@@ -168,7 +244,13 @@ function Evaluate_Page() {
               >
                 {/* Upload Section - Centered */}
                 <div className="flex-1 flex flex-col items-center justify-center">
-                  <label className="cursor-pointer flex flex-col items-center justify-center">
+                  <label 
+                    className={`flex flex-col items-center justify-center ${canUpload ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                    style={{ 
+                      opacity: canUpload ? 1 : 0.5,
+                      pointerEvents: canUpload ? 'auto' : 'none'
+                    }}
+                  >
                     {/* SVG Icon */}
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
@@ -270,7 +352,13 @@ function Evaluate_Page() {
                   borderRadius: '0.5rem'
                 }}
               >
-                <label className="cursor-pointer flex flex-col items-center">
+                <label 
+                  className={`flex flex-col items-center ${canUpload ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  style={{ 
+                    opacity: canUpload ? 1 : 0.5,
+                    pointerEvents: canUpload ? 'auto' : 'none'
+                  }}
+                >
                   {/* SVG Icon with 5.63rem gap from top */}
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 

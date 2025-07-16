@@ -13,12 +13,16 @@
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/vite": "^4.1.5",
     "axios": "^1.9.0",
+    "canvas-capture": "^2.1.1",
+    "canvas-confetti": "^1.9.3",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.510.0",
     "pdfjs-dist": "^5.3.93",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.5.3",
+    "socket.io-client": "^4.8.1",
     "tailwindcss": "^4.1.5"
   },
   "devDependencies": {

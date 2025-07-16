@@ -1,113 +1,149 @@
-import React, { useState } from "react";
-import CloseIcon from "../assets/close_icon.svg";
+import React, { useState, useRef, useEffect } from "react";
 
-const Dropdown = ({ options, selected, onSelect }) => {
+const Dropdown = ({ label, options, selected, setSelected, isMulti = false }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const clearSelection = (e) => {
-    e.stopPropagation();
-    onSelect("");
+  const handleSelect = (option) => {
+    if (isMulti) {
+      if (selected.includes(option)) {
+        setSelected(selected.filter((item) => item !== option));
+      } else {
+        setSelected([...selected, option]);
+      }
+    } else {
+      setSelected(option);
+      setIsOpen(false);
+    }
+  };
+
+  const isSelected = (option) => {
+    if (Array.isArray(selected)) return selected.includes(option);
+    return selected === option;
   };
 
   return (
-    <div className="relative w-[320px]">
-      {/* Selected Item */}      <button
-        onClick={toggleDropdown}
-        className={`w-full h-[36px] px-3 py-1 text-sm font-medium text-white rounded-md ${!selected ? 'border border-[#B8B8B8]' : ''} bg-black text-left flex justify-between items-center`}
+    <div className="relative" style={{ width: '86px', height: '30px' }} ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          position: 'relative',
+          width: '86px',
+          height: '30px',
+          background: '#000000',
+          border: (isMulti && selected.length > 0) || (!isMulti && selected) ? '1px solid #33005C' : '1px solid #1A1A1A',
+          borderRadius: '3px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0 10px'
+        }}
       >
-        {selected ? (
-          <div className="inline-flex items-center px-2 py-1 text-sm font-medium text-white rounded" style={{
-            background: 'linear-gradient(260.47deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99.45deg, #000000 -4%, #33005C 104%)'
+        <span style={{
+          fontFamily: 'Inter',
+          fontStyle: 'normal',
+          fontWeight: 400,
+          fontSize: '10px',
+          lineHeight: '12px',
+          color: '#B8B8B8'
+        }}>
+          {isMulti
+            ? selected.length > 0
+              ? label
+              : label
+            : selected || label}
+        </span>
+        {isMulti && selected.length > 0 && (
+          <div style={{
+            position: 'absolute',
+            top: '-6px',
+            right: '-6px',
+            width: '13px',
+            height: '13px',
+            background: '#33005C',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <span className="mr-2">{selected}</span>
-            <img 
-              src={CloseIcon} 
-              alt="Clear selection" 
-              onClick={clearSelection} 
-              className="cursor-pointer w-3 h-3"
-            />
+            <span style={{
+              fontFamily: 'Inter',
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: '8px',
+              lineHeight: '10px',
+              color: '#FFFFFF'
+            }}>{selected.length}</span>
           </div>
-        ) : (
-          <>
-            <span>Select</span>
-            <span className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`}>
-              ▼
-            </span>
-          </>
         )}
+        <svg style={{ width: '8px', height: '8px' }} fill="none" stroke="#B8B8B8" strokeWidth="2"
+          viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round"
+            d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
-      {/* Dropdown List */}
       {isOpen && (
-        <div className="absolute w-full bottom-full mb-1 z-[9999]">
-          <ul className="w-full bg-black shadow-lg rounded-md border border-[#B8B8B8] overflow-y-auto max-h-[200px] transform transition-all duration-200 ease-in-out">
-            {options.map((option, index) => (
-              <li
-                key={index}
-                onClick={() => {
-                  onSelect(option);
-                  setIsOpen(false);
-                }}
-                className="px-3 py-2 text-sm cursor-pointer hover:bg-[#33005C] text-white"
-              >
-                {option}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul style={{
+          position: 'absolute',
+          zIndex: 10,
+          background: '#1A1A1A',
+          width: '86px',
+          marginTop: '1px',
+          borderRadius: '3px',
+          maxHeight: '150px',
+          overflowY: 'auto',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          padding: 0
+        }}>
+          {options.map((option) => (
+            <li
+              key={option}
+              onClick={() => handleSelect(option)}
+              style={{
+                padding: '6px 8px',
+                fontSize: '10px',
+                cursor: 'pointer',
+                fontFamily: 'Inter',
+                color: '#B8B8B8',
+                backgroundColor: isSelected(option) ? '#33005C' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#33005C'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = isSelected(option) ? '#33005C' : 'transparent'}
+            >
+              <span>{option}</span>
+              {isSelected(option) && (
+                <span style={{ color: 'green', fontSize: '10px' }}>✔</span>
+              )}
+            </li>
+          ))}
+
+          {/* Optional: Reset Button */}
+          {isMulti && selected.length > 0 && (
+            <div
+              className="px-3 py-2 text-xs text-purple-400 hover:underline cursor-pointer border-t border-gray-700"
+              onClick={() => setSelected([])}
+            >
+              Reset All
+            </div>
+          )}
+        </ul> 
       )}
     </div>
   );
 };
 
 export default Dropdown;
-
-
-
-
-
-
-// import React, { useState } from "react";
-
-// const Dropdown = ({ options, selected, onSelect }) => {
-//   const [isOpen, setIsOpen] = useState(false);
-
-//   const toggleDropdown = () => setIsOpen(!isOpen);
-
-//   return (
-//     <div className="relative w-[320px]">
-//       {/* Selected Item */}
-//       <button
-//         onClick={toggleDropdown}
-//         className="w-full h-[36px] px-3 py-1 text-sm font-medium text-black rounded-md border border-[#B8B8B8] bg-white text-left flex justify-between items-center"
-//       >
-//         {selected ? selected : "Select"}
-//         <span className={`transform transition-transform ${isOpen ? "rotate-180" : ""}`}>
-//           ▼
-//         </span>
-//       </button>
-
-//       {/* Dropdown List */}
-//       {isOpen && (
-//         <ul className="absolute w-full mt-1 bg-white shadow-lg rounded-md border border-[#B8B8B8] z-10 max-h-[200px] overflow-y-auto">
-//           {options.map((option, index) => (
-//             <li
-//               key={index}
-//               onClick={() => {
-//                 onSelect(option);
-//                 setIsOpen(false);
-//               }}
-//               className="px-3 py-2 text-sm cursor-pointer hover:bg-[#f0f0f0]"
-//             >
-//               {option}
-//             </li>
-//           ))}
-//         </ul>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Dropdown;

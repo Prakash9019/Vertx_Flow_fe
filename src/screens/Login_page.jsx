@@ -6,8 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import  API_KEY  from "../../key";
 
 function Login_Page() {
-  const [userEmail, setUserEmail] = useState("");
-  const [storedEmail, setStoredEmail] = useState("");
+     const [userEmail, setUserEmail] = useState("");
+    const [storedEmail, setStoredEmail] = useState("");
   const [otpFormDisplay, setOtpFormDisplay] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -22,15 +22,13 @@ function Login_Page() {
     const inviteTokenFromUrl = params.get("inviteToken");
 
     if (inviteTokenFromUrl) {
-      console.log("Invite Token found in URL:", inviteTokenFromUrl);
+
       localStorage.setItem("cofounderInviteToken", inviteTokenFromUrl);
 
-      // Optional: decode JWT and prefill email (skipped for simplicity)
-
-      // Clean URL
-      navigate(location.pathname, { replace: true, state: location.state });
+      // Don't clean the URL immediately to avoid redirection issues
+      // We'll clean it after successful login
     }
-  }, [location, navigate]);
+  }, [location]);
 
   // Handle email submit and OTP send
   const handleEmail = async () => {
@@ -81,6 +79,29 @@ function Login_Page() {
       inputsRef.current[index - 1].focus();
     }
   };
+  // Google Login
+  const handleLoginWithGoogle = () => {
+    // Check if this is a cofounder login (has invite token)
+    const hasInviteToken = localStorage.getItem("cofounderInviteToken");
+    
+    // Only set homepage redirect for cofounders
+    if (hasInviteToken) {
+      localStorage.setItem('postLoginRedirect', '/homepage');
+    }
+    
+    // Log for debugging
+    
+    // Determine if we're in development or production
+    const isDev = window.location.hostname === "localhost" || 
+                  window.location.hostname === "127.0.0.1";
+    
+    // Use the appropriate backend URL
+    const backendUrl = isDev ? "http://localhost:5000" : API_KEY;
+    const backendGoogleAuthUrl = `${backendUrl}/auth/google`;
+    
+
+    window.location.href = backendGoogleAuthUrl;
+  };
 
   // Submit OTP
   const handleOtpSubmit = async () => {
@@ -97,16 +118,74 @@ function Login_Page() {
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("isVerified", "true");
 
-        const inviteToken = localStorage.getItem("cofounderInviteToken");
-        if (inviteToken) {
+        // Clean URL after successful login
+        const cleanUrl = location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+
+        const inviteToken = localStorage.getItem("cofounderInviteToken");        const shouldRedirectToHome = localStorage.getItem("redirectToHomeAfterLogin") === "true";
+        const pendingInviteId = localStorage.getItem("pendingInviteId");        if (inviteToken) {
           console.log(
-            "Invite token exists, consider processing it:",
+            "Processing cofounder invitation token:",
             inviteToken
           );
-          // Optional: call invite processing API
-        }
+          try {
+            // Call the API to accept the cofounder invite
+            const inviteResponse = await axios.post(
+              `${API_KEY}/api/invites/accept-cofounder`,
+              { inviteToken },
+              {
+                headers: {
+                  Authorization: `Bearer ${response.data.token}`,
+                },
+              }
+            );
 
-        navigate("/linkedin");
+            if (inviteResponse.data) {
+              console.log("Cofounder invite accepted successfully:", inviteResponse.data);
+            }
+
+            // Always redirect to homepage after successful login
+            navigate("/homepage");
+          } catch (inviteError) {
+            console.error("Error processing invitation:", inviteError);
+            // Still redirect to homepage even if there's an error processing the invite
+            navigate("/homepage");
+          } finally {
+            localStorage.removeItem("cofounderInviteToken");
+          }        }
+        // Check for target list invite redirect flag
+        else if (shouldRedirectToHome || pendingInviteId) {
+          console.log("Redirecting to homepage after target list invite login");
+          // Clear the flags after use
+          localStorage.removeItem("redirectToHomeAfterLogin");
+          localStorage.removeItem("pendingInviteId");
+          navigate("/homepage");
+        } 
+        else {
+          // Check profile completion status before redirecting
+          try {
+            const profileResponse = await axios.get(`${API_KEY}/api/auth/profile-status`, {
+              headers: {
+                Authorization: `Bearer ${response.data.token}`,
+              },
+            });
+            
+            const { isProfileComplete, redirectTo } = profileResponse.data;
+            
+            if (isProfileComplete) {
+              console.log("Profile is complete, redirecting to homepage");
+              navigate("/homepage");
+            } else {
+              console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
+              navigate(redirectTo || "/profile/manual");
+            }
+          } catch (profileError) {
+            console.error("Error checking profile status:", profileError);
+            // Fallback to default profile setup if API call fails
+            navigate("/profile/manual");
+          }
+        }
+        
         setOtpFormDisplay(false);
         setOtp(["", "", "", "", "", ""]);
         setErrorMessage("");
@@ -123,12 +202,6 @@ function Login_Page() {
         setErrorMessage("");
       }, 3000);
     }
-  };
-
-  // Google Login
-  const handleLoginWithGoogle = () => {
-    const backendGoogleAuthUrl = `${API_KEY}/auth/google`;
-    window.location.href = backendGoogleAuthUrl;
   };
 
   return (

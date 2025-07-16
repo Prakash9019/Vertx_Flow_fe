@@ -40,14 +40,14 @@ export default function GenerateEmail() {
       }
   
       const data = {
-        founder_name: "John Doe",
+        accountname: "Surya Prakash",
         building: "AI-driven e-commerce platform",
         co_builders: "Jane Smith, Alan Turing",
         best_contact: "john.doe@example.com",
         show_built: "https://example.com/product",
         professional_presence: "LinkedIn: john-doe",
         industry: "E-commerce",
-        company_name: "TechCo",
+        companyName: "TechCo",
         description: "A platform that uses AI to personalize the shopping experience for consumers.",
         sectors: "E-commerce AI",
         traction: "Revenue grew 20% last quarter, 500 active users",
@@ -63,15 +63,24 @@ export default function GenerateEmail() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${tokenFromUrl}`
         },
         body: JSON.stringify(data)
       });
       
-      console.log(res)
       if (!res.ok) throw new Error("Failed to fetch email templates");
+  
       const data1 = await res.json();
-      setTemplates(data1.templates || []);
+
+// Convert object to array with 'varient' included
+const formattedTemplates = Object.entries(data1).map(([key, value]) => ({
+  varient: key,
+  subject: value.subject,
+  body: value.body
+}));
+
+setTemplates(formattedTemplates);
+
     } catch (err) {
       console.error("Template fetch error:", err);
       // alert("Authentication or fetch failed. See console.");
@@ -83,6 +92,43 @@ export default function GenerateEmail() {
     loginAndFetchTemplates();
   }, []);
 
+  useEffect(() => {
+    const fetchSavedTemplates = async () => {
+      const token = localStorage.getItem("authToken");
+  
+      try {
+        const res = await fetch(API_KEY + "/api/email/templates", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          }
+        });
+  
+        if (!res.ok) {
+          console.warn("No saved templates or fetch failed.");
+          return;
+        }
+  
+        const data = await res.json();
+        console.log("Saved templates:", data);
+  
+        const formattedTemplates = Object.entries(data).map(([key, value]) => ({
+          varient: key,
+          subject: value.subject,
+          body: value.body
+        }));
+  
+        setTemplates(formattedTemplates);
+      } catch (error) {
+        console.error("GET template fetch error:", error);
+      }
+    };
+  
+    fetchSavedTemplates();
+  }, []);
+
+  
   useEffect(() => {
     editRef.current.innerText = template?.body || "";
     setSubject(template?.subject || "");
@@ -129,6 +175,7 @@ export default function GenerateEmail() {
   const handleLogout = async () => {
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
+    alert("this is sdfhsdfhdslf");
   };
   
 
@@ -162,7 +209,7 @@ export default function GenerateEmail() {
   return (
     <div className="w-full h-screen bg-black flex overflow-hidden">
       <Sidebar2 />
-      <button onClick={()=> handleLogout()} className="text-6xl bg-blue text-white"> log outt.....</button>
+      {/* <button onClick={()=> handleLogout()} className="text-6xl bg-blue text-white"> log outt.....</button> */}
       <div className="w-full h-full flex flex-col text-white font-['Manrope'] overflow-y-auto">
         <div className="w-full p-5 bg-[#090909]">
           <p className="mb-4 font-bold">Select your template</p>

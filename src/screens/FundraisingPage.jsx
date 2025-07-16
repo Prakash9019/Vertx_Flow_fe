@@ -5,13 +5,15 @@ import ToggleTabHeader from "../components/ToggleTabHeader";
 import FundraisingDashboard from "../components/FundraisingDashboard";
 import { useState } from "react";
 import FundraisingMatches from "../components/FundraisingMatches";
+import { useStartupProfile } from "../context/StartupProfileContext";
 
 function FundraisingPage() {
   const [activeTab, setActiveTab] = useState("Dashboard");
+  const { profileData } = useStartupProfile();
 
-  const companyName = "Company Name";
+  const companyName = profileData?.companyName || "Company Name";
   const fileName = "This company helps A to solve B by addition of C and D.";
-  const companyWebsite = "www.companyname.com";
+  const companyWebsite = profileData?.companyWebsite || "www.companyname.com";
   const tabsArray = ["Dashboard", "Matches", "Reach"];
 
   return (

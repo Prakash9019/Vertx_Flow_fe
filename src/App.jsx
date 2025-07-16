@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import Login_Page from "./screens/Login_page"; // Assuming correct path and name
 import PrivateRoute from "./components/PrivateRoute";
 import GoogleAuthCallback from "./components/GoogleAuthCallback";
+import AuthError from "./screens/AuthError";
 
 // Screens for Profile Setup
 import ProfileSetup_Page from "./screens/ProfileSetup_Page";
@@ -20,9 +21,11 @@ import GenerateEmail from "./screens/emails";
 import Pipeline from "./screens/events";
 import Matchflow from "./screens/matchflow"; 
 
-
 //Screens for fundraising
-import FundraisingManagePage from "./components/fundraising"
+import FundraisingManagePage from "./components/Fundraising/fundraising"
+
+// Invite acceptance page
+import InviteAcceptPage from "./components/InviteAcceptPage";
 
 // Intermediate "Selected" pages (if you decide to keep them)
 import StartupLocation from "./screens/StartupLocation"; // Stage Selected confirmation
@@ -40,14 +43,17 @@ import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
 //import Login from './components/Login';
 
-function App() {
-  const authToken = localStorage.getItem("authToken");
+//screens for PlayGround 
+import PlayGround from "./components/PlayGround"
+import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";
+import MockPitching from "./components/MockPitching";
+import CallReportPage from "./components/callReportPage";
 
-  
+function App() {
   const streamlinedProtectedRoutes = [
-    { path: "/profile", element: <ProfileSetup_Page /> },
+    { path: "/linkedin", element: <ProfileSetup_Page /> },
     { path: "/profile/manual", element: <Profile_Manual_Page /> },
-    { path: "/profile/setup", element: <ProfileSetup /> }, // Stage input
+    { path: "/profile/stage", element: <ProfileSetup /> }, // Stage input
     { path: "/profile/location", element: <LocationSetup /> }, // Location input
     { path: "/profile/raise", element: <RaiseFunds /> }, // Raise input
     { path: "/profile/revenue", element: <RevenueStatus /> }, // Revenue input
@@ -56,39 +62,48 @@ function App() {
     { path: "/usage", element: <Usage_Page /> }, // Next page after profile
     { path: "/addfounder", element: <AddCofounder_Page /> },
     { path: "/homepage", element: <HomePage /> },
+    { path: "/flash", element: <HomePage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
-    { path: "/fundraising", element: <FundraisingPage /> },
+    // { path: "/fundraising", element: <FundraisingPage /> },
+    {path:"/PlayGround", element:<PlayGround /> },
    
     
-    { path:"/flow/outbound", element:<GenerateEmail />},
-    { path:"/flow/match flow", element:<Matchflow />} ,
-    {path:"/flow/pipeline", element:<Pipeline /> }, 
-    {path:"/fundraising/raise", element:<FundraisingManagePage /> },
+     { path:"/flow/outbound", element:<GenerateEmail />},
+    { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising/raise", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/manage", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/find", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/target", element:<FundraisingManagePage /> },
+    {path:"/fundraising/raise/network", element:<FundraisingManagePage /> },
+    {path:"/invite/:inviteId", element:<InviteAcceptPage /> },
+    { path: "/playground/mockpitching", element: <MockPitching /> },
+    { path: "/playground/mockpitching/report", element: <CallReportPage /> },
+
   ];
 
   const protectedRoutes = streamlinedProtectedRoutes; //
-
   return (
-    <div className="relative h-screen overflow-hidden">
-      {" "}
-      {/* Consider CSS for global scroll if needed */}
-      <Routes>
-        {/* <Route path="/" element={<Login_Page />} /> */}
-        {/* <Route path="/" element={<FundraisingPage />} /> */}
-        <Route path="/" element={<Login_Page />} />
-
-        <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-
-        {protectedRoutes.map(({ path, element }) => (
-          <Route
-            key={path}
-            path={path}
-            element={element}
-          />
-        ))}
-      </Routes>
-    </div>
+    <PermissionNotificationProvider>
+      <div className="relative h-screen overflow-hidden">
+        {" "}
+        {/* Consider CSS for global scroll if needed */}
+        <Routes>        {/* <Route path="/" element={<Login_Page />} /> */}
+          {/* <Route path="/" element={<FundraisingPage />} /> */}
+          <Route path="/" element={<Login_Page />} />
+          <Route path="/login" element={<Login_Page />} />
+          
+          {/* Auth routes */}
+          <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+          <Route path="/auth-error" element={<AuthError />} />        {protectedRoutes.map(({ path, element }) => (
+            <Route
+              key={path}
+              path={path}
+              element={<PrivateRoute>{element}</PrivateRoute>}
+            />
+          ))}
+        </Routes>
+      </div>
+    </PermissionNotificationProvider>
   );
 }
 

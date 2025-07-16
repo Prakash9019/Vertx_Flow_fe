@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Background from "../assets/imgBackground.png";
+import API_KEY from "../../key";
 import { useLocation, useNavigate } from "react-router-dom";
 import EvaluateReportComponent from "../components/EvaluateReportComponent";
 import EvaluateReportOverview from "../components/EvaluateReportOverview";
@@ -11,26 +13,101 @@ import Sidebar from "../components/Sidebar";
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
-   console.log("helloooooooo...");
-   console.log(location?.state)
-  const fileName = location?.state?.pdfFiles|| "filename.pdf";
+    const fileName = location?.state?.pdfFiles || "filename.pdf";
   const incomingData = location?.state?.reportData;
-  console.log(location?.state?.pdfFiles);
-  console.log(fileName)
-  console.log(incomingData)
+  const analysisId = location?.state?.analysisId;
   const [reportData, setReportData] = useState(null);
-  const [activeTab, setActiveTab] = useState("Analysis");
+  
+  // Get current tab from URL hash, default to "Analysis"
+  const validTabs = ["Analysis", "Overview",  "Suggestions"];
 
+  const getTabFromHash = () => {
+    const hash = window.location.hash.substring(1); // Remove the #
+    const matchedTab = validTabs.find(tab => tab.toLowerCase() === hash.toLowerCase());
+    return matchedTab || "Analysis";
+  };
+    const [activeTab, setActiveTab] = useState(getTabFromHash());
   useEffect(() => {
-    if (!incomingData) {
-      navigate("/");
-    } else {
-      setReportData(incomingData);
-    }
-  }, [incomingData, navigate]);
+    console.log('EvaluateReport_page: Checking for report data');
+    console.log('Incoming data:', incomingData);
+      if (!incomingData) {
+      // Try to fetch from API using analysisId
+      const fetchAnalysis = async () => {
+        try {
+          const token = localStorage.getItem('authToken');
+          if (!token) {
+            console.error('No auth token found');
+            navigate("/");
+            return;
+          }
 
-  const companyName = reportData?.overview?.company_name;
-  const tabsArray = ["Analysis", "Overview", "Capital", "Suggestions"];
+          const response = await axios.get(
+            `${API_KEY}/api/pitch/analysis/id/${analysisId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+
+          if (response.data && response.data.result) {
+            console.log('Successfully fetched analysis from API');
+            setReportData(response.data.result);
+          } else {
+            console.error('Invalid analysis data received');
+            navigate("/");
+          }
+        } catch (error) {
+          console.error('Error fetching analysis:', error);
+          navigate("/");
+        }
+      };
+
+      if (analysisId) {
+        fetchAnalysis();
+      } else {
+        console.log('No analysis ID found, redirecting to home');
+        navigate("/");
+      }
+    } else {
+      console.log('Using incoming data');      setReportData(incomingData);
+    }
+  }, [incomingData, navigate]);// Update URL when tab changes
+  const handleTabChange = (newTab) => {
+    console.log('Tab change requested:', newTab, 'Current tab:', activeTab);
+    if (newTab !== activeTab) {
+      setActiveTab(newTab);
+      // Use history API instead of directly modifying hash to prevent page reload
+      const newUrl = `${window.location.pathname}${window.location.search}#${newTab.toLowerCase()}`;
+      console.log('Updating URL to:', newUrl);
+      window.history.pushState({}, '', newUrl);
+    }
+  };
+  // Listen for hash changes (browser back/forward)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newTab = getTabFromHash();
+      setActiveTab(newTab);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+  // No need for cleanup since we're not using sessionStorage anymore
+  const companyName = reportData?.overview?.companyName;
+  const tabsArray = ["Analysis", "Overview", "Suggestions"];
+
+  // If no report data, don't render the page content
+  if (!reportData) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">Loading Report...</h2>
+          <p className="text-gray-400">Please wait while we load your evaluation report.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col md:flex-row">
@@ -58,27 +135,21 @@ function EvaluateReport_page() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-2">
               {companyName || "Company Name"}
             </h1>
-            <p className="mb-8 text-sm sm:text-base">{fileName}</p>
-
-            {/* Navigation Tabs */}
+            <p className="mb-8 text-sm sm:text-base">{fileName}</p>            {/* Navigation Tabs */}
             <ToggleTabHeader
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               tabsArray={tabsArray}
             />
           </div>
-        </div>
-
-        {/* Tab Content */}
+        </div>  
+           
         <div className="px-4 sm:px-6 md:px-12">
           {activeTab === "Analysis" && reportData && (
             <EvaluateReportComponent data={Array.isArray(reportData.breakdown) ? reportData.breakdown[0] : reportData.breakdown} />
           )}
           {activeTab === "Overview" && reportData && (
             <EvaluateReportOverview data={reportData.overview} />
-          )}
-          {activeTab === "Capital" && (
-            <EvaluateReportCapital data={reportData} />
           )}
           {activeTab === "Suggestions" && (
             <EvaluateReportSuggestions data={reportData} />

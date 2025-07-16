@@ -2,7 +2,7 @@ import React from "react";
 
 function EvaluateReportOverview({ data }) {
   const {
-    company_name = "Vertex",
+    companyName = "Vertex",
     description = "No description provided.",
     market_focus,
     stage,
@@ -21,7 +21,7 @@ function EvaluateReportOverview({ data }) {
   return (
     <div className="p-6">
       {/* Company Name & Description */}
-      <h2 className="text-2xl font-semibold">{company_name}</h2>
+      <h2 className="text-2xl font-semibold">{companyName}</h2>
       <p className="text-gray-400 mt-2">{description}</p>
 
       {/* Details Grid */}
@@ -74,7 +74,7 @@ function Section({ title, items, isTeam = false, color = "purple" }) {
   };
 
   return (
-    <div className="mt-9 p-4 bg-[#0E0E11] rounded-md">
+    <div className="mt-9 p-4 bg-[#0F0E16] rounded-md">
       {/* Title with side border only */}
       <div className="mb-3">
         <span className={`pl-3 ml-[-1rem] ${borderColors[color]}`}></span>

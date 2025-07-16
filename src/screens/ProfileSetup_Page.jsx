@@ -6,6 +6,7 @@ import { FaLinkedin } from "react-icons/fa";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import Image from "./image.png"; // Adjust the path as necessary
 import bgImage from "./bg.png"; // Adjust the path as necessary
+import API_KEY from "../../key"; // Import API_KEY for LinkedIn profile handling
 function ProfileSetup_Page() {
   const navigate = useNavigate();
   // Context handles initial data fetch. We mainly use loadingData and error for UI feedback here.
@@ -28,11 +29,46 @@ function ProfileSetup_Page() {
   const handleInputChange = (e) => {
     setLinkedinHandle(e.target.value);
   };
-
-  const handleContinueToSetup = () => {
-    // Navigate to the first actual data collection step.
-    // Assumes context has loaded/initialized startupData.
-    navigate("/profile/stage"); // This should be the "Stage" selection page
+  const handleContinueToSetup = async () => {
+    if (!linkedinHandle.trim()) {
+      alert("Please enter your LinkedIn profile handle");
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem("authToken");
+      // Create a minimal profile with the LinkedIn handle
+      const linkedinUrl = `https://www.linkedin.com/in/${linkedinHandle.trim()}`;
+      const companyName = "From LinkedIn"; // Placeholder until properly extracted
+      
+      console.log("Submitting LinkedIn profile:", linkedinUrl);
+      
+      const res = await fetch(`${API_KEY}/api/profile/manual`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accountName: linkedinHandle.trim(),
+          companyName: companyName,
+          companyWebsite: linkedinUrl
+        })
+      });
+      
+      if (!res.ok) {
+        console.error("Failed to save LinkedIn profile");
+        const errorText = await res.text();
+        console.error(errorText);
+        throw new Error("Failed to save LinkedIn profile");
+      }
+      
+      // Navigate to the first actual data collection step
+      navigate("/profile/stage");
+    } catch (error) {
+      console.error("LinkedIn profile setup error:", error);
+      alert("Failed to set up your profile. Please try again or use manual entry.");
+    }
   };
 
   if (loadingData) {
