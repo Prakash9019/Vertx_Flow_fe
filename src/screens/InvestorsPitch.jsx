@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useStartupProfile } from "../context/StartupProfileContext";
 import Header from "../components/Header";
 import ProfileProgressBar from "../components/ProfileProgressBar";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const InvestorsPitch = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const InvestorsPitch = () => {
     isSubmitting, error, setError, successMessage, loadingData,
   } = useStartupProfile();
   const [currentPitch, setCurrentPitch] = useState('');
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   useEffect(() => {
     setCurrentPitch(startupData.pitch || "");
@@ -37,6 +39,85 @@ const InvestorsPitch = () => {
 
   const handleBack = () => {
     navigate("/profile/industry");
+  };
+
+  const enhancePitchWithGemini = async () => {
+    if (!currentPitch.trim()) {
+      setError("Please write a pitch first before enhancing it.");
+      return;
+    }
+
+    // Check if API key is available
+    if (!import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY === 'your_gemini_api_key_here') {
+      setError("Gemini API key is not configured. Please add your API key to the .env file.");
+      return;
+    }
+
+    setIsEnhancing(true);
+    setError(null);
+
+    try {
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite-preview-06-17" });
+
+      const prompt = `You are a professional pitch writer. Rewrite this startup pitch to make it more compelling and investor-ready. Return ONLY the improved pitch text, nothing else.
+
+Original pitch: "${currentPitch}"
+
+Rewrite it to be:
+- write between 250-350 characters
+- Professional and confident
+- Clear about the problem and solution
+- Compelling for investors
+- Concise but impactful
+
+Return only the enhanced pitch text without any explanations, options, or additional commentary.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const enhancedText = response.text();
+
+      // Clean up the response (remove quotes, asterisks, and extra formatting)
+      let cleanedText = enhancedText
+        .replace(/^["']|["']$/g, '') // Remove quotes
+        .replace(/^\*\*.*?\*\*:?\s*/gm, '') // Remove bold headers like **Option 1:**
+        .replace(/^\*.*?\*:?\s*/gm, '') // Remove italic headers
+        .replace(/^#+\s*/gm, '') // Remove markdown headers
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold formatting
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic formatting
+        .trim();
+      
+      // If the response contains multiple options, take only the first paragraph
+      const firstParagraph = cleanedText.split('\n\n')[0];
+      const finalText = firstParagraph || cleanedText;
+      
+      // Directly replace the current pitch with enhanced text
+      setCurrentPitch(finalText);
+      updateStartupField('pitch', finalText);
+    } catch (error) {
+      console.error('Error enhancing pitch:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        statusText: error.statusText,
+        stack: error.stack
+      });
+      
+      // More specific error messages
+      if (error.message?.includes('API_KEY') || error.status === 400) {
+        setError("Invalid API key. Please check your Gemini API key in the .env file.");
+      } else if (error.message?.includes('quota') || error.status === 429) {
+        setError("API quota exceeded. Please check your Gemini API usage limits.");
+      } else if (error.message?.includes('blocked') || error.status === 403) {
+        setError("Content was blocked. Please try rephrasing your pitch.");
+      } else if (error.status === 404) {
+        setError("Model not found. The API model might have changed.");
+      } else {
+        setError(`Failed to enhance pitch: ${error.message || 'Unknown error'}. Please try again.`);
+      }
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   if (loadingData && !startupData.stage) {
@@ -96,23 +177,57 @@ const InvestorsPitch = () => {
                       onChange={handlePitchChange}
                       placeholder="Write here..."
                       className="w-full p-3"
-                      maxLength={200}
+                      disabled={isEnhancing}
                       style={{ 
                         width: '100%', 
                         height: '5.75rem', 
                         borderRadius: '0.3125rem', 
                         border: '1px solid rgba(184, 184, 184, 0.13)', 
-                        background: '#0F0E16',
-                        color: '#FFFFFF',
+                        background: isEnhancing ? '#1a1a1a' : '#0F0E16',
+                        color: isEnhancing ? '#888' : '#FFFFFF',
                         fontSize: '0.75rem',
                         fontWeight: 400,
                         fontFamily: 'Inter',
                         padding: '0.625rem 0.9375rem',
-                        resize: 'none',
-                        '::placeholder': { color: '#656565' }
+                        resize: 'vertical',
+                        overflowY: 'auto',
+                        '::placeholder': { color: '#656565' },
+                        opacity: isEnhancing ? 0.7 : 1
                       }}
                     />
-                    <div 
+                    
+                    {/* Loading spinner overlay */}
+                    {isEnhancing && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <div style={{
+                          width: '2rem',
+                          height: '2rem',
+                          border: '3px solid rgba(173, 111, 222, 0.3)',
+                          borderTop: '3px solid #AD6FDE',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }} />
+                        <span style={{
+                          color: '#AD6FDE',
+                          fontSize: '0.75rem',
+                          fontFamily: 'Inter'
+                        }}>
+                          Enhancing...
+                        </span>
+                      </div>
+                    )}
+                    <button 
+                      onClick={enhancePitchWithGemini}
+                      disabled={isEnhancing || isSubmitting}
                       style={{ 
                         position: 'absolute', 
                         bottom: '0.625rem', 
@@ -125,8 +240,12 @@ const InvestorsPitch = () => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        marginBottom: '0.3rem'
+                        marginBottom: '0.3rem',
+                        cursor: (isEnhancing || isSubmitting) ? 'not-allowed' : 'pointer',
+                        opacity: (isEnhancing || isSubmitting) ? 0.5 : 1,
+                        transition: 'opacity 0.2s ease'
                       }}
+                      title="Enhance pitch with AI"
                     >
                       <svg
   width="16"
@@ -194,8 +313,7 @@ const InvestorsPitch = () => {
     </linearGradient>
   </defs>
 </svg>
-
-                    </div>
+                    </button>
                     <div style={{ 
                       position: 'absolute', 
                       width: '100%', 
