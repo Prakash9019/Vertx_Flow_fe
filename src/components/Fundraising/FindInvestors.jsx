@@ -114,6 +114,11 @@ function FindInvestors() {
     return "bg-[#DE2D2D]";
   };
 
+  // Pagination calculations
+  // const totalPages = Math.ceil(investorData.length / itemsPerPage);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  // const currentInvestors = investorData.slice(startIndex, endIndex);
 
   const fetchInvestors = useCallback(async () => {
       setLoading(true);
@@ -216,10 +221,33 @@ const [isMobile, setIsMobile] = useState(false);
   }, []);
   console.log("Is a Card List",isMobile)
 
+
   return (
     <div className="pt-12 font-inter" onClick={() => {
       setActiveDropdown(null);
     }}>
+      {/* Find Tab Navigation */}
+      <div className="flex gap-12 mb-12">
+        {["Venture Firms", "Investors"].map((tab) => (
+          <div key={tab} className="relative">
+            <button 
+              onClick={() => setActiveFindTab(tab)}
+              className={`pb-2 transition-colors font-medium text-base ${
+                activeFindTab === tab ? 'text-white' : 'text-[#B8B8B8]'
+              }`}
+            >
+              {tab}
+            </button>
+            {activeFindTab === tab && (
+              <div 
+                className={`absolute bottom-0 left-0 h-1 rounded-full bg-[#AD6FDE] ${
+                  tab === "Venture Firms" ? 'w-[7.5rem]' : 'w-[4.5rem]'
+                }`}
+              ></div>
+            )}
+          </div>
+        ))}
+      </div>
 
       {activeFindTab === "Investors" && (
         <div className="mb-12">
@@ -286,72 +314,44 @@ const [isMobile, setIsMobile] = useState(false);
     </div>
   </div>
 </div>
-        
-        {!isMobile ? (
-        <div className="bg-[#33005C]/20 rounded-t-lg border-b border-gray-700/50">
-          <div className="grid grid-cols-12 items-center px-2 xl:px-4 py-3 gap-1 xl:gap-2">
-            {/* Investor Header - 4 columns */}
-            <div className="col-span-4 flex justify-start">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] whitespace-nowrap">
-                INVESTOR
-              </div>
-            </div>
 
-            {/* Check Size Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                CHECK SIZE
-              </div>
-            </div>
-
-            {/* Stage Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                STAGE
-              </div>
-            </div>
-
-            {/* Industry Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                INDUSTRY
-              </div>
-            </div>
-
-            {/* Geography Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                GEOGRAPHY
-              </div>
-            </div>
-
-            {/* Match Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                MATCH
-              </div>
-            </div>
-
-            {/* Submit Deck Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                SUBMIT DECK
-              </div>
-            </div>
-
-            {/* Options Header - 1 column */}
-            <div className="col-span-1 flex justify-center">
-              <div className="text-white font-semibold text-[0.5rem] sm:text-xs uppercase tracking-[0.05em] text-center whitespace-nowrap">
-                OPTIONS
-              </div>
-            </div>
-          </div>
-        </div>
+{!isMobile ? (
+<div className="w-full py-3">
+  <div className="grid grid-cols-10 gap-5 xl:gap-4 px-2 xl:px-4">
+    {/* Investor col-span-3 */}
+    <div className="col-span-3 text-white text-[0.5rem] sm:text-xs font-semibold uppercase tracking-[0.05em] whitespace-nowrap">
+      INVESTOR
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      CHECK SIZE
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      STAGE
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      INDUSTRY
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      GEOGRAPHY
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      MATCH
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      SUBMIT
+    </div>
+    <div className="text-white text-[0.5rem] sm:text-xs font-semibold uppercase text-center tracking-[0.05em] whitespace-nowrap">
+      {/* 3-dot placeholder */}
+    </div>
+  </div>
+</div>
 
       ) : (<div></div>)}
 
-      {/* Scrollable Investor List */}
-      {!isMobile ? (
+
+
+
+ {!isMobile ? (
         <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide scrollbar-hidden">
           {loading ? (
             <div className="text-center py-8 text-white">Loading...</div>
@@ -361,10 +361,10 @@ const [isMobile, setIsMobile] = useState(false);
             investors.map((investor) => (
               <div
                 key={investor.id}
-                className="grid grid-cols-12 items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem] px-2 xl:px-4 py-3 gap-1 xl:gap-2"
+                className="grid grid-cols-10 items-center bg-black hover:bg-gray-800/30 transition-colors w-full rounded-md border-b border-gray-700/50 min-h-[5rem] xl:min-h-[6.25rem] px-2 xl:px-4 py-3 gap-5 xl:gap-4"
               >
                 {/* Investor Info - Takes up 4 columns */}
-                <div className="col-span-4 flex items-center gap-x-3 min-w-0">
+                <div className="col-span-3 flex items-center gap-x-3 min-w-0">
                   <img
                     src={investor.profile_image || investor.avatar || fallbackAvatar}
                     alt={investor.name}
@@ -377,22 +377,22 @@ const [isMobile, setIsMobile] = useState(false);
                       <div className="flex gap-1 flex-shrink-0">
                         {/* Ensure these are actual image paths or components */}
                         <img
-                          src={LinkedIn} // Use the imported variable
+                          Src={LinkedIn || "/placeholder.svg"}
                           alt="LinkedIn"
                           className="w-2 h-2 cursor-pointer text-[#0077B5]"
                         />
                         <img
-                          src={Link} // Use the imported variable
+                          src={Link || "/placeholder.svg"}
                           alt="Link"
                           className="w-2 h-2 cursor-pointer text-gray-400"
                         />
                         <img
-                          src={Mail} // Use the imported variable
+                          Src={Mail || "/placeholder.svg"}
                           alt="Mail"
                           className="w-2 h-2 cursor-pointer text-gray-400"
                         />
                         <img
-                          src={Twitter} // Use the imported variable
+                          src={Twitter || "/placeholder.svg"}
                           alt="Twitter"
                           className="w-2 h-2 cursor-pointer text-gray-400"
                         />
