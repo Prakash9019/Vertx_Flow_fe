@@ -3,6 +3,8 @@
 
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Login_Page from "./screens/Login_page"; // Assuming correct path and name
 import PrivateRoute from "./components/PrivateRoute";
 import GoogleAuthCallback from "./components/GoogleAuthCallback";
@@ -87,7 +89,7 @@ function App() {
   return (
     <PermissionNotificationProvider>
       <div className="relative h-screen overflow-hidden">
-        {" "}
+        <ToastContainer position="top-right" autoClose={5000} />
         {/* Consider CSS for global scroll if needed */}
         <Routes>        {/* <Route path="/" element={<Login_Page />} /> */}
           {/* <Route path="/" element={<FundraisingPage />} /> */}
