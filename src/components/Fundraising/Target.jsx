@@ -74,7 +74,7 @@ export default function Target({ onListSelect }) {
     blue: "linear-gradient(180deg, #456BBD 0%, #6C04BF 100%)"
   };
 
-
+  
   
   // Filter the lists based on the search term
   const filteredUserTargetLists = useMemo(() => {
@@ -121,17 +121,32 @@ export default function Target({ onListSelect }) {
         lists = [];
       }
 
-      const formattedLists = lists.map(list => ({
-        id: list._id,
-        name: list.name,
-        cover: list.coverColor || 'default',
-        createdBy: isFounder ? "Company" : "Founder", // Assuming isFounder is correctly set
-        createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
-        investorCount: Array.isArray(list.investors) ? list.investors.length : 0,
-        investors: Array.isArray(list.investors) ? list.investors : [],
-        // Add updatedDate if available from backend, otherwise default
-        updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
-      }));
+      const formatRelativeDate = (dateStr) => {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now - date;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMin <= 59) return "just now";
+  if (diffMin <= 119) return "1 hr ago";
+  if (diffMin <= 179) return "2 hrs ago";
+  if (diffHours < 24) return `${diffHours} hrs ago`;
+  if (diffDays < 14) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  return new Date(dateStr).toLocaleDateString("en-GB"); // fallback to dd/mm/yyyy
+};
+
+const formattedLists = lists.map(list => ({
+  id: list._id,
+  name: list.name,
+  cover: list.coverColor || 'default',
+  createdBy: isFounder ? "Company" : "Founder",
+  createdDate: formatRelativeDate(list.createdAt || Date.now()),
+  investorCount: Array.isArray(list.investors) ? list.investors.length : 0,
+  investors: Array.isArray(list.investors) ? list.investors : [],
+  updatedDate: list.updatedAt ? Updated `${formatRelativeDate(list.updatedAt)}` : "Updated today",
+}));
       setUserTargetLists(formattedLists);
     } catch (error) {
       console.error('Error fetching lists:', error);
