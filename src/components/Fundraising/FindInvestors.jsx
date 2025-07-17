@@ -722,13 +722,19 @@ const countryCodeMap = {
                     </div>
 
                     {/* Geography - 1 column */}
-                   <div className="col-span-1 flex flex-col gap-y-1 items-center">
-                          <div className="bg-[#18002C] text-white text-xs font-semibold px-2 py-1 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem] w-fit max-w-[4rem]">
-                           <span className="flex items-center justify-center gap-1">
-                            {getFlagOrContinent(investor.countries?.[0])}
-                          </span>
-                          </div>
-                    </div>
+                  <div className="col-span-1 flex flex-row gap-x-1 items-center">
+  {/* Flag Box */}
+  <div className="w-6 h-6 bg-[#18002C] rounded-sm flex items-center justify-center">
+    {getFlagOrContinent(investor.countries?.[0])}
+  </div>
+
+  {/* Total Countries This Investor Covers */}
+  <div className="w-6 h-6 bg-[#18002C] text-white text-xs font-semibold rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+    {investor.countries?.length || 0}
+  </div>
+</div>
+
+                     
 
 
                     {/* Match Value - 1 column */}
