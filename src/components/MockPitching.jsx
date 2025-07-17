@@ -11,6 +11,7 @@ import AddIcon from "../assets/AddIcon.svg"
 import SpeedometerIcon from "../assets/SpeedometerIcon.svg"
 import TuneIcon from "../assets/TuneIcon.svg"
 import PlayIcon from "../assets/PlayIcon.svg"
+import PauseIcon from "../assets/Pause2.svg"
 import EndCallIcon from "../assets/EndCall.svg";
 import VideoIcon from "../assets/VideoIcon.svg";
 import VideoOffIcon from "../assets/VideoOffIcon.svg";
@@ -1932,6 +1933,12 @@ function MockPitching({ onBack, loading  }) {
   investor.name.toLowerCase().includes(searchQuery.toLowerCase())
 );
 
+// Use useRef to persist the Audio object across renders without causing re-renders
+  const audioRef = useRef(null);
+  // State to track if the *currently selected investor's* audio is playing
+  const [isPlayingCurrentInvestorAudio, setIsPlayingCurrentInvestorAudio] = useState(false);
+
+
 
   // const [isListening, setIsListening] = useState(false)
 
@@ -2007,6 +2014,93 @@ function MockPitching({ onBack, loading  }) {
         setInvestorsLoading(false)
       })
   }, [])
+
+  // --- New/Modified useEffect for Audio Playback Logic ---
+  useEffect(() => {
+    // Cleanup function for the previous audio instance
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.removeEventListener('timeupdate', handleAudioTimeUpdate);
+        audioRef.current.removeEventListener('ended', handleAudioEnded);
+        audioRef.current = null; // Clear the ref
+      }
+      setIsPlayingCurrentInvestorAudio(false); // Ensure state is reset
+      setAudioProgress(0); // Reset progress
+    };
+  }, []); // Run this cleanup setup only once on component mount/unmount
+
+    // Event handler for timeupdate
+  const handleAudioTimeUpdate = () => {
+    if (audioRef.current && audioRef.current.duration) {
+      const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      setAudioProgress(progress);
+    }
+  };
+
+  // Event handler for ended
+  const handleAudioEnded = () => {
+    setIsPlayingCurrentInvestorAudio(false);
+    setAudioProgress(0);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // Reset to beginning for next play
+    }
+  };
+
+  const togglePlayPauseAudio = (e, investor) => {
+    e.stopPropagation(); // Prevent unwanted parent clicks
+
+    // Case 1: No audio object exists yet OR a different investor's audio is playing
+    if (!audioRef.current || audioRef.current.investorId !== investor.id) {
+      // Stop any currently playing audio from a *previous* investor
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.removeEventListener('timeupdate', handleAudioTimeUpdate);
+        audioRef.current.removeEventListener('ended', handleAudioEnded);
+      }
+
+      // Create a new Audio object for the selected investor
+      audioRef.current = new Audio(investor.sampleVoiceUrl);
+      audioRef.current.investorId = investor.id; // Custom property to identify which investor's audio this is
+
+      // Add event listeners for the new audio object
+      audioRef.current.addEventListener('timeupdate', handleAudioTimeUpdate);
+      audioRef.current.addEventListener('ended', handleAudioEnded);
+
+      // Play the new audio
+      audioRef.current.play().catch(error => {
+        console.error("Error playing audio:", error);
+        setIsPlayingCurrentInvestorAudio(false);
+        setAudioProgress(0);
+      });
+      setIsPlayingCurrentInvestorAudio(true);
+      setAudioProgress(0); // Reset progress for new audio
+    }
+    // Case 2: The current investor's audio is already loaded and is playing/paused
+    else {
+      if (audioRef.current.paused) {
+        audioRef.current.play().catch(error => {
+          console.error("Error resuming audio:", error);
+          setIsPlayingCurrentInvestorAudio(false);
+        });
+        setIsPlayingCurrentInvestorAudio(true);
+      } else {
+        audioRef.current.pause();
+        setIsPlayingCurrentInvestorAudio(false);
+      }
+    }
+  };
+
+
+
+
+
+
+
+
+
 
 
   const handleInvestorClick = (investor) => {
@@ -2389,7 +2483,7 @@ function MockPitching({ onBack, loading  }) {
               <div
                 key={investor.id}
                 onClick={() => handleInvestorClick(investor)}
-                className={`flex justify-between p-6 cursor-pointer hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02] w-full h-[11.25rem] rounded-[0.3125rem] bg-[#0F0E16] ${selectedInvestor ? "items-start" : "items-center"}`}>
+                className={`flex justify-between p-6 cursor-pointer hover:opacity-90 hover:border-2 border-indigo-900 w-full h-[11.25rem] rounded-[0.3125rem] bg-[#0F0E16] ${selectedInvestor ? "items-start" : "items-center"}`}>
                 {!selectedInvestor ? (
                   <>
                     <div className="flex items-center gap-6">
@@ -2649,32 +2743,34 @@ function MockPitching({ onBack, loading  }) {
                   <div
                     className="flex items-center gap-2 mb-2 w-full max-w-[16rem] relative"
                   >
-                    <div 
-                      onClick={(e) => handlePlaySampleAudio(e, selectedInvestor)}
-                      className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300"
-                      title="Play sample voice"
-                    >
-                      <img
-                        src={PlayIcon || "/placeholder.svg"}
-                        alt="Play"
-                        className="w-[1.25rem] h-[1.25rem]"
-                      />
-                    </div>
+                    <div
+                onClick={(e) => togglePlayPauseAudio(e, selectedInvestor)} // Call the new handler
+                className="flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-300"
+                title={isPlayingCurrentInvestorAudio ? "Pause sample voice" : "Play sample voice"}
+              >
+                <img
+                  // Conditionally render Play/Pause icon
+                  src={isPlayingCurrentInvestorAudio ? PauseIcon : PlayIcon}
+                  alt={isPlayingCurrentInvestorAudio ? "Pause" : "Play"}
+                  className="w-[1.25rem] h-[1.25rem] [filter:brightness(0)_invert(1)]"
+                />
+              </div>
 
-                    <div className="flex-1 h-1 bg-[#333] rounded-[0.125rem] relative overflow-hidden">
-                      <div
-                        style={{
-                          width: `${playingSampleAudio && playingSampleAudio.dataset.investorId === selectedInvestor.id.toString() ? audioProgress : 0}%`,
-                          height: "100%",
-                          background: "#FFF",
-                          borderRadius: "0.125rem",
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          transition: "width 0.1s linear",
-                        }}
-                      />
-                    </div>
+              <div className="flex-1 h-1 bg-[#333] rounded-[0.125rem] relative overflow-hidden">
+                <div
+                  style={{
+                    // Only show progress if the current investor's audio is playing
+                    width: `${audioRef.current && audioRef.current.src ? audioProgress : 0}%`,
+                    height: "100%",
+                    background: "#FFF",
+                    borderRadius: "0.125rem",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    transition: "width 0.1s linear",
+                  }}
+                />
+              </div>
                   </div>
                 </div>
 
