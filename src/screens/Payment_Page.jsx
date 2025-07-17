@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import backgroundStars from "../../assets/backgroundPay.png";
-import starryBg from "../../assets/starry-sky.png";
+import backgroundStars from "../assets/backgroundPay.png";
+import starryBg from "../assets/starry-sky.png";
 
 const Payment_Page = () => {
   const navigate = useNavigate();
