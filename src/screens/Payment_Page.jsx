@@ -10,7 +10,7 @@ const Payment_Page = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [processingPayment, setProcessingPayment] = useState(false);
+  const [processingPlanId, setProcessingPlanId] = useState(null);
   const [userSubscription, setUserSubscription] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -183,7 +183,8 @@ const Payment_Page = () => {
       return;
     }
     
-    setProcessingPayment(true);
+    // Set processing state for this specific plan only
+    setProcessingPlanId(plan._id || plan.name);
     
     try {
       // Create order via API
@@ -241,14 +242,21 @@ const Payment_Page = () => {
             // Refresh subscription data
             await checkSubscription();
             
-            setProcessingPayment(false);
+            setProcessingPlanId(null);
             alert(`Subscription for ${plan.name} plan activated successfully! Valid until ${new Date(verifyResult.subscription.expiryDate).toLocaleDateString()}`);
             navigate('/homepage');
           } catch (error) {
             console.error('Payment verification failed:', error);
-            setProcessingPayment(false);
+            setProcessingPlanId(null);
             alert('Payment was processed but verification failed. Please contact support.');
           }
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Payment modal closed');
+            setProcessingPlanId(null);
+          },
+          escape: true
         },
         prefill: {
           name: localStorage.getItem('userName') || '',
@@ -263,7 +271,7 @@ const Payment_Page = () => {
       rzp.open();
     } catch (error) {
       console.error('Payment initiation failed:', error);
-      setProcessingPayment(false);
+      setProcessingPlanId(null);
       alert('Failed to initiate payment. Please try again later.');
     }
   };
@@ -381,9 +389,9 @@ const Payment_Page = () => {
                 <button 
                   className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-semibold"
                   onClick={() => handleSubscription(plan)}
-                  disabled={processingPayment}
+                  disabled={processingPlanId === (plan._id || plan.name)}
                 >
-                  {processingPayment ? 'Processing...' : (
+                  {processingPlanId === (plan._id || plan.name) ? 'Processing...' : (
                     plan.buttonText || (
                       plan.name === 'Starter' ? 'Try Vertx' : 
                       plan.name === 'Launch' ? 'Start Fundraising' : 'Master Fundraising'
