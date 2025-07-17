@@ -419,7 +419,10 @@ const Sidebar = () => {
                 style={{ width: '1.25rem', height: '1.25rem' }}
               />
             </li>
-            <li className={`px-4 py-3 flex items-center justify-between hover:bg-[#0F0E16] cursor-pointer`}>
+            <li 
+              className={`px-4 py-3 flex items-center justify-between hover:bg-[#0F0E16] cursor-pointer`}
+              onClick={() => navigate('/payment')}
+            >
               <span className={`${collapsed ? 'hidden' : 'block'} text-[#B8B8B8] font-medium text-sm`}>Upgrade plan</span>
               <img
                 src={UserPlan}
