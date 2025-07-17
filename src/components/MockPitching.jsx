@@ -2812,64 +2812,74 @@ function MockPitching({ onBack, loading  }) {
         )}
       </div>
 
-      <div className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/40"/>
-        <div className="flex items-center w-[20.75rem] h-[3.125rem] rounded-lg bg-white/[0.94] px-4 gap-4">
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-[2.375rem] h-[2.375rem] rounded-md bg-black">
-            <img
-              src={logo || "/placeholder.svg"}
-              alt="logo"
-              className="w-[1.2rem] h-[1.2rem]"
-            />
-          </button>
-
-          <div className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/40">
-
-          <button
-            onClick={() => navigate("/playground/mockpitching/report")}
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-10 h-9 rounded-md bg-[#AD6FDE]"
-          >
-            <img
-              src={ContactsIcon || "/placeholder.svg"}
-              alt="Contacts"
-              className="w-[1.2rem] h-[1.2rem]"
-            />
-          </button>
-
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img
-              src={AddIcon || "/placeholder.svg"}
-              alt="Add"
-              className="w-6 h-6 invert"
-            />
-          </button>
-
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img
-              src={SpeedometerIcon || "/placeholder.svg"}
-              alt="Speedometer"
-              className="w-6 h-6"
-            />
-          </button>
-
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img 
-            src={TuneIcon || "/placeholder.svg"} 
-            alt="Tune"
-            className="w-6 h-6" 
-            />
-          </button>
-
-          <div className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/40"
+      <div
+      className="fixed bottom-2 left-0 w-full flex items-center justify-center h-[4.375rem] bg-black bg-opacity-90"
+    >
+      <div
+        className="flex items-center w-[20.75rem] h-[3.125rem] rounded-lg bg-white bg-opacity-94 px-4 gap-4"
+      >
+        <button
+          className="flex items-center justify-center w-[2.375rem] h-[2.375rem] rounded-md bg-black hover:opacity-80 transition-all duration-300 transform hover:scale-110"
+        >
+          <img
+            src={logo || "/placeholder.svg"}
+            alt="logo"
+            className="w-[1.2rem] h-[1.2rem] [filter:brightness(0)_invert(1)]"
           />
+        </button>
 
-          <button
-            onClick={() => navigate("/playground")}
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium w-10 h-[1.875rem] rounded-[0.1875rem] bg-[#33005C] text-[#AD6FDE]"
-          >
-            EXIT
-          </button>
-        </div>
+        <div
+          className="w-[0.0625rem] h-[3.125rem] bg-gray-400 bg-opacity-40"
+        />
+
+        <button
+          onClick={() => navigate("/playground/mockpitching/report")}
+          className="flex items-center justify-center w-10 h-9 rounded-md bg-[#AD6FDE] hover:opacity-80 transition-all duration-300 transform hover:scale-110"
+        >
+          <img
+            src={ContactsIcon || "/placeholder.svg"}
+            alt="Contacts"
+            className="w-[1.2rem] h-[1.2rem] [filter:brightness(0)_invert(1)]"
+          />
+        </button>
+
+        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+          <img
+            src={AddIcon || "/placeholder.svg"}
+            alt="Add"
+            className="w-6 h-6 [filter:brightness(1)_invert(1)]"
+          />
+        </button>
+
+        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+          <img
+            src={SpeedometerIcon || "/placeholder.svg"}
+            alt="Speedometer"
+            className="w-6 h-6"
+          />
+        </button>
+
+        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+          <img
+            src={TuneIcon || "/placeholder.svg"}
+            alt="Tune"
+            className="w-6 h-6"
+          />
+        </button>
+
+        <div
+          className="w-[0.0625rem] h-[3.125rem] bg-gray-400 bg-opacity-40"
+        />
+
+        <button
+          onClick={() => navigate("/playground")}
+          className="flex items-center justify-center w-10 h-[1.875rem] rounded-[0.1875rem] bg-[#33005C] text-[#AD6FDE] hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium"
+        >
+          EXIT
+        </button>
       </div>
+    </div>
+      
     </div>
   )
 }
