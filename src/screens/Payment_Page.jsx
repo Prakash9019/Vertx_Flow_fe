@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import backgroundPay from '../assets/backgroundPay.png';
 import API_KEY from "../../key";
+import PaymentStatus from '../components/PaymentStatus';
 
 const Payment_Page = () => {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ const Payment_Page = () => {
   const [userSubscription, setUserSubscription] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null); // 'success', 'failed', or null
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   useEffect(() => {
     // Enable scrolling on body and html
@@ -243,12 +246,27 @@ const Payment_Page = () => {
             await checkSubscription();
             
             setProcessingPlanId(null);
-            alert(`Subscription for ${plan.name} plan activated successfully! Valid until ${new Date(verifyResult.subscription.expiryDate).toLocaleDateString()}`);
-            navigate('/homepage');
+            // Show success status instead of alert
+            setPaymentStatus('success');
+            setPaymentDetails({
+              planName: plan.name,
+              amount: getTotalAmount(plan),
+              billingCycle: billingCycle === 'quarterly' ? 'Quarterly' : 'Monthly',
+              transactionId: response.razorpay_payment_id,
+              expiryDate: verifyResult.subscription.expiryDate,
+              invoiceNumber: verifyResult.subscription.invoiceNumber
+            });
           } catch (error) {
             console.error('Payment verification failed:', error);
             setProcessingPlanId(null);
-            alert('Payment was processed but verification failed. Please contact support.');
+            // Show failure status instead of alert
+            setPaymentStatus('failed');
+            setPaymentDetails({
+              planName: plan.name,
+              amount: getTotalAmount(plan),
+              billingCycle: billingCycle === 'quarterly' ? 'Quarterly' : 'Monthly',
+              error: 'Payment was processed but verification failed. Please contact support.'
+            });
           }
         },
         modal: {
@@ -272,7 +290,14 @@ const Payment_Page = () => {
     } catch (error) {
       console.error('Payment initiation failed:', error);
       setProcessingPlanId(null);
-      alert('Failed to initiate payment. Please try again later.');
+      // Show failure status instead of alert
+      setPaymentStatus('failed');
+      setPaymentDetails({
+        planName: plan.name,
+        amount: getTotalAmount(plan),
+        billingCycle: billingCycle === 'quarterly' ? 'Quarterly' : 'Monthly',
+        error: 'Failed to initiate payment. Please try again later.'
+      });
     }
   };
 
@@ -282,7 +307,16 @@ const Payment_Page = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center py-10 px-4 relative bg-black overflow-y-auto" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+    <div className="h-screen w-full flex flex-col py-10 px-4 relative bg-black overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900" style={{scrollbarWidth: 'thin'}}>
+      {/* Payment Status Popup */}
+      {paymentStatus && (
+        <PaymentStatus 
+          status={paymentStatus} 
+          details={paymentDetails} 
+          onClose={() => setPaymentStatus(null)}
+        />
+      )}
+      
       <div
         className="absolute inset-0 z-[-1]"
         style={{
@@ -295,7 +329,7 @@ const Payment_Page = () => {
       </div>
 
       {/* Header */}
-      <div className="text-center mb-8 max-w-3xl">
+      <div className="text-center mb-8 max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold text-white mb-4">Start Fundraising Today. Level Up Anytime.</h1>
         <p className="text-gray-300 text-sm mb-2">
           Every founder's journey is different, start where you are, unlock what you need. Grow with Vertx.
@@ -307,7 +341,7 @@ const Payment_Page = () => {
       </div>
 
       {/* Billing Toggle */}
-      <div className="flex items-center justify-center mb-10 space-x-4">
+      <div className="flex items-center justify-center mb-10 space-x-4 mx-auto">
         <span className="text-white font-medium">MONTHLY</span>
         <div className="relative inline-block w-12 h-6">
           <input
@@ -358,7 +392,7 @@ const Payment_Page = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full items-start mx-auto">
           {plans.map((plan, index) => (
             <div key={plan._id || index} className="flex flex-col rounded-lg overflow-hidden h-auto">
               {/* Plan Header */}
@@ -401,7 +435,7 @@ const Payment_Page = () => {
               </div>
               
               {/* Features List */}
-              <div className="bg-black p-6 max-h-64 overflow-y-auto" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="bg-black p-6">
                 <div className="space-y-3">
                   {Array.isArray(plan.features) ? plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center text-white">
