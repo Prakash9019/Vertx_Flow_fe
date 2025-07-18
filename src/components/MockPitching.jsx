@@ -207,7 +207,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
               </div>
             )}
 
-            <div className="absolute bottom-4 left-4 flex gap-2">
+            <div className="absolute bottom-4 left-4 flex gap-2 z-30">
               <button
                 onClick={() => setIsMuted(!isMuted)}
                 className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border
@@ -229,7 +229,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
             </div>
 
-            <div className="absolute bottom-4 right-4" style={{ zIndex: 4 }}>
+            <div className="absolute bottom-4 right-4 z-30">
               <button
                 onClick={() => setIsVideoOff(v => !v)}
                 className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border
@@ -1500,7 +1500,7 @@ if (!socket || !socket.connected) {
           </div>
           
           {/* Video control button - always visible */}
-          <div className="absolute bottom-4 right-4 z-4">
+          <div className="absolute bottom-4 right-4 z-30">
             <button
               onClick={() => setIsVideoOff(v => !v)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-14 h-14 bg-transparent border-[1px] border-white"
@@ -1522,7 +1522,7 @@ if (!socket || !socket.connected) {
           </div>
 
           {/* Microphone control button - always visible */}
-          <div className="absolute bottom-4 left-4 flex gap-2 z-4">
+          <div className="absolute bottom-4 left-4 flex gap-2 z-30">
             <button
               onClick={() => setIsMuted(!isMuted)}
               className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border w-[3.125rem] h-[3.125rem] bg-transparent border-white">
