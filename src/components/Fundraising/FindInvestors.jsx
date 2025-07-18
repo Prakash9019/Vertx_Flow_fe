@@ -119,6 +119,11 @@ function FindInvestors() {
   // const startIndex = (currentPage - 1) * itemsPerPage;
   // const endIndex = startIndex + itemsPerPage;
   // const currentInvestors = investorData.slice(startIndex, endIndex);
+  // Pagination calculations
+  // const totalPages = Math.ceil(investorData.length / itemsPerPage);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  // const currentInvestors = investorData.slice(startIndex, endIndex);
 
   const fetchInvestors = useCallback(async () => {
       setLoading(true);
@@ -668,29 +673,44 @@ const countryCodeMap = {
                                   <span className="text-white font-normal text-sm truncate font-['Inter'] max-w-[8rem]">
                                     {investor.name}
                                   </span>
-                                  <div className="flex gap-1 flex-shrink-0">
-                                    {/* Ensure these are actual image paths or components */}
-                                    <img
-                                      Src={LinkedIn || "/placeholder.svg"}
-                                      alt="LinkedIn"
-                                      className="w-2 h-2 cursor-pointer text-[#0077B5]"
-                                    />
-                                    <img
-                                      src={Link || "/placeholder.svg"}
-                                      alt="Link"
-                                      className="w-2 h-2 cursor-pointer text-gray-400"
-                                    />
-                                    <img
-                                      Src={Mail || "/placeholder.svg"}
-                                      alt="Mail"
-                                      className="w-2 h-2 cursor-pointer text-gray-400"
-                                    />
-                                    <img
-                                      src={Twitter || "/placeholder.svg"}
-                                      alt="Twitter"
-                                      className="w-2 h-2 cursor-pointer text-gray-400"
-                                    />
-                                  </div>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  {investor.linkedin && (
+                                    <a href={investor.linkedin} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                        src={LinkedIn}
+                                        alt="LinkedIn"
+                                        className="w-2 h-2 cursor-pointer text-[#0077B5]"
+                                      />
+                                    </a>
+                                  )}
+                                  {investor.website && (
+                                    <a href={investor.website} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                        src={Link}
+                                        alt="Link"
+                                        className="w-2 h-2 cursor-pointer text-gray-400"
+                                      />
+                                    </a>
+                                  )}
+                                  {investor.email && (
+                                    <a href={`mailto:${investor.email}`} rel="noopener noreferrer">
+                                      <img
+                                        src={Mail}
+                                        alt="Mail"
+                                        className="w-2 h-2 cursor-pointer text-gray-400"
+                                      />
+                                    </a>
+                                  )}
+                                  {investor.twitter && (
+                                    <a href={investor.twitter} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                        src={Twitter}
+                                        alt="Twitter"
+                                        className="w-2 h-2 cursor-pointer text-gray-400"
+                                      />
+                                    </a>
+                                  )}
+                                </div>
                                 </div>
                                 <div className="flex items-center gap-2 mt-1 min-w-0">
                                   <span className="text-white text-xs truncate font-['Inter'] text-[0.625rem] max-w-[6rem]">

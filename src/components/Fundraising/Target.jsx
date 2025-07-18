@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react"
 import API_KEY from "../../../key"
 import { usePermissions } from "../../hooks/usePermissions"
+import { useStartupProfile } from "../../context/StartupProfileContext.jsx"
 import NewListPopup from "./new-list-popup"
 import ThreeDotsMenu from "./three-dots-menu"
 import AddInvestorsPopup from "./AddInvestorsPopup"
@@ -30,6 +31,7 @@ import DefaultAvatar from "../../assets/DefaultAvatar.svg"
 const fallbackAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIgZmlsbD0iIzFGMjkzNyIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMjMiIHI9IjgiIGZpbGw9IiM2QjcyODAiLz4KICA8cGF0aCBkPSJNMTUgNTJDMTUgNDQuMjY4IDIxLjI2OCAzOCAyOSAzOEgzMUMzOC43MzIgMzggNDUgNDQuMjY4IDQ1IDUyVjYwSDE1VjUyWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
 
 export default function Target({ onListSelect }) {
+  const { user_id } = useStartupProfile(); // Get user ID from context
   const [searchTerm, setSearchTerm] = useState("");
   const [isNewListPopupOpen, setIsNewListPopupOpen] = useState(false);
   const [isAddInvestorsPopupOpen, setIsAddInvestorsPopupOpen] = useState(false);
@@ -46,6 +48,8 @@ export default function Target({ onListSelect }) {
   const [editedName, setEditedName] = useState("");
   const [showDeleteNotification, setShowDeleteNotification] = useState(false);
   const [error, setError] = useState(null);
+  const [matchedInvestors, setMatchedInvestors] = useState([]);
+  const [loadingMatchedInvestors, setLoadingMatchedInvestors] = useState(false);
     // Use permission hook for all permission-related state
   const { 
     canCreate, 
@@ -74,7 +78,7 @@ export default function Target({ onListSelect }) {
     blue: "linear-gradient(180deg, #456BBD 0%, #6C04BF 100%)"
   };
 
-
+  
   
   // Filter the lists based on the search term
   const filteredUserTargetLists = useMemo(() => {
@@ -121,17 +125,32 @@ export default function Target({ onListSelect }) {
         lists = [];
       }
 
-      const formattedLists = lists.map(list => ({
-        id: list._id,
-        name: list.name,
-        cover: list.coverColor || 'default',
-        createdBy: isFounder ? "Company" : "Founder", // Assuming isFounder is correctly set
-        createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
-        investorCount: Array.isArray(list.investors) ? list.investors.length : 0,
-        investors: Array.isArray(list.investors) ? list.investors : [],
-        // Add updatedDate if available from backend, otherwise default
-        updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
-      }));
+      const formatRelativeDate = (dateStr) => {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now - date;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMin <= 59) return "just now";
+  if (diffMin <= 119) return "1 hr ago";
+  if (diffMin <= 179) return "2 hrs ago";
+  if (diffHours < 24) return `${diffHours} hrs ago`;
+  if (diffDays < 14) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  return new Date(dateStr).toLocaleDateString("en-GB"); // fallback to dd/mm/yyyy
+};
+
+const formattedLists = lists.map(list => ({
+  id: list._id,
+  name: list.name,
+  cover: list.coverColor || 'default',
+  createdBy: isFounder ? "Company" : "Founder",
+  createdDate: formatRelativeDate(list.createdAt || Date.now()),
+  investorCount: Array.isArray(list.investors) ? list.investors.length : 0,
+  investors: Array.isArray(list.investors) ? list.investors : [],
+  updatedDate: list.updatedAt ? Updated `${formatRelativeDate(list.updatedAt)}` : "Updated today",
+}));
       setUserTargetLists(formattedLists);
     } catch (error) {
       console.error('Error fetching lists:', error);
@@ -194,15 +213,148 @@ export default function Target({ onListSelect }) {
   // };
 
   // Only fetch lists when permissions are loaded
- 
- 
- 
-// Only fetch lists when permissions are loaded
   useEffect(() => {
+    // Function to fetch matched investors
+    const fetchMatchedInvestors = async () => {
+      try {
+        setLoadingMatchedInvestors(true);
+        
+        // Only proceed if we have a user ID
+        if (!user_id) {
+          console.warn('No user ID available to fetch matched investors');
+          return;
+        }
+        
+        const queryParams = new URLSearchParams({
+          page: 1,
+          limit: 10, // Get top 10 investors
+          userId: user_id
+        });
+        
+        const response = await fetch(`${API_KEY}/api/investors?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch matched investors: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Matched investors data:', data);
+        
+        if (data.data && Array.isArray(data.data)) {
+          // Transform investor data to match the expected format
+          const transformedInvestors = data.data.map(investor => {
+            // Get match percentage from API response
+            let matchValue = 0;
+            let match = "0%";
+            
+            if (typeof investor.matchValue === "number") {
+              matchValue = investor.matchValue;
+              match = `${investor.matchValue}%`;
+            } else if (typeof investor.match === "string" && investor.match.endsWith("%")) {
+              match = investor.match;
+              matchValue = parseInt(investor.match.replace('%', '')) || 0;
+            } else if (typeof investor.match === "number") {
+              matchValue = investor.match;
+              match = `${investor.match}%`;
+            }
+            
+            return {
+              id: investor._id,
+              name: investor.name || "Unnamed Investor",
+              avatar: investor.profile_image || fallbackAvatar,
+              company: investor.fund || "",
+              fund: investor.fund || "",
+              location: investor.global_hq || "", 
+              bio: investor.overview || "",
+              type: investor.type || "VC",
+              checkSize: investor.cheque_range || "$N/A", 
+              stage: Array.isArray(investor.stage) ? investor.stage : (investor.stage ? [investor.stage] : []),
+              stageCount: Array.isArray(investor.stage) ? investor.stage.length : (investor.stage ? 1 : 0),
+              industry: Array.isArray(investor.industry) ? investor.industry : (investor.industry ? [investor.industry] : []),
+              industryCount: Array.isArray(investor.industry) ? investor.industry.length : (investor.industry ? 1 : 0),
+              countries: Array.isArray(investor.countries) ? investor.countries : (investor.countries ? [investor.countries] : []),
+              geography: Array.isArray(investor.countries) ? investor.countries : (investor.countries ? [investor.countries] : []),
+              geographyCount: Array.isArray(investor.countries) ? investor.countries.length : (investor.countries ? 1 : 0),
+              email: investor.email || "",
+              linkedin: investor.linkedin_personal || "", 
+              twitter: investor.twitter || "",
+              crunchbase: investor.crunchbase || "",
+              website: investor.website || "",
+              match,
+              matchValue,
+            };
+          });
+          
+          setMatchedInvestors(transformedInvestors);
+        } else {
+          console.error('Invalid data structure received for matched investors:', data);
+          setMatchedInvestors([]);
+        }
+      } catch (err) {
+        console.error("Error fetching matched investors:", err);
+      } finally {
+        setLoadingMatchedInvestors(false);
+      }
+    };
+
+    // Function to fetch lists
+    const fetchLists = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const token = localStorage.getItem('authToken');
+        
+        if (!token) {
+          throw new Error('Authentication required');
+        }
+        
+        const response = await fetch(`${API_KEY}/api/list`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch lists: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Fetched lists:', result);
+        
+        // Map backend lists to frontend format
+        let lists = Array.isArray(result) ? result : result.data || [];
+        if (!Array.isArray(lists)) {
+          console.error('Invalid lists data:', lists);
+          lists = [];
+        }
+
+        const formattedLists = lists.map(list => ({
+          id: list._id,
+          name: list.name,
+          cover: list.coverColor || 'default',
+          createdBy: isFounder ? "Company" : "Founder", // Assuming isFounder is correctly set
+          createdDate: new Date(list.createdAt || Date.now()).toLocaleDateString("en-GB"),
+          investorCount: Array.isArray(list.investors) ? list.investors.length : 0,
+          investors: Array.isArray(list.investors) ? list.investors : [],
+          // Add updatedDate if available from backend, otherwise default
+          updatedDate: list.updatedAt ? `Updated ${new Date(list.updatedAt).toLocaleDateString("en-GB")}` : "Updated today",
+        }));
+        setUserTargetLists(formattedLists);
+      } catch (error) {
+        console.error('Error fetching lists:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (!permissionsLoading) {
       fetchLists();
+      fetchMatchedInvestors(); // Fetch matched investors when component loads
     }
-  }, [permissionsLoading]);
+  }, [permissionsLoading, user_id, API_KEY, isFounder]);
   
   // Add error display
   if (error) {
@@ -273,10 +425,22 @@ export default function Target({ onListSelect }) {
   }
 
   const handleListClick = (list) => {
-    setSelectedList(list)
-    setCurrentPage(1)
+    // If this is the matched investors list and we have data, use it
+    if (list.id === "matched-investors" && matchedInvestors.length > 0) {
+      // Make sure we're using the latest matched investors data
+      const updatedList = {
+        ...list,
+        investors: matchedInvestors,
+        investorCount: matchedInvestors.length
+      };
+      setSelectedList(updatedList);
+    } else {
+      setSelectedList(list);
+    }
+    
+    setCurrentPage(1);
     if (onListSelect) {
-      onListSelect(true)
+      onListSelect(true);
     }
   }
 
@@ -1274,13 +1438,13 @@ export default function Target({ onListSelect }) {
           onClick={() =>
             handleListClick({
               id: "matched-investors",
-              name: "Everyone's VC",
+              name: "Matched Investors for you",
               cover: "purple",
               createdBy: "VERTX",
-              createdDate: "28/05/2025",
-              updatedDate: "Updated 1 day ago",
-              investorCount: 0,
-              investors: [],
+              createdDate: new Date().toLocaleDateString("en-GB"),
+              updatedDate: "Updated today",
+              investorCount: matchedInvestors.length,
+              investors: matchedInvestors,
             })
           }
           className=" cursor-pointer transition-all hover:bg-opacity-80 relative w-full h-[11.125rem] rounded-lg bg-[#0F0E16] p-3 sm:p-8 flex items-center gap-3 sm:gap-8"
@@ -1295,14 +1459,18 @@ export default function Target({ onListSelect }) {
             <div className="flex items-center gap-1 sm:gap-2 mb-2 text-[7px] sm:text-[0.625rem]">
               <span className="font-['Inter'] font-normal text-white">Created by VERTX</span>
               <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
-              <span className="font-['Inter'] font-normal text-white">28/05/2025</span>
+              <span className="font-['Inter'] font-normal text-white">{new Date().toLocaleDateString("en-GB")}</span>
               <div className="w-[0.1875rem] h-[0.1875rem] bg-[#AD6FDE] rounded-full"></div>
-              <span className="font-['Inter'] font-normal text-white">Updated 1 day ago</span>
+              <span className="font-['Inter'] font-normal text-white">Updated today</span>
             </div>
 
             {/* Investor Count Badge */}
             <div className="flex items-center justify-center w-21 h-[1.3125rem] rounded-[6.25rem] bg-[#33005C] text-white font-['Inter'] text-[0.5rem] font-semibold">
-              10 INVESTORS
+              {loadingMatchedInvestors ? (
+                <span className="animate-pulse">Loading...</span>
+              ) : (
+                `${matchedInvestors.length} INVESTORS`
+              )}
             </div>
           </div>
 

@@ -59,7 +59,7 @@ export default function GenerateEmail() {
       
       // const token = localStorage.getItem("authToken");
       
-      const res = await fetch(API_KEY + "/api/email/templates", {
+      const res = await fetch("https://email-automation-427457295403.us-central1.run.app/generate_email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,8 +67,8 @@ export default function GenerateEmail() {
         },
         body: JSON.stringify(data)
       });
-      console.log(res.data)
-      // if (!res.ok) throw new Error("Failed to fetch email templates");
+      
+      if (!res.ok) throw new Error("Failed to fetch email templates");
   
       const data1 = await res.json();
 

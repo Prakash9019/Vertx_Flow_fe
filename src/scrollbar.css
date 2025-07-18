@@ -1,0 +1,28 @@
+/* Custom scrollbar styling for the main page only */
+body::-webkit-scrollbar,
+.min-h-screen::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body::-webkit-scrollbar-track,
+.min-h-screen::-webkit-scrollbar-track {
+  background: #0F0E16;
+  border-radius: 4px;
+}
+
+body::-webkit-scrollbar-thumb,
+.min-h-screen::-webkit-scrollbar-thumb {
+  background: #5F248D;
+  border-radius: 4px;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+.min-h-screen::-webkit-scrollbar-thumb:hover {
+  background: #AD6FDE;
+}
+
+/* Hide scrollbars for feature boxes */
+.bg-black.p-6.h-64.overflow-y-auto::-webkit-scrollbar {
+  display: none;
+}

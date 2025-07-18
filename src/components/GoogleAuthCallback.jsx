@@ -140,7 +140,7 @@ function GoogleAuthCallback() {
   }, [navigate, location]);
 
   return (
-    <div class="flex justify-center items-center h-screen bg-black text-white text-lg">
+    <div className="flex justify-center items-center h-screen bg-black text-white text-lg">
       Processing Google authentication, please wait...
     </div>
   );
