@@ -147,10 +147,10 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-      <div className="w-full h-full flex">
-        <div className="flex-1 flex items-center justify-center relative">
+      <div className="w-full h-full flex flex-col lg:flex-row">
+        <div className="flex-1 flex items-center justify-center relative p-4">
           <div
-            className="relative transition-all duration-500 ease-in-out w-[40rem] h-[22.5rem] rounded-[0.625rem] overflow-hidden bg-gradient-to-b from-[#1C60CE] to-[#0F0F0F]">
+            className="relative transition-all duration-500 ease-in-out w-full max-w-[40rem] h-auto aspect-video sm:w-[40rem] sm:h-[22.5rem] rounded-xl overflow-scroll bg-gradient-to-b from-[#1C60CE] to-[#0F0F0F]">
             {!isVideoOff ? (
               <>
                 <video
@@ -210,19 +210,18 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             <div className="absolute bottom-4 left-4 flex gap-2 z-30">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border
-                          w-[3.125rem] h-[3.125rem] bg-transparent border-white">
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-white">
                 {isMuted ? (
                   <img
                     src={MicOffIcon}
                     alt="Mic Off"
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 ) : (
                   <img
                     src={MicIcon}
                     alt="Mic On"
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 )}
               </button>
@@ -232,21 +231,20 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             <div className="absolute bottom-4 right-4 z-30">
               <button
                 onClick={() => setIsVideoOff(v => !v)}
-                className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 border
-                w-14 h-14 bg-transparent border-white"
+                className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-white"
                 aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}
               >
                 {isVideoOff ? (
                   <img
                     src={VideoOffIcon}
                     alt="Video Off"
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 ) : (
                   <img
                     src={VideoIcon}
                     alt="Video On"
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                   />
                 )}
               </button>
@@ -256,14 +254,14 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
         <div
           className="flex flex-col items-center justify-center transition-all duration-500 ease-in-out
-           w-[33rem] h-screen bg-black/80 p-8 px-4">
+           w-full lg:w-[33rem] h-auto lg:h-screen bg-black/80 p-12 px-4">
           <div className="text-center mb-8">
             <h2 className="mb-4 text-white font-inter text-2xl font-medium">
               Ready to join?
             </h2>
 
             <div className="flex justify-center mb-4">
-              <div className="rounded-full overflow-hidden bg-gray-600 h-10 w-10">
+              <div className="rounded-full overflow-scroll bg-gray-600 w-8 h-8 sm:w-10 sm:h-10">
                 <img
                   src={investor?.image || "/api/placeholder/40/40"}
                   alt={investor?.name || "Investor"}
@@ -289,7 +287,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
             <div className="space-y-3 w-full flex flex-col items-center">
               <button
                 onClick={onJoinCall}
-                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 w-60 h-[3.25rem] rounded-[0.1875rem] bg-white text-black font-inter text-base font-semibold border-none">
+                className="hover:opacity-90 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 w-full max-w-[15rem] h-[3.25rem] rounded-[0.1875rem] bg-white text-black font-[inter] text-base font-semibold border-none">
                 {hasMediaPermissions ? (
                   <>
                     Join now
@@ -303,7 +301,7 @@ function CallingPage({ investor, onEndCall, onJoinCall, showFullInterface = fals
 
               <button
                 className="hover:opacity-90 transition-all duration-300 transform hover:scale-105
-                w-60 h-[3.25rem] rounded-[0.1875rem] bg-[#0F0E16] text-white font-[inter] text-base font-medium border border-[#D9D9D9]">
+                w-full max-w-[15rem] block md:hidden lg:block h-[3.25rem] rounded-[0.1875rem] bg-[#0F0E16] text-white font-[inter] text-base font-medium border border-[#D9D9D9]">
                 Invite Co-founder
               </button>
             </div>
@@ -1428,22 +1426,26 @@ if (!socket || !socket.connected) {
     }
   }
 
-  const topPadding = showCaptions ? "16rem" : "8rem"
+  // const topPadding = showCaptions ? "16rem" : "8rem"
 
   return (
     <div
-      className={`fixed inset-0 z-50 transition-all duration-700 ease-in-out ${isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"}
-                bg-black px-16 pb-48`}
-      style={{
-        paddingTop: topPadding,
-        transition: "padding-top 0.3s ease, opacity 0.7s ease, transform 0.7s ease",
-      }}>
+      className={`fixed inset-0 z-50 transition-all duration-700 ease-in-out ${
+        isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
+      } bg-black px-4 sm:px-8 md:px-16 pb-24 sm:pb-32 md:pb-48
+        ${
+          showCaptions
+            ? "lg:pt-[16rem] md:pt-[14rem] sm:pt-[10rem] pt-[6rem]"
+            : "lg:pt-[8rem] md:pt-[7rem] sm:pt-[5rem] pt-[3rem]"
+        }
+      `}
+    >
       {showCaptions && (
         <div
-          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out pt-8">
-          <div className="flex items-center gap-2 px-4 py-2">
+          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out pt-4 sm:pt-8">
+          <div className="flex items-center gap-1 sm:gap-2 px-3 py-1 sm:px-4 sm:py-2">
             <div
-              className="rounded-full overflow-hidden w-[1.875rem] h-[1.875rem]">
+              className="rounded-full overflow-scroll w-[1.875rem] h-[1.875rem]">
               <img src="/api/placeholder/30/30" alt="Avatar" className="w-full h-full object-cover" />
             </div>
             <span
@@ -1456,10 +1458,10 @@ if (!socket || !socket.connected) {
 
       {showCaptions && (captionLines[0] || captionLines[1]) && (
         <div
-          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out pt-24">
-          <div className="px-6 py-3 max-w-4xl text-center">
+          className="absolute top-0 left-0 w-full flex justify-center z-10 transition-all duration-300 ease-in-out pt-12 sm:pt-16 md:pt-24">
+          <div className="px-3 py-2 sm:px-6 sm:py-3 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl text-center">
             <div
-              className="text-white text-center font-[inter] text-4xl font-light leading-normal"
+              className="text-white text-center font-inter text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-normal"
             >
               {captionLines[0] && (
                 <div style={{ marginBottom: captionLines[1] ? "0.5rem" : "0" }}>{captionLines[0]}</div>
@@ -1471,8 +1473,8 @@ if (!socket || !socket.connected) {
       )}
 
       {showCaptions && isListening && (
-        <div className="absolute top-0 right-8 z-10 flex items-center gap-2 pt-8">
-          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+        <div className="absolute top-0 right-4 sm:right-8 z-10 flex items-center gap-1 sm:gap-2 pt-4 sm:pt-8">
+          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full animate-pulse" />
           <span
             className="text-white font-[inter] text-xs font-normal">
             Listening...
@@ -1480,16 +1482,14 @@ if (!socket || !socket.connected) {
         </div>
       )}
 
-      <div className="w-full h-full flex gap-8">
+      <div className="w-full h-full flex flex-col md:flex-row gap-4 md:gap-8">
         {/* LEFT CARD: Show camera feed and profile info */}
 
               <div
-                className="flex-1 relative transition-all duration-700 ease-in-out
-                rounded-[0.625rem] overflow-hidden bg-gradient-to-b from-[#1C60CE] to-[#0F0F0F]">
+                className="flex-1 relative transition-all duration-700 ease-in-out rounded-[0.625rem] overflow-scroll bg-gradient-to-b from-[#1C60CE] to-[#0F0F0F]">
           {/* Founder name and company - always visible at top */}
           <div
-  className="absolute top-6 left-6 px-4 py-2
-             text-white font-[inter] text-sm font-medium z-10">
+  className="absolute top-4 left-4 px-2 py-1 sm:px-4 sm:py-2 text-white font-[inter] text-xs sm:text-sm font-medium z-10">
             {profileData && profileData.accountname && profileData.companyName
               ? `${profileData.accountname} | ${profileData.companyName}`
               : profileData && profileData.accountname
@@ -1503,19 +1503,19 @@ if (!socket || !socket.connected) {
           <div className="absolute bottom-4 right-4 z-30">
             <button
               onClick={() => setIsVideoOff(v => !v)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-14 h-14 bg-transparent border-[1px] border-white"
+              className="flex items-center justify-center rounded-full hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-transparent border-[1px] border-white"
               aria-label={isVideoOff ? "Turn camera on" : "Turn camera off"}>
               {isVideoOff ? (
                 <img
                   src={VideoOffIcon}
                   alt="Video Off"
-                  className="w-6 h-6"
+                  className="w-5 h-5 sm:w-6 sm:h-6"
                 />
               ) : (
                 <img
                   src={VideoIcon}
                   alt="Video On"
-                  className="w-6 h-6"
+                  className="w-5 h-5 sm:w-6 sm:h-6"
                 />
               )}
             </button>
@@ -1525,18 +1525,18 @@ if (!socket || !socket.connected) {
           <div className="absolute bottom-4 left-4 flex gap-2 z-30">
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity border w-[3.125rem] h-[3.125rem] bg-transparent border-white">
+          className="flex items-center justify-center rounded-full hover:opacity-80 transition-opacity w-10 h-10 sm:w-[3.125rem] sm:h-[3.125rem] bg-transparent border-[1px] border-white">
               {isMuted ? (
                 <img
                   src={MicOffIcon}
                   alt="Mic Off"
-                  className="w-6 h-6"
+                  className="w-5 h-5 sm:w-6 sm:h-6"
                 />
               ) : (
                 <img
                   src={MicIcon}
                   alt="Mic On"
-                  className="w-6 h-6"
+                  className="w-5 h-5 sm:w-6 sm:h-6"
                 />
               )}
             </button>
@@ -1560,7 +1560,7 @@ if (!socket || !socket.connected) {
                 <div
                   className="flex items-center justify-center rounded-full border-[10px] border-purple-400 w-[10.625rem] h-[10.625rem]">
                   <div
-                    className="rounded-full overflow-hidden bg-gray-600 w-[9.375rem] h-[9.375rem]">
+                    className="rounded-full overflow-scroll bg-gray-600 w-[9.375rem] h-[9.375rem]">
                     <img
                       src={profileData?.image || "/api/placeholder/150/150"}
                       alt={profileData?.accountName || "User"}
@@ -1584,10 +1584,10 @@ if (!socket || !socket.connected) {
         </div>
 
         <div
-          className="flex-1 relative transition-all duration-700 ease-in-out flex flex-col rounded-[0.625rem] overflow-hidden bg-gradient-to-b from-[#9F67FF] to-[#0F0F0F] bg-[#C4C4C4]">
+          className="flex-1 relative transition-all duration-700 ease-in-out flex flex-col rounded-[0.625rem] overflow-scroll bg-gradient-to-b from-[#9F67FF] to-[#0F0F0F] bg-[#C4C4C4]">
           {/* Investor name and type - always visible at top */}
           <div
-            className="absolute top-6 left-6 px-4 py-2 text-white font-[inter] text-sm font-medium">
+            className="absolute top-4 left-4 px-2 py-1 md:px-4 md:py-2 text-white font-inter text-xs sm:text-sm font-medium">
             {investor?.name || "Persona One"} | {investor?.role || "Venture Capitalist"}
           </div>
 
@@ -1595,7 +1595,7 @@ if (!socket || !socket.connected) {
             <div
               className="flex items-center justify-center rounded-full border-[10px] border-purple-400 mb-8 w-[10.625rem] h-[10.625rem]">
               <div
-                className="rounded-full overflow-hidden bg-gray-600 w-[9.375rem] h-[9.375rem]">
+                className="rounded-full overflow-scroll bg-gray-600 w-[9.375rem] h-[9.375rem]">
                 <img
                   src={investor?.image || "/api/placeholder/150/150"}
                   alt={investor?.name || "Persona One"}
@@ -1858,7 +1858,7 @@ if (!socket || !socket.connected) {
 
       <div
         className="fixed left-0 w-full flex justify-between items-center px-8 bottom-8">
-        <div className="text-white font-[inter] text-xl font-normal">
+        <div className="text-white font-[inter] md:text-xl text-[9px] sm:text-sm font-normal">
           {formatTime(callDuration)} | Mock Pitching
         </div>
 
@@ -2452,7 +2452,7 @@ function MockPitching({ onBack, loading  }) {
 
       <div className="px-[1.88rem] pt-[2.75rem] flex gap-6 relative">
         <div
-        className="transition-[width] duration-500 ease-in-out overflow-y-auto h-screen"
+        className="transition-[width] duration-500 ease-in-out overflow-y-scroll h-screen"
           style={{
             width: selectedInvestor ? "37%" : "100%",
           }}
@@ -2812,64 +2812,74 @@ function MockPitching({ onBack, loading  }) {
         )}
       </div>
 
-      <div className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/40"/>
-        <div className="flex items-center w-[20.75rem] h-[3.125rem] rounded-lg bg-white/[0.94] px-4 gap-4">
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-[2.375rem] h-[2.375rem] rounded-md bg-black">
-            <img
-              src={logo || "/placeholder.svg"}
-              alt="logo"
-              className="w-[1.2rem] h-[1.2rem]"
-            />
-          </button>
-
-          <div className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/40">
-
-          <button
-            onClick={() => navigate("/playground/mockpitching/report")}
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 w-10 h-9 rounded-md bg-[#AD6FDE]"
-          >
-            <img
-              src={ContactsIcon || "/placeholder.svg"}
-              alt="Contacts"
-              className="w-[1.2rem] h-[1.2rem]"
-            />
-          </button>
-
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img
-              src={AddIcon || "/placeholder.svg"}
-              alt="Add"
-              className="w-6 h-6 invert"
-            />
-          </button>
-
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img
-              src={SpeedometerIcon || "/placeholder.svg"}
-              alt="Speedometer"
-              className="w-6 h-6"
-            />
-          </button>
-
-          <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
-            <img 
-            src={TuneIcon || "/placeholder.svg"} 
-            alt="Tune"
-            className="w-6 h-6" 
-            />
-          </button>
-
-          <div className="w-[0.0625rem] h-[3.125rem] bg-[#B8B8B8]/40"
+      <div
+      className="fixed bottom-2 left-0 w-full flex items-center justify-center h-[4.375rem] bg-black bg-opacity-90"
+    >
+      <div
+        className="flex items-center w-[20.75rem] h-[3.125rem] rounded-lg bg-white bg-opacity-94 px-4 gap-4"
+      >
+        <button
+          className="flex items-center justify-center w-[2.375rem] h-[2.375rem] rounded-md bg-black hover:opacity-80 transition-all duration-300 transform hover:scale-110"
+        >
+          <img
+            src={logo || "/placeholder.svg"}
+            alt="logo"
+            className="w-[1.2rem] h-[1.2rem] [filter:brightness(0)_invert(1)]"
           />
+        </button>
 
-          <button
-            onClick={() => navigate("/playground")}
-            className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium w-10 h-[1.875rem] rounded-[0.1875rem] bg-[#33005C] text-[#AD6FDE]"
-          >
-            EXIT
-          </button>
-        </div>
+        <div
+          className="w-[0.0625rem] h-[3.125rem] bg-gray-400 bg-opacity-40"
+        />
+
+        <button
+          onClick={() => navigate("/playground/mockpitching/report")}
+          className="flex items-center justify-center w-10 h-9 rounded-md bg-[#AD6FDE] hover:opacity-80 transition-all duration-300 transform hover:scale-110"
+        >
+          <img
+            src={ContactsIcon || "/placeholder.svg"}
+            alt="Contacts"
+            className="w-[1.2rem] h-[1.2rem] [filter:brightness(0)_invert(1)]"
+          />
+        </button>
+
+        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+          <img
+            src={AddIcon || "/placeholder.svg"}
+            alt="Add"
+            className="w-6 h-6 [filter:brightness(1)_invert(1)]"
+          />
+        </button>
+
+        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+          <img
+            src={SpeedometerIcon || "/placeholder.svg"}
+            alt="Speedometer"
+            className="w-6 h-6"
+          />
+        </button>
+
+        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+          <img
+            src={TuneIcon || "/placeholder.svg"}
+            alt="Tune"
+            className="w-6 h-6"
+          />
+        </button>
+
+        <div
+          className="w-[0.0625rem] h-[3.125rem] bg-gray-400 bg-opacity-40"
+        />
+
+        <button
+          onClick={() => navigate("/playground")}
+          className="flex items-center justify-center w-10 h-[1.875rem] rounded-[0.1875rem] bg-[#33005C] text-[#AD6FDE] hover:opacity-80 transition-all duration-300 transform hover:scale-105 text-xs font-medium"
+        >
+          EXIT
+        </button>
       </div>
+    </div>
+      
     </div>
   )
 }
