@@ -2450,12 +2450,11 @@ function MockPitching({ onBack, loading  }) {
         />
       )}
 
-      <div className="px-[1.88rem] pt-[2.75rem] flex gap-6 relative">
+      <div className="px-4 pt-8 flex flex-col lg:flex-row lg:gap-6 relative lg:px-[1.88rem] lg:pt-[2.75rem]">
         <div
-        className="transition-[width] duration-500 ease-in-out overflow-y-scroll h-screen"
-          style={{
-            width: selectedInvestor ? "37%" : "100%",
-          }}
+        className={`transition-[width] duration-500 ease-in-out overflow-y-scroll h-screen lg:h-screen w-full ${
+            selectedInvestor ? "lg:w-[37%]" : "lg:w-full"
+          } mb-8 lg:mb-0`}
         >
           <div className="relative mb-8">
             <div className="relative">
@@ -2483,11 +2482,11 @@ function MockPitching({ onBack, loading  }) {
               <div
                 key={investor.id}
                 onClick={() => handleInvestorClick(investor)}
-                className={`flex justify-between p-6 cursor-pointer hover:opacity-90 hover:border-2 border-indigo-900 w-full h-[11.25rem] rounded-[0.3125rem] bg-[#0F0E16] ${selectedInvestor ? "items-start" : "items-center"}`}>
+                className={`flex items-${selectedInvestor ? "start" : "center"} flex-col sm:flex-row items-center sm:items-start justify-between p-4 sm:p-6 cursor-pointer hover:border-2 border-indigo-900 w-full h-auto sm:h-[11.25rem] rounded-[0.3125rem] bg-[#0F0E16]`}>
                 {!selectedInvestor ? (
                   <>
-                    <div className="flex items-center gap-6">
-                      <div className="bg-gray-600 overflow-hidden flex items-center justify-center w-[9.375rem] h-[9.375rem] rounded-[0.3125rem]">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full sm:w-auto">
+                      <div className="bg-gray-600 overflow-hidden flex items-center justify-center w-24 h-24 sm:w-[9.375rem] sm:h-[9.375rem] rounded-[0.3125rem] flex-shrink-0">
                         <img
                           src={investor.image || "/placeholder.svg"}
                           alt={investor.name}
@@ -2505,24 +2504,24 @@ function MockPitching({ onBack, loading  }) {
                         </div>
                       </div>
 
-                      <div className="flex-1">
-                        <h3 className="mb-2 text-white font-[inter] text-2xl font-medium">
+                      <div className="flex-1 text-center sm:text-left">
+                        <h3 className="mb-2 text-white text-xl sm:text-xl md:text-2xl font-medium">
                           {investor.name}
                         </h3>
                         <div className="mb-4">
-                          <span className="text-[#656565] font-[inter] text-lg font-normal">
+                          <span className="text-[#656565] text-base md:text-lg font-normal">
                             {investor.role}{" "}
                           </span>
-                          <span className="text-white font-[inter] text-lg font-medium">
+                          <span className="text-white text-base md:text-lg font-medium">
                             {investor.company}
                           </span>
                         </div>
 
-                        <div className="flex gap-2 items-center flex-wrap">
+                        <div className="flex gap-2 items-center flex-wrap justify-center sm:justify-start">
                           {investor.tags.map((tag, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-1"
+                              className="flex items-center gap-1 h-[1.0625rem] px-2 justify-center text-[0.5rem] font-medium"
                               style={{
                                 width: tag.type === "purple" ? "7rem" : "2.5rem",
                                 height: "1.0625rem",
@@ -2549,11 +2548,15 @@ function MockPitching({ onBack, loading  }) {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                      <button className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-60 h-[1.95rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] font-[inter] text-[0.625rem] font-medium">
+                    <div className="flex flex-col gap-2 mt-4 sm:mt-0 w-full sm:w-auto">
+                      <button
+                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-full sm:w-[15rem] h-[1.95rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] text-[0.625rem] font-medium"
+                      >
                         View Profile
                       </button>
-                      <button className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-60 h-[1.95rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] font-[inter] text-[0.625rem] font-medium">
+                      <button
+                        className="hover:opacity-80 transition-all duration-300 transform hover:scale-105 w-full sm:w-[15rem] h-[1.95rem] rounded-[0.1875rem] border border-white/[0.04] bg-white/[0.08] text-[#D9D9D9] text-[0.625rem] font-medium"
+                      >
                         Save Profile
                       </button>
                       <button
@@ -2561,7 +2564,7 @@ function MockPitching({ onBack, loading  }) {
                           e.stopPropagation()
                           handleCallInvestor(investor)
                         }}
-                        className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-60 h-[1.95rem] rounded-[0.125rem] bg-white text-black font-[inter] text-[0.625rem] font-medium border-none"
+                        className="flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 transform hover:scale-105 w-full sm:w-[15rem] h-[1.95rem] rounded-[0.125rem] bg-white text-black text-[0.625rem] font-medium border-none"
                       >
                         <Phone style={{ width: "0.9rem", height: "0.9rem" }} />
                         Call Investor
@@ -2663,10 +2666,10 @@ function MockPitching({ onBack, loading  }) {
 
         {selectedInvestor && (
           <div
-            className="w-[59%] p-6 px-8 bg-[#0F0E16] rounded-[0.3125rem] transition-opacity  duration-500 ease-in-out fixed top-[2.75rem] right-[1.88rem] h-screen overflow-y-auto translate-x-0 opacity-100"
+            className="lg:w-[59%] w-full p-6 px-4 bg-[#0F0E16] rounded-[0.3125rem] transition duration-500 ease-in-out fixed  right-0 lg:right-[1.88rem] h-screen overflow-scroll translate-x-0 opacity-100 pt-2 md:pt-4 lg:pt-8"
           >
-            <div className="flex gap-6 mb-8 mt-15">
-              <div className="bg-gray-600 overflow-hidden flex items-center justify-center w-[15.625rem] h-[15.625rem] rounded-[0.3125rem]">
+            <div className="flex flex-col items-center gap-6 mb-8 mt-0 md:mt-15 md:flex-row">
+              <div className="bg-gray-600 overflow-scroll flex items-center justify-center w-[12rem] h-[12rem] md:w-[15.625rem] md:h-[15.625rem] rounded-[0.3125rem] flex-shrink-0">
                 <img
                   src={selectedInvestor.image || "/placeholder.svg"}
                   alt={selectedInvestor.name}
@@ -2677,31 +2680,31 @@ function MockPitching({ onBack, loading  }) {
                   }}
                 />
                 <div
-                  className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold"
-                  style={{ display: "none", fontSize: "4rem" }}
+                  className="w-full h-full bg-gray-600 flex items-center justify-center text-gray-400 font-bold  text-[3rem] md:text-[4rem]"
+                  style={{ display: "none" }}
                 >
                   {selectedInvestor.name.charAt(0)}
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col justify-center items-center text-center">
-                <h3 className="text-white font-[inter] text-2xl font-semibold mb-2">
+              <div className="flex-1 flex flex-col justify-center items-center text-center md:items-start md:text-left">
+                <h3 className="text-white font-['Inter'] text-xl md:text-2xl font-semibold mb-2">
                   {selectedInvestor.name}
                 </h3>
 
                 <div className="mb-1">
-                  <span className="text-[#656565] font-[inter] text-sm font-normal">
+                  <span className="text-[#656565] font-[inter] text-xs md:text-sm font-normal">
                     Venture Capitalist
                   </span>
                 </div>
 
                 <div className="mb-4">
-                  <span className="text-white font-[inter] text-sm font-medium">
+                  <span className="text-white font-[inter] text-xs md:text-sm font-medium">
                     {selectedInvestor.company}
                   </span>
                 </div>
 
-                <div className="flex gap-2 mb-4 justify-center">
+                <div className="flex flex-wrap gap-2 mb-4 justify-center md:justify-start">
                   {selectedInvestor.tags.map((tag, index) => (
                     <div
                       key={index}
@@ -2739,7 +2742,7 @@ function MockPitching({ onBack, loading  }) {
                   </div>
                 </div>
 
-                <div className="mb-4 flex flex-col items-center w-[75%] px-4">
+                <div className="mb-4 flex flex-col items-center w-full px-4 xl:w-[34%] lg:w-[60%] md:w-[44%] md:px-0 md:items-start">
                   <div
                     className="flex items-center gap-2 mb-2 w-full max-w-[16rem] relative"
                   >
@@ -2791,20 +2794,20 @@ function MockPitching({ onBack, loading  }) {
               </div>
             </div>
 
-            <div className="mb-6">
-              <h4 className="mb-3 text-white font-[inter] text-xl font-semibold">
+            <div className="mb-6 px-4 md:px-0">
+              <h4 className="mb-3 text-white font-['Inter'] text-lg md:text-xl font-semibold">
                 Objective
               </h4>
-              <p className="text-white font-[inter] text-sm font-normal leading-relaxed">
+              <p className="text-white font-[inter] text-[10px] sm:text-xs md:text-sm font-normal sm:leading-relaxed">
                 {selectedInvestor.objective || selectedInvestor.description}
               </p>
             </div>
 
-            <div className="mb-6">
-              <h4 className="mb-3 text-white font-[inter] text-xl font-semibold">
+            <div className="mb-6 px-4 md:px-0">
+              <h4 className="mb-3 text-white font-['Inter'] text-lg md:text-xl font-semibold">
                 Instruction
               </h4>
-              <p className="text-white font-[inter] text-sm font-normal leading-relaxed">
+              <p className="text-white font-[inter] text-[10px] sm:text-xs md:text-sm font-normal sm:leading-relaxed">
                 {selectedInvestor.instruction || "No instruction available"}
               </p>
             </div>

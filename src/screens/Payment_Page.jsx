@@ -470,4 +470,4 @@ const Payment_Page = () => {
   );
 };
 
-export default Payment_Page;
+export default Payment_Page;

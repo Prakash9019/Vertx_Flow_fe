@@ -11,8 +11,7 @@ const PaymentStatus = ({ status, details, onClose }) => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          // Redirect to homepage after countdown
-          navigate('/homepage');
+          // Don't navigate directly in the state update function
           return 0;
         }
         return prev - 1;
@@ -21,7 +20,19 @@ const PaymentStatus = ({ status, details, onClose }) => {
     
     // Clean up timer
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, []);
+  
+  // Separate effect for navigation
+  useEffect(() => {
+    if (countdown === 0) {
+      // Use a timeout to ensure this happens after render
+      const redirectTimeout = setTimeout(() => {
+        onClose(); // Close the popup first
+        navigate('/homepage');
+      }, 100);
+      return () => clearTimeout(redirectTimeout);
+    }
+  }, [countdown, navigate, onClose]);
   
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
@@ -109,7 +120,10 @@ const PaymentStatus = ({ status, details, onClose }) => {
           
           {/* Close Button */}
           <button
-            onClick={() => navigate('/homepage')}
+            onClick={() => {
+              onClose(); // Close the popup first
+              navigate('/homepage');
+            }}
             className="mt-6 bg-[#5F248D] text-white py-2 px-6 rounded-md hover:bg-[#33005C] transition-colors"
           >
             Go to Homepage

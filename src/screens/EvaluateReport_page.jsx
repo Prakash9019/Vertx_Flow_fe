@@ -9,14 +9,18 @@ import EvaluateReportCapital from "../components/EvaluateReportCapital";
 import EvaluateReportSuggestions from "../components/EvaluateReportSuggestions";
 import ToggleTabHeader from "../components/ToggleTabHeader";
 import Sidebar from "../components/Sidebar";
+import UpgradeSubscriptionPopup from "../components/UpgradeSubscriptionPopup";
+import { usePermissions } from "../hooks/usePermissions";
   
 function EvaluateReport_page() {
   const location = useLocation();
   const navigate = useNavigate();
-    const fileName = location?.state?.pdfFiles || "filename.pdf";
+  const fileName = location?.state?.pdfFiles || "filename.pdf";
   const incomingData = location?.state?.reportData;
   const analysisId = location?.state?.analysisId;
   const [reportData, setReportData] = useState(null);
+  const [showUpgradePopup, setShowUpgradePopup] = useState(false);
+  const { canUsePdfEvaluation, loading: permissionsLoading } = usePermissions();
   
   // Get current tab from URL hash, default to "Analysis"
   const validTabs = ["Analysis", "Overview",  "Suggestions"];
@@ -28,6 +32,12 @@ function EvaluateReport_page() {
   };
     const [activeTab, setActiveTab] = useState(getTabFromHash());
   useEffect(() => {
+    // Check if user has appropriate subscription
+    if (!canUsePdfEvaluation && !permissionsLoading) {
+      setShowUpgradePopup(true);
+      return;
+    }
+    
     console.log('EvaluateReport_page: Checking for report data');
     console.log('Incoming data:', incomingData);
       if (!incomingData) {
@@ -37,7 +47,7 @@ function EvaluateReport_page() {
           const token = localStorage.getItem('authToken');
           if (!token) {
             console.error('No auth token found');
-            navigate("/");
+            navigate("/evaluate");
             return;
           }
 
@@ -55,11 +65,20 @@ function EvaluateReport_page() {
             setReportData(response.data.result);
           } else {
             console.error('Invalid analysis data received');
-            navigate("/");
+            navigate("/evaluate");
           }
         } catch (error) {
           console.error('Error fetching analysis:', error);
-          navigate("/");
+          // Check if error is due to subscription restrictions
+          if (error.response && error.response.status === 403 && error.response.data.upgradeRequired) {
+            // Redirect to evaluate page where the upgrade popup will be shown
+            navigate("/evaluate");
+          } else if (error.response && error.response.status === 404) {
+            console.log('No analysis found with this ID');
+            navigate("/evaluate");
+          } else {
+            navigate("/evaluate");
+          }
         }
       };
 
@@ -72,7 +91,7 @@ function EvaluateReport_page() {
     } else {
       console.log('Using incoming data');      setReportData(incomingData);
     }
-  }, [incomingData, navigate]);// Update URL when tab changes
+  }, [incomingData, navigate, canUsePdfEvaluation, permissionsLoading]);// Update URL when tab changes
   const handleTabChange = (newTab) => {
     console.log('Tab change requested:', newTab, 'Current tab:', activeTab);
     if (newTab !== activeTab) {
@@ -156,6 +175,16 @@ function EvaluateReport_page() {
           )}
         </div>
       </div>
+      
+      {/* Subscription Upgrade Popup */}
+      <UpgradeSubscriptionPopup 
+        isOpen={showUpgradePopup} 
+        onClose={() => {
+          setShowUpgradePopup(false);
+          navigate('/evaluate');
+        }} 
+        requiredPlans={['Launch', 'Scale']} 
+      />
     </div>
   );
 }
