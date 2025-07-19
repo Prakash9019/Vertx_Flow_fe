@@ -40,7 +40,7 @@ const Payment_Page = () => {
   const fetchPlans = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_KEY}/api/payments/plans`);
+      const response = await axios.get(`${API_KEY}/api/payment/plans`);
 
       // Log the raw response to understand the data structure
       console.log('Raw API Response:', response.data);
@@ -133,7 +133,7 @@ const Payment_Page = () => {
     if (!token) return;
     
     try {
-      const response = await axios.get(`${API_KEY}/api/payments/subscription`, {
+      const response = await axios.get(`${API_KEY}/api/payment/subscription`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -158,7 +158,7 @@ const Payment_Page = () => {
     if (!token) return;
     
     try {
-      const response = await axios.get(`${API_KEY}/api/payments/history`, {
+      const response = await axios.get(`${API_KEY}/api/payment/history`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -191,7 +191,7 @@ const Payment_Page = () => {
     
     try {
       // Create order via API
-      const orderResponse = await axios.post(`${API_KEY}/api/payments/create-order`, {
+      const orderResponse = await axios.post(`${API_KEY}/api/payment/create-order`, {
         planName: plan.name,
         billingCycle
       }, {
@@ -213,6 +213,10 @@ const Payment_Page = () => {
         description: `${plan.name} Plan - ${billingCycle === 'quarterly' ? 'Quarterly' : 'Monthly'}`,
         order_id: orderData.orderId, // Order ID from API
         image: "https://i.imgur.com/3g7nmJC.png", // Vertx logo
+        theme: {
+          color: "#3399cc",
+          hide_topbar: false
+        },
         handler: async function(response) {
           console.log("Payment successful!", response);
           
@@ -232,7 +236,7 @@ const Payment_Page = () => {
             };
             
             // First call the verify endpoint to record the payment
-            const verifyResponse = await axios.post(`${API_KEY}/api/payments/verify`, verifyData, {
+            const verifyResponse = await axios.post(`${API_KEY}/api/payment/verify`, verifyData, {
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -279,9 +283,6 @@ const Payment_Page = () => {
         prefill: {
           name: localStorage.getItem('userName') || '',
           email: localStorage.getItem('userEmail') || '',
-        },
-        theme: {
-          color: "#3399cc"
         }
       };
       

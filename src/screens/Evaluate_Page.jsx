@@ -7,6 +7,7 @@ import { useStartupProfile } from "../context/StartupProfileContext";
 import { usePermissions } from "../hooks/usePermissions";
 import API_KEY from "../../key";
 import satsifactory from "./satsifactory.jpg";
+import UpgradeSubscriptionPopup from "../components/UpgradeSubscriptionPopup";
 
 function Evaluate_Page() {
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -20,8 +21,9 @@ function Evaluate_Page() {
   const [evaluationStatus, setEvaluationStatus] = useState({}); // key: file.name, value: { evaluating, complete, error, score }
   const [loading, setLoading] = useState(true);
   const [showNoAccessToast, setShowNoAccessToast] = useState(false);
-  const {profileData,user_id, startupId } =useStartupProfile();
-  const { hasFullAccess, canEvaluate, canUpload, userRole, loading: permissionsLoading } = usePermissions();
+  const [showUpgradePopup, setShowUpgradePopup] = useState(false);
+  const {profileData, user_id, startupId } = useStartupProfile();
+  const { hasFullAccess, canEvaluate, canUpload, userRole, subscriptionPlan, canUsePdfEvaluation, loading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
 
   const handleAddNowClick = () => {
@@ -30,34 +32,54 @@ function Evaluate_Page() {
       setTimeout(() => setShowNoAccessToast(false), 3000);
       return;
     }
+    
+    // Check if user has appropriate subscription
+    if (!canUsePdfEvaluation) {
+      setShowUpgradePopup(true);
+      return;
+    }
+    
+    // User has appropriate permissions and subscription
     setShowUploader(true);
   };
    
   useEffect(() => {
-    if (!startupId) return;
-    console.log(startupId)
-     console.log(true);
+    if (!startupId) {
+      setLoading(false);
+      setAnalysisData([]);
+      return;
+    }
+    
     const fetchAnalysis = async () => {    
-        try {
+      try {
+        // Make sure startupId is valid before making the request
+        if (!startupId || startupId === 'undefined' || startupId === 'null') {
+          setAnalysisData([]);
+          setLoading(false);
+          return;
+        }
+        
         const response = await axios.get(`${API_KEY}/api/pitch/analysis/${startupId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`
           }
         });
+        
         setAnalysisData(response.data);
-
-        console.log(response.data)
+        console.log('Analysis data:', response.data);
+        
         // ✅ If previous analysis exists, show uploader directly
         if (response.data.length > 0) {
           setShowUploader(false); // hide popup
-          // setPdfFiles([{ name: response.data[0].file_name }]); // dummy file just for display
           setEvaluationComplete(true);
-          // setScore((response.data[0].result.score.value / 800) * 100);
           setReportData(response.data[0]); // preload report
         }
       } catch (err) {
         console.error('Error fetching analysis:', err);
-        // setError(err.response?.data?.message || 'Failed to fetch data');
+        
+        // Handle errors gracefully - just means no analysis exists yet
+        // or there might be an issue with the API
+        setAnalysisData([]);
       } finally {
         setLoading(false);
       }
@@ -202,6 +224,12 @@ function Evaluate_Page() {
       return;
     }
     
+    // Check if user has appropriate subscription
+    if (!canUsePdfEvaluation) {
+      setShowUpgradePopup(true);
+      return;
+    }
+    
     const fileName = file.name;
     setEvaluationStatus(prev => ({
       ...prev,
@@ -233,6 +261,11 @@ function Evaluate_Page() {
       }));
       console.log(evaluationStatus);
     } catch (err) {
+      // Check if error is due to subscription restrictions
+      if (err.response && err.response.status === 403 && err.response.data.upgradeRequired) {
+        setShowUpgradePopup(true);
+      }
+      
       setEvaluationStatus(prev => ({
         ...prev,
         [fileName]: { evaluating: false, complete: false, error: true, score: 0 }
@@ -502,18 +535,28 @@ function Evaluate_Page() {
                      alert("You don't have access from founder.");
                      return;
                    }
+                   if (!canUsePdfEvaluation) {
+                     setShowUpgradePopup(true);
+                     return;
+                   }
                    navigate("/evaluate/report#analysis", {
                      state: { reportData: item.result, pdfFiles: [item.file_name] },
                    });
                  }}
                  className={`mt-auto w-full py-2 rounded text-sm font-medium ${
-                   item.canAccess
-                     ? "bg-white text-black hover:bg-gray-200"
-                     : "bg-gray-600 text-gray-300 cursor-not-allowed"
+                   !item.canAccess
+                     ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                     : !canUsePdfEvaluation
+                       ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600"
+                       : "bg-white text-black hover:bg-gray-200"
                  }`}
                  disabled={!item.canAccess}
                >
-                 {item.canAccess ? "Access Report" : "Access Restricted"}
+                 {!item.canAccess 
+                   ? "Access Restricted" 
+                   : !canUsePdfEvaluation 
+                     ? "Upgrade to Access" 
+                     : "Access Report"}
                </button>
              </div>
              
@@ -579,28 +622,34 @@ function Evaluate_Page() {
                      onClick={
                        !canEvaluate 
                          ? () => alert('You don\'t have access from founder.')
-                         : status.complete 
-                           ? () => handleAccessReport(status) 
-                           : () => handleEvaluation(file)
+                         : !canUsePdfEvaluation
+                           ? () => setShowUpgradePopup(true)
+                           : status.complete 
+                             ? () => handleAccessReport(status) 
+                             : () => handleEvaluation(file)
                      }
                       className={`w-full py-2 rounded text-sm font-medium cursor-pointer transition duration-200 ${
                         !canEvaluate
                           ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                          : status.evaluating 
-                            ? 'bg-gray-500 text-white' 
-                            : 'bg-white text-black hover:bg-gray-200'
+                          : !canUsePdfEvaluation
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:from-purple-700 hover:to-blue-600'
+                            : status.evaluating 
+                              ? 'bg-gray-500 text-white' 
+                              : 'bg-white text-black hover:bg-gray-200'
                       }`}
                       disabled={!canEvaluate && !status.complete}
                     >
                        {!canEvaluate
                          ? "Access Restricted"
-                         : status.evaluating
-                           ? "Initializing..."
-                           : status.error
-                             ? "Failed to evaluate"
-                             : status.complete
-                               ? "Access Report"
-                               : "Evaluate"}
+                         : !canUsePdfEvaluation
+                           ? "Upgrade to Access"
+                           : status.evaluating
+                             ? "Initializing..."
+                             : status.error
+                               ? "Failed to evaluate"
+                               : status.complete
+                                 ? "Access Report"
+                                 : "Evaluate"}
                     </button>
                   </div>
                 );
@@ -623,6 +672,13 @@ function Evaluate_Page() {
     </span>
   </div>
 </div>
+
+{/* Subscription Upgrade Popup */}
+<UpgradeSubscriptionPopup 
+  isOpen={showUpgradePopup} 
+  onClose={() => setShowUpgradePopup(false)} 
+  requiredPlans={['Launch', 'Scale']} 
+/>
     </div>
   );
 }
