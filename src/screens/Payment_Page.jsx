@@ -4,6 +4,10 @@ import axios from 'axios';
 import backgroundPay from '../assets/backgroundPay.png';
 import API_KEY from "../../key";
 import PaymentStatus from '../components/PaymentStatus';
+import Galaxy from "../assets/Galaxy.png";
+import PaymentGradient1 from '../assets/PaymentGradient1.png'; 
+import PaymentGradient2 from '../assets/PaymentGradient2.png'; 
+import PaymentGradient3 from '../assets/PaymentGradient3.png';
 
 const Payment_Page = () => {
   const navigate = useNavigate();
@@ -319,7 +323,7 @@ const Payment_Page = () => {
       )}
       
       <div
-        className="absolute inset-0 z-[-1]"
+        className="absolute font-[inter] inset-0 z-[-1]"
         style={{
           backgroundImage: `url(${backgroundPay})`,
           backgroundSize: 'cover',
@@ -393,48 +397,50 @@ const Payment_Page = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full items-start mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6  max-w-6xl w-full items-start font-[inter] mx-auto">
           {plans.map((plan, index) => (
-            <div key={plan._id || index} className="flex flex-col rounded-lg overflow-hidden h-auto">
-              {/* Plan Header */}
-              <div className="bg-blue-900 p-4 text-center">
-                <h2 className="text-xl font-bold text-white">{plan.name}</h2>
-              </div>
+            <div key={plan._id || index} className="flex hover:border border-indigo-950 flex-col rounded-lg overflow-hidden h-auto">
+            <div
+        className="bg-[url('/src/assets/PaymentGradient1.png')] bg-cover bg-center bg-no-repeat 
+                   rounded-md shadow-lg overflow-hidden flex flex-col w-full max-w-sm mx-auto" // Key changes here
+    >
+        {/* Plan Header */}
+          <div
+    className="w-full bg-[url('/src/assets/PaymentGradient2.png')] bg-cover bg-center bg-no-repeat my-3 mx-auto max-w-[340px] min-h-12 rounded-t-md flex items-center justify-center" // Key changes here for centering
+>
+    <h2 className="text-xl font-bold text-white">{plan.name}</h2>
+</div>
 
-              {/* Plan Price and Description */}
-              <div className="p-6 bg-indigo-900/30 backdrop-blur-sm">
-                <div className="mb-6">
-                  <h3 className="text-5xl font-bold text-white">
-                    ${billingCycle === 'monthly' 
-                      ? (plan.monthlyPrice || plan.price || 0) 
-                      : (
-                          // For quarterly pricing:
-                          // 1. Use quarterlyPrice if available
-                          // 2. Otherwise calculate from monthlyPrice with 33% discount (multiply by 2 instead of 3)
-                          // 3. If neither is available, use price or default to 0
-                          plan.quarterlyPrice || 
-                          (plan.monthlyPrice ? Math.round(plan.monthlyPrice * 2) : 0) || 
-                          (plan.price ? Math.round(plan.price * 2) : 0)
-                        )} 
-                    <span className="text-sm font-normal ml-1">per startup / {billingCycle}</span>
-                  </h3>
-                  <p className="text-white mt-1">{plan.description || `${plan.name} plan for startups`}</p>
-                </div>
-                
-                <button 
-                  className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-semibold"
-                  onClick={() => handleSubscription(plan)}
-                  disabled={processingPlanId === (plan._id || plan.name)}
-                >
-                  {processingPlanId === (plan._id || plan.name) ? 'Processing...' : (
+        {/* Plan Price and Description */}
+        <div className="p-6 bg-indigo-900/30 backdrop-blur-sm flex-grow">
+            <div className="mb-6">
+                <h3 className="text-5xl font-bold text-black">
+                    ${billingCycle === 'monthly'
+                        ? (plan.monthlyPrice || plan.price || 0)
+                        : (
+                            plan.quarterlyPrice ||
+                            (plan.monthlyPrice ? Math.round(plan.monthlyPrice * 2) : 0) ||
+                            (plan.price ? Math.round(plan.price * 2) : 0)
+                        )}
+                    <span className="text-sm font-medium ml-1">per startup / {billingCycle}</span>
+                </h3>
+                <p className="font-medium mt-1">{plan.description || `${plan.name} plan for startups`}</p>
+            </div>
+
+            <button
+                className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition font-semibold"
+                onClick={() => handleSubscription(plan)}
+                disabled={processingPlanId === (plan._id || plan.name)}
+            >
+                {processingPlanId === (plan._id || plan.name) ? 'Processing...' : (
                     plan.buttonText || (
-                      plan.name === 'Starter' ? 'Try Vertx' : 
-                      plan.name === 'Launch' ? 'Start Fundraising' : 'Master Fundraising'
+                        plan.name === 'Starter' ? 'Try Vertx' :
+                        plan.name === 'Launch' ? 'Start Fundraising' : 'Master Fundraising'
                     )
-                  )}
-                </button>
-              </div>
-              
+                )}
+            </button>
+        </div>
+    </div> 
               {/* Features List */}
               <div className="bg-black p-6">
                 <div className="space-y-3">
