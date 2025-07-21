@@ -56,45 +56,47 @@ const FeatureTable = () => {
       {/* Title Alignment */}
       <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">Compare tiers and features</h1>
 
-      <div className="flex flex-col gap-4"> {/* Use flex column with gap for spacing between category tables */}
+      <div className="flex flex-col gap-4">
         {featuresData.map((categoryGroup, index) => (
           <div
             key={index}
             className="bg-[url('/src/assets/PaymentGradient3.png')] bg-cover bg-center bg-no-repeat rounded-lg shadow-lg overflow-hidden border border-gray-800"
           >
-            <table className="min-w-full">
-              <thead>
-                {/* Combined Category Header and Tier Names */}
-                <tr className="backdrop-blur-sm">
-                  {/* Category Name Column */}
-                  <th className="py-4 px-4 text-left text-lg font-bold text-white uppercase tracking-wider w-1/4">
-                    {categoryGroup.category}
-                    <div className="h-px bg-gray-800 mt-2"></div> {/* Subtle border below category name */}
-                  </th>
-                  {/* Tier Headers */}
-                  <th className="py-4 px-4 text-center text-sm font-semibold uppercase tracking-wider text-gray-400 w-1/4">Starter</th>
-                  <th className="py-4 px-4 text-center text-sm font-semibold uppercase tracking-wider text-gray-400 w-1/4">Launch</th>
-                  <th className="py-4 px-4 text-center text-sm font-semibold uppercase tracking-wider text-gray-400 w-1/4">Scale</th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Features */}
-                {categoryGroup.features.map((feature, featureIndex) => (
-                  <tr key={featureIndex} className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800/30 transition duration-150 ease-in-out">
-                    <td className="py-3 px-4 text-sm font-medium text-gray-300">{feature.name}</td>
-                    <td className="py-3 px-4 text-center text-sm">
-                      <FeatureValue value={feature.starter} />
-                    </td>
-                    <td className="py-3 px-4 text-center text-sm">
-                      <FeatureValue value={feature.launch} />
-                    </td>
-                    <td className="py-3 px-4 text-center text-sm">
-                      <FeatureValue value={feature.scale} />
-                    </td>
+            {/* Added a wrapper div with overflow-x-auto for small screens */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-800">
+                <thead>
+                  <tr className="backdrop-blur-sm">
+                    {/* Category Name Column */}
+                    <th className="py-4 px-4 text-left text-xs sm:text-lg font-bold text-white uppercase tracking-wider min-w-[150px] sm:min-w-0">
+                      {categoryGroup.category}
+                      <div className="h-px bg-gray-800 mt-2"></div>
+                    </th>
+                    {/* Tier Headers */}
+                    <th className="py-4 px-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-400 w-1/4 min-w-[80px] sm:min-w-0">Starter</th>
+                    <th className="py-4 px-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-400 w-1/4 min-w-[80px] sm:min-w-0">Launch</th>
+                    <th className="py-4 px-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-400 w-1/4 min-w-[80px] sm:min-w-0">Scale</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {/* Features */}
+                  {categoryGroup.features.map((feature, featureIndex) => (
+                    <tr key={featureIndex} className="border-b border-gray-800 last:border-b-0 hover:bg-gray-800/30 transition duration-150 ease-in-out">
+                      <td className="py-3 px-4 text-xs sm:text-sm font-medium text-gray-300 min-w-[150px] sm:min-w-0">{feature.name}</td>
+                      <td className="py-3 px-4 text-center text-xs sm:text-sm min-w-[80px] sm:min-w-0">
+                        <FeatureValue value={feature.starter} />
+                      </td>
+                      <td className="py-3 px-4 text-center text-xs sm:text-sm min-w-[80px] sm:min-w-0">
+                        <FeatureValue value={feature.launch} />
+                      </td>
+                      <td className="py-3 px-4 text-center text-xs sm:text-sm min-w-[80px] sm:min-w-0">
+                        <FeatureValue value={feature.scale} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ))}
       </div>
