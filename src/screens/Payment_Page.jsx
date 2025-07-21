@@ -8,6 +8,7 @@ import Galaxy from "../assets/Galaxy.png";
 import PaymentGradient1 from '../assets/PaymentGradient1.png'; 
 import PaymentGradient2 from '../assets/PaymentGradient2.png'; 
 import PaymentGradient3 from '../assets/PaymentGradient3.png';
+import FeatureTable from './PaymentDetails';
 
 const Payment_Page = () => {
   const navigate = useNavigate();
@@ -466,6 +467,7 @@ const Payment_Page = () => {
           ))}
         </div>
       )}
+      <FeatureTable></FeatureTable>
     </div>
   );
 };
