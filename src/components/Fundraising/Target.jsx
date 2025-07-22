@@ -727,9 +727,268 @@ const formattedLists = lists.map(list => ({
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1)
     }  }
+
+
+  //geogrphy
+  const aliasMap = {
+  "USA": "United States",
+  "US": "United States",
+  "UK": "United Kingdom",
+  "UAE": "United Arab Emirates",
+  "LatAm": "Latin America",
+  "aisa-specific": "Asia",
+  "Asia specific": "Asia",
+  "Asia-Pacific": "Asia",
+  "ANZ": "Oceania",
+  "US/Canada": "North America",
+};
+
+const getFlagOrContinent = (name) => {
+  if (!name) return <span>—</span>;
+
+  const normalized = aliasMap[name] || name;
+
+  if (countryCodeMap[normalized]) {
+    return (
+      <img
+        src={`https://flagcdn.com/w40/${countryCodeMap[normalized].toLowerCase()}.png`}
+        alt={normalized}
+        className="w-7 h-5 rounded-sm"
+        onError={(e) => { e.target.style.display = "none"; }}
+      />
+    );
+  }
+
+  // Everything else → 🌍
+  return (
+    <div className="flex items-center gap-1 text-white text-3xl">
+      🌍
+    </div>
+  );
+};
+
+
+
+  //countries name
+  const countryCodeMap = {
+    "Afghanistan": "af",
+    "Albania": "al",
+    "Algeria": "dz",
+    "Andorra": "ad",
+    "Angola": "ao",
+    "Antigua and Barbuda": "ag",
+    "Argentina": "ar",
+    "Armenia": "am",
+    "Australia": "au",
+    "Austria": "at",
+    "Azerbaijan": "az",
+    "Bahamas": "bs",
+    "Bahrain": "bh",
+    "Bangladesh": "bd",
+    "Barbados": "bb",
+    "Belarus": "by",
+    "Belgium": "be",
+    "Belize": "bz",
+    "Benin": "bj",
+    "Bhutan": "bt",
+    "Bolivia": "bo",
+    "Bosnia and Herzegovina": "ba",
+    "Botswana": "bw",
+    "Brazil": "br",
+    "Brunei": "bn",
+    "Bulgaria": "bg",
+    "Burkina Faso": "bf",
+    "Burundi": "bi",
+    "Cabo Verde": "cv",
+    "Cambodia": "kh",
+    "Cameroon": "cm",
+    "Canada": "ca",
+    "Central African Republic": "cf",
+    "Chad": "td",
+    "Chile": "cl",
+    "China": "cn",
+    "Colombia": "co",
+    "Comoros": "km",
+    "Congo (Congo-Brazzaville)": "cg",
+    "Costa Rica": "cr",
+    "Croatia": "hr",
+    "Cuba": "cu",
+    "Cyprus": "cy",
+    "Czechia (Czech Republic)": "cz",
+    "Democratic Republic of the Congo": "cd",
+    "Denmark": "dk",
+    "Djibouti": "dj",
+    "Dominica": "dm",
+    "Dominican Republic": "do",
+    "Ecuador": "ec",
+    "Egypt": "eg",
+    "El Salvador": "sv",
+    "Equatorial Guinea": "gq",
+    "Eritrea": "er",
+    "Estonia": "ee",
+    "Eswatini": "sz",
+    "Ethiopia": "et",
+    "Fiji": "fj",
+    "Finland": "fi",
+    "France": "fr",
+    "Gabon": "ga",
+    "Gambia": "gm",
+    "Georgia": "ge",
+    "Germany": "de",
+    "Ghana": "gh",
+    "Greece": "gr",
+    "Grenada": "gd",
+    "Guatemala": "gt",
+    "Guinea": "gn",
+    "Guinea-Bissau": "gw",
+    "Guyana": "gy",
+    "Haiti": "ht",
+    "Honduras": "hn",
+    "Hungary": "hu",
+    "Iceland": "is",
+    "India": "in",
+    "Indonesia": "id",
+    "Iran": "ir",
+    "Iraq": "iq",
+    "Ireland": "ie",
+    "Israel": "il",
+    "Italy": "it",
+    "Jamaica": "jm",
+    "Japan": "jp",
+    "Jordan": "jo",
+    "Kazakhstan": "kz",
+    "Kenya": "ke",
+    "Kiribati": "ki",
+    "Kuwait": "kw",
+    "Kyrgyzstan": "kg",
+    "Laos": "la",
+    "Latvia": "lv",
+    "Lebanon": "lb",
+    "Lesotho": "ls",
+    "Liberia": "lr",
+    "Libya": "ly",
+    "Liechtenstein": "li",
+    "Lithuania": "lt",
+    "Luxembourg": "lu",
+    "Madagascar": "mg",
+    "Malawi": "mw",
+    "Malaysia": "my",
+    "Maldives": "mv",
+    "Mali": "ml",
+    "Malta": "mt",
+    "Marshall Islands": "mh",
+    "Mauritania": "mr",
+    "Mauritius": "mu",
+    "Mexico": "mx",
+    "Micronesia": "fm",
+    "Moldova": "md",
+    "Monaco": "mc",
+    "Mongolia": "mn",
+    "Montenegro": "me",
+    "Morocco": "ma",
+    "Mozambique": "mz",
+    "Myanmar (Burma)": "mm",
+    "Namibia": "na",
+    "Nauru": "nr",
+    "Nepal": "np",
+    "Netherlands": "nl",
+    "New Zealand": "nz",
+    "Nicaragua": "ni",
+    "Niger": "ne",
+    "Nigeria": "ng",
+    "North Korea": "kp",
+    "North Macedonia": "mk",
+    "Norway": "no",
+    "Oman": "om",
+    "Pakistan": "pk",
+    "Palau": "pw",
+    "Palestine State": "ps",
+    "Panama": "pa",
+    "Papua New Guinea": "pg",
+    "Paraguay": "py",
+    "Peru": "pe",
+    "Philippines": "ph",
+    "Poland": "pl",
+    "Portugal": "pt",
+    "Qatar": "qa",
+    "Romania": "ro",
+    "Russia": "ru",
+    "Rwanda": "rw",
+    "Saint Kitts and Nevis": "kn",
+    "Saint Lucia": "lc",
+    "Saint Vincent and the Grenadines": "vc",
+    "Samoa": "ws",
+    "San Marino": "sm",
+    "Sao Tome and Principe": "st",
+    "Saudi Arabia": "sa",
+    "Senegal": "sn",
+    "Serbia": "rs",
+    "Seychelles": "sc",
+    "Sierra Leone": "sl",
+    "Singapore": "sg",
+    "Slovakia": "sk",
+    "Slovenia": "si",
+    "Solomon Islands": "sb",
+    "Somalia": "so",
+    "South Africa": "za",
+    "South Korea": "kr",
+    "South Sudan": "ss",
+    "Spain": "es",
+    "Sri Lanka": "lk",
+    "Sudan": "sd",
+    "Suriname": "sr",
+    "Sweden": "se",
+    "Switzerland": "ch",
+    "Syria": "sy",
+    "Taiwan": "tw",
+    "Tajikistan": "tj",
+    "Tanzania": "tz",
+    "Thailand": "th",
+    "Timor-Leste": "tl",
+    "Togo": "tg",
+    "Tonga": "to",
+    "Trinidad and Tobago": "tt",
+    "Tunisia": "tn",
+    "Turkey": "tr",
+    "Turkmenistan": "tm",
+    "Tuvalu": "tv",
+    "Uganda": "ug",
+    "Ukraine": "ua",
+    "United Arab Emirates": "ae",
+    "United Kingdom": "gb",
+    "United States": "us",
+    "Uruguay": "uy",
+    "Uzbekistan": "uz",
+    "Vanuatu": "vu",
+    "Vatican City": "va",
+    "Venezuela": "ve",
+    "Vietnam": "vn",
+    "Yemen": "ye",
+    "Zambia": "zm",
+    "Zimbabwe": "zw",
+
+    // ✅ Alternate Names / Abbreviations
+    "USA": "us",
+    "US": "us",
+    "UK": "gb",
+    "UAE": "ae",
+    "South Korea": "kr",
+    "North Korea": "kp",
+    "Ivory Coast": "ci",
+    "DR Congo": "cd",
+    "Czech Republic": "cz",
+    "Republic of the Congo": "cg",
+    "Burma": "mm",
+    "Syria (Arab Republic)": "sy"
+  };
+
+
+
+
   // If a list is selected, show the detail view
   if (selectedList) {
     const hasInvestors = investors.length > 0
+
 
     return (
       <div className="pt-12 min-h-[calc(100vh-4rem)] bg-black pb-4" onClick={closeMenu}>
@@ -1165,14 +1424,16 @@ const formattedLists = lists.map(list => ({
                     </div>
 
                     {/* Geography */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <div className="flex items-center gap-1 bg-[#18002C] rounded-sm px-1 py-0.5">
-                        <div className="w-5 h-3 flex items-center justify-center">
-                          <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
-                        </div>
+                    <div className="col-span-1 flex flex-row gap-x-1 items-center">
+                      {/* Flag Box */}
+                      <div className="w-6 h-6 bg-[#18002C] rounded-sm flex items-center justify-center">
+                        {getFlagOrContinent(investor.countries?.[0])}
                       </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.geography || (investor.geography?.length > 0 ? `+${investor.geography.length}` : "+0")}
+
+                      {/* Total Countries This Investor Covers */}
+                      <div className="w-6 h-6 bg-[#18002C] text-white text-xs font-semibold rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        <span>+</span>
+                        {investor.countries?.length || 0}
                       </div>
                     </div>
 
