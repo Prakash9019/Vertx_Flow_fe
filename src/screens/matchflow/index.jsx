@@ -309,7 +309,7 @@ function Step2({ cb }) {
     };
     const {user_id } =useStartupProfile();
     try {
-      console.log(data);
+      // console.log(data);
       // const response = await axios.post(
       //   "https://founder-to-investor-model-427457295403.us-central1.run.app/",
       //   data
@@ -352,7 +352,7 @@ function Step2({ cb }) {
       );
   
       if (response.status === 200) {
-        console.log("Investor matches:", response.data.matches);
+        // console.log("Investor matches:", response.data.matches);
         // Optionally display in UI
       }
       setLoad(false);

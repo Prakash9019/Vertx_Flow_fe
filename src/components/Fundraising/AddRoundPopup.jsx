@@ -631,16 +631,16 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
           body: JSON.stringify(apiData)
         })
         .then(async response => {
-          console.log('API Response Status:', response.status); // Log response status
-          console.log('API Response Headers:', Object.fromEntries(response.headers.entries())); // Log headers
+          // console.log('API Response Status:', response.status); // Log response status
+          // console.log('API Response Headers:', Object.fromEntries(response.headers.entries())); // Log headers
           
           let data;
           const contentType = response.headers.get("content-type");
-          console.log('Content-Type:', contentType); // Log content type
+          // console.log('Content-Type:', contentType); // Log content type
           
           try {
             const text = await response.text();
-            console.log('Raw response:', text); // Log raw response
+            // console.log('Raw response:', text); // Log raw response
             
             if (contentType && contentType.indexOf("application/json") !== -1) {
               data = JSON.parse(text);

@@ -26,7 +26,7 @@ export default function GenerateEmail() {
       const tokenFromUrl = urlParams.get("token"); 
       
       let token = tokenFromUrl;
-      console.log(token);
+      // console.log(token);
       if (tokenFromUrl) {
         localStorage.setItem("authToken", tokenFromUrl);
         urlParams.delete("token");
@@ -34,7 +34,7 @@ export default function GenerateEmail() {
       }
   
       if (!tokenFromUrl && !localStorage.getItem("authToken")) {
-        console.log("hellloooooo..")
+        // console.log("hellloooooo..")
         window.location.href = "https://email-automation-427457295403.us-central1.run.app/login";
         return;
       }
@@ -111,7 +111,7 @@ setTemplates(formattedTemplates);
         }
   
         const data = await res.json();
-        console.log("Saved templates:", data);
+        // console.log("Saved templates:", data);
   
         const formattedTemplates = Object.entries(data).map(([key, value]) => ({
           varient: key,

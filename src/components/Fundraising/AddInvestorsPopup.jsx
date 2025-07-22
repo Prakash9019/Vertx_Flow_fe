@@ -162,13 +162,13 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
 
   useEffect(() => {
     if (isOpen) {
-      console.log("AddInvestorsPopup opened", { selectedList, API_KEY });
+      // console.log("AddInvestorsPopup opened", { selectedList, API_KEY });
     }
   }, [isOpen, selectedList]);
 
   useEffect(() => {
     if (searchResults.length > 0) {
-      console.log("Search result example:", searchResults[0]);
+      // console.log("Search result example:", searchResults[0]);
       // Automatically select the first investor when new search results are loaded
       if (!selectedInvestor || !searchResults.some(investor => (investor.id || investor._id) === (selectedInvestor.id || selectedInvestor._id))) {
         setSelectedInvestor(searchResults[0]);
@@ -180,12 +180,12 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
   }, [searchResults]);
 
   useEffect(() => {
-    console.log("Added investors list:", addedInvestorsList);
+    // console.log("Added investors list:", addedInvestorsList);
   }, [addedInvestorsList]);
 
   useEffect(() => {
     if (addedInvestorsList.length > 0) {
-      console.log("Added investor example:", addedInvestorsList[0]);
+      // console.log("Added investor example:", addedInvestorsList[0]);
     }
   }, [addedInvestorsList]);
 
@@ -217,7 +217,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       try {
         const response = await fetch(`${API_KEY}/api/investors/search?name=${encodeURIComponent(searchTerm)}`);
         if (!response.ok) throw new Error('Search failed');
-        console.log(response.data)
+        // console.log(response.data)
         const data = await response.json();
         setSearchResults(data.data || []);
       } catch (error) {
@@ -255,14 +255,14 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
   const cityBackground = `url("data:image/svg+xml;base64,${btoa(citySvg)}")`;
 
   const handleInvestorClick = (investor) => {
-    console.log("Selected investor:", investor);
+    // console.log("Selected investor:", investor);
     setSelectedInvestor(investor);
   };
   // Removed unused getCountString
 
   const handleToggleInvestor = async (investor) => {
     const investorId = investor.id || investor._id;
-    console.log(investorId)
+    // console.log(investorId)
     if (!investorId) {
       console.error("Investor has no ID");
       alert("Error: Cannot identify investor");
@@ -272,14 +272,14 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     const newAddedInvestors = new Set(addedInvestors);
       if (addedInvestors.has(investorId)) {
       try {
-        console.log(selectedList);
+        // console.log(selectedList);
         const listId = selectedList?._id;
-        console.log(listId);
+        // console.log(listId);
         if (!listId) {
           console.error("No list selected");
           return;
         }
-        console.log(listId);
+        // console.log(listId);
         // Call backend API to remove investor from list
         const response = await fetch(`${API_KEY}/api/list/remove-investor`, {
           method: 'POST',
@@ -305,7 +305,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
         
-        console.log(`Successfully removed investor ${investorId} from list ${listId}`);
+        // console.log(`Successfully removed investor ${investorId} from list ${listId}`);
       } catch (error) {
         console.error('Error removing investor from target list:', error);
         alert('Failed to remove investor from target list');
@@ -315,14 +315,14 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     
     try {
       const listId = selectedList?.id;
-      console.log(selectedList)
-      console.log(investorId)
+      // console.log(selectedList)
+      // console.log(investorId)
       if (!listId) {
         console.error("No list selected");
         alert("Please select a list first");
         return;
       }
-      console.log(`Adding investor ${investorId} to list ${listId}`);
+      // console.log(`Adding investor ${investorId} to list ${listId}`);
       
       let enrichedInvestor = investor;
       if (!investor.sectors && !investor.check_size_ranges) {
@@ -334,12 +334,12 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
           if (investorDetailsResponse.ok) {
             const detailsData = await investorDetailsResponse.json();
             if (detailsData.data) {
-              console.log("Retrieved detailed investor data:", detailsData.data);
+              // console.log("Retrieved detailed investor data:", detailsData.data);
               enrichedInvestor = { ...investor, ...detailsData.data };
             }
           }
         } catch (detailsError) {
-          console.log("Could not fetch detailed investor data:", detailsError);
+          // console.log("Could not fetch detailed investor data:", detailsError);
         }
       }
       
@@ -391,7 +391,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
       };
       
       const completeInvestor = getInvestorDataForStorage(enrichedInvestor);
-      console.log("Adding investor with complete data:", completeInvestor);
+      // console.log("Adding investor with complete data:", completeInvestor);
       setAddedInvestorsList(prev => [...prev, completeInvestor]);
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);

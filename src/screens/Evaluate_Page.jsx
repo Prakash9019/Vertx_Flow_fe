@@ -66,7 +66,7 @@ function Evaluate_Page() {
         });
         
         setAnalysisData(response.data);
-        console.log('Analysis data:', response.data);
+        // console.log('Analysis data:', response.data);
         
         // ✅ If previous analysis exists, show uploader directly
         if (response.data.length > 0) {
@@ -139,7 +139,7 @@ function Evaluate_Page() {
   };
 
   const handlePdfUpload = async (e) => {
-    console.log(startupId)
+    // console.log(startupId)
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     setShowUploader(false);
@@ -259,7 +259,7 @@ function Evaluate_Page() {
           data: response.data,
         }
       }));
-      console.log(evaluationStatus);
+      // console.log(evaluationStatus);
     } catch (err) {
       // Check if error is due to subscription restrictions
       if (err.response && err.response.status === 403 && err.response.data.upgradeRequired) {
@@ -565,7 +565,7 @@ function Evaluate_Page() {
                 {/* Uploaded PDF Cards - Only show when a file is selected */}
                 {pdfFiles && pdfFiles.length > 0 && pdfFiles.map((file, index) => {
   const status = evaluationStatus[file.name] || {}; // ✅ Place this line here
- console.log(status);
+ // console.log(status);
   return (
                   
                   <div

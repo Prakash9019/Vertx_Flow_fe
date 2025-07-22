@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function EvaluateReportComponent({ data }) {
-  console.log(data);
+  // console.log(data);
   const scoreValue = data?.score?.value || 0;
-  console.log(scoreValue);
+  // console.log(scoreValue);
   const scoreLabel = data?.score?.label || "UNKNOWN";
   const companyName = data?.overview?.companyName;
 
@@ -92,7 +92,7 @@ function EvaluateReportComponent({ data }) {
               key={index}
               className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-300 py-2 border-b border-gray-700 text-sm"
             >
-              {console.log(breakdownData)}
+              {/* console.log(breakdownData) */}
               <span className="sm:w-1/3 mb-1 sm:mb-0">
                 {breakdownData.label}
               </span>

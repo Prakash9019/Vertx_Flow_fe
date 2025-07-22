@@ -54,31 +54,31 @@ export const usePermissions = () => {
       const token = localStorage.getItem('authToken');
       
       if (token) {
-        console.log('Checking subscription status...');
+        // console.log('Checking subscription status...');
         const response = await axios.get(`${API_KEY}/api/payment/subscription`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         
-        console.log('Subscription response:', response.data);
+        // console.log('Subscription response:', response.data);
         const { subscription, hasSubscription } = response.data;
         
         if (hasSubscription && subscription && subscription.planName) {
-          console.log(`Active subscription found: ${subscription.planName}`);
+          // console.log(`Active subscription found: ${subscription.planName}`);
           setSubscriptionPlan(subscription.planName);
           
           // Check if user can use PDF evaluation (Launch or Scale plans)
           const canUseEval = ['Launch', 'Scale'].includes(subscription.planName);
-          console.log(`Can use PDF evaluation: ${canUseEval}`);
+          // console.log(`Can use PDF evaluation: ${canUseEval}`);
           setCanUsePdfEvaluation(canUseEval);
         } else {
-          console.log('No active subscription found or subscription is not valid');
+          // console.log('No active subscription found or subscription is not valid');
           setSubscriptionPlan(null);
           setCanUsePdfEvaluation(false);
         }
       } else {
-        console.log('No auth token found, cannot check subscription');
+        // console.log('No auth token found, cannot check subscription');
         setSubscriptionPlan(null);
         setCanUsePdfEvaluation(false);
       }

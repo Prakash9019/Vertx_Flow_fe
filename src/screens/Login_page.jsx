@@ -124,10 +124,10 @@ function Login_Page() {
 
         const inviteToken = localStorage.getItem("cofounderInviteToken");        const shouldRedirectToHome = localStorage.getItem("redirectToHomeAfterLogin") === "true";
         const pendingInviteId = localStorage.getItem("pendingInviteId");        if (inviteToken) {
-          console.log(
-            "Processing cofounder invitation token:",
-            inviteToken
-          );
+          // console.log(
+            // "Processing cofounder invitation token:",
+            // inviteToken
+          // );
           try {
             // Call the API to accept the cofounder invite
             const inviteResponse = await axios.post(
@@ -141,7 +141,7 @@ function Login_Page() {
             );
 
             if (inviteResponse.data) {
-              console.log("Cofounder invite accepted successfully:", inviteResponse.data);
+              // console.log("Cofounder invite accepted successfully:", inviteResponse.data);
             }
 
             // Always redirect to homepage after successful login
@@ -155,7 +155,7 @@ function Login_Page() {
           }        }
         // Check for target list invite redirect flag
         else if (shouldRedirectToHome || pendingInviteId) {
-          console.log("Redirecting to homepage after target list invite login");
+          // console.log("Redirecting to homepage after target list invite login");
           // Clear the flags after use
           localStorage.removeItem("redirectToHomeAfterLogin");
           localStorage.removeItem("pendingInviteId");
@@ -173,10 +173,10 @@ function Login_Page() {
             const { isProfileComplete, redirectTo } = profileResponse.data;
             
             if (isProfileComplete) {
-              console.log("Profile is complete, redirecting to homepage");
+              // console.log("Profile is complete, redirecting to homepage");
               navigate("/homepage");
             } else {
-              console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
+              // console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
               navigate(redirectTo || "/profile/manual");
             }
           } catch (profileError) {
