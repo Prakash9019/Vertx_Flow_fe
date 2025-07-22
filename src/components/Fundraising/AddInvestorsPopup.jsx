@@ -22,47 +22,37 @@ const fallbackAvatar = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
 
 // InvestorCard component
 const InvestorCard = ({ investor, isSelected, onClick }) => {
-  console.log("Rendering investor card for:", investor);
-  const getCountString = (str, isGeography = false) => {
-    if (!str) {
-      return isGeography ? "+0" : "+0"; // Default for empty string
+  // console.log("Rendering investor card for:", investor);
+  const getCount = (val) => {
+    if (!val) return 0;
+    if (Array.isArray(val)) {
+      return val.length;
     }
-    const items = str.split(',').filter(s => s.trim() !== '');
-    if (items.length === 0) {
-      return isGeography ? "+0" : "+0";
+    if (typeof val === 'string') {
+      return val.split(',').filter(s => s.trim() !== '').length;
     }
-    return isGeography ? `+${items.length}` : `+${items.length - 1}`;
+    return 0;
   };
-  const getMatchColor = (matchValue) => {
-    if (!matchValue) return "bg-[#DE2D2D]";
-    const value = parseInt(matchValue);
-    if (value >= 0 && value <= 49) return "bg-[#DE2D2D]";
-    if (value >= 50 && value <= 67) return "bg-[#AF4F00]";
-    if (value >= 68 && value <= 85) return "bg-[#CC8D03]";
-    if (value >= 86 && value <= 100) return "bg-[#0E8D07]";
-    return "bg-[#DE2D2D]";
-  };
+  // Removed unused getMatchColor
 
   const getInvestorData = (investor) => {
     return {
-      id: investor._id, // Use MongoDB's default _id as the primary identifier
+      id: investor._id,
       name: investor.name || "Unnamed Investor",
-      company: investor.fund || "", // Maps to 'fund' in the new schema
-      avatar: investor.profile_image || fallbackAvatar, // Maps to 'profile_image'
-      checkSize: investor.cheque_range || "$N/A", // Directly uses 'cheque_range' from the new schema
-      stage: investor.stage || "N/A", // Directly uses 'stage' (comma-separated string)
-      stageCount: investor.stage.length, // Calculates count from 'stage' string
-      industry: investor.industry || "N/A", // Directly uses 'industry' (comma-separated string)
-      industryCount: investor.industry.length, // Calculates count from 'industry' string
-      geography: investor.countries, // Maps to the count of 'countries'
-      match: investor.match || "0%", // Assumed to be directly available on the investor object
-      matchValue: investor.matchValue || 0, // Assumed to be directly available on the investor object
+      company: investor.fund || "",
+      avatar: investor.profile_image || fallbackAvatar,
+      checkSize: investor.cheque_range || "$N/A",
+      stage: investor.stage || "",
+      industry: investor.industry || "",
+      geography: investor.countries || "",
+      match: investor.match || "0%",
+      matchValue: investor.matchValue || 0,
       type: investor.type || "VC",
-      email:investor.email,
+      email: investor.email,
       twitter: investor.twitter,
-      crunchbase:investor.crunchbase,
-      linkedin:investor.linkedin_personal,
-      website:investor.website
+      crunchbase: investor.crunchbase,
+      linkedin: investor.linkedin_personal,
+      website: investor.website
     };
   };
 
@@ -113,16 +103,44 @@ const InvestorCard = ({ investor, isSelected, onClick }) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 overflow-hidden">
-                 { investorData.company && <span className="text-white text-[0.625rem] truncate max-w-[8rem]">
-                    {investorData.company}
-                  </span>}
+                  {investorData.company && (
+                    <span className="text-white text-[0.625rem] truncate max-w-[8rem]">
+                      {investorData.company}
+                    </span>
+                  )}
                   <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 w-[1.875rem] h-4 flex items-center justify-center flex-shrink-0">
                     {investorData.type}
                   </span>
+                  {/* Stage badge */}
+                  {getCount(investorData.stage) > 1 && (
+                    <span className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                      +{getCount(investorData.stage) - 1}
+                    </span>
+                  )}
+                  {getCount(investorData.stage) <= 1 && !investorData.stage && (
+                    <span className="text-[#B8B8B8] text-xs font-semibold font-['Inter'] text-[0.625rem]">-</span>
+                  )}
+                  {/* Industry badge */}
+                  {getCount(investorData.industry) > 1 && (
+                    <span className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                      +{getCount(investorData.industry) - 1}
+                    </span>
+                  )}
+                  {getCount(investorData.industry) <= 1 && !investorData.industry && (
+                    <span className="text-[#B8B8B8] text-xs font-semibold font-['Inter'] text-[0.625rem]">-</span>
+                  )}
+                  {/* Geography badge */}
+                  {getCount(investorData.geography) > 1 && (
+                    <span className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                      +{getCount(investorData.geography) - 1}
+                    </span>
+                  )}
+                  {getCount(investorData.geography) <= 1 && !investorData.geography && (
+                    <span className="text-[#B8B8B8] text-xs font-semibold font-['Inter'] text-[0.625rem]">-</span>
+                  )}
                 </div>
               </div>
             </div>
-          
           </>
         );
       })()}
@@ -216,30 +234,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
 
   if (!isOpen) return null;
 
-  const mockInvestors = [
-    {
-      id: 1,
-      name: "Alex Bogusky",
-      company: "Y Combinator",
-      location: "United States",
-      investment: "500K",
-      type: "ACCELERATOR",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80",
-      email: "alex@ycombinator.com",
-      linkedin: "#",
-      website: "#",
-      twitter: "#",
-      checkSize: "$500K",
-      stage: "Pre-Seed",
-      stageCount: "+3",
-      industry: "AI/ML",
-      industryCount: "+10",
-      geography: "+18",
-      match: "23%",
-      matchColor: "#DE2D2D",
-      matchValue: 23,
-    },
-  ];
+  // Removed unused mockInvestors
 
   const hasResults = searchResults.length > 0;
   const showResults = searchTerm.trim().length > 0 || addedInvestorsList.length > 0 || showAddedInvestors;
@@ -263,16 +258,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
     console.log("Selected investor:", investor);
     setSelectedInvestor(investor);
   };
-  const getCountString = (str, isGeography = false) => {
-    if (!str) {
-      return isGeography ? "+0" : "+0"; // Default for empty string
-    }
-    const items = str.split(',').filter(s => s.trim() !== '');
-    if (items.length === 0) {
-      return isGeography ? "+0" : "+0";
-    }
-    return isGeography ? `+${items.length}` : `+${items.length - 1}`;
-  };
+  // Removed unused getCountString
 
   const handleToggleInvestor = async (investor) => {
     const investorId = investor.id || investor._id;
@@ -376,7 +362,7 @@ function AddInvestorsPopup({ isOpen, onClose, onInvestorsAdded, selectedList }) 
         }
       }
       
-      const result = await response.json();
+      await response.json();
       newAddedInvestors.add(investorId);
       setAddedInvestors(newAddedInvestors);
       

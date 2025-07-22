@@ -238,7 +238,7 @@ const formattedLists = lists.map(list => ({
         }
         
         const data = await response.json();
-        console.log('Matched investors data:', data);
+        // console.log('Matched investors data:', data);
         
         if (data.data && Array.isArray(data.data)) {
           // Transform investor data to match the expected format
@@ -1147,10 +1147,13 @@ const formattedLists = lists.map(list => ({
                       <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
                         {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
                       </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : 
-                        investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
-                      </div>
+                      {(investor.stage?.length > 1 || investor.invests_in_rounds?.length > 1) && (
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.stage?.length > 1
+                            ? `+${investor.stage.length - 1}`
+                            : `+${investor.invests_in_rounds.length - 1}`}
+                        </div>
+                      )}
                     </div>
 
                     {/* Industry */}
@@ -1158,10 +1161,13 @@ const formattedLists = lists.map(list => ({
                       <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
                         {investor.industry?.[0] || investor.sectors?.[0] || "—"}
                       </div>
-                    {investor.industry.length>0 && <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : 
-                        investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
-                      </div>}
+                    {(investor.industry?.length > 1 || investor.sectors?.length > 1) && (
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                        {investor.industry?.length > 1
+                          ? `+${investor.industry.length - 1}`
+                          : `+${investor.sectors.length - 1}`}
+                      </div>
+                    )}
                     </div>
 
                     {/* Geography */}
@@ -1171,9 +1177,11 @@ const formattedLists = lists.map(list => ({
                           <img src="/placeholder.svg?height=12&width=20" alt="Flag" />
                         </div>
                       </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.geography || (investor.geography?.length > 0 ? `+${investor.geography.length}` : "+0")}
-                      </div>
+                      {investor.geography && investor.geography.length > 1 && (
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {`+${investor.geography.length - 1}`}
+                        </div>
+                      )}
                     </div>
 
                     {/* Match Value */}

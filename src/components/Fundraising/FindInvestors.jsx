@@ -150,7 +150,7 @@ function FindInvestors() {
         }
       });
 
-      console.log('Fetching investors with params:', queryParams.toString());
+      // console.log('Fetching investors with params:', queryParams.toString());
       const response = await fetch(`${API_KEY}/api/investors?${queryParams.toString()}`);
 
       if (!response.ok) {
@@ -160,12 +160,12 @@ function FindInvestors() {
       }
 
       const data = await response.json();
-      console.log('API Response Data:', data);
+      // console.log('API Response Data:', data);
 
       // Transform and set investors data directly from API (which now includes match data)
       if (data.data && Array.isArray(data.data)) {
         const transformedInvestors = data.data.map(transformInvestorData);
-        console.log('Transformed investors:', transformedInvestors.slice(0, 3)); // Log first 3 for debugging
+        // console.log('Transformed investors:', transformedInvestors.slice(0, 3)); // Log first 3 for debugging
         setInvestors(transformedInvestors);
         setTotalPages(data.totalPages || 1);
         setTotalCount(data.totalCount || 0);
@@ -734,10 +734,13 @@ const getFlagOrContinent = (name) => {
                           {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
                         </span>
                       </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` :
-                          investor.invests_in_rounds?.length > 1 ? `+${investor.invests_in_rounds.length - 1}` : "+0"}
-                      </div>
+                      {(investor.stage?.length > 1 || investor.invests_in_rounds?.length > 1) && (
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.stage?.length > 1
+                            ? `+${investor.stage.length - 1}`
+                            : `+${investor.invests_in_rounds.length - 1}`}
+                        </div>
+                      )}
                     </div>
 
                     {/* Industry - 1 column */}
@@ -747,24 +750,29 @@ const getFlagOrContinent = (name) => {
                           {investor.industry?.[0] || investor.sectors?.[0] || "—"}
                         </span>
                       </div>
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` :
-                          investor.sectors?.length > 1 ? `+${investor.sectors.length - 1}` : "+0"}
-                      </div>
+                      {(investor.industry?.length > 1 || investor.sectors?.length > 1) && (
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          {investor.industry?.length > 1
+                            ? `+${investor.industry.length - 1}`
+                            : `+${investor.sectors.length - 1}`}
+                        </div>
+                      )}
                     </div>
 
                     {/* Geography - 1 column */}
                     <div className="col-span-1 flex flex-row gap-x-1 items-center">
                       {/* Flag Box */}
                       <div className="w-6 h-6 bg-[#18002C] rounded-sm flex items-center justify-center">
-                        {getFlagOrContinent(investor.countries?.[0])}
+                        {investor.countries && investor.countries.length > 0
+                          ? getFlagOrContinent(investor.countries[0])
+                          : '—'}
                       </div>
-
                       {/* Total Countries This Investor Covers */}
-                      <div className="w-6 h-6 bg-[#18002C] text-white text-xs font-semibold rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        <span>+</span>
-                        {investor.countries?.length || 0}
-                      </div>
+                      {investor.countries && investor.countries.length > 1 && (
+                        <div className="w-6 h-6 bg-[#18002C] text-white text-xs font-semibold rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          <span>+{investor.countries.length - 1}</span>
+                        </div>
+                      )}
                     </div>
 
 
@@ -808,9 +816,9 @@ const getFlagOrContinent = (name) => {
                           <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
                             <div className="py-1">
                               {[
-                                { text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked") },
-                                { text: "Remove from list", icon: "🗑️", action: () => console.log("Remove from list clicked") },
-                                { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked") },
+                                { text: "Add to pipeline", icon: "💰", action: () => {/* Add to pipeline action */} },
+                                { text: "Remove from list", icon: "🗑️", action: () => {/* Remove from list action */} },
+                                { text: "Report an error", icon: "⚠️", action: () => {/* Report error action */} },
                               ].map((item, index) => (
                                 <button
                                   key={index}
