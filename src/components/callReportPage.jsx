@@ -150,98 +150,51 @@ const toggleExpand = (index) => {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
-      {/* Header with background image */}
+    <div className="min-h-screen bg-black text-white">
       <div
-        className="relative text-white w-full"
-        style={{
-          height: "14.25rem",
-          backgroundColor: "#f0f0f0",
-          backgroundImage: "url(/imgBackground.png)",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "100% 100%",
-          backgroundPosition: "center",
-        }}
+        className="relative text-white w-full h-40 md:h-[14.25rem] bg-[#f0f0f0] bg-[url(/imgBackground.png)] bg-no-repeat bg-cover bg-center"
       >
-        <div className="absolute inset-0 z-0" style={{ backgroundColor: "#000000CC" }}></div>
+        <div className="absolute inset-0 z-0 bg-[#000000CC]"></div>
 
-        {/* Back button */}
         <button
           onClick={onBack}
-          className="absolute top-6 left-6 z-20 flex items-center gap-2 text-white hover:opacity-80 transition-opacity"
-          style={{
-            fontFamily: "Inter",
-            fontSize: "1rem",
-            fontWeight: 500,
-            color: "#FFF",
-          }}
+          className="absolute top-4 left-4 z-20 flex items-center gap-1 text-white hover:opacity-80 transition-opacity font-inter text-sm font-medium md:top-6 md:left-6 md:text-base"
         >
-          <ArrowLeft style={{ width: "1.5rem", height: "1.5rem" }} />
+          <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
           Back
         </button>
 
-        {/* Tabs and Audio Player */}
         <div
-          className="absolute bottom-0 left-0 right-0 z-10 flex items-center gap-4"
-          style={{
-            paddingLeft: "3.44rem",
-            paddingRight: "3.87rem", 
-            paddingBottom: "1.5rem",
-          }}
+          className="absolute bottom-0 left-0 right-0 z-10 flex flex-col sm:flex-row items-start sm:items-center gap-2 px-3 sm:px-8 lg:px-14 pb-3 sm:pb-6"
         >
-          {/* Navigation Tabs */}
           <div className="flex gap-2">
             {["Analysis", "Insights", "Summary"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`rounded-full transition-colors ${
-                  activeTab === tab ? "bg-white text-black" : "text-gray-400"
+                className={`rounded-full transition-colors h-8 text-sm font-inter md:h-10 md:text-base ${
+                  activeTab === tab
+                    ? "bg-white text-black font-medium w-20 md:w-24"
+                    : "bg-[#0F0E16] text-[#656565] font-normal w-16 md:w-20"
                 }`}
-                style={{
-                  width: activeTab === tab ? "6.25rem" : "5rem",
-                  height: "2.5rem",
-                  borderRadius: "6.25rem",
-                  backgroundColor: activeTab === tab ? "#FFF" : "#0F0E16",
-                  color: activeTab === tab ? "#000" : "#656565",
-                  fontFamily: "Inter",
-                  fontSize: "1rem",
-                  fontWeight: activeTab === tab ? 500 : 400,
-                }}
               >
                 {tab}
               </button>
             ))}
           </div>
 
-          {/* Audio Player Container */}
-          <div 
-            className="flex items-center gap-4 px-4"
-            style={{
-              height: "3.125rem",
-              borderRadius: "0.125rem",
-              background: "#0F0E16",
-              width: "calc(100vw - 14.62rem)",
-            }}
+          <div
+            className="flex items-center gap-3 px-3 h-10 rounded-sm bg-[#0F0E16] w-full sm:w-auto sm:flex-1 md:gap-4 md:px-4 md:h-[3.125rem]"
           >
             <button
-              className="flex items-center justify-center hover:opacity-80 transition-opacity"
-              style={{
-                width: "1.5rem",
-                height: "1.5rem",
-                borderRadius: "50%",
-                background: "#FFF",
-                color: "#000",
-              }}
+              className="flex items-center justify-center hover:opacity-80 transition-opacity w-5 h-5 rounded-full bg-white text-black md:w-6 md:h-6"
             >
-              <Play size={12} fill="currentColor" />
+              <Play size={10} fill="currentColor" />
             </button>
             
-            {/* Progress bar */}
             <div className="flex-1">
               <div
-                className="w-full rounded-full bg-white bg-opacity-30"
-                style={{ height: "0.25rem" }}
+                className="w-full rounded-full bg-white bg-opacity-30 h-1"
               >
                 <div
                   className="h-full rounded-full bg-white"
@@ -253,463 +206,286 @@ const toggleExpand = (index) => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div
-        className="flex-1 hide-scrollbar"
+        className="flex-1 hide-scrollbar px-3 sm:px-8 lg:px-16 pt-6 pb-24 md:pt-8 md:pb-32"
         style={{
-          paddingLeft: "4rem",
-          paddingRight: "4rem",
-          paddingTop: "2rem",
-          paddingBottom: "8rem",
-          maxHeight: "calc(100vh - 14.25rem)", // 14.25rem is the header height
-          overflowY: "auto", // Enable vertical scrolling
-          scrollbarWidth: "none",        // Firefox
-          msOverflowStyle: "none",       // IE and Edge
+          maxHeight: "calc(100vh - 14.25rem)",
+          overflowY: "auto",
         }}
       >
-        {/* {activeTab === "Analysis" && (
-          <div
-            className="pt-8 pb-8 px-4 rounded-lg"
-            style={{
-              borderRadius: "0.625rem",
-              background: "#0F0E16",
-            }}
-          >
-            <div className="space-y-2">
-              {categoryScores.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-6 rounded-lg"
-                  style={{
-                    background: "#000",
-                    borderRadius: "0.3125rem",
-                    height: "3.75rem",
-                  }}
-                >
-                  <h3
-                    className="text-white font-medium"
-                    style={{
-                      fontFamily: "Inter",
-                      fontSize: "1.125rem",
-                      fontWeight: 600,
-                      color: "#FFF",
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-                  
-                  <div 
-                    className="flex items-center gap-2 px-3 py-1"
-                    style={{ width: "12rem", justifyContent: "flex-start" }}
+        {activeTab === "Analysis" && (
+          <div className="space-y-3 md:space-y-4">
+            {categoryScores
+              .filter(
+                (item) =>
+                  ![
+                    "engagement",
+                    "fluency",
+                    "interactivity",
+                    "questions_asked",
+                  ].includes(item.title.toLowerCase().replace(/ /g, "_"))
+              )
+              .map((item, index) => {
+                const isExpanded = expandedIndex === index;
+                const key = item.title.toLowerCase().replace(/ /g, "_");
+                const categoryData = analysis?.category_scores?.[key] || {};
+                const description = categoryData?.description;
+                const score = categoryData?.score;
+                const rating = categoryData?.rating;
+
+                return (
+                  <div
+                    key={index}
+                    className="rounded-md overflow-hidden bg-[#0F0E16]"
                   >
                     <div
-                      className="rounded-full"
-                      style={{ 
-                        backgroundColor: item.color,
-                        width: "0.8125rem",
-                        height: "0.8125rem",
-                      }}
-                    ></div>
-                    <span
-                      className="text-sm font-medium whitespace-nowrap"
-                      style={{
-                        color: "#FFF",
-                        fontFamily: "Inter",
-                        fontSize: "0.875rem",
-                        fontWeight: 400,
-                      }}
+                      onClick={() => toggleExpand(index)}
+                      className="flex items-center justify-between px-3 sm:px-6 py-3 cursor-pointer bg-black rounded md:py-4"
                     >
-                      {item.status}
-                    </span>
+                      <div className="text-white text-sm font-semibold font-['Inter'] md:text-base">
+                        {item.title}
+                      </div>
+
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex items-center gap-1 md:gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full inline-block md:w-3 md:h-3"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-white text-xs font-semibold font-['Inter'] md:text-sm">
+                            {item.status}
+                          </span>
+                        </div>
+                        <ChevronDown
+                          size={20} 
+                          color="#FFF"
+                          className={`transition-transform duration-300 ${
+                            isExpanded ? "rotate-180" : "rotate-0"
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div
+                        className="px-3 sm:px-6 py-3 text-xs font-['Inter'] bg-[#0F0E16] border-t border-[#222] md:py-4 md:text-sm"
+                      >
+                        {score !== undefined && (
+                          <div className="text-white font-semibold mb-1">
+                            Score:{" "}
+                            <span className="font-normal text-gray-300">
+                              {score}
+                            </span>
+                          </div>
+                        )}
+                        {rating && (
+                          <div className="text-white font-semibold mb-1">
+                            Rating:{" "}
+                            <span className="font-normal text-gray-300">
+                              {rating}
+                            </span>
+                          </div>
+                        )}
+                        {description ? (
+                          <div className="text-gray-300">{description}</div>
+                        ) : (
+                          <div className="text-gray-500 italic">
+                            No description available.
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                );
+              })}
           </div>
-        )} */}
+        )}
 
-        {/* {activeTab === "Analysis" && (
-  <div
-    className="px-8 py-6"
-    style={{
-      background: "#0F0E16",
-      borderRadius: "10px",
-    }}
-  >
-    <div className="space-y-4">
-      {categoryScores.map((item, index) => (
-        <div
-          key={index}
-          className="flex justify-between items-center px-6 py-4"
-          style={{
-            background: "#000000",
-            borderRadius: "5px",
-          }}
-        >
-          <div
-            style={{
-              color: "#FFFFFF",
-              fontFamily: "Inter",
-              fontWeight: 600,
-              fontSize: "18px",
-              lineHeight: "22px",
-            }}
-          >
-            {item.title}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span
-              style={{
-                width: "13px",
-                height: "13px",
-                borderRadius: "999px",
-                backgroundColor: item.color,
-                display: "inline-block",
-              }}
-            />
-            <span
-              style={{
-                color: "#FFFFFF",
-                fontFamily: "Inter",
-                fontWeight: 600,
-                fontSize: "14px",
-                lineHeight: "17px",
-              }}
-            >
-              {item.status}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)} */}
-
-
-
-{activeTab === "Analysis" && (
-  <div className="space-y-4">
-    {categoryScores
-      .filter(
-        (item) =>
-          !["engagement", "fluency", "interactivity", "questions_asked"].includes(
-            item.title.toLowerCase().replace(/ /g, "_")
-          )
-      )
-      .map((item, index) => {
-        const isExpanded = expandedIndex === index;
-        const key = item.title.toLowerCase().replace(/ /g, "_");
-        const categoryData = analysis?.category_scores?.[key] || {};
-        const description = categoryData?.description;
-        const score = categoryData?.score;
-        const rating = categoryData?.rating;
-
-        return (
-          <div
-            key={index}
-            className="rounded-md overflow-hidden"
-            style={{ background: "#0F0E16" }}
-          >
-            {/* Accordion Header */}
-            <div
-              onClick={() => toggleExpand(index)}
-              className="flex items-center justify-between px-6 py-4 cursor-pointer"
-              style={{ background: "#000", borderRadius: "5px" }}
-            >
-              <div className="text-white text-base font-semibold font-['Inter']">
-                {item.title}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span
-                    style={{
-                      backgroundColor: item.color,
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "50%",
-                      display: "inline-block",
-                    }}
-                  />
-                  <span className="text-white text-sm font-semibold font-['Inter']">
-                    {item.status}
-                  </span>
-                </div>
-                <ChevronDown
-                  size={20}
-                  color="#FFF"
-                  style={{
-                    transition: "transform 0.3s ease",
-                    transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Accordion Content */}
-            {isExpanded && (
-              <div
-                className="px-6 py-4 text-sm font-['Inter']"
-                style={{
-                  background: "#0F0E16",
-                  borderTop: "1px solid #222",
-                }}
-              >
-                {score !== undefined && (
-                  <div className="text-white font-semibold mb-1">
-                    Score:{" "}
-                    <span className="font-normal text-gray-300">{score}</span>
-                  </div>
-                )}
-                {rating && (
-                  <div className="text-white font-semibold mb-1">
-                    Rating:{" "}
-                    <span className="font-normal text-gray-300">{rating}</span>
-                  </div>
-                )}
-                {description ? (
-                  <div className="text-gray-300">{description}</div>
-                ) : (
-                  <div className="text-gray-500 italic">
-                    No description available.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
-  </div>
-)}
-
-
-
-        {/* {activeTab === "Insights" && (
-          <div
-            className="pt-8 pb-8 px-4 rounded-lg space-y-4"
-            style={{
-              borderRadius: "0.625rem",
-              background: "#0F0E16",
-            }}
-          >
-            {analysis?.investor_perspective && (
-              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Investor Perspective</h4>
-                <p className="text-gray-300" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>{analysis.investor_perspective}</p>
-              </div>
-            )}
-            {analysis?.key_recommendations && analysis.key_recommendations.length > 0 && (
-              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Key Recommendations</h4>
-                <ul className="text-gray-300 space-y-1" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>
-                  {analysis.key_recommendations.map((rec, index) => (
-                    <li key={index}>• {rec}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {analysis?.next_steps && analysis.next_steps.length > 0 && (
-              <div className="p-4 rounded-lg" style={{ background: "#000" }}>
-                <h4 className="text-white font-medium mb-2" style={{ fontFamily: "Inter", fontSize: "1rem", fontWeight: 600 }}>Next Steps</h4>
-                <ul className="text-gray-300 space-y-1" style={{ fontFamily: "Inter", fontSize: "0.875rem" }}>
-                  {analysis.next_steps.map((step, index) => (
-                    <li key={index}>• {step}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )} */}
         {activeTab === "Insights" && (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6 py-8">
-    
-    {/* ENGAGEMENT */}
-    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
-      <div>
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-semibold">Engagement</h3>
-          <span className="text-xl">🗣️</span>
-        </div>
-        <p className="text-sm text-gray-400 mb-2">
-          How much you talked vs. how much you listened
-        </p>
-        <div className="flex justify-between text-2xl font-bold mb-2">
-          <div>
-            <div className="text-sm text-gray-400 font-normal">Listened</div>
-            <div>{analysis?.category_scores?.engagement?.listened_count ?? "-"}</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-400 font-normal">Talked</div>
-            <div>{analysis?.category_scores?.engagement?.talked_count ?? "-"}</div>
-          </div>
-        </div>
-        <div className="text-red-500 text-sm font-medium">
-          {analysis?.category_scores?.engagement?.rating ?? "-"}
-        </div>
-        <div className="text-xs text-gray-400 mt-1">
-          {analysis?.category_scores?.engagement?.description}
-        </div>
-      </div>
-      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
-        View detailed insights →
-      </button>
-    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-1 sm:px-6 py-6 md:gap-6 md:py-8">
+            <div className="bg-[#0F0E16] rounded-lg p-4 text-white flex flex-col justify-between md:p-5">
+              <div>
+                <div className="flex justify-between items-start mb-2 md:mb-3">
+                  <h3 className="text-base font-semibold md:text-lg">Engagement</h3>
+                  <span className="text-lg md:text-xl">🗣️</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-1 md:text-sm md:mb-2">
+                  How much you talked vs. how much you listened
+                </p>
+                <div className="flex justify-between text-xl font-bold mb-2 md:text-2xl">
+                  <div>
+                    <div className="text-xs text-gray-400 font-normal md:text-sm">
+                      Listened
+                    </div>
+                    <div>{analysis?.category_scores?.engagement?.listened_count ?? "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400 font-normal md:text-sm">
+                      Talked
+                    </div>
+                    <div>{analysis?.category_scores?.engagement?.talked_count ?? "-"}</div>
+                  </div>
+                </div>
+                <div className="text-red-500 text-xs font-medium md:text-sm">
+                  {analysis?.category_scores?.engagement?.rating ?? "-"}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {analysis?.category_scores?.engagement?.description}
+                </div>
+              </div>
+              <button className="mt-3 text-xs text-white bg-black/50 w-full py-1.5 rounded-md hover:bg-black/70 transition md:mt-4 md:text-sm md:py-2">
+                View detailed insights →
+              </button>
+            </div>
 
-    {/* FLUENCY */}
-    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
-      <div>
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-semibold">Fluency</h3>
-          <span className="text-xl">🧠</span>
-        </div>
-        <p className="text-sm text-gray-400 mb-2">
-          Fluency tells how smoothly and confidently you speak
-        </p>
-        <div className="grid grid-cols-3 text-center text-lg font-bold mb-2">
-          <div>
-            <div className="text-xs text-gray-400">Fillers</div>
-            <div>{analysis?.category_scores?.fluency?.fillers ?? "-"}</div>
+            <div className="bg-[#0F0E16] rounded-lg p-4 text-white flex flex-col justify-between md:p-5">
+              <div>
+                <div className="flex justify-between items-start mb-2 md:mb-3">
+                  <h3 className="text-base font-semibold md:text-lg">Fluency</h3>
+                  <span className="text-lg md:text-xl">🧠</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-1 md:text-sm md:mb-2">
+                  Fluency tells how smoothly and confidently you speak
+                </p>
+                <div className="grid grid-cols-3 text-center text-base font-bold mb-2 md:text-lg">
+                  <div>
+                    <div className="text-xs text-gray-400">Fillers</div>
+                    <div>{analysis?.category_scores?.fluency?.fillers ?? "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Grammar</div>
+                    <div>{analysis?.category_scores?.fluency?.grammar ?? "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">Vocab</div>
+                    <div>{analysis?.category_scores?.fluency?.vocabulary ?? "-"}</div>
+                  </div>
+                </div>
+                <div className={`text-xs font-medium md:text-sm ${
+                  analysis?.category_scores?.fluency?.rating === "Good" ? "text-teal-400" :
+                  analysis?.category_scores?.fluency?.rating === "Average" ? "text-yellow-400" : "text-red-500"
+                }`}>
+                  {analysis?.category_scores?.fluency?.rating ?? "-"}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {analysis?.category_scores?.fluency?.description}
+                </div>
+              </div>
+              <button className="mt-3 text-xs text-white bg-black/50 w-full py-1.5 rounded-md hover:bg-black/70 transition md:mt-4 md:text-sm md:py-2">
+                View detailed insights →
+              </button>
+            </div>
+
+            <div className="bg-[#0F0E16] rounded-lg p-4 text-white flex flex-col justify-between md:p-5">
+              <div>
+                <div className="flex justify-between items-start mb-2 md:mb-3">
+                  <h3 className="text-base font-semibold md:text-lg">Interactivity</h3>
+                  <span className="text-lg md:text-xl">🔁</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-1 md:text-sm md:mb-2">
+                  How often the conversation switched
+                </p>
+                <div className="text-2xl font-bold mb-2 md:text-3xl">
+                  {analysis?.category_scores?.interactivity?.score ?? "-"}
+                </div>
+                <div className="text-red-500 text-xs font-medium md:text-sm">
+                  {analysis?.category_scores?.interactivity?.rating ?? "-"}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {analysis?.category_scores?.interactivity?.description}
+                </div>
+              </div>
+              <button className="mt-3 text-xs text-white bg-black/50 w-full py-1.5 rounded-md hover:bg-black/70 transition md:mt-4 md:text-sm md:py-2">
+                View detailed insights →
+              </button>
+            </div>
+
+            <div className="bg-[#0F0E16] rounded-lg p-4 text-white flex flex-col justify-between md:p-5">
+              <div>
+                <div className="flex justify-between items-start mb-2 md:mb-3">
+                  <h3 className="text-base font-semibold md:text-lg">Questions Asked</h3>
+                  <span className="text-lg md:text-xl">❓</span>
+                </div>
+                <p className="text-xs text-gray-400 mb-1 md:text-sm md:mb-2">
+                  Number of questions asked per minute
+                </p>
+                <div className="text-2xl font-bold mb-2 md:text-3xl">
+                  {analysis?.category_scores?.questions_asked?.score ?? "-"}
+                </div>
+                <div className="text-red-500 text-xs font-medium md:text-sm">
+                  {analysis?.category_scores?.questions_asked?.rating ?? "-"}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {analysis?.category_scores?.questions_asked?.description}
+                </div>
+              </div>
+              <button className="mt-3 text-xs text-white bg-black/50 w-full py-1.5 rounded-md hover:bg-black/70 transition md:mt-4 md:text-sm md:py-2">
+                View detailed insights →
+              </button>
+            </div>
           </div>
-          <div>
-            <div className="text-xs text-gray-400">Grammar</div>
-            <div>{analysis?.category_scores?.fluency?.grammar ?? "-"}</div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-400">Vocab</div>
-            <div>{analysis?.category_scores?.fluency?.vocabulary ?? "-"}</div>
-          </div>
-        </div>
-        <div className={`text-sm font-medium ${
-          analysis?.category_scores?.fluency?.rating === "Good" ? "text-teal-400" :
-          analysis?.category_scores?.fluency?.rating === "Average" ? "text-yellow-400" : "text-red-500"
-        }`}>
-          {analysis?.category_scores?.fluency?.rating ?? "-"}
-        </div>
-        <div className="text-xs text-gray-400 mt-1">
-          {analysis?.category_scores?.fluency?.description}
-        </div>
-      </div>
-      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
-        View detailed insights →
-      </button>
-    </div>
-
-    {/* INTERACTIVITY */}
-    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
-      <div>
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-semibold">Interactivity</h3>
-          <span className="text-xl">🔁</span>
-        </div>
-        <p className="text-sm text-gray-400 mb-2">
-          How often the conversation switched
-        </p>
-        <div className="text-3xl font-bold mb-2">
-          {analysis?.category_scores?.interactivity?.score ?? "-"}
-        </div>
-        <div className="text-red-500 text-sm font-medium">
-          {analysis?.category_scores?.interactivity?.rating ?? "-"}
-        </div>
-        <div className="text-xs text-gray-400 mt-1">
-          {analysis?.category_scores?.interactivity?.description}
-        </div>
-      </div>
-      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
-        View detailed insights →
-      </button>
-    </div>
-
-    {/* QUESTIONS ASKED */}
-    <div className="bg-[#0F0E16] rounded-lg p-5 text-white flex flex-col justify-between">
-      <div>
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg font-semibold">Questions Asked</h3>
-          <span className="text-xl">❓</span>
-        </div>
-        <p className="text-sm text-gray-400 mb-2">
-          Number of questions asked per minute
-        </p>
-        <div className="text-3xl font-bold mb-2">
-          {analysis?.category_scores?.questions_asked?.score ?? "-"}
-        </div>
-        <div className="text-red-500 text-sm font-medium">
-          {analysis?.category_scores?.questions_asked?.rating ?? "-"}
-        </div>
-        <div className="text-xs text-gray-400 mt-1">
-          {analysis?.category_scores?.questions_asked?.description}
-        </div>
-      </div>
-      <button className="mt-4 text-sm text-white bg-black/50 w-full py-2 rounded-md hover:bg-black/70 transition">
-        View detailed insights →
-      </button>
-    </div>
-
-  </div>
-)}
-
+        )}
 
         {activeTab === "Summary" && (
-          <div className="relative flex flex-col gap-8 items-start w-[1145px] max-w-full min-h-[430px] mx-auto mt-4">
-            {/* Founder Performance Box */}
-            <div className="relative bg-[#0F0E16] rounded-[15px] px-12 py-8 w-full shadow-lg">
-              <div className="absolute left-0 top-8 h-[28px] w-[5px] bg-[#AD6FDE] rounded" />
-              <h2 className="ml-7 text-white font-inter font-semibold text-[24px] leading-[29px] mb-2">
+          <div className="relative flex flex-col gap-6 items-start w-full max-w-[1145px] mx-auto mt-2 md:mt-4 md:gap-8">
+            <div className="relative bg-[#0F0E16] rounded-[15px] px-4 sm:px-12 py-6 w-full shadow-lg md:py-8">
+              <div className="absolute left-0 top-6 h-6 w-[4px] bg-[#AD6FDE] rounded md:top-8 md:h-7 md:w-[5px]" />
+              <h2 className="ml-6 text-white font-inter font-semibold text-lg leading-6 mb-1 md:ml-7 md:text-xl md:leading-7">
                 Founder Performance
               </h2>
-              <div className="flex flex-col gap-6 ml-7 w-full mt-4">
+              <div className="flex flex-col gap-4 ml-6 w-full mt-3 md:ml-7 md:gap-6 md:mt-4">
                 {Array.isArray(analysis?.founder_performance) && analysis.founder_performance.length > 0 ? (
                   analysis.founder_performance.map((item, idx) => (
                     <div key={idx}>
-                      <h4 className="text-white font-medium text-[18px] leading-[22px] mb-1">{item.title}</h4>
-                      <p className="text-[#B8B8B8] text-[14px] leading-[17px] max-w-[726px]">
+                      <h4 className="text-white font-medium text-base leading-5 mb-0.5 md:text-lg md:leading-6">{item.title}</h4>
+                      <p className="text-[#B8B8B8] text-xs leading-4 max-w-[726px] md:text-sm md:leading-5">
                         {item.description}
                       </p>
                     </div>
                   ))
                 ) : (
                   <div>
-                    <p className="text-[#B8B8B8] text-[14px] leading-[17px]">No data available.</p>
+                    <p className="text-[#B8B8B8] text-xs leading-4 md:text-sm md:leading-5">No data available.</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* What Worked Box */}
-            <div className="relative bg-[#0F0E16] rounded-[15px] px-12 py-8 w-full shadow-lg">
-              <div className="absolute left-0 top-8 h-[28px] w-[5px] bg-[#AD6FDE] rounded" />
-              <h2 className="ml-7 text-white font-inter font-semibold text-[24px] leading-[29px] mb-2">
+            <div className="relative bg-[#0F0E16] rounded-[15px] px-4 sm:px-12 py-6 w-full shadow-lg md:py-8">
+              <div className="absolute left-0 top-6 h-6 w-[4px] bg-[#AD6FDE] rounded md:top-8 md:h-7 md:w-[5px]" />
+              <h2 className="ml-6 text-white font-inter font-semibold text-lg leading-6 mb-1 md:ml-7 md:text-xl md:leading-7">
                 What Worked
               </h2>
-              <div className="flex flex-col gap-6 ml-7 w-full mt-4">
-              {Array.isArray(analysis?.what_worked) && analysis.what_worked.length > 0 ? (analysis.what_worked.map((item, idx) => (
+              <div className="flex flex-col gap-4 ml-6 w-full mt-3 md:ml-7 md:gap-6 md:mt-4">
+                {Array.isArray(analysis?.what_worked) && analysis.what_worked.length > 0 ? (
+                  analysis.what_worked.map((item, idx) => (
                     <div key={idx}>
-                      <h4 className="text-white font-medium text-[18px] leading-[22px] mb-1">{item}</h4>
+                      <h4 className="text-white font-medium text-base leading-5 mb-0.5 md:text-lg md:leading-6">{item}</h4>
                     </div>
                   ))
                 ) : (
                   <div>
-                    <p className="text-[#B8B8B8] text-[14px] leading-[17px]">No data available.</p>
+                    <p className="text-[#B8B8B8] text-xs leading-4 md:text-sm md:leading-5">No data available.</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* What Didn't Work Box */}
-            <div className="relative bg-[#0F0E16] rounded-[15px] px-12 py-8 w-full shadow-lg">
-              <div className="absolute left-0 top-8 h-[28px] w-[5px] bg-[#AD6FDE] rounded" />
-               <h2 className="ml-7 text-white font-inter font-semibold text-[24px] leading-[29px] mb-2">
+            <div className="relative bg-[#0F0E16] rounded-[15px] px-4 sm:px-12 py-6 w-full shadow-lg md:py-8">
+              <div className="absolute left-0 top-6 h-6 w-[4px] bg-[#AD6FDE] rounded md:top-8 md:h-7 md:w-[5px]" />
+              <h2 className="ml-6 text-white font-inter font-semibold text-lg leading-6 mb-1 md:ml-7 md:text-xl md:leading-7">
                 What Didn't Work
               </h2>
-              <div className="flex flex-col gap-6 ml-7 w-full mt-4">
-              {Array.isArray(analysis?.what_didnt_work) && analysis.what_didnt_work.length > 0 ? (analysis.what_didnt_work.map((item, idx) => (
+              <div className="flex flex-col gap-4 ml-6 w-full mt-3 md:ml-7 md:gap-6 md:mt-4">
+                {Array.isArray(analysis?.what_didnt_work) && analysis.what_didnt_work.length > 0 ? (
+                  analysis.what_didnt_work.map((item, idx) => (
                     <div key={idx}>
-                      <h4 className="text-white font-medium text-[18px] leading-[22px] mb-1">{item}</h4>
+                      <h4 className="text-white font-medium text-base leading-5 mb-0.5 md:text-lg md:leading-6">{item}</h4>
                     </div>
                   ))
                 ) : (
                   <div>
-                    <p className="text-[#B8B8B8] text-[14px] leading-[17px]">No data available.</p>
+                    <p className="text-[#B8B8B8] text-xs leading-4 md:text-sm md:leading-5">No data available.</p>
                   </div>
                 )}
               </div>
@@ -789,225 +565,113 @@ const CallReportPage = ({ investor, analysis:initialAnalysis, onBack }) => {
     if (showDetailView) return <CallDetailView analysis={analysis} onBack={() => setShowDetailView(false)} />;
 
   return (
-     <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
-      <div style={{ paddingLeft: "1.88rem", paddingRight: "1.88rem", paddingTop: "2.75rem", paddingBottom: "6rem" }}>
+    <div className="min-h-screen bg-black text-white" style={{ background: "#000000" }}>
+    <div className="px-4 pt-6 pb-20 md:px-7 md:pt-11 md:pb-24">
         <div className="relative mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" style={{ width: "1.38644rem", height: "1.38644rem" }} />
-            {/* <input
-              type="text"
-              placeholder="Search calls..."
-              className="w-full pl-12 pr-16 py-4 rounded focus:outline-none"
-              style={{ width: "100%", height: "3.25rem", borderRadius: "0.25rem", background: "#0F0E16", color: "#B8B8B8", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 400, border: "none", paddingLeft: "3rem" }}
-            /> */}
-            <input
-                      type="text"
-                      placeholder="Search calls..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-                      className="w-full pl-12 pr-16 py-4 rounded focus:outline-none"
-                      style={{
-                        width: "100%",
-                        height: "3.25rem",
-                        borderRadius: "0.25rem",
-                        background: "#0F0E16",
-                        color: "#B8B8B8",
-                        fontFamily: "Inter",
-                        fontSize: "0.875rem",
-                        fontWeight: 400,
-                        border: "none",
-                        paddingLeft: "3rem",
-                      }}
-                    />
-          </div>
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 md:w-[1.38644rem] md:h-[1.38644rem]" />
+                <input
+                    type="text"
+                    placeholder="Search calls..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                    className="w-full pl-12 pr-16 py-2 rounded focus:outline-none h-[3.25rem] bg-[#0F0E16] text-[#B8B8B8] font-inter text-xs font-normal border-none"
+                />
+            </div>
         </div>
 
-        {/* Table Header */}
-        <div className="flex justify-between items-center mb-4" style={{ color: "#FFF", fontFamily: "Inter", fontSize: "0.875rem", fontWeight: 400 }}>
-          <div style={{ width: "20%" }}>Investor</div>
-          <div style={{ width: "20%", paddingLeft: "1rem"  }}>Connected on</div>
-          <div style={{ width: "20%" }}>Duration</div>
-          <div style={{ width: "20%" }}>Score</div>
-          <div style={{ width: "20%" }}>Result</div>
-          <div style={{ width: "10%" }}>Report</div>
+        <div className="hidden md:flex justify-between items-center ml-6 mb-4 text-white font-inter text-sm font-normal">
+            <div className="w-[20%]">Investor</div>
+            <div className="w-[20%] pl-6 lg:pl-10">Connected on</div>
+            <div className="w-[20%] -ml-1 lg:ml-2">Duration</div>
+            <div className="w-[20%] -ml-3 lg:ml-2">Score</div>
+            <div className="w-[20%] pl-3 lg:pl-12">Result</div>
+            <div className="w-[10%] mr-7 text-center">Report</div>
         </div>
 
-        {/* Render Report History */}
+        <div className="overflow-y-auto hide-scrollbar max-h-[calc(100vh-180px)] md:max-h-[60vh] pr-0 md:pr-2">
+            {(() => {
+                const filteredReports = reportHistory.filter((report) => {
+                    const name = report.investorName?.toLowerCase() || "";
+                    const connectedAgo = formatTimeAgo(report.timestamp).toLowerCase();
+                    return name.includes(searchTerm) || connectedAgo.includes(searchTerm);
+                });
 
-        <div
-  className="overflow-y-auto hide-scrollbar"
-  style={{
-    maxHeight: "60vh", // adjustable based on your design
-    paddingRight: "0.5rem", // space for scrollbar
-  }}
->
-       {(() => {
-  const filteredReports = reportHistory.filter((report) => {
-    const name = report.investorName?.toLowerCase() || "";
-    const connectedAgo = formatTimeAgo(report.timestamp).toLowerCase();
-    return name.includes(searchTerm) || connectedAgo.includes(searchTerm);
-  });
+                if (filteredReports.length === 0) {
+                    return (
+                        <div className="text-center text-gray-400 text-sm py-8 md:text-lg">
+                            No reports found.
+                        </div>
+                    );
+                }
 
-  if (filteredReports.length === 0) {
-    return (
-      <div className="text-center text-gray-400 text-lg py-8">
-        No reports found.
-      </div>
-    );
-  }
+                return filteredReports.map((report, index) => (
+                    <div
+                        key={index}
+                        className="flex flex-wrap md:flex-nowrap justify-between items-center p-3 mb-2 w-full rounded-[0.3125rem] bg-[#0F0E16] text-xs md:p-6 md:mb-2 md:text-base"
+                    >
+                        <div className="w-full mb-1 md:mb-0 md:w-[20%] flex items-center gap-2 md:gap-4">
+                            <div className="bg-gray-600 overflow-hidden flex items-center justify-center w-7 h-7 rounded-[0.1875rem] md:w-10 md:h-10">
+                                <img
+                                    src={report.investorImage || "/placeholder.svg"}
+                                    alt={report.investorName || "Investor"}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.target.style.display = "none";
+                                        e.target.nextSibling.style.display = "flex";
+                                    }}
+                                />
+                                <div
+                                    className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-xs font-bold md:text-sm"
+                                    style={{ display: "none" }}
+                                >
+                                    {report.investorName?.charAt(0) || "P"}
+                                </div>
+                            </div>
+                            <span className="text-white font-inter text-sm font-semibold md:text-base">
+                                {report.investorName || "Persona One"}
+                            </span>
+                        </div>
 
-  return filteredReports.map((report, index) => (
-    <div
-      key={index}
-      className="flex justify-between items-center p-6 mb-2"
-      style={{
-        width: "100%",
-        borderRadius: "0.3125rem",
-        background: "#0F0E16",
-      }}
-    >
-      {/* Investor */}
-      <div
-        style={{
-          width: "20%",
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-        }}
-      >
-        <div
-          className="bg-gray-600 overflow-hidden flex items-center justify-center"
-          style={{
-            width: "2.5rem",
-            height: "2.5rem",
-            borderRadius: "0.1875rem",
-          }}
-        >
-          <img
-            src={report.investorImage || "/placeholder.svg"}
-            alt={report.investorName || "Investor"}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.style.display = "none";
-              e.target.nextSibling.style.display = "flex";
-            }}
-          />
-          <div
-            className="w-full h-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold"
-            style={{ display: "none" }}
-          >
-            {report.investorName?.charAt(0) || "P"}
-          </div>
+                        <div className="w-full flex justify-between items-center md:w-[80%] md:flex-nowrap">
+                            <div className="w-1/2 md:w-[20%] text-white font-inter text-xs font-semibold md:pl-4 md:text-base">
+                                <span className="md:hidden block text-gray-400">Connected: </span>
+                                {formatTimeAgo(report.timestamp)}
+                            </div>
+
+                            <div className="w-1/2 md:w-[20%] text-white font-inter text-xs font-semibold md:text-base">
+                                <span className="md:hidden block text-gray-400">Duration: </span>
+                                {Math.floor(report.duration / 60)}:
+                                {String(report.duration % 60).padStart(2, "0")}
+                            </div>
+
+                            <div className="w-1/2 md:w-[20%] text-white font-inter text-xs font-semibold md:text-base">
+                                <span className="md:hidden block text-gray-400">Score: </span>
+                                {report.score}
+                            </div>
+
+                            <div className="w-1/2 md:w-[20%] text-white font-inter text-xs font-semibold md:text-base">
+                                <span className="md:hidden block text-gray-400">Result: </span>
+                                {report.result}
+                            </div>
+
+                            <div className="w-full mt-2 md:mt-0 md:w-[10%] flex justify-center md:flex-col md:gap-2">
+                                <button
+                                    onClick={() => handleViewClick(report.report)}
+                                    className="hover:opacity-80 transition-opacity text-[#AD6FDE] font-inter text-xs font-medium py-1.5 px-3 rounded md:text-base md:px-0 md:py-0"
+                                >
+                                    View Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ));
+            })()}
         </div>
-        <span
-          style={{
-            color: "#FFF",
-            fontFamily: "Inter",
-            fontSize: "1rem",
-            fontWeight: 600,
-          }}
-        >
-          {report.investorName || "Persona One"}
-        </span>
-      </div>
-
-      {/* Connected On */}
-      <div
-        style={{
-          width: "20%",
-          color: "#FFF",
-          fontFamily: "Inter",
-          fontSize: "1rem",
-          fontWeight: 600,
-          paddingLeft: "1rem",
-        }}
-      >
-        {formatTimeAgo(report.timestamp)}
-      </div>
-
-      {/* Duration */}
-      <div
-        style={{
-          width: "20%",
-          color: "#FFF",
-          fontFamily: "Inter",
-          fontSize: "1rem",
-          fontWeight: 600,
-        }}
-      >
-        {Math.floor(report.duration / 60)}:
-        {String(report.duration % 60).padStart(2, "0")}
-      </div>
-
-      {/* Score */}
-      <div
-        style={{
-          width: "20%",
-          color: "#FFF",
-          fontFamily: "Inter",
-          fontSize: "1rem",
-          fontWeight: 600,
-        }}
-      >
-        {report.score}
-      </div>
-
-      {/* Result */}
-      <div
-        style={{
-          width: "20%",
-          color: "#FFF",
-          fontFamily: "Inter",
-          fontSize: "1rem",
-          fontWeight: 600,
-        }}
-      >
-        {report.result}
-      </div>
-
-      {/* Actions */}
-      <div
-        style={{
-          width: "10%",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-        }}
-      >
-        <button
-          onClick={() => handleViewClick(report.report)}
-          className="hover:opacity-80 transition-opacity"
-          style={{
-            color: "#AD6FDE",
-            fontFamily: "Inter",
-            fontSize: "1rem",
-            fontWeight: 500,
-          }}
-        >
-          View
-        </button>
-           {/* <button
-                onClick={() => handleDelete(index)}
-                className="hover:opacity-70 transition-opacity text-red-400 text-sm"
-                style={{
-                  fontFamily: "Inter",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                }}
-              >
-                Delete
-              </button> */}
-      </div>
     </div>
-  ));
-})()}
 
-
+    <BottomNavigation onBack={onBack} />
 </div>
-      </div>
-
-      <BottomNavigation onBack={onBack} />
-    </div>
   );
 };
 
