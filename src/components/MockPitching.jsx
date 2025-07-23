@@ -2846,7 +2846,9 @@ function MockPitching({ onBack, loading  }) {
           />
         </button>
 
-        <button className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
+        <button 
+        onClick={() => navigate("/playground/mockpitching/create")}  
+        className="flex items-center justify-center hover:opacity-80 transition-all duration-300 transform hover:scale-110 text-gray-600">
           <img
             src={AddIcon || "/placeholder.svg"}
             alt="Add"

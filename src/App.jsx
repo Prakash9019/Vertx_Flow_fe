@@ -51,6 +51,7 @@ import PlayGround from "./components/PlayGround"
 import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";
 import MockPitching from "./components/MockPitching";
 import CallReportPage from "./components/callReportPage";
+import CreateREportPage from "./components/CreateREportPage.jsx";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -82,6 +83,7 @@ function App() {
     {path:"/invite/:inviteId", element:<InviteAcceptPage /> },
     { path: "/playground/mockpitching", element: <MockPitching /> },
     { path: "/playground/mockpitching/report", element: <CallReportPage /> },
+    { path: "/playground/mockpitching/create", element: <CreateREportPage /> },
 
   ];
 
