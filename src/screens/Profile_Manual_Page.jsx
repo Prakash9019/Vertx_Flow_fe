@@ -24,7 +24,7 @@ function Profile_Manual_Page() {
     if (companyName && accountname && companyWebsite) {
       try {
         const token = localStorage.getItem("authToken");
-        console.log("Submitting to:", API_KEY + "/api/profile/manual");
+        // console.log("Submitting to:", API_KEY + "/api/profile/manual");
         
         // Make sure we're using the right token format
         if (!token) {
@@ -34,8 +34,8 @@ function Profile_Manual_Page() {
           return;
         }
         
-        console.log("Using token (first 20 chars):", token.substring(0, 20) + "...");
-        console.log("Data:", { accountname, companyName, companyWebsite });
+        // console.log("Using token (first 20 chars):", token.substring(0, 20) + "...");
+        // console.log("Data:", { accountname, companyName, companyWebsite });
         
         const res = await fetch(API_KEY + "/api/profile/manual", {
           method: "POST",
@@ -65,7 +65,7 @@ function Profile_Manual_Page() {
         }
         
         const data = await res.json();
-        console.log("Profile created successfully:", data);
+        // console.log("Profile created successfully:", data);
         
         await fetchProfileData();
         setMessage(true);

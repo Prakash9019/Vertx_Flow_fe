@@ -97,7 +97,7 @@ function Evaluate_Page() {
     setEvaluation(true);
     const formData = new FormData();
     formData.append("file", pdfFiles[0]);
-    console.log("hiiiiiii.....")
+    // console.log("hiiiiiii.....")
     
     try {
       // First get the analysis from the ML model
@@ -129,7 +129,7 @@ function Evaluate_Page() {
 
       const analysisId = saveResponse.data.analysis._id;
       
-      console.log("Analysis saved successfully");
+      // console.log("Analysis saved successfully");
       setTimeout(() => {
         setEvaluation(false);
       }, 1000);
@@ -143,7 +143,7 @@ function Evaluate_Page() {
         }
       });
     } catch (error) {
-      console.log("Error", error);
+      // console.log("Error", error);
       setEvaluationError(true);
       setTimeout(() => {
         setEvaluationError(false);

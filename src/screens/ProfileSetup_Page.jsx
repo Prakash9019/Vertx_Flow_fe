@@ -41,7 +41,7 @@ function ProfileSetup_Page() {
       const linkedinUrl = `https://www.linkedin.com/in/${linkedinHandle.trim()}`;
       const companyName = "From LinkedIn"; // Placeholder until properly extracted
       
-      console.log("Submitting LinkedIn profile:", linkedinUrl);
+      // console.log("Submitting LinkedIn profile:", linkedinUrl);
       
       const res = await fetch(`${API_KEY}/api/profile/manual`, {
         method: "POST",

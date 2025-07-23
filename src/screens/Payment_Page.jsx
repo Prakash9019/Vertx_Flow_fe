@@ -48,13 +48,13 @@ const Payment_Page = () => {
       const response = await axios.get(`${API_KEY}/api/payment/plans`);
 
       // Log the raw response to understand the data structure
-      console.log('Raw API Response:', response.data);
+      // console.log('Raw API Response:', response.data);
 
       // Check the response format and ensure plans is an array
       if (response.data) {
         // If response.data is an array, use it directly
         if (Array.isArray(response.data)) {
-          console.log('Response is an array with length:', response.data.length);
+          // console.log('Response is an array with length:', response.data.length);
           
           // Add quarterly price calculation if not provided
           const processedPlans = response.data.map(plan => {
@@ -71,7 +71,7 @@ const Payment_Page = () => {
         } 
         // If response.data has a plans property that's an array
         else if (response.data.plans && Array.isArray(response.data.plans)) {
-          console.log('Response has plans array with length:', response.data.plans.length);
+          // console.log('Response has plans array with length:', response.data.plans.length);
           
           // Add quarterly price calculation if not provided
           const processedPlans = response.data.plans.map(plan => {
@@ -88,7 +88,7 @@ const Payment_Page = () => {
         }
         // If response.data is an object with plan properties
         else if (typeof response.data === 'object') {
-          console.log('Response is an object with keys:', Object.keys(response.data));
+          // console.log('Response is an object with keys:', Object.keys(response.data));
           
           // Convert to array if it's an object with plan properties
           // This is a fallback in case the API returns an object instead of an array
@@ -110,7 +110,7 @@ const Payment_Page = () => {
             };
           });
           
-          console.log('Converted to plans array:', plansArray);
+          // console.log('Converted to plans array:', plansArray);
           setPlans(plansArray);
         } else {
           // If we can't determine the structure, set an empty array
@@ -207,7 +207,7 @@ const Payment_Page = () => {
       });
       
       const orderData = orderResponse.data;
-      console.log('Order created:', orderData);
+      // console.log('Order created:', orderData);
       
       // Create Razorpay options using order data
       const options = {
@@ -223,7 +223,7 @@ const Payment_Page = () => {
           hide_topbar: false
         },
         handler: async function(response) {
-          console.log("Payment successful!", response);
+          // console.log("Payment successful!", response);
           
           try {
             // Get auth token
@@ -249,7 +249,7 @@ const Payment_Page = () => {
             });
             
             const verifyResult = verifyResponse.data;
-            console.log('Payment verified:', verifyResult);
+            // console.log('Payment verified:', verifyResult);
             
             // Refresh subscription data
             await checkSubscription();
@@ -280,7 +280,7 @@ const Payment_Page = () => {
         },
         modal: {
           ondismiss: function() {
-            console.log('Payment modal closed');
+            // console.log('Payment modal closed');
             setProcessingPlanId(null);
           },
           escape: true

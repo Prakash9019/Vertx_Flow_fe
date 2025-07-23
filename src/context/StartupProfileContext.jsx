@@ -37,7 +37,7 @@ export const StartupProfileProvider = ({ children }) => {
     setLoadingData(true);
     setError(null);
     const token = getToken();
-    console.log(token)
+    // console.log(token)
     if (!token) {
       console.warn("No auth token found for fetching startup data. User might be new or not logged in.");
       setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], sectors: '', pitch: '' });
@@ -62,7 +62,7 @@ export const StartupProfileProvider = ({ children }) => {
           sectors: fetchedData.sectors || '',
           pitch: fetchedData.pitch || ''
         });
-        console.log(fetchedData);
+        // console.log(fetchedData);
       } else {
         setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], sectors: '', pitch: '' });
       }
@@ -71,13 +71,13 @@ export const StartupProfileProvider = ({ children }) => {
       if (err.response && err.response.status === 404) {
         // If it's a 404 and we haven't retried yet, wait a bit and retry
         if (retryCount < 2) {
-          console.log(`No startup profile found, retrying in ${(retryCount + 1) * 1000}ms (attempt ${retryCount + 1}/3)`);
+          // console.log(`No startup profile found, retrying in ${(retryCount + 1) * 1000}ms (attempt ${retryCount + 1}/3)`);
           setTimeout(() => {
             fetchStartupData(retryCount + 1);
           }, (retryCount + 1) * 1000);
           return;
         }
-        console.log("No startup profile found for this user after retries. Ready for new profile creation.");
+        // console.log("No startup profile found for this user after retries. Ready for new profile creation.");
         setStartupData({ stage: '', location: '', raise: '', revenue: '', industry: [], sectors: '', pitch: '' });
       } else {
         console.error("Failed to fetch startup data:", err);
@@ -105,13 +105,13 @@ export const StartupProfileProvider = ({ children }) => {
       if (err.response && err.response.status === 404) {
         // If it's a 404 and we haven't retried yet, wait a bit and retry
         if (retryCount < 2) {
-          console.log(`No profile data found, retrying in ${(retryCount + 1) * 1000}ms (attempt ${retryCount + 1}/3)`);
+          // console.log(`No profile data found, retrying in ${(retryCount + 1) * 1000}ms (attempt ${retryCount + 1}/3)`);
           setTimeout(() => {
             fetchProfileData(retryCount + 1);
           }, (retryCount + 1) * 1000);
           return;
         }
-        console.log("No profile data found for this user after retries.");
+        // console.log("No profile data found for this user after retries.");
       } else {
         console.error("Error fetching profile data:", err);
       }
@@ -177,13 +177,13 @@ export const StartupProfileProvider = ({ children }) => {
       // Trigger AI analysis immediately after successful profile save
       // This is critical for ensuring analysis is ready when user reaches FindInvestors page
       if (user_id) {
-        console.log('Triggering AI analysis for user:', user_id);
+        // console.log('Triggering AI analysis for user:', user_id);
         try {
           const aiResponse = await axios.get(`${API_KEY}/api/ai-model-profile/${user_id}/ai-match`, {
             headers: { Authorization: `Bearer ${token}` },
             timeout: 30000 // 30 second timeout for AI analysis
           });
-          console.log('AI analysis completed successfully:', aiResponse.data ? 'Data received' : 'No data');
+          // console.log('AI analysis completed successfully:', aiResponse.data ? 'Data received' : 'No data');
         } catch (aiError) {
           console.warn('AI analysis failed but profile was saved:', aiError.response?.data || aiError.message);
           // Don't fail the entire operation if AI analysis fails

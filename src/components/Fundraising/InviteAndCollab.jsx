@@ -98,8 +98,8 @@ function InviteAndCollab({ isOpen, onClose, listId }) {
         return;
       }
 
-      console.log('Generating QR code for invite:', inviteData.inviteId);
-        console.log('Auth token (first 20 chars):', token.substring(0, 20) + '...');
+      // console.log('Generating QR code for invite:', inviteData.inviteId);
+        // console.log('Auth token (first 20 chars):', token.substring(0, 20) + '...');
       
       const response = await fetch(`${API_KEY}/api/targetlist-invite/${inviteData.inviteId}/qr`, {
         headers: {

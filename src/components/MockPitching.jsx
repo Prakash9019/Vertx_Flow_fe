@@ -480,7 +480,7 @@ const handleStartSession = (sid) => {
 
   newRecognition.onerror = (e) => {
     if (e.error === "aborted") {
-      console.log("🎤 Speech recognition aborted (expected)");
+      // console.log("🎤 Speech recognition aborted (expected)");
     } else {
       console.error("Speech recognition error:", e.error);
     }
@@ -489,14 +489,14 @@ const handleStartSession = (sid) => {
   };
 
   newRecognition.onend = () => {
-    console.log("Recognition ended");
+    // console.log("Recognition ended");
     setIsSpeaking(false);
     if (isListening) {
       setTimeout(() => {
         try {
           if (recognitionRef.current && !isSpeaking) {
         recognitionRef.current.start();
-        console.log("🔁 Recognition restarted after end");
+        // console.log("🔁 Recognition restarted after end");
         }
         } catch (err) {
           console.error("Error restarting recognition:", err);
@@ -508,7 +508,7 @@ const handleStartSession = (sid) => {
   // setRecognition(newRecognition);
 recognitionRef.current = newRecognition;
   setIsListening(false); // We'll start after AI speaks
-  console.log("✅ handleStartSession called with SID:", sid);
+  // console.log("✅ handleStartSession called with SID:", sid);
 
   if (socketRef.current && sid) {
     socketRef.current.emit("text_message", {
@@ -517,7 +517,7 @@ recognitionRef.current = newRecognition;
       session_id: sid,
       system: "workflow",
     });
-    console.log("🤖 Sent initial message to AI to start conversation");
+    // console.log("🤖 Sent initial message to AI to start conversation");
   }
 };
 
@@ -627,12 +627,12 @@ useEffect(() => {
   if (!socketRef.current) return;
 
   socketRef.current.on("video_analysis_update", (data) => {
-    console.log("📊 Live metrics:", data);
+    // console.log("📊 Live metrics:", data);
     // You can save to state and show in UI
   });
 
   socketRef.current.on("video_insights", (data) => {
-    console.log("🧠 Final video insights:", data);
+    // console.log("🧠 Final video insights:", data);
     // You can show this in Call Report
   });
 
@@ -804,8 +804,8 @@ useEffect(() => {
 
       setSessionId(uniqueSessionId);
       sessionIdRef.current = uniqueSessionId; 
-      console.log("✅ sessionIdRef set to", sessionIdRef.current);
-      console.log('✅ Session started with ID:', uniqueSessionId);
+      // console.log("✅ sessionIdRef set to", sessionIdRef.current);
+      // console.log('✅ Session started with ID:', uniqueSessionId);
 
       socket = io('https://ai-mock-pitching-427457295403.europe-west1.run.app/', {
         transports: ['websocket'],
@@ -819,7 +819,7 @@ useEffect(() => {
       socketRef.current = socket;
 
       socket.on('connect', () => {
-        console.log('✅ Connected to AI server');
+        // console.log('✅ Connected to AI server');
 
         // Emit session_started
         socket.emit('session_started', {
@@ -827,14 +827,14 @@ useEffect(() => {
           persona: personaKey || 'skeptical',
           system: 'workflow'
         });
-        console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
+        // console.log('🚀 Emitted session_started with ID:', uniqueSessionId);
 
         // ✅ Directly start the session on client-side
         handleStartSession(uniqueSessionId);
 
         // Emit video analysis
         socket.emit('start_video_analysis', { session_id: uniqueSessionId });
-        console.log('📸 Emitted start_video_analysis');
+        // console.log('📸 Emitted start_video_analysis');
       });
 
       // Re-emit session_started on reconnect
@@ -844,13 +844,13 @@ useEffect(() => {
           persona: personaKey || 'skeptical',
           system: 'workflow'
         });
-        console.log('🔁 Re-emitted session_started on reconnect');
+        // console.log('🔁 Re-emitted session_started on reconnect');
       });
 
       // AI response handler
       socket.off('response');
       socket.on('response', (data) => {
-        console.log('🧠 AI response:', data);
+        // console.log('🧠 AI response:', data);
         if (recognitionRef.current) {
           try {
             recognitionRef.current.stop();
@@ -878,15 +878,15 @@ useEffect(() => {
         console.warn('❌ Socket disconnected:', reason);
 
         if (reason === 'io server disconnect') {
-          console.log('🔄 Attempting reconnect (server disconnect)');
+          // console.log('🔄 Attempting reconnect (server disconnect)');
           socket.connect();
         } else if (reason === 'transport close' || reason === 'ping timeout') {
-          console.log('📡 Reconnecting due to network interruption');
+          // console.log('📡 Reconnecting due to network interruption');
           socket.connect();
         } else if (reason === 'io client disconnect') {
-          console.log('✅ Socket cleanly disconnected by client');
+          // console.log('✅ Socket cleanly disconnected by client');
         } else {
-          console.log('ℹ️ Disconnected for unknown reason. Not reconnecting.');
+          // console.log('ℹ️ Disconnected for unknown reason. Not reconnecting.');
         }
       });
 
@@ -1013,7 +1013,7 @@ if (!socket || !socket.connected) {
 
     // Don't send if we're already waiting for a response
     if (isLoading) {
-      console.log('Already waiting for a response, ignoring new message')
+      // console.log('Already waiting for a response, ignoring new message')
       return
     }
 
@@ -1032,7 +1032,7 @@ if (!socket || !socket.connected) {
       system: 'workflow'
     };
 
-    console.log('Sending message to AI:', messageData)
+    // console.log('Sending message to AI:', messageData)
 
     // Send to backend
     socketRef.current.emit('text_message', messageData)
@@ -1167,7 +1167,7 @@ if (!socket || !socket.connected) {
     return;
   }
 
-  console.log('Attempting to play audio from URL:', audioUrl);
+  // console.log('Attempting to play audio from URL:', audioUrl);
 
   // Stop any currently playing audio
   if (currentAudio) {

@@ -38,8 +38,8 @@ function EvaluateReport_page() {
       return;
     }
     
-    console.log('EvaluateReport_page: Checking for report data');
-    console.log('Incoming data:', incomingData);
+    // console.log('EvaluateReport_page: Checking for report data');
+    // console.log('Incoming data:', incomingData);
       if (!incomingData) {
       // Try to fetch from API using analysisId
       const fetchAnalysis = async () => {
@@ -61,7 +61,7 @@ function EvaluateReport_page() {
           );
 
           if (response.data && response.data.result) {
-            console.log('Successfully fetched analysis from API');
+            // console.log('Successfully fetched analysis from API');
             setReportData(response.data.result);
           } else {
             console.error('Invalid analysis data received');
@@ -74,7 +74,7 @@ function EvaluateReport_page() {
             // Redirect to evaluate page where the upgrade popup will be shown
             navigate("/evaluate");
           } else if (error.response && error.response.status === 404) {
-            console.log('No analysis found with this ID');
+            // console.log('No analysis found with this ID');
             navigate("/evaluate");
           } else {
             navigate("/evaluate");
@@ -85,20 +85,21 @@ function EvaluateReport_page() {
       if (analysisId) {
         fetchAnalysis();
       } else {
-        console.log('No analysis ID found, redirecting to home');
+        // console.log('No analysis ID found, redirecting to home');
         navigate("/");
       }
     } else {
-      console.log('Using incoming data');      setReportData(incomingData);
+      // console.log('Using incoming data');      
+      setReportData(incomingData);
     }
   }, [incomingData, navigate, canUsePdfEvaluation, permissionsLoading]);// Update URL when tab changes
   const handleTabChange = (newTab) => {
-    console.log('Tab change requested:', newTab, 'Current tab:', activeTab);
+    // console.log('Tab change requested:', newTab, 'Current tab:', activeTab);
     if (newTab !== activeTab) {
       setActiveTab(newTab);
       // Use history API instead of directly modifying hash to prevent page reload
       const newUrl = `${window.location.pathname}${window.location.search}#${newTab.toLowerCase()}`;
-      console.log('Updating URL to:', newUrl);
+      // console.log('Updating URL to:', newUrl);
       window.history.pushState({}, '', newUrl);
     }
   };

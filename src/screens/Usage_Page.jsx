@@ -34,8 +34,8 @@ function Usage_Page() {
   };
 
   const handleContinue = () => {
-    console.log("Selected options:", selected);
-    console.log("Selected Role:", selectedRole);
+    // console.log("Selected options:", selected);
+    // console.log("Selected Role:", selectedRole);
     if (selected.length === 0 && !selectedRole) {
       navigate("/");
       alert("Select a role and options");

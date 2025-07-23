@@ -9,7 +9,7 @@ const CofounderPermissionExample = () => {
   const handleGrantPermissions = async () => {
     try {
       // Simulate API call
-      console.log('Granting co-founder permissions...');
+      // console.log('Granting co-founder permissions...');
       // await api.grantCofounderPermissions(cofounderId);
       
       // Show success notification
@@ -22,7 +22,7 @@ const CofounderPermissionExample = () => {
   const handleRevokePermissions = async () => {
     try {
       // Simulate API call
-      console.log('Revoking co-founder permissions...');
+      // console.log('Revoking co-founder permissions...');
       // await api.revokeCofounderPermissions(cofounderId);
       
       // Show success notification
@@ -35,7 +35,7 @@ const CofounderPermissionExample = () => {
   const handleInviteCofounder = async () => {
     try {
       // Simulate API call
-      console.log('Inviting co-founder...');
+      // console.log('Inviting co-founder...');
       // await api.inviteCofounder(email);
       
       // Show success notification
@@ -48,7 +48,7 @@ const CofounderPermissionExample = () => {
   const handleRemoveCofounder = async () => {
     try {
       // Simulate API call
-      console.log('Removing co-founder...');
+      // console.log('Removing co-founder...');
       // await api.removeCofounder(cofounderId);
       
       // Show success notification

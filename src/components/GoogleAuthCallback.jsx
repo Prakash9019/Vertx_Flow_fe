@@ -14,8 +14,8 @@ function GoogleAuthCallback() {
         const token = urlParams.get('token');
         
         if (token) {
-          console.log('Google Auth Token:', token);
-          console.log('Google Auth Callback URL:', window.location.search);
+          // console.log('Google Auth Token:', token);
+          // console.log('Google Auth Callback URL:', window.location.search);
           
           localStorage.setItem('authToken', token);
           localStorage.setItem('isVerified', 'true');
@@ -30,7 +30,7 @@ function GoogleAuthCallback() {
           const startupId = searchParams.get('startupId');
           
           if (isCofounder === 'true' && startupId) {
-            console.log('Google Login successful for cofounder, startupId:', startupId);
+            // console.log('Google Login successful for cofounder, startupId:', startupId);
             
             try {
               // Make API call to associate user with startup as cofounder
@@ -48,10 +48,10 @@ function GoogleAuthCallback() {
               }
               
               // Always navigate cofounders to homepage
-              console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
+              // console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
               navigate('/homepage');
             } catch (error) {
-              console.error('Error processing cofounder status:', error);
+              // console.error('Error processing cofounder status:', error);
               // Still redirect to homepage on error
               navigate('/homepage');
             }
@@ -59,7 +59,7 @@ function GoogleAuthCallback() {
             // Check if there's a legacy cofounder invitation token
             const inviteToken = localStorage.getItem('cofounderInviteToken');
               if (inviteToken) {
-              console.log('Google Login successful for cofounder, invite token is present:', inviteToken);
+              // console.log('Google Login successful for cofounder, invite token is present:', inviteToken);
               // This is a cofounder login with invitation token
               try {                // Call the API to accept the cofounder invite
                 const inviteResponse = await fetch(`${API_KEY}/api/invites/accept-cofounder`, {
@@ -73,16 +73,16 @@ function GoogleAuthCallback() {
 
                 if (inviteResponse.ok) {
                   const inviteData = await inviteResponse.json();
-                  console.log('Cofounder invite accepted successfully:', inviteData);
+                  // console.log('Cofounder invite accepted successfully:', inviteData);
                 } else {
-                  console.error('Failed to accept cofounder invite:', await inviteResponse.text());
+                  // console.error('Failed to accept cofounder invite:', await inviteResponse.text());
                 }
 
                 // Always navigate cofounders to homepage
-                console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
+                // console.log('Google Auth Successful, cofounder detected, navigating to /homepage');
                 navigate('/homepage');
               } catch (inviteError) {
-                console.error('Error processing invitation:', inviteError);
+                // console.error('Error processing invitation:', inviteError);
                 // Still redirect to homepage on error
                 navigate('/homepage');
               } finally {
@@ -94,13 +94,13 @@ function GoogleAuthCallback() {
               const pendingInviteId = localStorage.getItem("pendingInviteId");
               
               if (shouldRedirectToHome || pendingInviteId) {
-                console.log('Google Auth Successful, target list invite detected, navigating to /homepage');
+                // console.log('Google Auth Successful, target list invite detected, navigating to /homepage');
                 // Clear the flags after use
                 localStorage.removeItem("redirectToHomeAfterLogin");
                 localStorage.removeItem("pendingInviteId");
                 navigate('/homepage');              } else {
                 // This is a regular user login (not a cofounder)
-                console.log('Google Auth Successful, checking profile completion status');
+                // console.log('Google Auth Successful, checking profile completion status');
                   try {
                   // Check profile completion status before redirecting
                   const profileResponse = await axios.get(`${API_KEY}/api/auth/profile-status`, {
@@ -112,14 +112,14 @@ function GoogleAuthCallback() {
                   const { isProfileComplete, redirectTo } = profileResponse.data;
                   
                   if (isProfileComplete) {
-                    console.log('Profile is complete, redirecting to homepage');
+                    // console.log('Profile is complete, redirecting to homepage');
                     navigate('/homepage');
                   } else {
-                    console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
+                    // console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
                     navigate(redirectTo || '/profile/manual');
                   }
                 } catch (profileError) {
-                  console.error('Error checking profile status:', profileError);
+                  // console.error('Error checking profile status:', profileError);
                   // Fallback to default profile setup if API call fails
                   navigate('/profile/manual');
                 }
@@ -127,11 +127,11 @@ function GoogleAuthCallback() {
             }
           }
         } else {
-          console.log('No token received in Google Auth callback, redirecting to login');
+          // console.log('No token received in Google Auth callback, redirecting to login');
           navigate('/');
         }
       } catch (error) {
-        console.error('Error in Google Auth callback:', error);
+        // console.error('Error in Google Auth callback:', error);
         navigate('/');
       }
     };
