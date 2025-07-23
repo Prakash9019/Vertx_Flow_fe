@@ -72,7 +72,9 @@ const BottomNavigation = ({ onBack }) => {
           />
         </button>
 
-        <button className="flex items-center justify-center hover:opacity-80 transition-opacity text-gray-600">
+        <button 
+        onClick={() => navigate("/playground/mockpitching/create")}
+         className="flex items-center justify-center hover:opacity-80 transition-opacity text-gray-600">
           <img
             src={AddIcon}
             alt="Add"
