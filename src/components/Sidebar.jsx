@@ -80,7 +80,7 @@ const Sidebar = () => {
   const isEvaluate = path.includes('evaluate');
   const isFundraisingActive = path.includes('fundraising');
   const isPlayground = path.includes('playground');
-  const isGettingStarted = path.includes('flow/match%20flow') || path.includes('flow/match flow');
+  const isGettingStarted = path.includes('gettingStarted') || path.includes('gettingStarted');
 
 
   const handleLogout = () => {
@@ -226,7 +226,7 @@ const Sidebar = () => {
               {/* Getting Started */}
               <li
                 className={`px-4 py-2 flex items-center ${collapsed ? 'justify-between' : 'justify-between'} ${isGettingStarted ? 'bg-[#0F0E16]' : ''} hover:bg-[#0F0E16] cursor-pointer`}
-                onClick={() => { navigate("/flow/match flow") }}
+                onClick={() => { navigate("/gettingStarted") }}
               >
                 <span className={`${collapsed ? 'hidden' : 'block'} ${isGettingStarted ? 'text-white' : 'text-[#B8B8B8]'} font-medium text-sm`}>Getting Started</span>
                 <img
