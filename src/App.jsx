@@ -52,6 +52,7 @@ import { PermissionNotificationProvider } from "./context/PermissionNotification
 import MockPitching from "./components/MockPitching";
 import CallReportPage from "./components/callReportPage";
 import CreateREportPage, { CreatePersonaPage, PersonaSelectionPage } from "./components/CreateREportPage.jsx";
+import Reach from "./components/Fundraising/Reach.jsx";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -72,7 +73,7 @@ function App() {
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
-   
+    {path:"/reach", element: <Reach /> },
     
      { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising/raise", element:<FundraisingManagePage /> },

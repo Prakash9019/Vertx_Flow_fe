@@ -844,7 +844,7 @@ function AddRoundPopup({ isOpen, onClose, onNext }) {
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black" style={{ opacity: 0.7 }}></div>
 
-        <div
+         <div
           className="relative flex flex-col items-center justify-center"
           style={{
             width: "43.75rem",
