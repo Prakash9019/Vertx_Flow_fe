@@ -52,7 +52,7 @@ import { PermissionNotificationProvider } from "./context/PermissionNotification
 import MockPitching from "./components/MockPitching";
 import CallReportPage from "./components/callReportPage";
 import CreateREportPage, { CreatePersonaPage, PersonaSelectionPage } from "./components/CreateREportPage.jsx";
-import Reach from "./components/Fundraising/Reach.jsx";
+import GettingStarted from "./components/GettingStarted.jsx";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -69,6 +69,7 @@ function App() {
     { path: "/homepage", element: <HomePage /> },
     { path: "/flash", element: <HomePage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
+    { path: "/gettingStarted", element: <GettingStarted /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },

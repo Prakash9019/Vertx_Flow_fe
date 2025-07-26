@@ -303,7 +303,7 @@ function Evaluate_Page() {
 {/* Sidebar */}
 <div className="bg-black text-white">
         <Sidebar />
-      </div>
+</div>
 
       <div className="w-full flex flex-col md:flex-row min-h-screen bg-black text-white relative">
         <div className="flex-1">
