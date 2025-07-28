@@ -88,7 +88,7 @@ const Reach = () => {
     if (activeTab === "Outreach" && isTargetListSelected) return null;
     return (
       <div
-        className="relative w-full h-[182px] bg-no-repeat bg-[length:100%_100%] bg-center"
+        className="relative w-full font-[inter] h-[182px] bg-no-repeat bg-[length:100%_100%] bg-center"
         style={{ backgroundImage: `url(${BgImg})` }}
       >
         <div className="absolute inset-0 bg-black/80" />
@@ -114,7 +114,7 @@ const Reach = () => {
   const renderTabs = () => {
     if (activeTab === "Outreach" && isTargetListSelected) return null;
     return (
-      <div className="flex gap-4 px-9 mt-6 md:px-14">
+      <div className="flex font-[inter] gap-4 px-9 mt-6 md:px-14">
         {tabsArray.map((tab) => (
           <button
             key={tab}
@@ -134,7 +134,7 @@ const Reach = () => {
   };
 
   const renderSubTabs = () => (
-    <div className="flex gap-8">
+    <div className="flex gap-8 font-[inter]">
       {subTabs.map((sub) => (
         <div key={sub} className="relative">
           <button
@@ -165,8 +165,8 @@ const Reach = () => {
   const renderLinkContent = () => {
     if (hasReachlink && deck) { 
       return (
-        <div className="flex flex-col items-center justify-center max-w-6xl w-full">
-        <div className="flex items-center w-full gap-8">
+        <div className="flex flex-col items-center font-[inter] justify-center max-w-6xl w-full">
+        <div className="flex items-center justify-center mx-auto w-full lg:gap-12 xl:gap-16 md:gap-8 gap-4">
           <div className="relative bg-neutral-900 rounded-lg overflow-hidden shadow-lg w-[480px] h-[280px]">
             {deck.type === 'application/pdf' ? (
               <iframe title="Deck preview" src={deckUrl} className="w-full h-full" />
@@ -189,8 +189,7 @@ const Reach = () => {
                 <p className="text-sm text-neutral-400">No preview available</p>
               </div>
             )}
-
-            <div className="absolute bottom-2 left-2 flex gap-2">
+            <div className=" absolute justify-between w-full right-2 bottom-2 font-[inter] left-2 flex gap-2">
               <button
                 onClick={openFilePicker}
                 className="px-3 py-1 text-sm bg-neutral-800 text-white rounded hover:bg-neutral-700"
@@ -199,22 +198,21 @@ const Reach = () => {
               </button>
               <button
                 onClick={removeDeck}
-                className="px-3 py-1 text-sm bg-red-700 text-white rounded hover:bg-red-600"
+                className="px-3 py-1 text-sm bg-red-700 mr-4 text-white rounded hover:bg-red-600"
               >
                 DELETE
               </button>
             </div>
           </div>
-
           <div className="flex flex-col gap-4 items-start">
           <button
-            className="h-12 px-6 bg-white text-black font-semibold rounded hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
+            className="h-12 px-6 bg-white min-w-[240px] text-black font-semibold rounded hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
             onClick={() => setShowModal(true)}
           >
             Upgrade deck
           </button>
           <button
-            className="h-12 px-6 bg-neutral-800 text-white font-semibold rounded hover:bg-neutral-700 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
+            className="h-12 px-6 bg-neutral-800 min-w-[240px] text-white font-semibold rounded hover:bg-neutral-700 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
           >
             I prefer to keep it short
           </button>
@@ -237,7 +235,7 @@ const Reach = () => {
         style={{
           backgroundImage: `url(${ReachImage})`, 
         }} 
-        className="min-h-[calc(100vh-11.5rem)] bg-center bg-cover flex items-center justify-center">
+        className="min-h-[calc(75vh-11.5rem)]  rounded-lg font-[inter] bg-center bg-cover flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-semibold mb-6 text-white">
               You have no active Reachlinks.
@@ -266,7 +264,7 @@ const Reach = () => {
 
     return (
       <section
-        className="min-h-[calc(100vh-11.5rem)] bg-center bg-cover flex items-center justify-center"
+        className="min-h-[calc(75vh-11.5rem)] rounded-lg bg-center bg-cover flex items-center justify-center"
         style={{
           backgroundImage: `url(${BgImg})`, 
         }}
@@ -316,19 +314,19 @@ const Reach = () => {
         return renderLinkContent();
       case "Intro":
         return (
-          <div className="min-h-[40vh] flex items-center justify-center">
+          <div className="min-h-[40vh] font-[inter] flex items-center justify-center">
             <h2 className="text-neutral-400 text-lg">Intro content coming soon.</h2>
           </div>
         );
       case "Analytics":
         return (
-          <div className="min-h-[40vh] flex items-center justify-center">
+          <div className="min-h-[40vh] font-[inter] flex items-center justify-center">
             <h2 className="text-neutral-400 text-lg">Analytics dashboard in progress.</h2>
           </div>
         );
       case "Settings":
         return (
-          <div className="min-h-[40vh] flex items-center justify-center">
+          <div className="min-h-[40vh] font-[inter] flex items-center justify-center">
             <h2 className="text-neutral-400 text-lg">Settings panel coming soon.</h2>
           </div>
         );
@@ -338,7 +336,7 @@ const Reach = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex relative">
+    <div className="min-h-screen font-[inter] bg-black text-white flex relative">
       <Sidebar />
       <div className="flex-1 h-screen overflow-y-auto">
         {renderHeader()}
@@ -348,20 +346,20 @@ const Reach = () => {
           {activeTab === "Reach Link" && (
             <>
               {renderSubTabs()}
-              <div className="mt-6">
+              <div className="mt-6 font-[inter]">
                 {renderSubTabContent()}
               </div>
             </>
           )}
 
           {activeTab === "One Pager" && (
-            <div className="min-h-[40vh] flex items-center justify-center">
+            <div className="min-h-[40vh] font-[inter] flex items-center justify-center">
               <h2 className="text-neutral-400 text-lg">One Pager content coming soon.</h2>
             </div>
           )}
 
           {activeTab === "Outreach" && (
-            <div className="min-h-[40vh] flex items-center justify-center">
+            <div className="min-h-[40vh] font-[inter] flex items-center justify-center">
               <h2 className="text-neutral-400 text-lg">Outreach content coming soon.</h2>
             </div>
           )}
@@ -372,7 +370,7 @@ const Reach = () => {
           type="file"
           accept=".pdf,.ppt,.pptx"
           onChange={handleFileSelect}
-          className="hidden"
+          className="hidden font-[inter]"
         />
       </div>
 

@@ -155,7 +155,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
       <textarea
         value={localFormData[field]}
         onChange={(e) => handleInputChange(field, e.target.value)}
-        className="w-full h-32 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal resize-none"
+        className="w-full h-52 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal resize-none"
         placeholder={placeholder}
         maxLength={maxLength}
       />
@@ -205,9 +205,9 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                   {currentView === "basics" && "Let's fill some basic information about your company."}
                   {currentView === "team" && "Add your founding team profile details"}
                   {currentView === "company" && "Describe what your company does in one sentence"}
-                  {currentView === "market" && "What is the market opportunity and why will it be really big?"}
-                  {currentView === "business-model" && "How do you make money? Who pays? What are the margins?"}
-                  {currentView === "traction" && "Highlight key achievements, milestones, and user engagement."}
+                  {currentView === "market" && ""}
+                  {currentView === "business-model" && ""}
+                  {currentView === "traction" && ""}
                   {currentView === "fundraising" && "Tell us about your fundraising history and targets."}
                   {currentView === "deck" && "Upload your pitch deck here."}
                 </p>
@@ -345,7 +345,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 {['B2C', 'B2B', 'B2B2C', 'Other'].map((category) => (
                                     <div
                                         key={category}
-                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer bg-white/11 hover:bg-white/20 transition-colors"
+                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                         onClick={() => handleInputChange('businessCategory', category)}
                                     >
                                         {/* Custom Checkbox */}
@@ -467,7 +467,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
                   {currentView === "company" && (
                     <div className="space-y-6">
-                      {renderTextarea('companyDescription', 'Write here...', 'Describe what your company does in one sentence', 250)}
+                      {renderTextarea('companyDescription', 'Write here...', "Describe down here", 250)}
                     </div>
                   )}
 
@@ -485,7 +485,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
                   {currentView === "traction" && (
                     <div className="space-y-6">
-                      {renderTextarea('tractionMetrics', 'Write here...', 'Potential metrics to highlight your company', 500)}
+                      {renderTextarea('tractionMetrics', 'Write here...', 'Highlight key achievements, milestones, and user engagement.', 500)}
                     </div>
                   )}
 
@@ -515,7 +515,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
                                     <div
                                         key={source}
-                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer bg-white/11 hover:bg-white/20 transition-colors"
+                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                         onClick={() => handleRaisedFromToggle(source)}
                                     >
                                         {/* Custom Checkbox */}
@@ -560,37 +560,53 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 />
                             </div>
                         </div>
+                        <div>
+                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                                How do you allocate these funds?
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
+                                <input
+                                    type="number"
+                                    value={localFormData.fundraisingTarget}
+                                    onChange={(e) => handleInputChange('fundraisingTarget', e.target.value)}
+                                    className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
+                                    placeholder=""
+                                />
+                            </div>
+                        </div>
                     </div>
                   )}
 
                   {currentView === "deck" && (
-                    <div className="space-y-6 flex flex-col items-center justify-center h-full">
+                    <div className="space-y-2 flex flex-col items-center justify-center h-full">
                       <div
-                        className="relative w-full max-w-[480px] h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center text-white bg-cover bg-center"
+                        className="relative w-full max-w-[480px] top-8 h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center text-white bg-cover bg-center"
                         style={{ backgroundImage: `url(${BgImg})` }} 
                       >
                         <div className="absolute inset-0 bg-black/20" />
-                        <div className="absolute bottom-3 left-3 flex gap-2">
+                        
+                      </div>
+                      <div className=" flex justify-between w-full pt-8 max-w-[480px] gap-2">
                             <button className="px-4 py-2 text-xs font-medium bg-[#374151] text-white rounded hover:bg-[#4b5563]">
                                 REPLACE
                             </button>
                             <button className="px-4 py-2 text-xs font-medium bg-[#DC2626] text-white rounded hover:bg-[#B91C1C]">
                                 DELETE
                             </button>
-                        </div>
-                        <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white text-xl bg-black/50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70">
+                      </div>
+                      <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white text-xl bg-black/50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70">
                             &lt;
                         </button>
                         <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-xl bg-black/50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70">
                             &gt;
                         </button>
-                      </div>
                     </div>
                   )}
                 </div>
 
-                <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/76 to-transparent pointer-events-none z-10"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/76 to-transparent pointer-events-none z-10"></div>
+                {/* <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/76 to-transparent pointer-events-none z-10"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/76 to-transparent pointer-events-none z-10"></div> */}
               </div>
             </div>
 
