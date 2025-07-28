@@ -1,7 +1,8 @@
+
 // src/components/Reach.jsx
 import { useState, useEffect, useMemo, useRef } from "react";
 import Sidebar from "../Sidebar";
-import BgImg from "../../assets/imgBackground.png";
+import BgImg from "./img.jpg";
 import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
 import BasicInfoForm from "./BasicForm";
@@ -27,8 +28,9 @@ const Reach = () => {
   const tabsArray = ["One Pager", "Find", "Target"];
   const subTabs = ["Link", "Intro", "Analytics", "Settings"];
   
-    const allowedTypes = ['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
-    const [formData, setFormData] = useState({});
+  const allowedTypes = ['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+  const [formData, setFormData] = useState({});
+
   useEffect(() => {
     const fetchRounds = async () => {
       try {
@@ -85,7 +87,7 @@ const Reach = () => {
     return (
       <div
         className="relative w-full h-[182px] bg-no-repeat bg-[length:100%_100%] bg-center"
-        style={{ backgroundImage: `url("${BgImg}")` }}
+        style={{ backgroundImage: `url(${BgImg})` }}
       >
         <div className="absolute inset-0 bg-black/80" />
         <div className="relative z-10 flex flex-col justify-between h-full px-9 pt-10 pb-6 md:px-14 md:pt-16">
@@ -94,9 +96,9 @@ const Reach = () => {
               {profileData?.companyName || "Company"}
             </h1>
             <p className="mt-1 text-xs font-semibold text-white" style={{ fontFamily: "Inter" }}>
-              {profileData
-                ? `${profileData.companyName} helps A to solve B by addition of C and D.`
-                : "This company helps A to solve B by addition of C and D."}
+              {`profileData
+                ? ${profileData.companyName} helps A to solve B by addition of C and D.
+                : "This company helps A to solve B by addition of C and D."`}
             </p>
             <p className="mt-2 text-[0.625rem] font-medium text-white" style={{ fontFamily: "Inter" }}>
               {profileData?.companyWebsite || "www.companyname.com"}
@@ -344,22 +346,13 @@ const Reach = () => {
         />
       </div>
 
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-3 right-4 text-xl text-gray-600 hover:text-black"
-            >
-              &times;
-            </button>
-            <BasicInfoForm formData={formData} setFormData={setFormData} />;
-          </div>
-        </div>
-      )}
-     
-     {/* <AddRoundPopup1 isOpen={isPopupOpen} onClose={handleClosePopup} onNext={handleNextClick} /> */}
+      {/* BasicInfoForm Popup */}
+      <BasicInfoForm 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        formData={formData} 
+        setFormData={setFormData} 
+      />
     </div>
   );
 };

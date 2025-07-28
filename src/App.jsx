@@ -45,7 +45,7 @@ import EvaluateReport_page from "./screens/EvaluateReport_page";
 import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
 //import Login from './components/Login';
-
+import Reach from "./components/Fundraising/Reach.jsx";
 //screens for PlayGround 
 import PlayGround from "./components/PlayGround"
 import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";

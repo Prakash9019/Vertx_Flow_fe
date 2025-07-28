@@ -11,7 +11,7 @@ import Target from "./Target"
 import BgImg from "../../assets/imgBackground.png";
 import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
-
+// import Raise from 
 function FundraisingManagePage() {
   
   const { profileData } = useStartupProfile();
