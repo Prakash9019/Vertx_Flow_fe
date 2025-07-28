@@ -1,4 +1,3 @@
-
 // src/components/Reach.jsx
 import { useState, useEffect, useMemo, useRef } from "react";
 import Sidebar from "../Sidebar";
@@ -7,11 +6,12 @@ import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
 import BasicInfoForm from "./BasicForm";
 import Image from "./img.jpg"
+import ReachImage from "../../assets/ReachP!.jpg"; 
 
 const Reach = () => {
   const { profileData } = useStartupProfile();
 
-  const [activeTab, setActiveTab] = useState("One Pager");
+  const [activeTab, setActiveTab] = useState("Reach Link");
   const [activeSubTab, setActiveSubTab] = useState("Link");
   const [isTargetListSelected, setIsTargetListSelected] = useState(false);
   const [fundingRounds, setFundingRounds] = useState([]);
@@ -19,15 +19,16 @@ const Reach = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  // PDF Upload States 
+  // PDF Upload States
   const [deck, setDeck] = useState(null);
   const [deckUrl, setDeckUrl] = useState('');
   const [uploadError, setUploadError] = useState('');
   const fileRef = useRef(null);
+  const [hasReachlink, setHasReachlink] = useState(false); 
 
-  const tabsArray = ["One Pager", "Find", "Target"];
+  const tabsArray = ["One Pager", "Reach Link", "Outreach"];
   const subTabs = ["Link", "Intro", "Analytics", "Settings"];
-  
+
   const allowedTypes = ['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
   const [formData, setFormData] = useState({});
 
@@ -48,7 +49,6 @@ const Reach = () => {
     if (profileData?.id) fetchRounds();
   }, [profileData?.id]);
 
-  // File Upload Handlers
   const openFilePicker = () => fileRef.current?.click();
 
   const handleFileSelect = (e) => {
@@ -63,6 +63,7 @@ const Reach = () => {
     setUploadError('');
     setDeck(file);
     setDeckUrl(URL.createObjectURL(file));
+    setHasReachlink(true); 
   };
 
   const removeDeck = () => {
@@ -75,15 +76,16 @@ const Reach = () => {
     if (fileRef.current) {
       fileRef.current.value = '';
     }
+    setHasReachlink(false);
   };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    if (tab !== "Target") setIsTargetListSelected(false);
+    if (tab !== "Outreach") setIsTargetListSelected(false);
   };
 
   const renderHeader = () => {
-    if (activeTab === "Target" && isTargetListSelected) return null;
+    if (activeTab === "Outreach" && isTargetListSelected) return null;
     return (
       <div
         className="relative w-full h-[182px] bg-no-repeat bg-[length:100%_100%] bg-center"
@@ -110,7 +112,7 @@ const Reach = () => {
   };
 
   const renderTabs = () => {
-    if (activeTab === "Target" && isTargetListSelected) return null;
+    if (activeTab === "Outreach" && isTargetListSelected) return null;
     return (
       <div className="flex gap-4 px-9 mt-6 md:px-14">
         {tabsArray.map((tab) => (
@@ -119,8 +121,8 @@ const Reach = () => {
             onClick={() => handleTabChange(tab)}
             className={`h-10 rounded-full text-base transition-colors duration-150 ${
               activeTab === tab
-                ? "w-[100px] bg-white text-black font-medium"
-                : "w-[80px] bg-[#0F0E16] text-[#656565] font-normal"
+                ? "w-[110px] bg-white text-black font-medium"
+                : "w-[90px] bg-[#0F0E16] text-[#656565] font-normal"
             }`}
             style={{ fontFamily: "Inter" }}
           >
@@ -146,13 +148,13 @@ const Reach = () => {
             {sub}
           </button>
           {activeSubTab === sub && (
-            <div 
-              className="absolute bottom-0 left-0 h-1 rounded-full bg-[#AD6FDE]" 
-              style={{ 
-                width: sub === "Link" ? "32px" : 
-                       sub === "Intro" ? "40px" : 
-                       sub === "Analytics" ? "64px" : "56px" 
-              }} 
+            <div
+              className="absolute bottom-0 left-0 h-1 rounded-full bg-[#AD6FDE]"
+              style={{
+                width: sub === "Link" ? "32px" :
+                       sub === "Intro" ? "40px" :
+                       sub === "Analytics" ? "64px" : "56px"
+              }}
             />
           )}
         </div>
@@ -161,12 +163,10 @@ const Reach = () => {
   );
 
   const renderLinkContent = () => {
-    if (deck) {
+    if (hasReachlink && deck) { 
       return (
         <div className="flex flex-col items-center justify-center max-w-6xl w-full">
-        {/* Preview + Buttons */}
         <div className="flex items-center w-full gap-8">
-          {/* Preview Card */}
           <div className="relative bg-neutral-900 rounded-lg overflow-hidden shadow-lg w-[480px] h-[280px]">
             {deck.type === 'application/pdf' ? (
               <iframe title="Deck preview" src={deckUrl} className="w-full h-full" />
@@ -189,8 +189,7 @@ const Reach = () => {
                 <p className="text-sm text-neutral-400">No preview available</p>
               </div>
             )}
-      
-            {/* Replace & Delete Buttons */}
+
             <div className="absolute bottom-2 left-2 flex gap-2">
               <button
                 onClick={openFilePicker}
@@ -206,8 +205,7 @@ const Reach = () => {
               </button>
             </div>
           </div>
-      
-          {/* Action Buttons */}
+
           <div className="flex flex-col gap-4 items-start">
           <button
             className="h-12 px-6 bg-white text-black font-semibold rounded hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
@@ -222,22 +220,55 @@ const Reach = () => {
           </button>
         </div>
         </div>
-      
+
         {/* Bottom Text */}
         <p className="mt-8 text-sm text-neutral-200 max-w-xl text-center">
           Upgrade your deck with team and traction data. Founders who do this typically land 40% more meetings.
         </p>
       </div>
-      
+
       );
     }
 
-    // Upload Interface (when no file)
+    // "No active Reachlinks" view
+    if (!hasReachlink) {
+      return (
+        <div 
+        style={{
+          backgroundImage: `url(${ReachImage})`, 
+        }} 
+        className="min-h-[calc(100vh-11.5rem)] bg-center bg-cover flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-6 text-white">
+              You have no active Reachlinks.
+            </h2>
+            <button
+              onClick={() => setHasReachlink(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-700 text-white rounded cursor-pointer hover:bg-purple-600 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
+              style={{ fontFamily: "Inter" }}
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Create link
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <section
         className="min-h-[calc(100vh-11.5rem)] bg-center bg-cover flex items-center justify-center"
         style={{
-          backgroundImage: `url(${Image})`,
+          backgroundImage: `url(${BgImg})`, 
         }}
       >
         <div className=" w-full h-full flex items-center justify-center">
@@ -246,7 +277,7 @@ const Reach = () => {
               The only link you need for fundraising.
             </h2>
 
-            <button 
+            <button
               onClick={openFilePicker}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black rounded cursor-pointer hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
               style={{ fontFamily: "Inter" }}
@@ -314,7 +345,7 @@ const Reach = () => {
         {renderTabs()}
 
         <div className="pt-8 px-9 md:px-14 mb-8">
-          {activeTab === "One Pager" && (
+          {activeTab === "Reach Link" && (
             <>
               {renderSubTabs()}
               <div className="mt-6">
@@ -323,20 +354,19 @@ const Reach = () => {
             </>
           )}
 
-          {activeTab === "Find" && (
+          {activeTab === "One Pager" && (
             <div className="min-h-[40vh] flex items-center justify-center">
-              <h2 className="text-neutral-400 text-lg">Find Investors content coming soon.</h2>
+              <h2 className="text-neutral-400 text-lg">One Pager content coming soon.</h2>
             </div>
           )}
 
-          {activeTab === "Target" && (
+          {activeTab === "Outreach" && (
             <div className="min-h-[40vh] flex items-center justify-center">
-              <h2 className="text-neutral-400 text-lg">Target content coming soon.</h2>
+              <h2 className="text-neutral-400 text-lg">Outreach content coming soon.</h2>
             </div>
           )}
         </div>
 
-        {/* Hidden File Input */}
         <input
           ref={fileRef}
           type="file"
@@ -346,12 +376,11 @@ const Reach = () => {
         />
       </div>
 
-      {/* BasicInfoForm Popup */}
-      <BasicInfoForm 
-        isOpen={showModal} 
-        onClose={() => setShowModal(false)} 
-        formData={formData} 
-        setFormData={setFormData} 
+      <BasicInfoForm
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        formData={formData}
+        setFormData={setFormData}
       />
     </div>
   );
