@@ -45,7 +45,7 @@ import EvaluateReport_page from "./screens/EvaluateReport_page";
 import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
 //import Login from './components/Login';
-
+import Reach from "./components/Fundraising/Reach.jsx";
 //screens for PlayGround 
 import PlayGround from "./components/PlayGround"
 import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";
@@ -74,7 +74,7 @@ function App() {
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
-    // {path:"/reach", element: <Reach /> },
+    {path:"/fundraising/reach", element: <Reach /> },
     
      { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising/raise", element:<FundraisingManagePage /> },

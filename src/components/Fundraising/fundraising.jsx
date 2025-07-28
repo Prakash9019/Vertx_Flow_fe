@@ -11,7 +11,7 @@ import Target from "./Target"
 import BgImg from "../../assets/imgBackground.png";
 import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
-
+import Reach from "./Reach"
 function FundraisingManagePage() {
   
   const { profileData } = useStartupProfile();
@@ -28,14 +28,16 @@ function FundraisingManagePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const tabsArray = ["Manage", "Find", "Target"]  // Initialize activeTab based on URL path
+  const tabsArray = ["Manage", "Find", "Target","Reach"]  // Initialize activeTab based on URL path
   useEffect(() => {
     const path = location.pathname;
     if (path.includes('/manage')) {
       setActiveTab('Manage');
     } else if (path.includes('/find')) {
       setActiveTab('Find');
-    } else if (path.includes('/target')) {
+    } else if (path.includes('/reach')) {
+      setActiveTab('Reach');
+    }else if (path.includes('/target')) {
       setActiveTab('Target');
     }  else if (path === '/fundraising/raise') {
       // Default to Manage if only /fundraising/raise is accessed
@@ -63,6 +65,9 @@ function FundraisingManagePage() {
       case 'Target':
         navigate(`${baseUrl}/target`);
         break;
+      case 'Reach':
+          navigate(`/fundraising/reach`);
+          break;
       default:
         navigate(`${baseUrl}/manage`);
     }
@@ -416,8 +421,8 @@ function FundraisingManagePage() {
           {activeTab === "Find" && <FindInvestors />}
 
           {activeTab === "Target" && <Target onListSelect={setIsTargetListSelected} />}
-
-          
+       
+          {activeTab === "Reach" && <Reach />}
         </div>
       </div>
 
