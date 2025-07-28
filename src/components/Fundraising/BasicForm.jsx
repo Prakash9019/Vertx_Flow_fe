@@ -330,61 +330,78 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
                   {currentView === "basics" && (
                     <div className="space-y-6">
-                      {/* Founded and Company Website Row */}
-                      <div className="grid grid-cols-2 gap-4">
-                        {renderInput('text', 'founded', 'YYYY', 'Founded')}
-                        {renderInput('url', 'companyWebsite', 'https://www.yourcompany.com', 'Company Website')}
-                      </div>
-
-                      {/* Business Category */}
-                      <div>
-                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                          How would you describe your business category?
-                        </label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {['B2C', 'B2B', 'B2B2C', 'Other'].map((category) => (
-                            <button
-                              key={category}
-                              onClick={() => handleInputChange('businessCategory', category)}
-                              className={`h-10 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors ${
-                                localFormData.businessCategory === category
-                                  ? 'bg-purple-600 text-white'
-                                  : 'bg-white/11 text-white hover:bg-white/20'
-                              }`}
-                            >
-                              {category}
-                            </button>
-                          ))}
+                        {/* Founded and Company Website Row */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {renderInput('text', 'founded', 'YYYY', 'Founded')}
+                            {renderInput('url', 'companyWebsite', 'https://www.yourcompany.com', 'Company Website')}
                         </div>
-                      </div>
 
-                      {/* Business Sectors */}
-                      <div>
-                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                          What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {sectorsList.map((sector) => (
-                            <button
-                              key={sector}
-                              onClick={() => handleSectorToggle(sector)}
-                              className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${
-                                localFormData.businessSectors.includes(sector)
-                                  ? 'bg-purple-600 text-white'
-                                  : 'bg-white/11 text-white hover:bg-white/20'
-                              }`}
-                            >
-                              {sector}
-                              {localFormData.businessSectors.includes(sector) && (
-                                <span className="text-xs">×</span>
-                              )}
-                              {!localFormData.businessSectors.includes(sector) && (
-                                <span className="text-xs">+</span>
-                              )}
-                            </button>
-                          ))}
+                        {/* Business Category with separate checkbox and label */}
+                        <div>
+                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                                How would you describe your business category?
+                            </label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {['B2C', 'B2B', 'B2B2C', 'Other'].map((category) => (
+                                    <div
+                                        key={category}
+                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer bg-white/11 hover:bg-white/20 transition-colors"
+                                        onClick={() => handleInputChange('businessCategory', category)}
+                                    >
+                                        {/* Custom Checkbox */}
+                                        <div
+                                            className={`w-4 h-4 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
+                                                localFormData.businessCategory === category ? 'bg-purple-600' : 'bg-transparent'
+                                            }`}
+                                        >
+                                            {localFormData.businessCategory === category && (
+                                                <svg
+                                                    className="h-3 w-3 text-white"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            )}
+                                        </div>
+                                        {/* Category Label */}
+                                        <span className="text-white font-['Inter'] text-sm font-medium">
+                                            {category}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                      </div>
+
+                        {/* Business Sectors (remains the same as it correctly matches the screenshot) */}
+                        <div>
+                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                                What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {sectorsList.map((sector) => (
+                                    <button
+                                        key={sector}
+                                        onClick={() => handleSectorToggle(sector)}
+                                        className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${
+                                            localFormData.businessSectors.includes(sector)
+                                                ? 'bg-purple-600 text-white'
+                                                : 'bg-white/11 text-white hover:bg-white/20'
+                                        }`}
+                                    >
+                                        {sector}
+                                        {localFormData.businessSectors.includes(sector) && (
+                                            <span className="text-xs">×</span>
+                                        )}
+                                        {!localFormData.businessSectors.includes(sector) && (
+                                            <span className="text-xs">+</span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                   )}
 
@@ -474,58 +491,75 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
                   {currentView === "fundraising" && (
                     <div className="space-y-6">
-                      <div>
-                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                          How much money have you raised?
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                          <input
-                            type="number"
-                            value={localFormData.raisedAmount}
-                            onChange={(e) => handleInputChange('raisedAmount', e.target.value)}
-                            className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                            placeholder=""
-                          />
+                        <div>
+                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                                How much money have you raised?
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
+                                <input
+                                    type="number"
+                                    value={localFormData.raisedAmount}
+                                    onChange={(e) => handleInputChange('raisedAmount', e.target.value)}
+                                    className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
+                                    placeholder=""
+                                />
+                            </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                          Who did you raise from?
-                        </label>
-                        <div className="flex gap-4">
-                          {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
-                            <button
-                              key={source}
-                              onClick={() => handleRaisedFromToggle(source)}
-                              className={`h-10 px-4 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors ${
-                                localFormData.raisedFrom.includes(source)
-                                  ? 'bg-purple-600 text-white'
-                                  : 'bg-white/11 text-white hover:bg-white/20'
-                              }`}
-                            >
-                              {source}
-                            </button>
-                          ))}
+                        <div>
+                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                                Who did you raise from?
+                            </label>
+                            <div className="flex gap-4">
+                                {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
+                                    <div
+                                        key={source}
+                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer bg-white/11 hover:bg-white/20 transition-colors"
+                                        onClick={() => handleRaisedFromToggle(source)}
+                                    >
+                                        {/* Custom Checkbox */}
+                                        <div
+                                            className={`w-4 h-4 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
+                                                localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
+                                            }`}
+                                        >
+                                            {localFormData.raisedFrom.includes(source) && (
+                                                <svg
+                                                    className="h-3 w-3 text-white"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            )}
+                                        </div>
+                                        {/* Source Label */}
+                                        <span className="text-white font-['Inter'] text-sm font-medium">
+                                            {source}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                          What is your fundraising target?
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                          <input
-                            type="number"
-                            value={localFormData.fundraisingTarget}
-                            onChange={(e) => handleInputChange('fundraisingTarget', e.target.value)}
-                            className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                            placeholder=""
-                          />
+                        <div>
+                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                                What is your fundraising target?
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
+                                <input
+                                    type="number"
+                                    value={localFormData.fundraisingTarget}
+                                    onChange={(e) => handleInputChange('fundraisingTarget', e.target.value)}
+                                    className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
+                                    placeholder=""
+                                />
+                            </div>
                         </div>
-                      </div>
                     </div>
                   )}
 
