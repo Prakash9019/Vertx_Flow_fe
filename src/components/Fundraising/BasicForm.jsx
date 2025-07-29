@@ -1,7 +1,7 @@
 // BasicInfoForm.jsx
 import { useState, useEffect } from "react";
 import Rectangle82 from "../../assets/Rectangle 82.png";
-import BgImg from "./img.jpg";
+import BgImg from "./img.jpg"; // Assuming this is for the deck section image
 import LinkLiveModal from "./LinkLiveModal";
 import axios from "axios";
 import API_KEY from "../../../key";
@@ -41,7 +41,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     raisedAmount: formData?.raisedAmount || "",
     raisedFrom: formData?.raisedFrom || [],
     fundraisingTarget: formData?.fundraisingTarget || "",
-    fundsAllocation: formData?.fundsAllocation || "", 
+    fundsAllocation: formData?.fundsAllocation || "",
     companyStage: formData?.companyStage || "", // New field for company stage
 
     // New fields for Team section founders
@@ -64,6 +64,9 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
   const [showSecondFounder, setShowSecondFounder] = useState(
     !!localFormData.founder2FullName || !!localFormData.founder2TitleRole || !!localFormData.founder2LinkedinProfileURL
   ); // Initialize based on whether second founder data exists
+
+  // NEW STATE: To track which input is focused for currency fields
+  const [focusedInput, setFocusedInput] = useState(null);
 
   // New state for the "Your link is live!" modal
   const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
@@ -146,20 +149,20 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
       setCurrentView(views[currentIndex + 1]);
     } else {
       console.log("Form Completed:", localFormData);
-      
+
       try {
         // Get token from localStorage
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         console.log('BasicForm - Token:', token ? 'Token exists' : 'No token found');
-        
+
         if (!token) {
           toast.error('Please log in to continue');
           return;
         }
-        
+
         // Make API call to save upgrade deck data
         const response = await axios.post(
-          `${API_KEY}/api/upgrade-deck`, 
+          `${API_KEY}/api/upgrade-deck`,
           localFormData,
           {
             headers: {
@@ -168,16 +171,16 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
             }
           }
         );
-        
+
         if (response.data.success) {
           // Update reachLink with the one returned from API
           if (response.data.data.reachLink) {
             setReachLink(response.data.data.reachLink);
           }
-          
+
           // Show success toast
           toast.success('Upgrade deck data saved successfully!');
-          
+
           // Open the LinkLiveModal
           setIsLinkLiveModalOpen(true);
         } else {
@@ -198,14 +201,14 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     setIsLinkLiveModalOpen(false);
     onClose(); // Close the BasicInfoForm as well when the link live modal is closed
   };
-  
+
   // Function to handle editing the reachLink
   const handleEditReachLink = () => {
     setIsLinkLiveModalOpen(false);
     // Keep the form open for editing
   };
 
-  // Helper function to render common input styles
+  // Helper function to render common input styles (for non-currency inputs)
   const renderInput = (type, field, placeholder, label) => (
     <div>
       <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
@@ -221,6 +224,43 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
       />
     </div>
   );
+
+  // NEW HELPER FUNCTION for currency inputs with focus styling
+  const renderCurrencyInput = (field, label, placeholder = "") => (
+  <div>
+    <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
+      {label}
+    </label>
+    <div className="relative">
+      <span
+        className={`absolute left-3 top-1/2 -translate-y-1/2 font-['Inter'] ${
+          focusedInput === field ? 'text-white' : 'text-[#656565]'
+        }`}
+      >
+        $
+      </span>
+      <input
+        type="text" // Keep as text for custom formatting
+        id={field} // Add id for accessibility
+        value={
+          localFormData[field]
+            ? new Intl.NumberFormat('en-US').format(localFormData[field])
+            : ''
+        }
+        onChange={(e) => {
+          const rawValue = e.target.value.replace(/[^0-9]/g, '');
+          handleInputChange(field, rawValue === '' ? '' : Number(rawValue));
+        }}
+        onFocus={() => setFocusedInput(field)} // Set focused input
+        onBlur={() => setFocusedInput(null)} // Clear focused input
+        className={`w-full h-9 bg-white/11 outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs  placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs font-normal ${
+          focusedInput === field ? 'text-white' : 'text-[#bababa]' // Conditional text color for input
+        }`}
+        placeholder={placeholder}
+      />
+    </div>
+  </div>
+);
 
   // Helper function to render common textarea styles
   const renderTextarea = (field, placeholder, label, maxLength) => (
@@ -652,116 +692,51 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                   )}
 
                   {currentView === "fundraising" && (
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                        How much money have you raised?
-                      </label>
-                      <div className="relative">
-                        <span className="absolute  left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                        <input 
-                          type="text"
-                          value={
-                            localFormData.raisedAmount
-                              ? new Intl.NumberFormat('en-US').format(localFormData.raisedAmount)
-                              : ''
-                          }
-                          onChange={(e) => {
-                            // Remove non-digit characters for storage, then convert to number
-                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                            handleInputChange('raisedAmount', rawValue === '' ? '' : Number(rawValue));
-                          }}
-                          className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                          placeholder=""
-                        />
-                      </div>
-                    </div>
+            <div className="space-y-6">
+              {renderCurrencyInput('raisedAmount', 'How much money have you raised?')}
 
-                    <div>
-                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                        Who did you raise from?
-                      </label>
-                      <div className="flex gap-4">
-                        {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
-                          <div
-                            key={source}
-                            className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
-                            onClick={() => handleRaisedFromToggle(source)}
+              <div>
+                <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                  Who did you raise from?
+                </label>
+                <div className="flex gap-4">
+                  {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
+                    <div
+                      key={source}
+                      className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                      onClick={() => handleRaisedFromToggle(source)}
+                    >
+                      {/* Custom Checkbox */}
+                      <div
+                        className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
+                          localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
+                        }`}
+                      >
+                        {localFormData.raisedFrom.includes(source) && (
+                          <svg
+                            className="h-6 w-6 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
                           >
-                            {/* Custom Checkbox */}
-                            <div
-                              className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
-                                localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
-                              }`}
-                            >
-                              {localFormData.raisedFrom.includes(source) && (
-                                <svg
-                                  className="h-6 w-6 text-white"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                              )}
-                            </div>
-                            {/* Source Label */}
-                            <span className="text-white font-['Inter'] text-lg font-medium">
-                              {source}
-                            </span>
-                          </div>
-                        ))}
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                          </svg>
+                        )}
                       </div>
+                      {/* Source Label */}
+                      <span className="text-white font-['Inter'] text-lg font-medium">
+                        {source}
+                      </span>
                     </div>
+                  ))}
+                </div>
+              </div>
 
-                    <div>
-                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                        What is your fundraising target?
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                        <input
-                          type="text" // Change to text to allow custom formatting
-                          value={
-                            localFormData.fundraisingTarget
-                              ? new Intl.NumberFormat('en-US').format(localFormData.fundraisingTarget)
-                              : ''
-                          }
-                          onChange={(e) => {
-                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                            handleInputChange('fundraisingTarget', rawValue === '' ? '' : Number(rawValue));
-                          }}
-                          className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                          placeholder=""
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                        How do you allocate these funds?
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                        <input
-                          type="text" // Change to text to allow custom formatting
-                          value={
-                            localFormData.fundsAllocation // <--- Use the new field here
-                              ? new Intl.NumberFormat('en-US').format(localFormData.fundsAllocation)
-                              : ''
-                          }
-                          onChange={(e) => {
-                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
-                            handleInputChange('fundsAllocation', rawValue === '' ? '' : Number(rawValue)); // <--- Update the new field
-                          }}
-                          className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                          placeholder=""
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+              {renderCurrencyInput('fundraisingTarget', 'What is your fundraising target?')}
+              {renderCurrencyInput('fundsAllocation', 'How do you allocate these funds?')}
+            </div>
+          )}
 
                   {currentView === "deck" && (
                     <div className="space-y-2 flex flex-col items-center justify-center h-full">
