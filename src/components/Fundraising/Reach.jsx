@@ -46,12 +46,47 @@ const Reach = () => {
       }
     };
 
-    if (profileData?.id) fetchRounds();
+    const fetchUpgradeDeck = async () => {
+      try {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        if (!token) return;
+        
+        const response = await fetch(`${API_KEY}/api/upgrade-deck`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          // If we have upgrade deck data, update the form data
+          setFormData(data.data);
+          
+          // If we have a reachLink, update the hasReachlink state
+          if (data.data.reachLink) {
+            setHasReachlink(true);
+          }
+          
+          // If we have a deck URL, update the deckUrl state
+          if (data.data.deckUrl) {
+            setDeckUrl(data.data.deckUrl);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching upgrade deck data:', err);
+      }
+    };
+
+    if (profileData?.id) {
+      fetchRounds();
+      fetchUpgradeDeck();
+    }
   }, [profileData?.id]);
 
   const openFilePicker = () => fileRef.current?.click();
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -63,13 +98,90 @@ const Reach = () => {
     setUploadError('');
     setDeck(file);
     setDeckUrl(URL.createObjectURL(file));
-    setHasReachlink(true); 
+    
+    try {
+      // Create form data for file upload
+      const fileFormData = new FormData();
+      fileFormData.append('deck', file);
+      
+      // Get token from localStorage
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      
+      // Upload the file first (this would typically go to a different endpoint)
+      // For this example, we'll assume the file is uploaded and we get a URL back
+      // In a real implementation, you would have a file upload endpoint
+      
+      // Now update the upgrade deck data with the file information
+      const upgradeDeckData = {
+        ...formData,
+        deckFileName: file.name
+      };
+      
+      const response = await fetch(`${API_KEY}/api/upgrade-deck`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(upgradeDeckData)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update form data with the response
+        setFormData(data.data);
+        
+        // If we have a reachLink, update the state
+        if (data.data.reachLink) {
+          setHasReachlink(true);
+        }
+      } else {
+        console.error('Error updating upgrade deck data:', data.message);
+      }
+    } catch (error) {
+      console.error('Error in file upload process:', error);
+    }
   };
 
-  const removeDeck = () => {
+  const removeDeck = async () => {
     if (deckUrl) {
       URL.revokeObjectURL(deckUrl);
     }
+    
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      
+      // Update the upgrade deck data to remove deck information
+      const updatedFormData = {
+        ...formData,
+        deckFileName: null,
+        deckUrl: null
+      };
+      
+      const response = await fetch(`${API_KEY}/api/upgrade-deck`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedFormData)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update form data with the response
+        setFormData(data.data);
+      } else {
+        console.error('Error updating upgrade deck data:', data.message);
+      }
+    } catch (error) {
+      console.error('Error removing deck:', error);
+    }
+    
+    // Update local state
     setDeck(null);
     setDeckUrl('');
     setUploadError('');
@@ -160,7 +272,10 @@ const Reach = () => {
           <div className="flex flex-col gap-4 items-start">
           <button
             className="h-12 px-6 bg-white min-w-[240px] text-black font-semibold rounded hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              // Open the form modal with existing data
+              setShowModal(true);
+            }}
           >
             Upgrade deck
           </button>
