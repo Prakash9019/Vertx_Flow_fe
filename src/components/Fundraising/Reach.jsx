@@ -6,7 +6,7 @@ import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
 import BasicInfoForm from "./BasicForm";
 import Image from "./img.jpg"
-import ReachImage from "../../assets/ReachP!.jpg"; 
+import ReachImage from "../../assets/Rectangle 119.png"; 
 
 const Reach = () => {
   const { profileData } = useStartupProfile();
@@ -26,7 +26,7 @@ const Reach = () => {
   const fileRef = useRef(null);
   const [hasReachlink, setHasReachlink] = useState(false); 
 
-  const tabsArray = ["One Pager", "Reach Link", "Outreach"];
+
   const subTabs = ["Link", "Intro", "Analytics", "Settings"];
 
   const allowedTypes = ['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
@@ -196,76 +196,28 @@ const Reach = () => {
     if (tab !== "Outreach") setIsTargetListSelected(false);
   };
 
-  const renderHeader = () => {
-    if (activeTab === "Outreach" && isTargetListSelected) return null;
-    return (
-      <div
-        className="relative w-full font-[inter] h-[182px] bg-no-repeat bg-[length:100%_100%] bg-center"
-        style={{ backgroundImage: `url(${BgImg})` }}
-      >
-        <div className="absolute inset-0 bg-black/80" />
-        <div className="relative z-10 flex flex-col justify-between h-full px-9 pt-10 pb-6 md:px-14 md:pt-16">
-          <div>
-            <h1 className="text-[2rem] font-semibold text-white" style={{ fontFamily: "Inter" }}>
-              {profileData?.companyName || "Company"}
-            </h1>
-            <p className="mt-1 text-xs font-semibold text-white" style={{ fontFamily: "Inter" }}>
-              {`profileData
-                ? ${profileData.companyName} helps A to solve B by addition of C and D.
-                : "This company helps A to solve B by addition of C and D."`}
-            </p>
-            <p className="mt-2 text-[0.625rem] font-medium text-white" style={{ fontFamily: "Inter" }}>
-              {profileData?.companyWebsite || "www.companyname.com"}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
-  const renderTabs = () => {
-    if (activeTab === "Outreach" && isTargetListSelected) return null;
-    return (
-      <div className="flex font-[inter] gap-4 px-9 mt-6 md:px-14">
-        {tabsArray.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabChange(tab)}
-            className={`h-10 rounded-full text-base transition-colors duration-150 ${
-              activeTab === tab
-                ? "w-[110px] bg-white text-black font-medium"
-                : "w-[90px] bg-[#0F0E16] text-[#656565] font-normal"
-            }`}
-            style={{ fontFamily: "Inter" }}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-    );
-  };
 
   const renderSubTabs = () => (
-    <div className="flex gap-8 font-[inter]">
+    <div className="flex gap-8 font-[Inter]">
       {subTabs.map((sub) => (
-        <div key={sub} className="relative">
+        <div key={sub} className="relative inline-block">
           <button
             onClick={() => setActiveSubTab(sub)}
-            className="pb-2 text-sm sm:text-base font-medium transition-colors"
+            className="pb-2 text-sm sm:text-base font-medium text-left transition-colors"
             style={{
               color: activeSubTab === sub ? "#FFFFFF" : "#B8B8B8",
-              fontFamily: "Inter",
             }}
           >
-            {sub}
+            <span className="px-1">{sub}</span>
           </button>
+  
           {activeSubTab === sub && (
             <div
-              className="absolute bottom-0 left-0 h-1 rounded-full bg-[#AD6FDE]"
+              className="absolute -bottom-[2px] left-1/2 h-1 rounded-full bg-[#AD6FDE]"
               style={{
-                width: sub === "Link" ? "32px" :
-                       sub === "Intro" ? "40px" :
-                       sub === "Analytics" ? "64px" : "56px"
+                width: 'calc(100% + 8px)',
+                transform: 'translateX(-50%)',
               }}
             />
           )}
@@ -273,6 +225,7 @@ const Reach = () => {
       ))}
     </div>
   );
+  
 
   const renderLinkContent = () => {
     if (hasReachlink && deck) { 
@@ -346,79 +299,53 @@ const Reach = () => {
     // "No active Reachlinks" view
     if (!hasReachlink) {
       return (
-        <div 
-        style={{
-          backgroundImage: `url(${ReachImage})`, 
-        }} 
-        className="min-h-[calc(75vh-11.5rem)]  rounded-lg font-[inter] bg-center bg-cover flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-6 text-white">
-              You have no active Reachlinks.
-            </h2>
-            <button
-              onClick={async () => {
-                try {
-                  // Get token from localStorage
-                  const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-                  console.log('Token:', token ? 'Token exists' : 'No token found');
-                  
-                  // Create a basic upgrade deck entry to generate a reachLink
-                  const response = await fetch(`${API_KEY}/api/upgrade-deck`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({})
-                  });
-                  
-                  console.log('Response status:', response.status);
-                  console.log('Response ok:', response.ok);
-                  
-                  const data = await response.json();
-                  
-                  if (data.success) {
-                    // Update form data with the response
-                    setFormData(data.data);
-                    
-                    // If we have a reachLink, update the state
-                    if (data.data.reachLink) {
-                      setHasReachlink(true);
-                    }
-                  } else {
-                    console.error('Error creating reachLink:', data.message);
-                  }
-                } catch (error) {
-                  console.error('Error creating reachLink:', error);
-                }
-              }}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-700 text-white rounded cursor-pointer hover:bg-purple-600 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
-              style={{ fontFamily: "Inter" }}
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              Create link
-            </button>
-          </div>
-        </div>
+        <div
+  style={{
+    // backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.76), rgba(0, 0, 0, 0.76)), url(${ReachImage})`,
+    backgroundImage : `url(${ReachImage})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: 'cover',
+  }}
+  className="w-[52.5rem] h-[27rem] flex-shrink-0 rounded-lg font-[inter] flex items-center justify-center  max-w-full sm:w-[90%] sm:h-[22rem] xs:h-[18rem]"
+>
+  <div className="text-center px-4">
+    <h2 className="text-2xl font-semibold mb-6 text-white">
+      You have no active Reachlinks.
+    </h2>
+    <button
+      onClick={() => setHasReachlink(true)}
+      className="inline-flex items-center gap-2 px-6 py-3 bg-[#5F248D] text-white rounded cursor-pointer hover:bg-purple-600 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
+      style={{ fontFamily: "Inter" }}
+    >
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Create link
+    </button>
+  </div>
+</div>
+
       );
     }
 
     return (
       <section
-        className="min-h-[calc(75vh-11.5rem)] rounded-lg bg-center bg-cover flex items-center justify-center"
-        style={{
-          backgroundImage: `url(${BgImg})`, 
-        }}
-      >
+      className="min-h-[calc(75vh-11.5rem)] rounded-lg bg-center bg-cover flex items-center justify-center"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.76), rgba(0, 0, 0, 0.76)), url(${BgImg})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+      }}
+    >
         <div className=" w-full h-full flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-semibold mb-6 text-white">
@@ -427,7 +354,7 @@ const Reach = () => {
 
             <button
               onClick={openFilePicker}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black rounded cursor-pointer hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
+              className="inline-flex font-semibold items-center gap-2 px-6 py-3 bg-white text-black rounded cursor-pointer hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
               style={{ fontFamily: "Inter" }}
             >
               <svg
@@ -487,10 +414,8 @@ const Reach = () => {
 
   return (
     <div className="min-h-screen font-[inter] bg-black text-white flex relative">
-      <Sidebar />
+
       <div className="flex-1 h-screen overflow-y-auto">
-        {renderHeader()}
-        {renderTabs()}
 
         <div className="pt-8 px-9 md:px-14 mb-8">
           {activeTab === "Reach Link" && (

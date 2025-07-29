@@ -39,10 +39,10 @@ function FundraisingManagePage() {
       setActiveTab('Reach');
     }else if (path.includes('/target')) {
       setActiveTab('Target');
-    }  else if (path === '/fundraising/raise') {
-      // Default to Manage if only /fundraising/raise is accessed
+    }  else if (path === '/fundraising') {
+      // Default to Manage if only /fundraising is accessed
       setActiveTab('Manage');
-      navigate('/fundraising/raise/manage', { replace: true });
+      navigate('/fundraising/manage', { replace: true });
     } else {
       // Default to Manage for any other case
       setActiveTab('Manage');
@@ -54,7 +54,7 @@ function FundraisingManagePage() {
     setActiveTab(tab);
     
     // Update URL based on selected tab
-    const baseUrl = '/fundraising/raise';
+    const baseUrl = '/fundraising';
     switch(tab) {
       case 'Manage':
         navigate(`${baseUrl}/manage`);
@@ -417,9 +417,6 @@ function FundraisingManagePage() {
               </div>
             </div>
           )}
-          
-          {activeTab === "Find" && <FindInvestors />}
-
           {activeTab === "Target" && <Target onListSelect={setIsTargetListSelected} />}
        
           {activeTab === "Reach" && <Reach />}
