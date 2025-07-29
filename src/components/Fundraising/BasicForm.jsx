@@ -1,8 +1,8 @@
 // BasicInfoForm.jsx
 import { useState, useEffect } from "react";
-import Rectangle82 from "../../assets/Rectangle 82.png";
-import BgImg from "./img.jpg";
-import LinkLiveModal from "./LinkLiveModal";
+import Rectangle82 from "../../assets/Rectangle 82.png"; // Assuming this path is correct
+import BgImg from "./img.jpg"; // Assuming this path is correct
+import LinkLiveModal from "./LinkLiveModal"; // Assuming this component exists
 
 export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formData = {}, setFormData = () => {} }) {
   const sectorsList = [
@@ -24,28 +24,43 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
   const [localFormData, setLocalFormData] = useState({
     companyName: formData?.companyName || "",
     linkedinUrl: formData?.linkedinUrl || "",
-    founderName: formData?.founderName || "",
-    founderLinkedinUrl: formData?.founderLinkedinUrl || "",
-    founderEmail: formData?.founderEmail || "",
+    founderName: formData?.founderName || "", // This seems to be for the CEO in "profile"
+    founderLinkedinUrl: formData?.founderLinkedinUrl || "", // This seems to be for the CEO in "profile"
+    founderEmail: formData?.founderEmail || "", // This seems to be for the CEO in "profile"
     founded: formData?.founded || "",
     companyWebsite: formData?.companyWebsite || "https://",
     businessCategory: formData?.businessCategory || "B2C",
     businessSectors: formData?.businessSectors || [],
-    companyDescription: formData?.companyDescription || "", // New field for Company
-    marketOpportunity: formData?.marketOpportunity || "", // New field for Market
-    businessModel: formData?.businessModel || "", // New field for Business Model
-    tractionMetrics: formData?.tractionMetrics || "", // New field for Traction
-    raisedAmount: formData?.raisedAmount || "", // New field for Fundraising
-    raisedFrom: formData?.raisedFrom || [], // New field for Fundraising (array for checkboxes)
-    fundraisingTarget: formData?.fundraisingTarget || "", // New field for Fundraising
-    // Deck is handled by the parent component (Reach.jsx) for file upload/preview,
-    // but you could add a field here if you need to store metadata about the deck.
-    ...formData
+    companyDescription: formData?.companyDescription || "",
+    marketOpportunity: formData?.marketOpportunity || "",
+    businessModel: formData?.businessModel || "",
+    tractionMetrics: formData?.tractionMetrics || "",
+    raisedAmount: formData?.raisedAmount || "",
+    raisedFrom: formData?.raisedFrom || [],
+    fundraisingTarget: formData?.fundraisingTarget || "",
+    fundsAllocation: formData?.fundsAllocation || "", 
+    companyStage: formData?.companyStage || "", // New field for company stage
+
+    // New fields for Team section founders
+    founder1FullName: formData?.founder1FullName || "",
+    founder1TitleRole: formData?.founder1TitleRole || "",
+    founder1LinkedinProfileURL: formData?.founder1LinkedinProfileURL || "",
+    founder2FullName: formData?.founder2FullName || "",
+    founder2TitleRole: formData?.founder2TitleRole || "",
+    founder2LinkedinProfileURL: formData?.founder2LinkedinProfileURL || "",
+    hqLocation: formData?.hqLocation || "", // New field for HQ location
+
+    ...formData // Ensure any other existing formData fields are merged
   });
 
   // Define the order of views/steps
   const views = ["profile", "basics", "team", "company", "market", "business-model", "traction", "fundraising", "deck"];
   const [currentView, setCurrentView] = useState(views[0]); // Start with the first view
+
+  // State to control visibility of the second founder's input fields
+  const [showSecondFounder, setShowSecondFounder] = useState(
+    !!localFormData.founder2FullName || !!localFormData.founder2TitleRole || !!localFormData.founder2LinkedinProfileURL
+  ); // Initialize based on whether second founder data exists
 
   // New state for the "Your link is live!" modal
   const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
@@ -99,6 +114,20 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     handleInputChange('raisedFrom', newSources);
   };
 
+  // Functions for adding/discarding second founder
+  const handleAddTeammate = () => {
+    setShowSecondFounder(true);
+  };
+
+  const handleDiscardFounder = () => {
+    setShowSecondFounder(false);
+    // Clear the data for the second founder when discarded
+    handleInputChange('founder2FullName', '');
+    handleInputChange('founder2TitleRole', '');
+    handleInputChange('founder2LinkedinProfileURL', '');
+  };
+
+
   const handleBack = () => {
     const currentIndex = views.indexOf(currentView);
     if (currentIndex > 0) {
@@ -133,12 +162,13 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
   // Helper function to render common input styles
   const renderInput = (type, field, placeholder, label) => (
     <div>
-      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+      <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
         {label}
       </label>
       <input
         type={type}
-        value={localFormData[field]}
+        id={field} // Added id for accessibility
+        value={localFormData[field] || ''} // Ensure value is never undefined
         onChange={(e) => handleInputChange(field, e.target.value)}
         className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
         placeholder={placeholder}
@@ -149,11 +179,12 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
   // Helper function to render common textarea styles
   const renderTextarea = (field, placeholder, label, maxLength) => (
     <div>
-      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+      <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
         {label}
       </label>
       <textarea
-        value={localFormData[field]}
+        id={field} // Added id for accessibility
+        value={localFormData[field] || ''} // Ensure value is never undefined
         onChange={(e) => handleInputChange(field, e.target.value)}
         className="w-full h-52 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal resize-none"
         placeholder={placeholder}
@@ -167,7 +198,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     </div>
   );
 
-  if (!isOpen && !isLinkLiveModalOpen) return null; // Only render if either modal is open
+  if (!isOpen && !isLinkLiveModalOpen) return null;
 
   return (
     <>
@@ -221,7 +252,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                 <div className="space-y-1">
                   <div
                     className={`font-medium mb-1 font-['Inter'] cursor-pointer transition-colors ${
-                      currentView === "profile" ? "text-white text-lg" : "text-gray-400 text-sm hover:text-white"
+                      currentView === "profile" ? "text-white text-[16px]" : "text-gray-400 text-sm hover:text-white"
                     }`}
                     onClick={() => setCurrentView("profile")}
                   >
@@ -232,8 +263,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "basics"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("basics")}
                     >
@@ -242,8 +273,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "team"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("team")}
                     >
@@ -252,8 +283,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "company"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("company")}
                     >
@@ -262,8 +293,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "market"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("market")}
                     >
@@ -272,8 +303,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "business-model"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("business-model")}
                     >
@@ -282,8 +313,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "traction"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("traction")}
                     >
@@ -292,8 +323,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "fundraising"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("fundraising")}
                     >
@@ -302,8 +333,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                     <div
                       className={`py-1 cursor-pointer transition-colors font-['Inter'] ${
                         currentView === "deck"
-                          ? "text-white text-lg font-medium"
-                          : "text-gray-400 text-sm font-normal hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                       }`}
                       onClick={() => setCurrentView("deck")}
                     >
@@ -330,141 +361,226 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
                   {currentView === "basics" && (
                     <div className="space-y-6">
-                        {/* Founded and Company Website Row */}
-                        <div className="grid grid-cols-2 gap-4">
-                            {renderInput('text', 'founded', 'YYYY', 'Founded')}
-                            {renderInput('url', 'companyWebsite', 'https://www.yourcompany.com', 'Company Website')}
-                        </div>
-
-                        {/* Business Category with separate checkbox and label */}
-                        <div>
-                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                                How would you describe your business category?
-                            </label>
-                            <div className="grid grid-cols-4 gap-2">
-                                {['B2C', 'B2B', 'B2B2C', 'Other'].map((category) => (
-                                    <div
-                                        key={category}
-                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
-                                        onClick={() => handleInputChange('businessCategory', category)}
-                                    >
-                                        {/* Custom Checkbox */}
-                                        <div
-                                            className={`w-4 h-4 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
-                                                localFormData.businessCategory === category ? 'bg-purple-600' : 'bg-transparent'
-                                            }`}
-                                        >
-                                            {localFormData.businessCategory === category && (
-                                                <svg
-                                                    className="h-3 w-3 text-white"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            )}
-                                        </div>
-                                        {/* Category Label */}
-                                        <span className="text-white font-['Inter'] text-sm font-medium">
-                                            {category}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Business Sectors (remains the same as it correctly matches the screenshot) */}
-                        <div>
-                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                                What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
-                            </label>
-                            <div className="flex flex-wrap gap-2">
-                                {sectorsList.map((sector) => (
-                                    <button
-                                        key={sector}
-                                        onClick={() => handleSectorToggle(sector)}
-                                        className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${
-                                            localFormData.businessSectors.includes(sector)
-                                                ? 'bg-purple-600 text-white'
-                                                : 'bg-white/11 text-white hover:bg-white/20'
-                                        }`}
-                                    >
-                                        {sector}
-                                        {localFormData.businessSectors.includes(sector) && (
-                                            <span className="text-xs">×</span>
-                                        )}
-                                        {!localFormData.businessSectors.includes(sector) && (
-                                            <span className="text-xs">+</span>
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                  )}
-
-                  {currentView === "team" && (
-                    <div className="space-y-6">
-                        <p className="block text-white font-['Inter'] text-base font-medium mb-4">
-                            Edit the CEO info in the Profile section.
-                        </p>
+                      {/* Founded and Company Website Row */}
                       <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                            Full Name
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                            placeholder=""
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                            Title/Role
-                          </label>
-                          <input
-                            type="text"
-                            className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                            placeholder=""
-                          />
+                        {renderInput('date', 'founded', 'YYYY', 'Founded')}
+                        {renderInput('url', 'companyWebsite', 'https://www.yourcompany.com', 'Company Website')}
+                      </div>
+
+                      {/* Business Category with separate checkbox and label */}
+                      <div>
+                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          How would you describe your business category?
+                        </label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {['B2C', 'B2B', 'B2B2C', 'Other'].map((category) => (
+                            <div
+                              key={category}
+                              className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                              onClick={() => handleInputChange('businessCategory', category)}
+                            >
+                              {/* Custom Checkbox */}
+                              <div
+                                className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
+                                  localFormData.businessCategory === category ? 'bg-purple-600' : 'bg-transparent'
+                                }`}
+                              >
+                                {localFormData.businessCategory === category && (
+                                  <svg
+                                    className="h-6 w-6 text-white"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                  </svg>
+                                )}
+                              </div>
+                              {/* Category Label */}
+                              <span className="text-white font-['Inter'] text-lg font-medium">
+                                {category}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      {renderInput('url', 'linkedinProfileURL', 'https://linkedin.com/in/yourname', "Linkedin Profile URL")}
-                      <button className="w-full h-9 bg-red-700/50 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-red-700 transition-colors">
-                        DISCARD FOUNDER
-                      </button>
-                      <button className="w-full h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Add another teammate
-                      </button>
-                      <button className="w-full h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Add a note about your team
-                      </button>
+
+                      {/* Company Stage */}
+                      <div>
+                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          What is the current stage of your company?
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['Pre-Product', 'Pre-Revenue', 'Post-Revenue'].map((stage) => (
+                            <div
+                              key={stage}
+                              className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                              onClick={() => handleInputChange('companyStage', stage)}
+                            >
+                              {/* Custom Radio Button */}
+                              <div
+                                className={`w-6 h-6 rounded-full border border-white flex items-center justify-center transition-colors ${
+                                  localFormData.companyStage === stage ? 'bg-purple-600' : 'bg-transparent'
+                                }`}
+                              >
+                                {localFormData.companyStage === stage && (
+                                  <div className="w-3 h-3 rounded-full bg-white"></div>
+                                )}
+                              </div>
+                              {/* Stage Label */}
+                              <span className="text-white font-['Inter'] text-lg font-medium">
+                                {stage}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Business Type */}
+                      <div>
+                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          What type of business is your company? (multiple)
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['Ecommerce', 'Marketplace', 'Social Network', 'SaaS', 'Hardware', 'Other'].map((source) => (
+                            <div
+                              key={source}
+                              className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                              onClick={() => handleRaisedFromToggle(source)}
+                            >
+                              {/* Custom Checkbox */}
+                              <div
+                                className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
+                                  localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
+                                }`}
+                              >
+                                {localFormData.raisedFrom.includes(source) && (
+                                  <svg
+                                    className="h-6 w-6 text-white"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                  </svg>
+                                )}
+                              </div>
+                              {/* Source Label */}
+                              <span className="text-white font-['Inter'] text-lg font-medium">
+                                {source}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+
+
+                      {/* Business Sectors (remains the same as it correctly matches the screenshot) */}
+                      <div>
+                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {sectorsList.map((sector) => (
+                            <button
+                              key={sector}
+                              onClick={() => handleSectorToggle(sector)}
+                              className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${
+                                localFormData.businessSectors.includes(sector)
+                                  ? 'bg-purple-600 text-white'
+                                  : 'bg-white/11 text-white hover:bg-white/20'
+                              }`}
+                            >
+                              {sector}
+                              {localFormData.businessSectors.includes(sector) && (
+                                <span className="text-[16px]">×</span>
+                              )}
+                              {!localFormData.businessSectors.includes(sector) && (
+                                <span className="text-[16px]">+</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
+                  
+                  {currentView === "team" && (
+          <div className="space-y-6">
+            <p className="block text-white font-['Inter'] text-base font-medium mb-4">
+              Edit the CEO info in the Profile section.
+            </p>
 
+            {/* First Founder Input Fields (Always visible) */}
+            <div className="grid grid-cols-2 gap-4">
+              {renderInput('text', 'founder1FullName', '', 'Full Name')}
+              {renderInput('text', 'founder1TitleRole', '', 'Title/Role')}
+            </div>
+            {renderInput('url', 'founder1LinkedinProfileURL', 'https://linkedin.com/in/yourname', "Linkedin Profile URL")}
+
+            {/* Second Founder Input Fields (Conditionally visible) */}
+            {showSecondFounder && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  {renderInput('text', 'founder2FullName', '', 'Full Name')}
+                  {renderInput('text', 'founder2TitleRole', '', 'Title/Role')}
+                </div>
+                {renderInput('url', 'founder2LinkedinProfileURL', 'https://linkedin.com/in/yourname', "Linkedin Profile URL")}
+                <div className="flex justify-end mt-4"> {/* Added mt-4 for spacing */}
+                  <button
+                    onClick={handleDiscardFounder}
+                    className="px-4 py-2 bg-red-700/50 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-red-700 transition-colors"
+                  >
+                    DISCARD FOUNDER
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-4 mt-6"> {/* Added mt-6 for spacing */}
+              {!showSecondFounder && ( // Only show "Add another teammate" if second founder is not shown
+                <button
+                  onClick={handleAddTeammate}
+                  className="w-full h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add another teammate
+                </button>
+              )}
+              <button className={`${showSecondFounder ? 'col-span-2' : 'col-span-1'} h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2`}>
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add a note about your team
+              </button>
+            </div>
+
+            {/* Where is HQ based? */}
+            <div className="mt-6"> {/* Added mt-6 for spacing */}
+              {renderInput('text', 'hqLocation', 'Location...', 'Where is HQ based?')}
+            </div>
+          </div>
+        )}
                   {currentView === "company" && (
                     <div className="space-y-6">
                       {renderTextarea('companyDescription', 'Write here...', "Describe down here", 250)}
@@ -490,93 +606,116 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                   )}
 
                   {currentView === "fundraising" && (
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                                How much money have you raised?
-                            </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                                <input
-                                    type="number"
-                                    value={localFormData.raisedAmount}
-                                    onChange={(e) => handleInputChange('raisedAmount', e.target.value)}
-                                    className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                                    placeholder=""
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                                Who did you raise from?
-                            </label>
-                            <div className="flex gap-4">
-                                {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
-                                    <div
-                                        key={source}
-                                        className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
-                                        onClick={() => handleRaisedFromToggle(source)}
-                                    >
-                                        {/* Custom Checkbox */}
-                                        <div
-                                            className={`w-4 h-4 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
-                                                localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
-                                            }`}
-                                        >
-                                            {localFormData.raisedFrom.includes(source) && (
-                                                <svg
-                                                    className="h-3 w-3 text-white"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            )}
-                                        </div>
-                                        {/* Source Label */}
-                                        <span className="text-white font-['Inter'] text-sm font-medium">
-                                            {source}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                                What is your fundraising target?
-                            </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                                <input
-                                    type="number"
-                                    value={localFormData.fundraisingTarget}
-                                    onChange={(e) => handleInputChange('fundraisingTarget', e.target.value)}
-                                    className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                                    placeholder=""
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                                How do you allocate these funds?
-                            </label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
-                                <input
-                                    type="number"
-                                    value={localFormData.fundraisingTarget}
-                                    onChange={(e) => handleInputChange('fundraisingTarget', e.target.value)}
-                                    className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
-                                    placeholder=""
-                                />
-                            </div>
-                        </div>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                        How much money have you raised?
+                      </label>
+                      <div className="relative">
+                        <span className="absolute  left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
+                        <input 
+                          type="text"
+                          value={
+                            localFormData.raisedAmount
+                              ? new Intl.NumberFormat('en-US').format(localFormData.raisedAmount)
+                              : ''
+                          }
+                          onChange={(e) => {
+                            // Remove non-digit characters for storage, then convert to number
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            handleInputChange('raisedAmount', rawValue === '' ? '' : Number(rawValue));
+                          }}
+                          className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
+                          placeholder=""
+                        />
+                      </div>
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                        Who did you raise from?
+                      </label>
+                      <div className="flex gap-4">
+                        {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
+                          <div
+                            key={source}
+                            className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                            onClick={() => handleRaisedFromToggle(source)}
+                          >
+                            {/* Custom Checkbox */}
+                            <div
+                              className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${
+                                localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
+                              }`}
+                            >
+                              {localFormData.raisedFrom.includes(source) && (
+                                <svg
+                                  className="h-6 w-6 text-white"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                              )}
+                            </div>
+                            {/* Source Label */}
+                            <span className="text-white font-['Inter'] text-lg font-medium">
+                              {source}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                        What is your fundraising target?
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
+                        <input
+                          type="text" // Change to text to allow custom formatting
+                          value={
+                            localFormData.fundraisingTarget
+                              ? new Intl.NumberFormat('en-US').format(localFormData.fundraisingTarget)
+                              : ''
+                          }
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            handleInputChange('fundraisingTarget', rawValue === '' ? '' : Number(rawValue));
+                          }}
+                          className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
+                          placeholder=""
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                        How do you allocate these funds?
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#656565]">$</span>
+                        <input
+                          type="text" // Change to text to allow custom formatting
+                          value={
+                            localFormData.fundsAllocation // <--- Use the new field here
+                              ? new Intl.NumberFormat('en-US').format(localFormData.fundsAllocation)
+                              : ''
+                          }
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+                            handleInputChange('fundsAllocation', rawValue === '' ? '' : Number(rawValue)); // <--- Update the new field
+                          }}
+                          className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
+                          placeholder=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                   {currentView === "deck" && (
                     <div className="space-y-2 flex flex-col items-center justify-center h-full">
@@ -595,18 +734,34 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 DELETE
                             </button>
                       </div>
-                      <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white text-xl bg-black/50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70">
-                            &lt;
-                        </button>
-                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white text-xl bg-black/50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-black/70">
-                            &gt;
-                        </button>
+                      <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xl  flex items-center justify-center ">
+                        <svg
+                          className="w-7 h-7" // Adjust size if necessary for visual match
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+
+                      {/* Right Arrow Button - Only content changed to SVG */}
+                      <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-xl flex items-center justify-center">
+                        <svg
+                          className="w-7 h-7" // Adjust size if necessary for visual match
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </div>
                   )}
                 </div>
 
-                {/* <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/76 to-transparent pointer-events-none z-10"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/76 to-transparent pointer-events-none z-10"></div> */}
               </div>
             </div>
 
