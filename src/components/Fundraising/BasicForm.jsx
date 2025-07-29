@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import Rectangle82 from "../../assets/Rectangle 82.png";
 import BgImg from "./img.jpg";
 import LinkLiveModal from "./LinkLiveModal";
+import axios from "axios";
+import API_KEY from "../../../key";
+import { toast } from "react-toastify";
 
 export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formData = {}, setFormData = () => {} }) {
   const sectorsList = [
@@ -108,16 +111,53 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const currentIndex = views.indexOf(currentView);
     if (currentIndex < views.length - 1) {
       setCurrentView(views[currentIndex + 1]);
     } else {
       console.log("Form Completed:", localFormData);
-      // Instead of closing the form, open the LinkLiveModal
-      setIsLinkLiveModalOpen(true);
-      // Optionally, you can also close the BasicInfoForm if you want it to disappear
-      // onClose();
+      
+      try {
+        // Get token from localStorage
+        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+        console.log('BasicForm - Token:', token ? 'Token exists' : 'No token found');
+        
+        if (!token) {
+          toast.error('Please log in to continue');
+          return;
+        }
+        
+        // Make API call to save upgrade deck data
+        const response = await axios.post(
+          `${API_KEY}/api/upgrade-deck`, 
+          localFormData,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        if (response.data.success) {
+          // Update reachLink with the one returned from API
+          if (response.data.data.reachLink) {
+            setReachLink(response.data.data.reachLink);
+          }
+          
+          // Show success toast
+          toast.success('Upgrade deck data saved successfully!');
+          
+          // Open the LinkLiveModal
+          setIsLinkLiveModalOpen(true);
+        } else {
+          toast.error('Failed to save upgrade deck data');
+        }
+      } catch (error) {
+        console.error('Error saving upgrade deck data:', error);
+        toast.error(error.response?.data?.message || 'An error occurred while saving your data');
+      }
     }
   };
 
@@ -128,6 +168,12 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
   const handleLinkLiveModalClose = () => {
     setIsLinkLiveModalOpen(false);
     onClose(); // Close the BasicInfoForm as well when the link live modal is closed
+  };
+  
+  // Function to handle editing the reachLink
+  const handleEditReachLink = () => {
+    setIsLinkLiveModalOpen(false);
+    // Keep the form open for editing
   };
 
   // Helper function to render common input styles
