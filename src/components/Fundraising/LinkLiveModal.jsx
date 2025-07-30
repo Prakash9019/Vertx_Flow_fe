@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import BgImg from "../../assets/Rectangle 82.png";
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
+
 
 export default function LinkLiveModal({ isOpen, onClose, reachLink }) {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
   
   if (!isOpen) return null;
   
@@ -20,12 +23,15 @@ export default function LinkLiveModal({ isOpen, onClose, reachLink }) {
         toast.error('Failed to copy link');
       });
   };
+  const handleNextClick = () => {
+    navigate('/fundraising/reach-link'); 
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 cursor-pointer" onClick={onClose} />
       <div
-        className="relative w-full max-w-lg p-6 rounded-lg shadow-lg flex flex-col items-center justify-center text-center"
+        className="relative w-full min-w-lg max-w-4xl p-6 min-h-[600px] mx-auto rounded-lg shadow-lg flex flex-col items-center justify-center text-center"
         style={{
           backgroundImage: `url(${BgImg})`, // Use the confetti image as background
           backgroundSize: 'cover',
@@ -95,6 +101,12 @@ export default function LinkLiveModal({ isOpen, onClose, reachLink }) {
             </button>
           </div>
         </div>
+        <button 
+        onClick={handleNextClick} 
+              className= "absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
+            >
+              Next
+        </button>
       </div>
     </div>
   );

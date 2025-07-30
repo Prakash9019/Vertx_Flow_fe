@@ -53,6 +53,10 @@ import MockPitching from "./components/MockPitching";
 import CallReportPage from "./components/callReportPage";
 import CreateREportPage, { CreatePersonaPage, PersonaSelectionPage } from "./components/CreateREportPage.jsx";
 import GettingStarted from "./components/GettingStarted.jsx";
+import CompaniesReachLink from "./components/Fundraising/CompaniesReachLink.jsx";
+import ReachLinkPreview from "./components/Fundraising/ReachLinkPreview.jsx";
+
+
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -74,7 +78,9 @@ function App() {
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
-    {path:"/fundraising/reach", element: <FundraisingManagePage /> },
+    {path:"/fundraising/reach", element: <Reach /> },
+    {path:"/fundraising/reach-link", element: <CompaniesReachLink /> },
+    {path:"/fundraising/preview", element: <ReachLinkPreview /> },
     
      { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising", element:<FundraisingManagePage /> },
