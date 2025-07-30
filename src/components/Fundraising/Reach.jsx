@@ -87,36 +87,59 @@ const Reach = () => {
   const openFilePicker = () => fileRef.current?.click();
 
   const handleFileSelect = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
-      setUploadError('Invalid file. Only PDF/PPT/PPTX up to 10 MB allowed.');
-      return;
-    }
-
-    setUploadError('');
-    setDeck(file);
-    setDeckUrl(URL.createObjectURL(file));
-    
     try {
-      // Create form data for file upload
-      const fileFormData = new FormData();
-      fileFormData.append('deck', file);
-      
-      // Get token from localStorage
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      ];
+
+      if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
+        setUploadError('Invalid file. Only PDF/PPT/PPTX up to 10 MB allowed.');
+        return;
+      }
+
+      setUploadError('');
+      setDeck(file);
+      setDeckUrl(URL.createObjectURL(file));
+
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      
-      // Upload the file first (this would typically go to a different endpoint)
-      // For this example, we'll assume the file is uploaded and we get a URL back
-      // In a real implementation, you would have a file upload endpoint
-      
-      // Now update the upgrade deck data with the file information
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadResponse = await fetch(`${API_KEY}/api/files/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // Remove Content-Type header to let browser set it with boundary
+        },
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || 'File upload failed');
+      }
+
+      const uploadResult = await uploadResponse.json();
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'File upload failed');
+      }
+
+      // Update deck info with the file URL from the server
       const upgradeDeckData = {
-        ...formData,
-        deckFileName: file.name
+        deckFileName: file.name,
+        deckUrl: uploadResult.file.fileUrl
       };
-      
+
       const response = await fetch(`${API_KEY}/api/upgrade-deck`, {
         method: 'POST',
         headers: {
@@ -125,22 +148,26 @@ const Reach = () => {
         },
         body: JSON.stringify(upgradeDeckData)
       });
-      
+
       const data = await response.json();
-      
-      if (data.success) {
-        // Update form data with the response
-        setFormData(data.data);
-        
-        // If we have a reachLink, update the state
-        if (data.data.reachLink) {
-          setHasReachlink(true);
-        }
-      } else {
-        console.error('Error updating upgrade deck data:', data.message);
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Error updating deck information');
       }
+
+      setFormData(data.data);
+      if (data.data.reachLink) {
+        setHasReachlink(true);
+      }
+
     } catch (error) {
       console.error('Error in file upload process:', error);
+      setUploadError(error.message || 'Failed to upload file. Please try again.');
+      setDeck(null);
+      if (deckUrl) {
+        URL.revokeObjectURL(deckUrl);
+        setDeckUrl('');
+      }
     }
   };
 
