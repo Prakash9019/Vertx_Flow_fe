@@ -2,12 +2,19 @@
 import React from 'react';
 import MainBG from '../../assets/IntroBG50.jpg';
 import MainBG2 from '../../assets/IntroBGx2.jpg';
+import { useNavigate } from 'react-router-dom';
 
 
 const CompaniesReachLink = () => {
+    const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/fundraising/preview');
+  };
+  
   return (
     <div
-      className=" min-h-screen flex flex-col bg-black justify-center items-center text-white text-center absolute inset-0 bg-cover bg-bottom -z-10"
+      className=" min-h-screen flex flex-col bg-black justify-center items-center text-white text-center absolute inset-0 bg-cover bg-bottom"
       style={{
           backgroundImage: `url(${MainBG})`, // MainBG as the primary background
         }}
@@ -32,7 +39,8 @@ const CompaniesReachLink = () => {
             Your details will be kept safe and will not cause any harm to you.
           </p>
 
-          <button
+          <button 
+          onClick={handleClick}
             className="bg-white text-black border border-gray-300 py-3 px-8 rounded-md text-lg font-bold cursor-pointer mt-6 shadow-md transition-colors duration-300 hover:bg-gray-100"
           >
             Continue
