@@ -53,9 +53,16 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     teamMembers: formData?.teamMembers || [],
     hqLocation: formData?.hqLocation || "",
 
+    teamNotes: formData?.teamNotes || [],
+
     // Spread existing formData to capture any other fields that might be passed in
     ...formData
   });
+
+  const [showTeamNoteTextarea, setShowTeamNoteTextarea] = useState(
+  !!(formData?.teamNote && formData.teamNote.length > 0)
+);
+
 
   const views = ["profile", "basics", "team", "company", "market", "business-model", "traction", "fundraising", "deck"];
   const [currentView, setCurrentView] = useState(views[0]);
@@ -104,17 +111,30 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     });
   }, [formData]);
 
+  
 
   const handleInputChange = (field, value) => {
+  setLocalFormData(prev => ({
+    ...prev,
+    [field]: value
+  }));
+  setFormData(prev => ({
+    ...prev,
+    [field]: value
+  }));
+};
+
+const handleToggleTeamNote = () => {
+  if (showTeamNoteTextarea) {
     setLocalFormData(prev => ({
       ...prev,
-      [field]: value
+      teamNote: "",
     }));
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+    setShowTeamNoteTextarea(false);
+  } else {
+    setShowTeamNoteTextarea(true);
+  }
+};
 
   // Handler for changes within a specific dynamic team member's fields (Team Member 2 onwards)
   const handleDynamicTeamMemberInputChange = (id, fieldName, value) => {
@@ -134,9 +154,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
   // Function to add a new empty dynamic team member (Team Member 2 onwards)
   const handleAddDynamicTeamMember = () => {
-    const MAX_TOTAL_TEAM_MEMBERS = 9; // Max number of total team members including Founder 1
-    // Number of currently added dynamic members = localFormData.teamMembers.length
-    // If we have Founder 1 (fixed), then total members currently = 1 + localFormData.teamMembers.length
+    const MAX_TOTAL_TEAM_MEMBERS = 9; 
     if ((1 + localFormData.teamMembers.length) < MAX_TOTAL_TEAM_MEMBERS) {
       const newMember = {
         id: `new-${nextDynamicTeamMemberCounter}`, // Use a counter for unique IDs
@@ -532,7 +550,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                               >
                                 {localFormData.businessCategory === category && (
                                   <svg
-                                    className="h-6 w-6 text-white"
+                                    className="h-5 w-5 text-white"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -543,15 +561,41 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 )}
                               </div>
                               {/* Category Label */}
-                              <span className="text-white font-['Inter'] text-lg font-medium">
+                              <span className="text-white font-['Inter'] text-[16px] font-medium">
                                 {category}
                               </span>
                             </div>
                           ))}
                         </div>
                       </div>
+                      <div>
+                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {sectorsList.map((sector) => (
+                            <button
+                              key={sector}
+                              onClick={() => handleSectorToggle(sector)}
+                              className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${
+                                localFormData.businessSectors.includes(sector)
+                                  ? 'bg-purple-600 text-white'
+                                  : 'bg-white/11 text-white hover:bg-white/20'
+                              }`}
+                            >
+                              {sector}
+                              {localFormData.businessSectors.includes(sector) && (
+                                <span className="text-[16px]">×</span>
+                              )}
+                              {!localFormData.businessSectors.includes(sector) && (
+                                <span className="text-[16px]">+</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                      {/* Company Stage */}
+                       {/* Company Stage */}
                       <div>
                         <label className="block text-white font-['Inter'] text-base font-medium mb-4">
                           What is the current stage of your company?
@@ -574,7 +618,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 )}
                               </div>
                               {/* Stage Label */}
-                              <span className="text-white font-['Inter'] text-lg font-medium">
+                              <span className="text-white font-['Inter'] text-[16px] font-medium">
                                 {stage}
                               </span>
                             </div>
@@ -602,7 +646,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                               >
                                 {localFormData.raisedFrom.includes(source) && (
                                   <svg
-                                    className="h-6 w-6 text-white"
+                                    className="h-5 w-5 text-white"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -613,40 +657,10 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                                 )}
                               </div>
                               {/* Source Label */}
-                              <span className="text-white font-['Inter'] text-lg font-medium">
+                              <span className="text-white font-['Inter'] text-[16px] font-medium">
                                 {source}
                               </span>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-
-
-
-                      {/* Business Sectors (remains the same as it correctly matches the screenshot) */}
-                      <div>
-                        <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                          What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {sectorsList.map((sector) => (
-                            <button
-                              key={sector}
-                              onClick={() => handleSectorToggle(sector)}
-                              className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${
-                                localFormData.businessSectors.includes(sector)
-                                  ? 'bg-purple-600 text-white'
-                                  : 'bg-white/11 text-white hover:bg-white/20'
-                              }`}
-                            >
-                              {sector}
-                              {localFormData.businessSectors.includes(sector) && (
-                                <span className="text-[16px]">×</span>
-                              )}
-                              {!localFormData.businessSectors.includes(sector) && (
-                                <span className="text-[16px]">+</span>
-                              )}
-                            </button>
                           ))}
                         </div>
                       </div>
@@ -654,95 +668,118 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                   )}
                   
                   {currentView === "team" && (
-            <div className="space-y-6">
-              <p className="text-[#656565] font-['Inter'] text-base font-medium">
-                Edit the CEO info in the Profile section.
-              </p>
+  <div className="space-y-6">
+    <p className="text-[#656565] font-['Inter'] text-base font-medium">
+      Edit the CEO info in the <span className="font-bold text-white">Profile</span> section.
+    </p>
 
-              {/* Fixed Team Member 1 (No remove button) */}
-              <div className="relative p-4 border border-white/10 rounded-lg space-y-4">
-                <h4 className="text-white text-sm font-medium mb-4">Founder</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-                  {renderInput('text', 'founder1FullName', 'Full Name', 'Full Name')}
-                  {renderInput('text', 'founder1TitleRole', 'Title/Role', 'Title/Role')}
-                  <div className="col-span-2">
-                    {renderInput('url', 'founder1LinkedinProfileURL', 'https://linkedin.com/in/...', 'Linkedin Profile URL')}
-                  </div>
-                </div>
-              </div>
+    {/* Fixed Team Member 1 (No remove button) */}
+    <div className="relative p-4 border border-white/10 rounded-lg space-y-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+        {renderInput('text', 'founder1FullName', 'Full Name', 'Full Name')}
+        {renderInput('text', 'founder1TitleRole', 'Title/Role', 'Title/Role')}
+        <div className="col-span-2">
+          {renderInput('url', 'founder1LinkedinProfileURL', 'https://linkedin.com/in/...', 'Linkedin Profile URL')}
+        </div>
+      </div>
+    </div>
 
-              {/* Dynamically added Team Members (Team Member 2, 3, etc. onwards) */}
-              {localFormData.teamMembers.map((member, index) => (
-                <div key={member.id} className="relative p-4 border border-white/10 rounded-lg space-y-4">
-                  {/* index + 2 because Team Member 1 is fixed, and index is 0-based for dynamic array */}
-                  <h4 className="text-white text-sm font-medium mb-4">Founder {index + 2}</h4>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-                    {renderInput('text', 'fullName', 'Full Name', 'Full Name',
-                      (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
-                      member.fullName)}
-                    {renderInput('text', 'titleRole', 'Title/Role', 'Title/Role',
-                      (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
-                      member.titleRole)}
-                    <div className="col-span-2">
-                      {renderInput('url', 'linkedinUrl', 'https://linkedin.com/in/...', 'Linkedin Profile URL',
-                        (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
-                        member.linkedinUrl)}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleRemoveDynamicTeamMember(member.id)}
-                    className="absolute top-2 right-2 text-[#DC2626] text-xs font-medium hover:text-[#B91C1C] transition-colors"
-                  >
-                    REMOVE
-                  </button>
-                </div>
-              ))}
+    {/* Dynamically added Team Members (Team Member 2, 3, etc. onwards) */}
+    {localFormData.teamMembers.map((member, index) => (
+      <div key={member.id} className="relative p-4 border border-white/10 rounded-lg space-y-4">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+          {renderInput('text', 'fullName', 'Full Name', 'Full Name',
+            (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
+            member.fullName)}
+          {renderInput('text', 'titleRole', 'Title/Role', 'Title/Role',
+            (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
+            member.titleRole)}
+          <div className="col-span-2">
+            {renderInput('url', 'linkedinUrl', 'https://linkedin.com/in/...', 'Linkedin Profile URL',
+              (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
+              member.linkedinUrl)}
+          </div>
+        </div>
+        <button
+          onClick={() => handleRemoveDynamicTeamMember(member.id)}
+          className="absolute bottom-1 right-4 text-white text-xs font-medium cursor-pointer transition-colors"
+        >
+          DISCARD FOUNDER
+        </button>
+      </div>
+    ))}
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                {/* "Add another teammate" button - considers max 9 total members (1 fixed + 8 dynamic) */}
-                {(1 + localFormData.teamMembers.length) < 9 && (
-                  <button
-                    onClick={handleAddDynamicTeamMember}
-                    className="w-full h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add another teammate
-                  </button>
-                )}
-                {/* "Add a note about your team" button */}
-                <button className={`h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2 ${
-                  (1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : '' // Make full width if no "add teammate" button
-                }`}>
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add a note about your team
-                </button>
-              </div>
+    {/* The note section, which is conditionally rendered */}
+    {showTeamNoteTextarea && (
+      <div className="relative p-4 border border-white/10 rounded-lg space-y-4">
+        <label htmlFor="team-note" className="block text-white font-['Inter'] text-base font-medium">
+          Team Note
+        </label>
+        <textarea
+          id="team-note"
+          value={localFormData.teamNote}
+          onChange={(e) => handleInputChange('teamNote', e.target.value)}
+          className="w-full h-52 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal resize-none"
+          placeholder="Add a note about your team..."
+          maxLength={500}
+        />
+        {500 && (
+          <p className="text-right text-[#656565] text-xs font-['Inter'] mt-1">
+            {500 - (localFormData.teamNote?.length || 0)} chars left
+          </p>
+        )}
+      </div>
+    )}
 
-              {/* Where is HQ based? */}
-              <div className="mt-6">
-                {renderInput('text', 'hqLocation', 'Location...', 'Where is HQ based?')}
-              </div>
-            </div>
-          )}
+    {/* Action Buttons */}
+    <div className="grid grid-cols-2 gap-4 mt-6">
+      {/* "Add another teammate" button - considers max 9 total members (1 fixed + 8 dynamic) */}
+      {(1 + localFormData.teamMembers.length) < 9 && (
+        <button
+          onClick={handleAddDynamicTeamMember}
+          className="w-full h-9 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal cursor-pointer transition-colors flex items-center justify-start gap-2"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Add another teammate
+        </button>
+      )}
+
+      {/* "Add a note about your team" button, now with an onClick handler and dynamic text */}
+      <button
+        onClick={handleToggleTeamNote} // New handler function
+        className={`h-9 text-white rounded-[0.125rem] font-['Inter'] cursor-pointer text-xs font-normal  transition-colors flex items-center justify-end gap-2 ${
+          (1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : '' // Make full width if no "add teammate" button
+        }`}
+      >
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        {showTeamNoteTextarea ? 'Discard note' : 'Add a note about your team'}
+      </button>
+    </div>
+
+    {/* Where is HQ based? */}
+    <div className="mt-6">
+      {renderInput('text', 'hqLocation', 'Location...', 'Where is HQ based?')}
+    </div>
+  </div>
+)}
                   {currentView === "company" && (
                     <div className="space-y-6">
                       {renderTextarea('companyDescription', 'Write here...', "Describe down here", 250)}
@@ -888,6 +925,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
           </div>
         </div>
       )}
+      
 
       <LinkLiveModal
         isOpen={isLinkLiveModalOpen}
