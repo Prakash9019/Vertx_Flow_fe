@@ -78,7 +78,7 @@ function App() {
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
-    {path:"/fundraising/reach", element: <Reach /> },
+    {path:"/fundraising/reach", element: <FundraisingManagePage /> },
     {path:"/fundraising/reach-link", element: <CompaniesReachLink /> },
     {path:"/fundraising/preview", element: <ReachLinkPreview /> },
     
@@ -108,6 +108,7 @@ function App() {
           {/* <Route path="/" element={<FundraisingPage />} /> */}
           <Route path="/" element={<Login_Page />} />
           <Route path="/login" element={<Login_Page />} />
+          
           
           {/* Auth routes */}
           <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
