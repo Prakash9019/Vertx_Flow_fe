@@ -276,7 +276,7 @@ const Sidebar = () => {
     className={`px-4 py-2 flex items-center relative group ${
       isFundraisingActive ? 'bg-[#0F0E16]' : ''
     } hover:bg-[#0F0E16] cursor-pointer`}
-    onClick={() => navigate("/fundraising/raise")}
+    onClick={() => navigate("/fundraising/reach")}
   >
     <img
       src={FundraseLogo}
