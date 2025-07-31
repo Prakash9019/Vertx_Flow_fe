@@ -1,7 +1,7 @@
 // BasicInfoForm.jsx
 import { useState, useEffect } from "react";
 import Rectangle82 from "../../assets/Rectangle 82.png";
-import BgImg from "./img.jpg"; // Assuming this is for the deck section image
+import BgImg from "./img.jpg";
 import LinkLiveModal from "./LinkLiveModal";
 import axios from "axios";
 import API_KEY from "../../../key";
@@ -27,9 +27,9 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
   const [localFormData, setLocalFormData] = useState({
     companyName: formData?.companyName || "",
     linkedinUrl: formData?.linkedinUrl || "",
-    founderName: formData?.founderName || "", // This seems to be for the CEO in "profile"
-    founderLinkedinUrl: formData?.founderLinkedinUrl || "", // This seems to be for the CEO in "profile"
-    founderEmail: formData?.founderEmail || "", // This seems to be for the CEO in "profile"
+    founderName: formData?.founderName || "", // This is specifically for the CEO in 'Profile' view
+    founderLinkedinUrl: formData?.founderLinkedinUrl || "",
+    founderEmail: formData?.founderEmail || "",
     founded: formData?.founded || "",
     companyWebsite: formData?.companyWebsite || "https://",
     businessCategory: formData?.businessCategory || "B2C",
@@ -42,55 +42,134 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
     raisedFrom: formData?.raisedFrom || [],
     fundraisingTarget: formData?.fundraisingTarget || "",
     fundsAllocation: formData?.fundsAllocation || "",
-    companyStage: formData?.companyStage || "", // New field for company stage
+    companyStage: formData?.companyStage || "",
 
-    // New fields for Team section founders
+    // Fixed fields for Team Member 1 (The primary founder/CEO in "Team" tab)
     founder1FullName: formData?.founder1FullName || "",
     founder1TitleRole: formData?.founder1TitleRole || "",
     founder1LinkedinProfileURL: formData?.founder1LinkedinProfileURL || "",
-    founder2FullName: formData?.founder2FullName || "",
-    founder2TitleRole: formData?.founder2TitleRole || "",
-    founder2LinkedinProfileURL: formData?.founder2LinkedinProfileURL || "",
-    hqLocation: formData?.hqLocation || "", // New field for HQ location
 
-    ...formData // Ensure any other existing formData fields are merged
+    // Dynamic `teamMembers` array to hold ALL team members from #2 onwards
+    teamMembers: formData?.teamMembers || [],
+    hqLocation: formData?.hqLocation || "",
+
+    // Spread existing formData to capture any other fields that might be passed in
+    ...formData
   });
 
-  // Define the order of views/steps
   const views = ["profile", "basics", "team", "company", "market", "business-model", "traction", "fundraising", "deck"];
-  const [currentView, setCurrentView] = useState(views[0]); // Start with the first view
+  const [currentView, setCurrentView] = useState(views[0]);
 
-  // State to control visibility of the second founder's input fields
-  const [showSecondFounder, setShowSecondFounder] = useState(
-    !!localFormData.founder2FullName || !!localFormData.founder2TitleRole || !!localFormData.founder2LinkedinProfileURL
-  ); // Initialize based on whether second founder data exists
-
-  // NEW STATE: To track which input is focused for currency fields
   const [focusedInput, setFocusedInput] = useState(null);
 
-  // New state for the "Your link is live!" modal
   const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
-  // Example for a static Reachlink, in a real app this would be generated
   const [reachLink, setReachLink] = useState("https://re.hink.govrtx.com/reach/fguccyyyyfz");
 
+  // State for generating unique IDs for newly added dynamic team members
+  const [nextDynamicTeamMemberCounter, setNextDynamicTeamMemberCounter] = useState(() => {
+    // Find the max ID from existing dynamic members to ensure uniqueness
+    if (localFormData.teamMembers.length > 0) {
+      const maxId = Math.max(...localFormData.teamMembers.map(m => parseInt(m.id?.replace('new-', '') || 0) || 0));
+      return maxId + 1;
+    }
+    return 0;
+  });
 
-  // Sync localFormData with parent's formData when parent updates
+  // Effect to ensure localFormData is synced with incoming formData
   useEffect(() => {
-    setLocalFormData(prev => ({ ...prev, ...formData }));
+    setLocalFormData(prev => {
+      let updatedData = { ...prev };
+      let changed = false;
+
+      for (const key in formData) {
+        if (formData.hasOwnProperty(key) && prev[key] !== formData[key]) {
+          updatedData[key] = formData[key];
+          changed = true;
+        }
+      }
+
+      // Special handling for teamMembers array
+      if (
+        formData.teamMembers &&
+        (prev.teamMembers === undefined || JSON.stringify(prev.teamMembers) !== JSON.stringify(formData.teamMembers))
+      ) {
+        updatedData.teamMembers = formData.teamMembers;
+        changed = true;
+      } else if (!formData.teamMembers && prev.teamMembers && prev.teamMembers.length > 0) {
+        updatedData.teamMembers = [];
+        changed = true;
+      }
+
+      return changed ? updatedData : prev;
+    });
   }, [formData]);
+
 
   const handleInputChange = (field, value) => {
     setLocalFormData(prev => ({
       ...prev,
       [field]: value
     }));
-
-    // Update parent component's formData
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
+
+  // Handler for changes within a specific dynamic team member's fields (Team Member 2 onwards)
+  const handleDynamicTeamMemberInputChange = (id, fieldName, value) => {
+    setLocalFormData(prev => {
+      const updatedTeamMembers = prev.teamMembers.map(member =>
+        member.id === id ? { ...member, [fieldName]: value } : member
+      );
+      return { ...prev, teamMembers: updatedTeamMembers };
+    });
+    setFormData(prev => {
+      const updatedTeamMembers = (prev.teamMembers || []).map(member =>
+        member.id === id ? { ...member, [fieldName]: value } : member
+      );
+      return { ...prev, teamMembers: updatedTeamMembers };
+    });
+  };
+
+  // Function to add a new empty dynamic team member (Team Member 2 onwards)
+  const handleAddDynamicTeamMember = () => {
+    const MAX_TOTAL_TEAM_MEMBERS = 9; // Max number of total team members including Founder 1
+    // Number of currently added dynamic members = localFormData.teamMembers.length
+    // If we have Founder 1 (fixed), then total members currently = 1 + localFormData.teamMembers.length
+    if ((1 + localFormData.teamMembers.length) < MAX_TOTAL_TEAM_MEMBERS) {
+      const newMember = {
+        id: `new-${nextDynamicTeamMemberCounter}`, // Use a counter for unique IDs
+        fullName: '',
+        titleRole: '',
+        linkedinUrl: ''
+      };
+      setNextDynamicTeamMemberCounter(prev => prev + 1); // Increment for the next new member
+      setLocalFormData(prev => ({
+        ...prev,
+        teamMembers: [...prev.teamMembers, newMember]
+      }));
+      setFormData(prev => ({
+        ...prev,
+        teamMembers: [...(prev.teamMembers || []), newMember]
+      }));
+    } else {
+      toast.info(`You can have a maximum of ${MAX_TOTAL_TEAM_MEMBERS} team members.`);
+    }
+  };
+
+  // Function to remove a dynamic team member (from the dynamic list - Team Member 2 onwards)
+  const handleRemoveDynamicTeamMember = (id) => {
+    setLocalFormData(prev => {
+      const filteredMembers = prev.teamMembers.filter(member => member.id !== id);
+      return { ...prev, teamMembers: filteredMembers };
+    });
+    setFormData(prev => {
+      const filteredMembers = (prev.teamMembers || []).filter(member => member.id !== id);
+      return { ...prev, teamMembers: filteredMembers };
+    });
+  };
+
 
   const handleSectorToggle = (sector) => {
     const currentSectors = localFormData.businessSectors;
@@ -102,7 +181,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
       if (currentSectors.length < 3) {
         newSectors = [...currentSectors, sector];
       } else {
-        return; // Don't add more than 3
+        return;
       }
     }
     handleInputChange('businessSectors', newSectors);
@@ -118,19 +197,6 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
       newSources = [...currentSources, source];
     }
     handleInputChange('raisedFrom', newSources);
-  };
-
-  // Functions for adding/discarding second founder
-  const handleAddTeammate = () => {
-    setShowSecondFounder(true);
-  };
-
-  const handleDiscardFounder = () => {
-    setShowSecondFounder(false);
-    // Clear the data for the second founder when discarded
-    handleInputChange('founder2FullName', '');
-    handleInputChange('founder2TitleRole', '');
-    handleInputChange('founder2LinkedinProfileURL', '');
   };
 
 
@@ -151,7 +217,6 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
       console.log("Form Completed:", localFormData);
 
       try {
-        // Get token from localStorage
         const token = localStorage.getItem('authToken') || localStorage.getItem('token');
         console.log('BasicForm - Token:', token ? 'Token exists' : 'No token found');
 
@@ -160,7 +225,6 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
           return;
         }
 
-        // Make API call to save upgrade deck data
         const response = await axios.post(
           `${API_KEY}/api/upgrade-deck`,
           localFormData,
@@ -173,15 +237,10 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
         );
 
         if (response.data.success) {
-          // Update reachLink with the one returned from API
           if (response.data.data.reachLink) {
             setReachLink(response.data.data.reachLink);
           }
-
-          // Show success toast
           toast.success('Upgrade deck data saved successfully!');
-
-          // Open the LinkLiveModal
           setIsLinkLiveModalOpen(true);
         } else {
           toast.error('Failed to save upgrade deck data');
@@ -199,68 +258,68 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
 
   const handleLinkLiveModalClose = () => {
     setIsLinkLiveModalOpen(false);
-    onClose(); // Close the BasicInfoForm as well when the link live modal is closed
+    onClose();
   };
 
-  // Function to handle editing the reachLink
   const handleEditReachLink = () => {
     setIsLinkLiveModalOpen(false);
-    // Keep the form open for editing
   };
 
   // Helper function to render common input styles (for non-currency inputs)
-  const renderInput = (type, field, placeholder, label) => (
+  // This helper now explicitly uses 'value' and 'onChangeHandler' parameters
+  const renderInput = (type, field, placeholder, label, onChangeHandler = handleInputChange, value = undefined) => (
     <div>
       <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
         {label}
       </label>
       <input
         type={type}
-        id={field} // Added id for accessibility
-        value={localFormData[field] || ''} // Ensure value is never undefined
-        onChange={(e) => handleInputChange(field, e.target.value)}
+        id={field}
+        value={value !== undefined ? value : (localFormData[field] || '')}
+        onChange={(e) => onChangeHandler(field, e.target.value)}
         className="w-full h-9 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal"
         placeholder={placeholder}
       />
     </div>
   );
 
-  // NEW HELPER FUNCTION for currency inputs with focus styling
+  // Helper function for currency inputs with focus styling
   const renderCurrencyInput = (field, label, placeholder = "") => (
-  <div>
-    <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
-      {label}
-    </label>
-    <div className="relative">
-      <span
-        className={`absolute left-3 top-1/2 -translate-y-1/2 font-['Inter'] ${
-          focusedInput === field ? 'text-white' : 'text-[#656565]'
-        }`}
-      >
-        $
-      </span>
-      <input
-        type="text" // Keep as text for custom formatting
-        id={field} // Add id for accessibility
-        value={
-          localFormData[field]
-            ? new Intl.NumberFormat('en-US').format(localFormData[field])
-            : ''
-        }
-        onChange={(e) => {
-          const rawValue = e.target.value.replace(/[^0-9]/g, '');
-          handleInputChange(field, rawValue === '' ? '' : Number(rawValue));
-        }}
-        onFocus={() => setFocusedInput(field)} // Set focused input
-        onBlur={() => setFocusedInput(null)} // Clear focused input
-        className={`w-full h-9 bg-white/11 outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs  placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs font-normal ${
-          focusedInput === field ? 'text-white' : 'text-[#bababa]' // Conditional text color for input
-        }`}
-        placeholder={placeholder}
-      />
+    <div>
+      <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
+        {label}
+      </label>
+      <div className="relative">
+        <span
+          className={`absolute left-3 top-1/2 -translate-y-1/2 font-['Inter'] ${
+            focusedInput === field ? 'text-white' : 'text-[#656565]'
+          }`}
+        >
+          $
+        </span>
+        <input
+          type="text"
+          id={field}
+          value={
+            localFormData[field]
+              ? new Intl.NumberFormat('en-US').format(localFormData[field])
+              : ''
+          }
+          onChange={(e) => {
+            const rawValue = e.target.value.replace(/[^0-9]/g, '');
+            handleInputChange(field, rawValue === '' ? '' : Number(rawValue));
+          }}
+          onFocus={() => setFocusedInput(field)}
+          onBlur={() => setFocusedInput(null)}
+          className={`w-full h-9 bg-white/11 outline-none rounded-[0.125rem] pl-8 pr-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs font-normal ${
+            focusedInput === field ? 'text-white' : 'text-[#656565]'
+          }`}
+          placeholder={placeholder}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+
 
   // Helper function to render common textarea styles
   const renderTextarea = (field, placeholder, label, maxLength) => (
@@ -269,8 +328,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
         {label}
       </label>
       <textarea
-        id={field} // Added id for accessibility
-        value={localFormData[field] || ''} // Ensure value is never undefined
+        id={field}
+        value={localFormData[field] || ''}
         onChange={(e) => handleInputChange(field, e.target.value)}
         className="w-full h-52 bg-white/11 text-white outline-none rounded-[0.125rem] px-4 py-2 font-['Inter'] text-xs font-normal placeholder:text-[#656565] placeholder:font-['Inter'] placeholder:text-xs placeholder:font-normal resize-none"
         placeholder={placeholder}
@@ -595,44 +654,75 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                   )}
                   
                   {currentView === "team" && (
-          <div className="space-y-6">
-            <p className="block text-white font-['Inter'] text-base font-medium mb-4">
-              Edit the CEO info in the Profile section.
-            </p>
+            <div className="space-y-6">
+              <p className="text-[#656565] font-['Inter'] text-base font-medium">
+                Edit the CEO info in the Profile section.
+              </p>
 
-            {/* First Founder Input Fields (Always visible) */}
-            <div className="grid grid-cols-2 gap-4">
-              {renderInput('text', 'founder1FullName', '', 'Full Name')}
-              {renderInput('text', 'founder1TitleRole', '', 'Title/Role')}
-            </div>
-            {renderInput('url', 'founder1LinkedinProfileURL', 'https://linkedin.com/in/yourname', "Linkedin Profile URL")}
-
-            {/* Second Founder Input Fields (Conditionally visible) */}
-            {showSecondFounder && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  {renderInput('text', 'founder2FullName', '', 'Full Name')}
-                  {renderInput('text', 'founder2TitleRole', '', 'Title/Role')}
+              {/* Fixed Team Member 1 (No remove button) */}
+              <div className="relative p-4 border border-white/10 rounded-lg space-y-4">
+                <h4 className="text-white text-sm font-medium mb-4">Founder</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                  {renderInput('text', 'founder1FullName', 'Full Name', 'Full Name')}
+                  {renderInput('text', 'founder1TitleRole', 'Title/Role', 'Title/Role')}
+                  <div className="col-span-2">
+                    {renderInput('url', 'founder1LinkedinProfileURL', 'https://linkedin.com/in/...', 'Linkedin Profile URL')}
+                  </div>
                 </div>
-                {renderInput('url', 'founder2LinkedinProfileURL', 'https://linkedin.com/in/yourname', "Linkedin Profile URL")}
-                <div className="flex justify-end mt-4"> {/* Added mt-4 for spacing */}
+              </div>
+
+              {/* Dynamically added Team Members (Team Member 2, 3, etc. onwards) */}
+              {localFormData.teamMembers.map((member, index) => (
+                <div key={member.id} className="relative p-4 border border-white/10 rounded-lg space-y-4">
+                  {/* index + 2 because Team Member 1 is fixed, and index is 0-based for dynamic array */}
+                  <h4 className="text-white text-sm font-medium mb-4">Founder {index + 2}</h4>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                    {renderInput('text', 'fullName', 'Full Name', 'Full Name',
+                      (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
+                      member.fullName)}
+                    {renderInput('text', 'titleRole', 'Title/Role', 'Title/Role',
+                      (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
+                      member.titleRole)}
+                    <div className="col-span-2">
+                      {renderInput('url', 'linkedinUrl', 'https://linkedin.com/in/...', 'Linkedin Profile URL',
+                        (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
+                        member.linkedinUrl)}
+                    </div>
+                  </div>
                   <button
-                    onClick={handleDiscardFounder}
-                    className="px-4 py-2 bg-red-700/50 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-red-700 transition-colors"
+                    onClick={() => handleRemoveDynamicTeamMember(member.id)}
+                    className="absolute top-2 right-2 text-[#DC2626] text-xs font-medium hover:text-[#B91C1C] transition-colors"
                   >
-                    DISCARD FOUNDER
+                    REMOVE
                   </button>
                 </div>
-              </>
-            )}
+              ))}
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-4 mt-6"> {/* Added mt-6 for spacing */}
-              {!showSecondFounder && ( // Only show "Add another teammate" if second founder is not shown
-                <button
-                  onClick={handleAddTeammate}
-                  className="w-full h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
-                >
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                {/* "Add another teammate" button - considers max 9 total members (1 fixed + 8 dynamic) */}
+                {(1 + localFormData.teamMembers.length) < 9 && (
+                  <button
+                    onClick={handleAddDynamicTeamMember}
+                    className="w-full h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add another teammate
+                  </button>
+                )}
+                {/* "Add a note about your team" button */}
+                <button className={`h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2 ${
+                  (1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : '' // Make full width if no "add teammate" button
+                }`}>
                   <svg
                     className="h-4 w-4"
                     fill="none"
@@ -643,30 +733,16 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => {}, formD
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
-                  Add another teammate
+                  Add a note about your team
                 </button>
-              )}
-              <button className={`${showSecondFounder ? 'col-span-2' : 'col-span-1'} h-9 bg-white/11 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal hover:bg-white/20 transition-colors flex items-center justify-center gap-2`}>
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Add a note about your team
-              </button>
-            </div>
+              </div>
 
-            {/* Where is HQ based? */}
-            <div className="mt-6"> {/* Added mt-6 for spacing */}
-              {renderInput('text', 'hqLocation', 'Location...', 'Where is HQ based?')}
+              {/* Where is HQ based? */}
+              <div className="mt-6">
+                {renderInput('text', 'hqLocation', 'Location...', 'Where is HQ based?')}
+              </div>
             </div>
-          </div>
-        )}
+          )}
                   {currentView === "company" && (
                     <div className="space-y-6">
                       {renderTextarea('companyDescription', 'Write here...', "Describe down here", 250)}
