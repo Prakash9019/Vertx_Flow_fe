@@ -418,7 +418,7 @@ function FundraisingManagePage() {
             </div>
           )}
           {activeTab === "Target" && <Target onListSelect={setIsTargetListSelected} />}
-       
+          {activeTab==="Find"&&<FindInvestors/>}
           {activeTab === "Reach" && <Reach />}
         </div>
       </div>

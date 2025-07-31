@@ -104,13 +104,16 @@ const ReachLinkPreview = () => {
               <h1 className="text-xl md:text-2xl font-bold mb-1">{data?.companyName || 'Loading...'}</h1>
               <p className="text-sm md:text-base text-gray-400 mb-2">Founded on {data?.founded || 'N/A'}</p>
               <div className="flex justify-center space-x-2 text-sm md:text-base">
-                <a href={data?.companyWebsite} className="text-blue-400 hover:underline" target="_blank" rel="noreferrer">
-                  Website
-                </a>
-                <a href={data?.linkedinUrl} className="text-blue-400 hover:underline" target="_blank" rel="noreferrer">
-                  LinkedIn
-                </a>
-
+                {data?.companyWebsite && (
+                  <a href={data.companyWebsite} className="text-blue-400 hover:underline" target="_blank" rel="noreferrer">
+                    Website
+                  </a>
+                )}
+                {data?.linkedinUrl && (
+                  <a href={data.linkedinUrl} className="text-blue-400 hover:underline" target="_blank" rel="noreferrer">
+                    LinkedIn
+                  </a>
+                )}
               </div>
             </div>
 
@@ -181,27 +184,38 @@ const ReachLinkPreview = () => {
             <div className="text-center mb-2">
               <h2 className="text-lg md:text-xl font-semibold uppercase tracking-wider text-gray-400 mb-2">Team</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Team Member 1 */}
-                <div>
-                  <p className="text-lg md:text-xl font-bold">{data?.founder1FullName}</p>
-                  <p className="text-base md:text-lg text-gray-300 mb-2">{data?.founder1TitleRole}</p>
-                  <a href={data?.founder1LinkedinProfileURL} className="text-blue-400 hover:underline text-sm md:text-base">LinkedIn</a>
-
-                </div>
-                {/* Team Member 2 */}
-                <div>
-                  <p className="text-lg md:text-xl font-bold">{data?.founder2FullName}</p>
-                  <p className="text-base md:text-lg text-gray-300 mb-2">{data?.founder2TitleRole}</p>
-                  <a href={data?.founder2LinkedinProfileURL} className="text-blue-400 hover:underline text-sm md:text-base">LinkedIn</a>
-
-                </div>
-                {/* Team Member 3 */}
-                <div>
-                  <p className="text-lg md:text-xl font-bold">{data?.founder3FullName}</p>
-                  <p className="text-base md:text-lg text-gray-300 mb-2">{data?.founder3TitleRole}</p>
-                  <a href={data?.founder3LinkedinProfileURL} className="text-blue-400 hover:underline text-sm md:text-base">LinkedIn</a>
-
-                </div>
+                {/* Founder from Profile Section */}
+                {data?.founderName && (
+                  <div>
+                    <p className="text-lg md:text-xl font-bold">{data.founderName}</p>
+                    <p className="text-base md:text-lg text-gray-300 mb-2">CEO / Founder</p>
+                    {data?.founderLinkedinUrl && (
+                      <a href={data.founderLinkedinUrl} className="text-blue-400 hover:underline text-sm md:text-base" target="_blank" rel="noreferrer">LinkedIn</a>
+                    )}
+                  </div>
+                )}
+                
+                {/* Team Member 1 from Team Section */}
+                {data?.founder1FullName && (
+                  <div>
+                    <p className="text-lg md:text-xl font-bold">{data.founder1FullName}</p>
+                    <p className="text-base md:text-lg text-gray-300 mb-2">{data.founder1TitleRole}</p>
+                    {data?.founder1LinkedinProfileURL && (
+                      <a href={data.founder1LinkedinProfileURL} className="text-blue-400 hover:underline text-sm md:text-base" target="_blank" rel="noreferrer">LinkedIn</a>
+                    )}
+                  </div>
+                )}
+                
+                {/* Dynamic Team Members */}
+                {data?.teamMembers?.map((member, index) => (
+                  <div key={member.id || index}>
+                    <p className="text-lg md:text-xl font-bold">{member.fullName}</p>
+                    <p className="text-base md:text-lg text-gray-300 mb-2">{member.titleRole}</p>
+                    {member.linkedinUrl && (
+                      <a href={member.linkedinUrl} className="text-blue-400 hover:underline text-sm md:text-base" target="_blank" rel="noreferrer">LinkedIn</a>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -211,9 +225,7 @@ const ReachLinkPreview = () => {
           <div className="p-4 max-w-7xl h-[71vh] font-[inter] text-center text-gray-300 flex flex-col justify-center items-center bg-black  md:p-8 rounded-lg shadow-xl  mx-auto">
             <h2 className="text-3xl md:text-4xl font-serif italic mb-8">Market Opportunity</h2>
             <p className="text-xl md:text-2xl leading-relaxed max-w-2xl">
-              There's a growing market opportunity in hyperlocal pet wellness combining doorstep
-              vet care, organic pet food delivery, and real-time health tracking. Gen Z pet parents are
-              driving the demand.
+              {data?.marketOpportunity || 'No market opportunity information provided.'}
             </p>
           </div>
         );
