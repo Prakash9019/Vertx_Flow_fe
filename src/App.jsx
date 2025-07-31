@@ -78,7 +78,7 @@ function App() {
     // { path: "/fundraising", element: <FundraisingPage /> },
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
-    {path:"/fundraising/reach", element: <Reach /> },
+    {path:"/fundraising/reach", element: <FundraisingManagePage /> },
     {path:"/fundraising/reach-link", element: <CompaniesReachLink /> },
     {path:"/fundraising/preview", element: <ReachLinkPreview /> },
     
