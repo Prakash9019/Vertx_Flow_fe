@@ -15,6 +15,7 @@ const ReachLinkPreview = () => {
   const slug = searchParams.get('slug');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) {
@@ -25,13 +26,21 @@ const ReachLinkPreview = () => {
     fetch(`http://localhost:5000/api/upgrade-deck/reach/${slug}`)
       .then((res) => res.json())
       .then((res) => {
+        console.log('API Response:', res); // Debug log
         if (res.success) {
+          console.log('Data received:', res.data); // Debug log
           setData(res.data);
         } else {
           setError(res.message || 'Invalid reach link');
         }
       })
-      .catch(() => setError('Failed to fetch reach profile'));
+      .catch((err) => {
+        console.error('Fetch error:', err); // Debug log
+        setError('Failed to fetch reach profile');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug]);
 
 
@@ -46,23 +55,23 @@ const ReachLinkPreview = () => {
     'https://placehold.co/1200x675/3a4b2f/e2e8f0?text=Deck+Slide+3',
   ];
 
-  // Dummy content for NOTES slider (you can replace with actual text/components)
+  // Dynamic content for NOTES slider based on actual data
   const notesSlides = [
     {
       title: 'Market Opportunity',
-      text: "There's a growing market opportunity in hyperlocal pet wellness combining doorstep vet care, organic pet food delivery, and real-time health tracking. Gen Z pet parents are driving the demand."
+      text: data?.marketOpportunity || "Market opportunity information will be displayed here once provided in the basic form."
     },
     {
-      title: 'Buisness Model',
-      text: "We offer unparalleled efficiency and data-driven insights to businesses, while providing seamless, personalized services to end-users. Our integrated suite reduces operational overhead and enhances user experience."
+      title: 'Business Model',
+      text: data?.businessModel || "Business model information will be displayed here once provided in the basic form."
     },
     {
       title: 'Potential Metrics',
-      text: "We track key user engagement metrics, including Monthly Active Users (MAU), session duration, and feature adoption rates. Our goal is to achieve a 40% month-over-month increase in MAU in the first year."
+      text: data?.tractionMetrics || "Traction metrics information will be displayed here once provided in the basic form."
     },
     {
       title: 'Company Description',
-      text: "Octartech Private Limited is an AI-powered fundraising suite for startups and investors. Our flagship product, VERTX AI, streamlines the entire fundraising process, from pitch deck creation to investor outreach and deal management, leveraging generative AI to provide a competitive edge in a crowded market."
+      text: data?.companyDescription || "Company description will be displayed here once provided in the basic form."
     },
   ];
 
@@ -149,73 +158,79 @@ const ReachLinkPreview = () => {
           <div style={{ fontFamily: "'Crimson Text', serif" }} className="bg-black w-7xl h-[71vh] p-6 md:p-12 rounded-lg shadow-xl text-gray-200 mx-auto overflow-hidden">
             {/* Company Name and Links */}
             <div className="text-center mb-4">
-              <h1 className="text-xl md:text-2xl font-semibold mb-1">OCTARTECH PRIVATE LIMITED</h1>
-              <p className="text-xl md:text-2xl text-white mb-2"> <span className=' italic'>Founded on</span> <span className='font-semibold'>JULY 2025</span></p>
+              <h1 className="text-xl md:text-2xl font-semibold mb-1">{data?.companyName?.toUpperCase() || 'COMPANY NAME'}</h1>
+              <p className="text-xl md:text-2xl text-white mb-2"> <span className=' italic'>Founded on</span> <span className='font-semibold'>{data?.founded ? new Date(data.founded).getFullYear() : 'YEAR'}</span></p>
               <div className="flex absolute top-41.5 right-120 opacity-80 justify-center space-x-2 text-[10px] uppercase">
-                <a href="#" className="text-gray-300">Website</a>
+                <a href={data?.companyWebsite || '#'} className="text-gray-300">Website</a>
                 <span className="text-gray-500">|</span>
-                <a href="#" className="text-gray-300">LinkedIn</a>
+                <a href={data?.linkedinUrl || '#'} className="text-gray-300">LinkedIn</a>
               </div>
             </div>
             <div className='border-[0.5px] justify-center mx-auto w-[100px] mb-6 border-white'/>
             {/* Product Section */}
             <div className="mb-6 text-center">
               <h2 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Product</h2>
-              <p className="text-[16px] font-semibold">VERTX AI</p>
+              <p className="text-[16px] font-semibold">{data?.companyName || 'PRODUCT NAME'}</p>
             </div>
 
             {/* Description Section */}
             <div className="mb-8 text-center">
               <h2 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Description</h2>
-              <p className="text-[16px] font-semibold">End to end AI Fundraising Suite</p>
+              <p className="text-[16px] font-semibold">{data?.companyDescription || 'Company Description'}</p>
             </div>
 
             {/* Details Table Section (Sectors, Stage, Category, Model, HQ) */}
             <div className="flex justify-around gap-y-3 gap-x-2 mb-10 mx-auto items-center max-w-2xl text-center">
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Sectors</h3>
-                <p className="text-[16px] font-semibold">AI, Generative Tech/AI, FinTech</p>
+                <p className="text-[16px] font-semibold">{data?.businessSectors?.join(', ') || 'Sectors'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Stage</h3>
-                <p className="text-[16px] font-semibold">Pre-Revenue</p>
+                <p className="text-[16px] font-semibold">{data?.companyStage || 'Stage'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Category</h3>
-                <p className="text-[16px] font-semibold">B2B, B2C, B2B2C</p>
+                <p className="text-[16px] font-semibold">{data?.businessCategory || 'Category'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Model</h3>
-                <p className="text-[16px] font-semibold">SaaS</p>
+                <p className="text-[16px] font-semibold">{data?.raisedFrom?.join(', ') || 'Model'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">HQ</h3>
-                <p className="text-[16px] font-semibold">India</p>
+                <p className="text-[16px] font-semibold">{data?.hqLocation || 'Location'}</p>
               </div>
             </div>
 
             {/* Team Section */}
             <div className="text-center mb-2">
               <h2 className="text-[16px] flex justify-center mx-auto font-semibold uppercase underline tracking-wider text-white/50 mb-2">Team</h2>
-              <div className="grid grid-cols-3 gap-2 text-white mx-auto max-w-sm"> {/* Used grid-cols-3 and gap */}
-                {/* Team Member 1 */}
-                <div className="flex flex-col items-center"> {/* Keep flex flex-col items-center for vertical centering within each grid cell */}
-                  <p className="text-xs font-semibold">Praneeth Kumar</p>
-                  <p className="text-xs font-semibold mb-1">CEO</p>
-                  <a href="#" className="text-[10px] uppercase">LinkedIn</a>
-                </div>
-                {/* Team Member 2 */}
-                <div className="flex flex-col items-center">
-                  <p className="text-xs font-semibold">Surya Prakash</p>
-                  <p className="text-xs font-semibold mb-1">CTO</p>
-                  <a href="#" className="text-[10px] uppercase">LinkedIn</a>
-                </div>
-                {/* Team Member 3 */}
-                <div className="flex flex-col items-center">
-                  <p className="text-xs font-semibold">Tharan PS</p>
-                  <p className="text-xs font-semibold mb-1">CMO</p>
-                  <a href="#" className="text-[10px] uppercase">LinkedIn</a>
-                </div>
+              <div className="grid grid-cols-3 gap-2 text-white mx-auto max-w-sm">
+                {/* CEO/Founder from Profile */}
+                {data?.founderName && (
+                  <div className="flex flex-col items-center">
+                    <p className="text-xs font-semibold">{data.founderName}</p>
+                    <p className="text-xs font-semibold mb-1">CEO</p>
+                    <a href={data?.founderLinkedinUrl || '#'} className="text-[10px] uppercase">LinkedIn</a>
+                  </div>
+                )}
+                {/* First Team Member */}
+                {data?.founder1FullName && (
+                  <div className="flex flex-col items-center">
+                    <p className="text-xs font-semibold">{data.founder1FullName}</p>
+                    <p className="text-xs font-semibold mb-1">{data.founder1TitleRole || 'Role'}</p>
+                    <a href={data?.founder1LinkedinProfileURL || '#'} className="text-[10px] uppercase">LinkedIn</a>
+                  </div>
+                )}
+                {/* Additional Team Members */}
+                {data?.teamMembers?.slice(0, 2).map((member, index) => (
+                  <div key={index} className="flex flex-col items-center">
+                    <p className="text-xs font-semibold">{member.fullName}</p>
+                    <p className="text-xs font-semibold mb-1">{member.titleRole || 'Role'}</p>
+                    <a href={member.linkedinUrl || '#'} className="text-[10px] uppercase">LinkedIn</a>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -311,6 +326,24 @@ const ReachLinkPreview = () => {
         return null;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="h-full inset-0 bg-cover bg-center text-white font-inter flex flex-col items-center justify-center relative"
+        style={{ backgroundImage: `url(${BG})`, fontFamily: "'Crimson Text', serif" }}>
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full inset-0 bg-cover bg-center text-white font-inter flex flex-col items-center justify-center relative"
+        style={{ backgroundImage: `url(${BG})`, fontFamily: "'Crimson Text', serif" }}>
+        <div className="text-red-400 text-xl">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full inset-0 bg-cover bg-center text-white font-inter flex flex-col items-center justify-between relative overflow-scroll"
