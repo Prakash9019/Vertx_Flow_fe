@@ -85,91 +85,83 @@ const Reach = () => {
   }, [profileData?.id]);
 
   const openFilePicker = () => fileRef.current?.click();
-
   const handleFileSelect = async (e) => {
     try {
       const file = e.target.files[0];
       if (!file) return;
-
-      const allowedTypes = [
-        'application/pdf',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-      ];
-
+  
       if (!allowedTypes.includes(file.type) || file.size > 10 * 1024 * 1024) {
         setUploadError('Invalid file. Only PDF/PPT/PPTX up to 10 MB allowed.');
         return;
       }
-
+  
       setUploadError('');
-      setDeck(file);
+      if(deckUrl) URL.revokeObjectURL(deckUrl); // revoke old blob URL if any
+      
+      // Show local preview while uploading
       setDeckUrl(URL.createObjectURL(file));
-
+      setDeck({ name: file.name, type: file.type, url: URL.createObjectURL(file) });
+  
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
+      if (!token) throw new Error('No authentication token found');
+  
       const formData = new FormData();
       formData.append('file', file);
-
+  
       const uploadResponse = await fetch(`${API_KEY}/api/files/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-          // Remove Content-Type header to let browser set it with boundary
-        },
-        body: formData
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
       });
-
+  
       if (!uploadResponse.ok) {
         const errorData = await uploadResponse.json();
         throw new Error(errorData.error || 'File upload failed');
       }
-
+  
       const uploadResult = await uploadResponse.json();
-
+  
       if (!uploadResult.success) {
         throw new Error(uploadResult.error || 'File upload failed');
       }
-
-      // Update deck info with the file URL from the server
+  
+      // Use remote URL from server now
+      setDeckUrl(uploadResult.file.fileUrl);
+      setDeck({ name: file.name, type: file.type, url: uploadResult.file.fileUrl });
+  
+      // Update backend deck info
       const upgradeDeckData = {
         deckFileName: file.name,
-        deckUrl: uploadResult.file.fileUrl
+        deckUrl: uploadResult.file.fileUrl,
       };
-
+  
       const response = await fetch(`${API_KEY}/api/upgrade-deck`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(upgradeDeckData)
+        body: JSON.stringify(upgradeDeckData),
       });
-
+  
       const data = await response.json();
-
+  
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Error updating deck information');
       }
-
+  
       setFormData(data.data);
-      if (data.data.reachLink) {
-        setHasReachlink(true);
-      }
-
+      if (data.data.reachLink) setHasReachlink(true);
+  
     } catch (error) {
       console.error('Error in file upload process:', error);
-      setUploadError(error.message || 'Failed to upload file. Please try again.');
+      setUploadError(error.message || 'Failed to upload file.');
       setDeck(null);
-      if (deckUrl) {
-        URL.revokeObjectURL(deckUrl);
-        setDeckUrl('');
-      }
+      if (deckUrl) URL.revokeObjectURL(deckUrl);
+      setDeckUrl('');
     }
   };
+  
 
   const removeDeck = async () => {
     if (deckUrl) {

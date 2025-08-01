@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import BG from '../../assets/IntroBG85.jpg';
 import upperBG from '../../assets/IntroBGx22.jpg';
 import logo from '../../assets/logo.svg';
