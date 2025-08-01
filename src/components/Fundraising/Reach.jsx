@@ -115,11 +115,23 @@ const Reach = () => {
       });
   
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error || 'File upload failed');
+        let errorMessage;
+        try {
+          const errorData = await uploadResponse.json();
+          errorMessage = errorData.error || errorData.message || 'File upload failed';
+        } catch (parseError) {
+          // If we can't parse JSON, it might be an HTML error page
+          errorMessage = `Server error (${uploadResponse.status}): Unable to parse response`;
+        }
+        throw new Error(errorMessage);
       }
   
-      const uploadResult = await uploadResponse.json();
+      let uploadResult;
+      try {
+        uploadResult = await uploadResponse.json();
+      } catch (parseError) {
+        throw new Error('Server returned invalid JSON response');
+      }
   
       if (!uploadResult.success) {
         throw new Error(uploadResult.error || 'File upload failed');
