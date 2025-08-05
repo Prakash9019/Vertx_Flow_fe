@@ -276,8 +276,8 @@ const ReachLinkPreview = () => {
           <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-8 w-7xl bg-black/55 mx-auto h-[71vh] text-center text-gray-300">
             {!submitted ? (
               <>
-                <h2 className="text-3xl md:text-4xl font-normal mb-15">Score This Startup</h2>
-                <div className="flex flex-col items-center mb-8">
+                <h2 style={{ fontFamily: "'Crimson Text', serif" }} className="text-3xl md:text-4xl font-normal mb-15">Score This Startup</h2>
+                <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col items-center mb-8">
                   <input
                     type="range"
                     min={minScore}

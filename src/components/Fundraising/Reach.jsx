@@ -9,7 +9,7 @@ import Image from "./img.jpg"
 import ReachImage from "../../assets/Rectangle 119.png"; 
 
 const Reach = () => {
-  const { profileData } = useStartupProfile();
+  const { user_id,profileData  } = useStartupProfile();
 
   const [activeTab, setActiveTab] = useState("Reach Link");
   const [activeSubTab, setActiveSubTab] = useState("Link");
@@ -108,16 +108,16 @@ const Reach = () => {
       const formData = new FormData();
       formData.append('file', file);
   
-      const uploadResponse = await fetch(`${API_KEY}/api/files/upload`, {
+      const uploadResponse = await fetch(`${API_KEY}/api/files/upload?userId=${user_id}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
-  
+     console.log(uploadResponse);
       if (!uploadResponse.ok) {
         let errorMessage;
         try {
-          const errorData = await uploadResponse.json();
+        const errorData = await uploadResponse.json();
           errorMessage = errorData.error || errorData.message || 'File upload failed';
         } catch (parseError) {
           // If we can't parse JSON, it might be an HTML error page
