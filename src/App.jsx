@@ -55,6 +55,7 @@ import CreateREportPage, { CreatePersonaPage, PersonaSelectionPage } from "./com
 import GettingStarted from "./components/GettingStarted.jsx";
 import CompaniesReachLink from "./components/Fundraising/CompaniesReachLink.jsx";
 import ReachLinkPreview from "./components/Fundraising/ReachLinkPreview.jsx";
+import ReachRedirect from "./components/ReachRedirect.jsx";
 
 
 
@@ -80,7 +81,7 @@ function App() {
     {path:"/payment", element: <Payment_Page /> },
     {path:"/fundraising/reach", element: <FundraisingManagePage /> },
     {path:"/fundraising/reach-link", element: <CompaniesReachLink /> },
-    {path:"/fundraising/preview", element: <ReachLinkPreview /> },
+
     
      { path:"/flow/outbound", element:<GenerateEmail />},
     { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising", element:<FundraisingManagePage /> },
@@ -104,15 +105,21 @@ function App() {
       <div className="relative h-screen overflow-hidden">
         <ToastContainer position="top-right" autoClose={5000} />
         {/* Consider CSS for global scroll if needed */}
-        <Routes>        {/* <Route path="/" element={<Login_Page />} /> */}
-          {/* <Route path="/" element={<FundraisingPage />} /> */}
+        <Routes>
           <Route path="/" element={<Login_Page />} />
           <Route path="/login" element={<Login_Page />} />
           
+          {/* Public reach redirect route */}
+          <Route path="/reach/:slug" element={<ReachRedirect />} />
+          
+          {/* Public preview route */}
+          <Route path="/fundraising/preview" element={<ReachLinkPreview />} />
           
           {/* Auth routes */}
           <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-          <Route path="/auth-error" element={<AuthError />} />        {protectedRoutes.map(({ path, element }) => (
+          <Route path="/auth-error" element={<AuthError />} />
+          
+          {protectedRoutes.map(({ path, element }) => (
             <Route
               key={path}
               path={path}
