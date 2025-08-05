@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import BG from '../../assets/IntroBG85.jpg';
 import upperBG from '../../assets/IntroBGx22.jpg';
 import logo from '../../assets/logo.svg';
-
+import API_KEY from '../../../key';
 
 const ReachLinkPreview = () => {
   // Define the order of global tabs
@@ -23,7 +23,7 @@ const ReachLinkPreview = () => {
       return;
     }
 
-    fetch(`http://localhost:5000/api/upgrade-deck/reach/${slug}`)
+    fetch(`${API_KEY}/api/upgrade-deck/reach/${slug}`)
       .then((res) => res.json())
       .then((res) => {
         console.log('API Response:', res); // Debug log
