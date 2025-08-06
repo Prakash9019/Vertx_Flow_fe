@@ -56,6 +56,7 @@ import GettingStarted from "./components/GettingStarted.jsx";
 import CompaniesReachLink from "./components/Fundraising/CompaniesReachLink.jsx";
 import ReachLinkPreview from "./components/Fundraising/ReachLinkPreview.jsx";
 import ReachRedirect from "./components/ReachRedirect.jsx";
+import Flash from "./components/Flash.jsx";
 
 
 
@@ -72,7 +73,7 @@ function App() {
     { path: "/usage", element: <Usage_Page /> }, // Next page after profile
     { path: "/addfounder", element: <AddCofounder_Page /> },
     { path: "/homepage", element: <HomePage /> },
-    { path: "/flash", element: <HomePage /> },
+    { path: "/flash", element: <Flash /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/gettingStarted", element: <GettingStarted /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },

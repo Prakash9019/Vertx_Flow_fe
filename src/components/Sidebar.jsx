@@ -245,8 +245,9 @@ const Sidebar = () => {
           {/* Features with icons */}
           <nav className="py-2">
             <ul>
-              <li className={`px-4 py-2 flex items-center hover:bg-[#0F0E16] cursor-pointer`}>
-               <img
+            <li 
+              onClick={() => { navigate("/flash") }}
+               className={`px-4 py-2 flex ${isFlash ? 'bg-[#0F0E16]' : ''} items-center hover:bg-[#0F0E16] cursor-pointer`}>               <img
                   src={flash}
                   alt="Flash"
                   className="mr-3"
@@ -272,59 +273,59 @@ const Sidebar = () => {
               </li>
 
               <li>
-  <div
-    className={`px-4 py-2 flex items-center relative group ${
-      isFundraisingActive ? 'bg-[#0F0E16]' : ''
-    } hover:bg-[#0F0E16] cursor-pointer`}
-    onClick={() => navigate("/fundraising/manage")}
-  >
-    <img
-      src={FundraseLogo}
-      alt="Fundraising"
-      className="mr-3"
-      style={{
-        width: '1.625rem',
-        height: '1.625rem',
-        borderRadius: '1.625rem'
-      }}
-    />
-    <span
-      className={`${collapsed ? 'hidden' : 'block'} font-medium text-sm ${
-        isFundraisingActive ? 'text-white' : 'text-[#B8B8B8]'
-      }`}
-    >
-      Fundraising
-    </span>
+              <div
+                className={`px-4 py-2 flex items-center relative group ${
+                  isFundraisingActive ? 'bg-[#0F0E16]' : ''
+                } hover:bg-[#0F0E16] cursor-pointer`}
+                onClick={() => navigate("/fundraising/manage")}
+              >
+                <img
+                  src={FundraseLogo}
+                  alt="Fundraising"
+                  className="mr-3"
+                  style={{
+                    width: '1.625rem',
+                    height: '1.625rem',
+                    borderRadius: '1.625rem'
+                  }}
+                />
+                <span
+                  className={`${collapsed ? 'hidden' : 'block'} font-medium text-sm ${
+                    isFundraisingActive ? 'text-white' : 'text-[#B8B8B8]'
+                  }`}
+                >
+                  Fundraising
+                </span>
 
-    {/* Show SVG only on hover or if active */}
-    <div
-      className={`ml-auto transition-opacity ${
-        collapsed ? 'hidden' : 'block'
-      } ${isFundraisingActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-      onClick={e => {
-        handleFundraisingToggle();
-      }}
-    >
-      <svg
-        width="5"
-        height="9"
-        viewBox="0 0 5 9"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={`transform transition-transform ${
-          fundraisingExpanded ? 'rotate-90' : ''
-        }`}
-        style={{ width: '0.3125rem', height: '0.5625rem' }}
-      >
-        <path
-          d="M1 1L4 4.5L1 8"
-          stroke="#B8B8B8"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
+                {/* Show SVG only on hover or if active */}
+                <div
+                  className={`ml-auto transition-opacity ${
+                    collapsed ? 'hidden' : 'block'
+                  } ${isFundraisingActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                  onClick={e => {
+                    handleFundraisingToggle();
+                  }}
+                >
+                  <svg
+                    width="5"
+                    height="9"
+                    viewBox="0 0 5 9"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`transform transition-transform ${
+                      fundraisingExpanded ? 'rotate-90' : ''
+                    }`}
+                    style={{ width: '0.3125rem', height: '0.5625rem' }}
+                  >
+                    <path
+                      d="M1 1L4 4.5L1 8"
+                      stroke="#B8B8B8"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
                 </div>
 
                 {/* Fundraising submenu */}
@@ -463,7 +464,7 @@ const Sidebar = () => {
         {/* Home */}
         <div
           className={`flex hover:cursor-pointer flex-col items-center hover:scale-130 ${isHome ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
-          onClick={() => handleNavigation("homepage")}
+          onClick={() => { navigate("/homepage") }}
         >
           <NavIconFooter
             iconSrc={Home}
@@ -493,7 +494,7 @@ const Sidebar = () => {
         {/* Fundraising */}
         <div
           className={`flex hover:cursor-pointer flex-col items-center hover:scale-130  ${isFundraisingActive ? 'text-white font-bold scale-125' : 'scale-100 text-gray-400'}`}
-          onClick={() => handleNavigation("fundraising/raise")}
+          onClick={() => handleNavigation("fundraising/manage")}
         >
           <NavIconFooter
             iconSrc={FundraseLogo}
