@@ -49,8 +49,8 @@ const Flash = () => {
             </div>
     )}
     {clicked && (
-                <div className="min-h-screen bg-black text-white flex flex-col p-8 space-y-8">
-                <div className="flex justify-between items-center mb-8">
+                <div className="min-h-screen bg-black text-white flex flex-col p-2 lg:p-8 space-y-2 lg:space-y-8">
+                <div className="flex flex-col lg:flex-row justify-center lg:justify-between items-center mb-3 lg:mb-8 space-y-2 lg:space-y-0">
                 <div className=' flex gap-1'>
                     {!collapsed && 
                     (
@@ -73,12 +73,12 @@ const Flash = () => {
                     )
                 }
                 {collapsed && (
-                <div className='flex gap-2 font-medium font-[inter] min-w-90'>
+                <div className='flex gap-2 font-medium font-[inter] w-full lg:min-w-90'>
                 <button className="px-4 py-2 text-xl bg-[#232323AB] text-white rounded-md">
                         <BiDockRight className='' />
                     </button>
-                <button onClick={handleNCollapsed} className="flex items-center space-x-2 px-4 py-2 text-sm bg-[#232323AB] text-white rounded-md">
-                    <ArrowLeft />
+                <button onClick={handleNCollapsed} className="flex flex-row-reverse items-center space-x-2 gap-2 px-4 py-2 text-sm bg-[#232323AB] text-white rounded-md">
+                    <ArrowLeft className='rotate-180' />
                     <span>Back</span>
                 </button>
                 </div>
@@ -112,17 +112,17 @@ const Flash = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-start space-y-4 w-full max-w-2xl mx-auto">
+                <div className="flex flex-col items-start space-y-4 w-full max-w-sm md:max-w-2xl mx-auto">
                     <p className="text-gray-400 text-sm font-medium font-[inter] ">Try these...</p>
                     <div className="flex space-x-8">
                     <div className="flex flex-col items-center space-y-2">
-                        <div className="w-80 h-40  rounded-md overflow-hidden">
+                        <div className="w-40 md:w-80 md:h-40 h-30 rounded-md overflow-hidden">
                         <img src={U1} alt="Create from Scratch" className="object-cover brightness-50 w-full h-full" />
                         </div>
                         <p className='text-xs font-medium font-[inter]'>Create from Scratch</p>
                     </div>
                     <div className="flex flex-col items-center space-y-2">
-                        <div className="w-80 h-40 rounded-md overflow-hidden">
+                        <div className="w-40 md:w-80 md:h-40 h-30 rounded-md overflow-hidden">
                         <img src={U2} alt="Checkout Templates" className="object-cover brightness-50 w-full h-full" />
                         </div>
                         <p className='text-xs font-medium font-[inter]'>Checkout Templates</p>
@@ -130,16 +130,16 @@ const Flash = () => {
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center mt-6 w-full max-w-2xl mx-auto p-4 bg-[#232323]/67 rounded-md">
-                    <div className="flex space-x-4">
-                    <select className="bg-[#232323]/67 text-white px-4 py-2 rounded-md focus:outline-none">
-                        <option className='text-xs font-medium font-[inter]'>No. of Slides</option>
+                <div className="flex justify-between items-center mt-0 sm:mt-6 w-full max-w-sm sm:max-w-2xl mx-auto p-4 bg-[#232323]/67 gap-5 rounded-md">
+                    <div className="flex space-x-1 sm:space-x-4">
+                    <select className="bg-[#232323]/67 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-md focus:outline-none">
+                        <option className='sm:text-xs text-[9px] font-medium font-[inter]'>No. of Slides</option>
                     </select>
-                    <select className="bg-[#232323]/67 text-white px-4 py-2 rounded-md focus:outline-none">
-                        <option className='text-xs font-medium font-[inter]'>Content Style</option>
+                    <select className="bg-[#232323]/67 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-md focus:outline-none">
+                        <option className='sm:text-xs text-[9px] font-[inter]'>Content Style</option>
                     </select>
                     </div>
-                    <button className="px-6 py-2 text-sm font-medium font-[inter] bg-white text-black rounded-md">Continue</button>
+                    <button className="px-2 py-1 sm:px-6 sm:py-2 sm:text-sm text-[11px] font-medium font-[inter] bg-white text-black rounded-md">Continue</button>
                 </div>
                 </div>
     )}
