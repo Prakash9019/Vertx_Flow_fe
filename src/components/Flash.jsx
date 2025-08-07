@@ -6,12 +6,14 @@ import { ArrowLeft } from 'lucide-react';
 import logo from '../assets/logo.svg';
 import U1 from '../assets/U1.jpg';
 import U2 from '../assets/U2.jpg';
+import { useNavigate } from 'react-router-dom';
 
 
 
 const Flash = () => {
   const [clicked, setClicked] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
   const handleClicked = () => {
     setClicked(true);
   };
@@ -60,12 +62,12 @@ const Flash = () => {
                     <button className="px-4 font-medium py-2 text-sm text-white rounded-md hover:bg-gray-700">New</button>
                     <button className="px-4 font-medium py-2 text-sm text-white rounded-md border-l border-gray-700 hover:bg-gray-700">History</button>
                     <button className="px-4 py-2 text-sm bg-[#A55EEB] rounded-md text-black font-bold border-l border-gray-700 hover:bg-[#B393DF]">EXIT</button>
-                    <button className="px-4 font-medium py-2 text-xl text-white border-l border-gray-700 rounded-md hover:bg-gray-700">
+                    <button onClick={handleCollapsed} className="px-4 font-medium py-2 text-xl text-white border-l border-gray-700 rounded-md hover:bg-gray-700">
                         <BiDockRight />
                     </button>
                 </div>
                    </div>
-                <button onClick={handleCollapsed} className="flex items-center space-x-2 font-medium font-[inter] px-4 py-2 text-sm bg-[#232323AB] text-white rounded-md">
+                <button onClick={() => setClicked(false)} className="flex items-center space-x-2 font-medium font-[inter] px-4 py-2 text-sm bg-[#232323AB] text-white rounded-md">
                     <ArrowLeft />
                     <span>Back</span>
                 </button>
@@ -74,11 +76,11 @@ const Flash = () => {
                 }
                 {collapsed && (
                 <div className='flex gap-2 font-medium font-[inter] w-full lg:min-w-90'>
-                <button className="px-4 py-2 text-xl bg-[#232323AB] text-white rounded-md">
+                <button  onClick={handleNCollapsed} className="px-4 py-2 text-xl bg-[#232323AB] text-white rounded-md">
                         <BiDockRight className='' />
                     </button>
-                <button onClick={handleNCollapsed} className="flex flex-row-reverse items-center space-x-2 gap-2 px-4 py-2 text-sm bg-[#232323AB] text-white rounded-md">
-                    <ArrowLeft className='rotate-180' />
+                <button onClick={() => setClicked(false)} className="flex items-center space-x-2 gap-2 px-4 py-2 text-sm bg-[#232323AB] text-white rounded-md">
+                    <ArrowLeft className='' />
                     <span>Back</span>
                 </button>
                 </div>
