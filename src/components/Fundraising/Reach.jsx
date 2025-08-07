@@ -262,8 +262,8 @@ const Reach = () => {
     if (hasReachlink && deck) { 
       return (
         <div className="flex flex-col items-center font-[inter] justify-center max-w-6xl w-full">
-        <div className="flex items-center justify-center mx-auto w-full lg:gap-12 xl:gap-16 md:gap-8 gap-4">
-          <div className="relative bg-neutral-900 rounded-lg overflow-hidden shadow-lg w-[480px] h-[280px]">
+        <div className="flex flex-col sm:flex-row items-center justify-center mx-auto w-full lg:gap-12 xl:gap-16 md:gap-8 gap-4">
+          <div className="relative bg-neutral-900 rounded-lg overflow-hidden shadow-lg w-[350px] sm:w-[480px] h-[280px]">
             {deck.type === 'application/pdf' ? (
               <iframe title="Deck preview" src={deckUrl} className="w-full h-full" />
             ) : deck.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ? (
@@ -300,7 +300,7 @@ const Reach = () => {
               </button>
             </div>
           </div>
-          <div className="flex flex-col gap-4 items-start">
+          <div className="flex flex-col pt-6 sm:pt-1 gap-4 items-start">
           <button
             className="h-12 px-6 bg-white min-w-[240px] text-black font-semibold rounded hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition"
             onClick={() => {
