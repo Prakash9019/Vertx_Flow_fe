@@ -47,6 +47,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
     navigate('/fundraising/reach-link');
   };
 
+const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
   const [localFormData, setLocalFormData] = useState({
     companyName: formData?.companyName || "",
@@ -93,7 +94,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
 
   const [focusedInput, setFocusedInput] = useState(null);
 
-  const [reachLink, setReachLink] = useState("https://re.hink.govrtx.com/reach/fguccyyyyfz");
+  const [reachLink, setReachLink] = useState("");
 
   // State for generating unique IDs for newly added dynamic team members
   const [nextDynamicTeamMemberCounter, setNextDynamicTeamMemberCounter] = useState(() => {
@@ -242,6 +243,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
 
 
   const handleBack = () => {
+
     const currentIndex = views.indexOf(currentView);
     if (currentIndex > 0) {
       setCurrentView(views[currentIndex - 1]);
@@ -251,47 +253,67 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
   };
 
   const handleNext = async () => {
-    const currentIndex = views.indexOf(currentView);
-    if (currentIndex < views.length - 1) {
-      setCurrentView(views[currentIndex + 1]);
-    } else {
-      console.log("Form Completed:", localFormData);
+  console.log("✅ handleNext called");
+  console.log("📌 currentView =", currentView);
 
-      try {
-        const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-        console.log('BasicForm - Token:', token ? 'Token exists' : 'No token found');
+  const currentIndex = views.indexOf(currentView);
+  console.log("📊 currentView index =", currentIndex);
+  console.log("📏 views.length =", views.length);
 
-        if (!token) {
-          toast.error('Please log in to continue');
-          return;
-        }
+  // Check if there is another view left
+  if (currentIndex < views.length - 1) {
+    const nextView = views[currentIndex + 1];
+    console.log("➡️ Moving to next view:", nextView);
+    setCurrentView(nextView);
+    return;
+  }
 
-        const response = await axios.post(
-          `${API_KEY}/api/upgrade-deck`,
-          localFormData,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
+  // Final step: currentView is "deck", now submit form
+  console.log("🚀 Final Step Reached: Submitting Form");
+  console.log("🧾 Form Data:", localFormData);
 
-        if (response.data.success) {
-          if (response.data.data.reachLink) {
-            setReachLink(response.data.data.reachLink);
-          }
-          toast.success('Upgrade deck data saved successfully!');
-          setIsLinkLiveModalOpen(true);
-        } else {
-          toast.error('Failed to save upgrade deck data');
-        }
-      } catch (error) {
-        console.error('Error saving upgrade deck data:', error);
-        toast.error(error.response?.data?.message || 'An error occurred while saving your data');
-      }
+  try {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    console.log('🔐 Token Check:', token ? 'Token exists' : 'No token found');
+
+    if (!token) {
+      toast.error('Please log in to continue');
+      return;
     }
-  };
+
+    const response = await axios.post(
+      `${API_KEY}/api/upgrade-deck`,
+      localFormData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    console.log("📦 Server Response:", response);
+
+    if (response.data.success) {
+      console.log("✅ Upgrade deck saved");
+
+      if (response.data.data?.reachLink) {
+        console.log("🌐 Received reachLink:", response.data.data.reachLink);
+        setReachLink(response.data.data.reachLink);
+        setIsTrue(true);
+      }
+
+      toast.success('Upgrade deck data saved successfully!');
+    } else {
+      console.warn("⚠️ Failed to save upgrade deck");
+      toast.error('Failed to save upgrade deck data');
+    }
+  } catch (error) {
+    console.error('❌ Error during submission:', error);
+    toast.error(error.response?.data?.message || 'An error occurred while saving your data');
+  }
+};
+
 
   const handleCancel = () => {
     onClose();
@@ -440,8 +462,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                     <div className="space-y-1">
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "basics"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("basics")}
                       >
@@ -449,8 +471,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "team"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("team")}
                       >
@@ -458,8 +480,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "company"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("company")}
                       >
@@ -467,8 +489,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "market"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("market")}
                       >
@@ -476,8 +498,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "business-model"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("business-model")}
                       >
@@ -485,8 +507,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "traction"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("traction")}
                       >
@@ -494,8 +516,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                       <div
                         className={`py-1 cursor-pointer transition-colors font-['Inter'] ${currentView === "fundraising"
-                            ? "text-white text-[16px]"
-                            : "text-gray-400 text-sm hover:text-white"
+                          ? "text-white text-[16px]"
+                          : "text-gray-400 text-sm hover:text-white"
                           }`}
                         onClick={() => setCurrentView("fundraising")}
                       >
@@ -584,8 +606,8 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                                 key={sector}
                                 onClick={() => handleSectorToggle(sector)}
                                 className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${localFormData.businessSectors.includes(sector)
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-white/11 text-white hover:bg-white/20'
+                                  ? 'bg-purple-600 text-white'
+                                  : 'bg-white/11 text-white hover:bg-white/20'
                                   }`}
                               >
                                 {sector}
@@ -852,81 +874,91 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </div>
                     )}
 
-                    {currentView === "deck" && (
-                      <div className="space-y-2 flex flex-col items-center justify-center h-full">
-                        <div className="relative w-full max-w-[480px] top-8 h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center">
-                          {localFormData.deckUrl ? (
-                            <iframe
-                              title="Pitch Deck Preview"
-                              src={localFormData.deckUrl}
-                              className="w-full h-full"
-                            />
-                          ) : (
-                            <div
-                              className="w-full h-full bg-cover bg-center flex items-center justify-center text-white"
-                              style={{ backgroundImage: `url(${BgImg})` }}
-                            >
-                              <div className="absolute inset-0 bg-black/20" />
-                              <span className="z-10">No deck uploaded</span>
-                            </div>
-                          )}
+                    {currentView === "deck" ? (
+                      <>
+                        {/* Deck Preview */}
+                        <div className="space-y-2 flex flex-col items-center justify-center h-full">
+                          <div className="relative w-full max-w-[480px] top-8 h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center">
+                            {localFormData.deckUrl ? (
+                              <iframe
+                                title="Pitch Deck Preview"
+                                src={localFormData.deckUrl}
+                                className="w-full h-full"
+                              />
+                            ) : (
+                              <div
+                                className="w-full h-full bg-cover bg-center flex items-center justify-center text-white"
+                                style={{ backgroundImage: `url(${BgImg})` }}
+                              >
+                                <div className="absolute inset-0 bg-black/20" />
+                                <span className="z-10">No deck uploaded</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
-                        {/* <div className="flex justify-between w-full pt-8 max-w-[480px] gap-2">
+                        {/* Shared Controls */}
+                        <div className="w-full flex flex-col items-center pb-6 mt-2">
+                          <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
+                            <button
+                              onClick={handleBack}
+                              className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
+                            >
+                              <span className="text-white text-center font-['Inter'] text-sm font-medium">
+                                Back
+                              </span>
+                            </button>
+                            <button
+                              onClick={handleNext} // ✅ Correct handler for final submission
+                              className="w-20 h-8 rounded-[0.125rem] bg-white border-none transition-colors hover:bg-gray-100"
+                            >
+                              <span className="text-black text-center font-['Inter'] text-sm font-medium">
+                                Finish
+                              </span>
+                            </button>
+                          </div>
+
+                          <div className="pt-10 w-full max-w-[32rem] flex justify-center">
+                            <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
+                              This is private, by default. No one can see any of this. The only people
+                              who can ever see the contents of your information are people you've
+                              explicitly shared its private link with.
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      // All other views' shared footer buttons
+                      <div className="w-full flex flex-col items-center pb-6 mt-2">
+                        <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
                           <button
-                            className="px-4 py-2 text-xs font-medium bg-[#374151] text-white rounded hover:bg-[#4b5563]"
-                            onClick={() => {
-                              // Add file picker or modal logic here if needed
-                            }}
+                            onClick={handleBack}
+                            className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
                           >
-                            REPLACE
+                            <span className="text-white text-center font-['Inter'] text-sm font-medium">
+                              Back
+                            </span>
                           </button>
                           <button
-                            className="px-4 py-2 text-xs font-medium bg-[#DC2626] text-white rounded hover:bg-[#B91C1C]"
-                            onClick={() => {
-                              setLocalFormData((prev) => ({
-                                ...prev,
-                                deckUrl: null,
-                                deckFileName: null,
-                              }));
-                              setFormData((prev) => ({
-                                ...prev,
-                                deckUrl: null,
-                                deckFileName: null,
-                              }));
-                            }}
+                            onClick={handleNext}
+                            className="w-20 h-8 rounded-[0.125rem] bg-white border-none transition-colors hover:bg-gray-100"
                           >
-                            DELETE
+                            <span className="text-black text-center font-['Inter'] text-sm font-medium">
+                              Next
+                            </span>
                           </button>
-                        </div> */}
+                        </div>
 
-                        {/* Left Arrow */}
-                        {/* <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xl flex items-center justify-center">
-                          <svg
-                            className="w-7 h-7"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-                          </svg>
-                        </button>
-
-                        {/* Right Arrow */}
-                        {/* <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-xl flex items-center justify-center">
-                          <svg
-                            className="w-7 h-7"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </button> */} 
+                        <div className="pt-10 w-full max-w-[32rem] flex justify-center">
+                          <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
+                            This is private, by default. No one can see any of this. The only people
+                            who can ever see the contents of your information are people you've
+                            explicitly shared its private link with.
+                          </p>
+                        </div>
                       </div>
                     )}
+
 
                   </div>
 
@@ -975,7 +1007,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                       </span>
                     </button>
                     <button
-                      onClick={handleClick}
+                      onClick={handleNext}
                       className="w-20 h-8 rounded-[0.125rem] bg-white border-none transition-colors hover:bg-gray-100"
                     >
                       <span className="text-black text-center font-['Inter'] text-sm font-medium">
