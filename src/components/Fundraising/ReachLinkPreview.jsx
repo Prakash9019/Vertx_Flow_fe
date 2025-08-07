@@ -48,12 +48,8 @@ const ReachLinkPreview = () => {
   const [deckSlideIndex, setDeckSlideIndex] = useState(0);
   const [notesSlideIndex, setNotesSlideIndex] = useState(0);
 
-  // Dummy content for DECK slider (you can replace with actual image/component paths)
-  const deckSlides = [
-    upperBG, // Your original DECK content
-    'https://placehold.co/1200x675/2f3a4b/e2e8f0?text=Deck+Slide+2',
-    'https://placehold.co/1200x675/3a4b2f/e2e8f0?text=Deck+Slide+3',
-  ];
+  // Remove unused deck slides
+  const deckSlides = [upperBG];
 
   // Dynamic content for NOTES slider based on actual data
   const notesSlides = [
@@ -119,38 +115,56 @@ const ReachLinkPreview = () => {
         return (
           <div>
           <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col w-7xl h-[71vh] overflow-hidden mx-auto items-center justify-center p-0 relative">
-            <img
-              src={deckSlides[deckSlideIndex]}
-              alt={`Deck Slide ${deckSlideIndex + 1}`}
-              className="w-full h-auto object-cover"
-              onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/1200x675/202c3d/e2e8f0?text=Image+Load+Error'; }}
-            />
-          </div>
-          {/* Slider Navigation for DECK - POSITIONED AT BOTTOM RIGHT */}
-            <div className="absolute bottom-0  right-36 flex gap-3">
-              <button
-                onClick={() => handlePrevSlide('DECK')}
-                disabled={deckSlideIndex === 0}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${deckSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => handleNextSlide('DECK')}
-                disabled={deckSlideIndex === deckSlides.length - 1}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${deckSlideIndex === deckSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Next
-              </button>
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white">
+              <div className="text-center">
+                <h3 className="text-2xl mb-4">Startup Deck</h3>
+                <p className="text-lg mb-6">Click below to view the pitch deck</p>
+                <a 
+                  href={data?.deckUrl || 'https://storage.googleapis.com/rech_link/1754055313199-Vertx Deck (2).pdf'} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
+                >
+                  View Deck (PDF)
+                </a>
+              </div>
             </div>
+          </div>
+          {/* Section Navigation - POSITIONED AT BOTTOM RIGHT */}
+          <div className="absolute bottom-0 right-36 flex gap-3">
+            <button
+              onClick={() => {
+                const currentIndex = tabOrder.indexOf(activeTab);
+                if (currentIndex > 0) {
+                  setActiveTab(tabOrder[currentIndex - 1]);
+                }
+              }}
+              disabled={tabOrder.indexOf(activeTab) === 0}
+              className={`
+                px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                transition-colors duration-200
+                ${tabOrder.indexOf(activeTab) === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+              `}
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => {
+                const currentIndex = tabOrder.indexOf(activeTab);
+                if (currentIndex < tabOrder.length - 1) {
+                  setActiveTab(tabOrder[currentIndex + 1]);
+                }
+              }}
+              disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1}
+              className={`
+                px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                transition-colors duration-200
+                ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+              `}
+            >
+              Next
+            </button>
+          </div>
           </div>
         );
       case 'BRIEF':
@@ -233,6 +247,41 @@ const ReachLinkPreview = () => {
                 ))}
               </div>
             </div>
+            {/* Section Navigation - POSITIONED AT BOTTOM RIGHT */}
+            <div className="absolute bottom-0 right-36 flex gap-3">
+              <button
+                onClick={() => {
+                  const currentIndex = tabOrder.indexOf(activeTab);
+                  if (currentIndex > 0) {
+                    setActiveTab(tabOrder[currentIndex - 1]);
+                  }
+                }}
+                disabled={tabOrder.indexOf(activeTab) === 0}
+                className={`
+                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                  transition-colors duration-200
+                  ${tabOrder.indexOf(activeTab) === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                `}
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => {
+                  const currentIndex = tabOrder.indexOf(activeTab);
+                  if (currentIndex < tabOrder.length - 1) {
+                    setActiveTab(tabOrder[currentIndex + 1]);
+                  }
+                }}
+                disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1}
+                className={`
+                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                  transition-colors duration-200
+                  ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                `}
+              >
+                Next
+              </button>
+            </div>
           </div>
         );
       case 'NOTES':
@@ -247,23 +296,41 @@ const ReachLinkPreview = () => {
             </div>
             <div className="absolute bottom-0 right-36 flex gap-3">
               <button
-                onClick={() => handlePrevSlide('NOTES')}
-                disabled={notesSlideIndex === 0}
+                onClick={() => {
+                  if (notesSlideIndex > 0) {
+                    handlePrevSlide('NOTES');
+                  } else {
+                    const currentIndex = tabOrder.indexOf(activeTab);
+                    if (currentIndex > 0) {
+                      setActiveTab(tabOrder[currentIndex - 1]);
+                    }
+                  }
+                }}
+                disabled={tabOrder.indexOf(activeTab) === 0 && notesSlideIndex === 0}
                 className={`
                   px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
                   transition-colors duration-200
-                  ${notesSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                  ${tabOrder.indexOf(activeTab) === 0 && notesSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
                 `}
               >
                 Prev
               </button>
               <button
-                onClick={() => handleNextSlide('NOTES')}
-                disabled={notesSlideIndex === notesSlides.length - 1}
+                onClick={() => {
+                  if (notesSlideIndex < notesSlides.length - 1) {
+                    handleNextSlide('NOTES');
+                  } else {
+                    const currentIndex = tabOrder.indexOf(activeTab);
+                    if (currentIndex < tabOrder.length - 1) {
+                      setActiveTab(tabOrder[currentIndex + 1]);
+                    }
+                  }
+                }}
+                disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1 && notesSlideIndex === notesSlides.length - 1}
                 className={`
                   px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
                   transition-colors duration-200
-                  ${notesSlideIndex === notesSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                  ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 && notesSlideIndex === notesSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
                 `}
               >
                 Next
@@ -320,6 +387,41 @@ const ReachLinkPreview = () => {
                 </p>
               </div>
             )}
+            {/* Section Navigation - POSITIONED AT BOTTOM RIGHT */}
+            <div className="absolute bottom-0 right-36 flex gap-3">
+              <button
+                onClick={() => {
+                  const currentIndex = tabOrder.indexOf(activeTab);
+                  if (currentIndex > 0) {
+                    setActiveTab(tabOrder[currentIndex - 1]);
+                  }
+                }}
+                disabled={tabOrder.indexOf(activeTab) === 0}
+                className={`
+                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                  transition-colors duration-200
+                  ${tabOrder.indexOf(activeTab) === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                `}
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => {
+                  const currentIndex = tabOrder.indexOf(activeTab);
+                  if (currentIndex < tabOrder.length - 1) {
+                    setActiveTab(tabOrder[currentIndex + 1]);
+                  }
+                }}
+                disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1}
+                className={`
+                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                  transition-colors duration-200
+                  ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                `}
+              >
+                Next
+              </button>
+            </div>
           </div>
         );
       default:
