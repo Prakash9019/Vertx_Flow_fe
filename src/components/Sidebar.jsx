@@ -253,7 +253,7 @@ const Sidebar = () => {
                   className="mr-3"
                   style={{ width: '1.625rem', height: '1.625rem', borderRadius: '1.625rem' }}
                 />
-                <span className={`${collapsed ? 'hidden' : 'block'} text-[#B8B8B8] font-medium text-sm`}>Flash</span>
+                <span className={`${collapsed ? 'hidden' : 'block'} ${isFlash ? 'text-white' : 'text-[#B8B8B8]'} font-medium text-sm`}>Flash</span>
                 <div className={`${collapsed ? 'hidden' : 'flex'} ml-2 w-[33px] h-[17px] bg-[#33005C] rounded items-center justify-center`}>
                   <span className="text-[#AD6FDE] text-[8px] font-bold">BETA</span>
                 </div>

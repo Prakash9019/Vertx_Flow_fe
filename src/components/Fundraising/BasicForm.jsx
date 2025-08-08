@@ -898,7 +898,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                         </div>
 
                         {/* Shared Controls */}
-                        <div className="w-full flex flex-col items-center pb-6 mt-2">
+                        {/* <div className="w-full flex flex-col items-center pb-6 mt-2">
                           <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
                             <button
                               onClick={handleBack}
@@ -925,12 +925,12 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                               explicitly shared its private link with.
                             </p>
                           </div>
-                        </div>
+                        </div> */}
                       </>
                     ) : (
                       // All other views' shared footer buttons
                       <div className="w-full flex flex-col items-center pb-6 mt-2">
-                        <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
+                        {/* <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
                           <button
                             onClick={handleBack}
                             className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
@@ -947,15 +947,15 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                               Next
                             </span>
                           </button>
-                        </div>
+                        </div> */}
 
-                        <div className="pt-10 w-full max-w-[32rem] flex justify-center">
+                        {/* <div className="pt-10 w-full max-w-[32rem] flex justify-center">
                           <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
                             This is private, by default. No one can see any of this. The only people
                             who can ever see the contents of your information are people you've
                             explicitly shared its private link with.
                           </p>
-                        </div>
+                        </div> */}
                       </div>
                     )}
 
@@ -1030,14 +1030,14 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
           {isOpen && isTrue && (
             <>
               <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4"
-                onClick={() => { onClose(); }}
+                onClick={() => { setIsTrue(false) }}
               >
                 <div className="absolute inset-0 bg-black/10 cursor-pointer" />
                 <div
                   className="relative w-full min-w-lg max-w-6xl p-6 min-h-[600px] mx-auto rounded-lg  flex flex-col items-center justify-center text-center"
                 >
                   <button
-                    onClick={() => { onClose(); }}
+                    onClick={() => { setIsTrue(false) }}
                     className="absolute top-0 right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
                   >
                     &times;
