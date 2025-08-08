@@ -1,4 +1,4 @@
-const API_KEY = "https://auth-flow.govertx.com/";
+const API_KEY = "https://auth-flow.govertx.com";
 export default API_KEY;
 
 // https://auth-flow.govertx.com/
