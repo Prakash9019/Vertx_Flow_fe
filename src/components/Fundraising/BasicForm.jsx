@@ -896,66 +896,10 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                             )}
                           </div>
                         </div>
-
-                        {/* Shared Controls */}
-                        {/* <div className="w-full flex flex-col items-center pb-6 mt-2">
-                          <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
-                            <button
-                              onClick={handleBack}
-                              className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
-                            >
-                              <span className="text-white text-center font-['Inter'] text-sm font-medium">
-                                Back
-                              </span>
-                            </button>
-                            <button
-                              onClick={handleNext} // ✅ Correct handler for final submission
-                              className="w-20 h-8 rounded-[0.125rem] bg-white border-none transition-colors hover:bg-gray-100"
-                            >
-                              <span className="text-black text-center font-['Inter'] text-sm font-medium">
-                                Finish
-                              </span>
-                            </button>
-                          </div>
-
-                          <div className="pt-10 w-full max-w-[32rem] flex justify-center">
-                            <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
-                              This is private, by default. No one can see any of this. The only people
-                              who can ever see the contents of your information are people you've
-                              explicitly shared its private link with.
-                            </p>
-                          </div>
-                        </div> */}
                       </>
                     ) : (
                       // All other views' shared footer buttons
                       <div className="w-full flex flex-col items-center pb-6 mt-2">
-                        {/* <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
-                          <button
-                            onClick={handleBack}
-                            className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
-                          >
-                            <span className="text-white text-center font-['Inter'] text-sm font-medium">
-                              Back
-                            </span>
-                          </button>
-                          <button
-                            onClick={handleNext}
-                            className="w-20 h-8 rounded-[0.125rem] bg-white border-none transition-colors hover:bg-gray-100"
-                          >
-                            <span className="text-black text-center font-['Inter'] text-sm font-medium">
-                              Next
-                            </span>
-                          </button>
-                        </div> */}
-
-                        {/* <div className="pt-10 w-full max-w-[32rem] flex justify-center">
-                          <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
-                            This is private, by default. No one can see any of this. The only people
-                            who can ever see the contents of your information are people you've
-                            explicitly shared its private link with.
-                          </p>
-                        </div> */}
                       </div>
                     )}
 

@@ -114,7 +114,7 @@ const ReachLinkPreview = () => {
       case 'DECK':
         return (
           <div>
-          <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col w-7xl h-[71vh] overflow-hidden mx-auto items-center justify-center p-0 relative">
+          <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col rounded-lg lg:w-[7xl] max-w-7xl w-11/12   lg:h-[71vh] h-120 aspect-video lg:aspect-auto overflow-hidden mx-auto items-center justify-center p-0 relative">
             <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white">
               <div className="text-center">
                 <h3 className="text-2xl mb-4">Startup Deck</h3>
@@ -130,98 +130,94 @@ const ReachLinkPreview = () => {
               </div>
             </div>
           </div>
-          {/* Section Navigation - POSITIONED AT BOTTOM RIGHT */}
-          <div className="absolute bottom-0 right-36 flex gap-3">
+
+
+          <div className="md:absolute pt-4 md:bottom-0 md:right-36 flex items-center justify-center gap-3">
             <button
-              onClick={() => {
-                const currentIndex = tabOrder.indexOf(activeTab);
-                if (currentIndex > 0) {
-                  setActiveTab(tabOrder[currentIndex - 1]);
-                }
-              }}
-              disabled={tabOrder.indexOf(activeTab) === 0}
+              onClick={() => handlePrevSlide('DECK')}
+              disabled={deckSlideIndex === 0}
               className={`
-                px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
                 transition-colors duration-200
-                ${tabOrder.indexOf(activeTab) === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                ${deckSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
               `}
             >
               Prev
             </button>
             <button
-              onClick={() => {
-                const currentIndex = tabOrder.indexOf(activeTab);
-                if (currentIndex < tabOrder.length - 1) {
-                  setActiveTab(tabOrder[currentIndex + 1]);
-                }
-              }}
-              disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1}
+              onClick={() => handleNextSlide('DECK')}
+              disabled={deckSlideIndex === deckSlides.length - 1}
               className={`
-                px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
+                px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
                 transition-colors duration-200
-                ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                ${deckSlideIndex === deckSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
               `}
             >
               Next
             </button>
           </div>
-          </div>
+        </div>
         );
       case 'BRIEF':
         return (
-          <div style={{ fontFamily: "'Crimson Text', serif" }} className="bg-black w-7xl h-[71vh] p-6 md:p-12 rounded-lg shadow-xl text-gray-200 mx-auto overflow-hidden">
+          <div style={{ fontFamily: "'Crimson Text', serif" }} 
+            className="bg-black w-11/12 h-auto p-4 md:p-6 lg:p-12 max-w-7xl rounded-lg shadow-xl text-gray-200 mx-auto overflow-hidden">
+            
             {/* Company Name and Links */}
-            <div className="text-center mb-4">
-              <h1 className="text-xl md:text-2xl font-semibold mb-1">{data?.companyName?.toUpperCase() || 'COMPANY NAME'}</h1>
-              <p className="text-xl md:text-2xl text-white mb-2"> <span className=' italic'>Founded on</span> <span className='font-semibold'>{data?.founded ? new Date(data.founded).getFullYear() : 'YEAR'}</span></p>
-              <div className="flex absolute top-41.5 right-120 opacity-80 justify-center space-x-2 text-[10px] uppercase">
+            <div className="text-center mb-4 relative">
+              <h1 className="text-lg md:text-xl lg:text-2xl font-semibold mb-1">{data?.companyName?.toUpperCase() || 'COMPANY NAME'}</h1>
+              <p className="text-lg md:text-xl lg:text-2xl text-white mb-2">
+                <span className='italic'>Founded on</span> <span className='font-semibold'>{data?.founded ? new Date(data.founded).getFullYear() : 'YEAR'}</span>
+              </p>
+              
+              <div className="flex flex-col items-center justify-center space-x-0 md:flex-row md:space-x-2 text-[10px] uppercase mt-2 md:absolute md:top-0 md:right-30 xl:right-[18rem] md:opacity-80">
                 <a href={data?.companyWebsite || '#'} className="text-gray-300">Website</a>
                 <span className="text-gray-500">|</span>
                 <a href={data?.linkedinUrl || '#'} className="text-gray-300">LinkedIn</a>
               </div>
             </div>
-            <div className='border-[0.5px] justify-center mx-auto w-[100px] mb-6 border-white'/>
+            
+            <div className='border-[0.5px] justify-center mx-auto w-24 md:w-[100px] mb-6 border-white'/>
+            
             {/* Product Section */}
             <div className="mb-6 text-center">
               <h2 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Product</h2>
-              <p className="text-[16px] font-semibold">{data?.companyName || 'PRODUCT NAME'}</p>
+              <p className="text-sm md:text-[16px] font-semibold">{data?.companyName || 'PRODUCT NAME'}</p>
             </div>
-
+            
             {/* Description Section */}
             <div className="mb-8 text-center">
               <h2 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Description</h2>
-              <p className="text-[16px] font-semibold">{data?.companyDescription || 'Company Description'}</p>
+              <p className="text-sm md:text-[16px] font-semibold">{data?.companyDescription || 'Company Description'}</p>
             </div>
-
-            {/* Details Table Section (Sectors, Stage, Category, Model, HQ) */}
-            <div className="flex justify-around gap-y-3 gap-x-2 mb-10 mx-auto items-center max-w-2xl text-center">
+            
+            <div className="grid grid-cols-2 gap-y-6 md:flex md:justify-around mb-10 mx-auto max-w-2xl text-center">
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Sectors</h3>
-                <p className="text-[16px] font-semibold">{data?.businessSectors?.join(', ') || 'Sectors'}</p>
+                <p className="text-sm md:text-[16px] font-semibold">{data?.businessSectors?.join(', ') || 'Sectors'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Stage</h3>
-                <p className="text-[16px] font-semibold">{data?.companyStage || 'Stage'}</p>
+                <p className="text-sm md:text-[16px] font-semibold">{data?.companyStage || 'Stage'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Category</h3>
-                <p className="text-[16px] font-semibold">{data?.businessCategory || 'Category'}</p>
+                <p className="text-sm md:text-[16px] font-semibold">{data?.businessCategory || 'Category'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">Model</h3>
-                <p className="text-[16px] font-semibold">{data?.raisedFrom?.join(', ') || 'Model'}</p>
+                <p className="text-sm md:text-[16px] font-semibold">{data?.raisedFrom?.join(', ') || 'Model'}</p>
               </div>
               <div>
                 <h3 className="text-xs font-semibold uppercase underline tracking-wider text-white/50 mb-1">HQ</h3>
-                <p className="text-[16px] font-semibold">{data?.hqLocation || 'Location'}</p>
+                <p className="text-sm md:text-[16px] font-semibold">{data?.hqLocation || 'Location'}</p>
               </div>
             </div>
-
+            
             {/* Team Section */}
             <div className="text-center mb-2">
-              <h2 className="text-[16px] flex justify-center mx-auto font-semibold uppercase underline tracking-wider text-white/50 mb-2">Team</h2>
-              <div className="grid grid-cols-3 gap-2 text-white mx-auto max-w-sm">
-                {/* CEO/Founder from Profile */}
+              <h2 className="text-sm md:text-[16px] flex justify-center mx-auto font-semibold uppercase underline tracking-wider text-white/50 mb-2">Team</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-2 text-white mx-auto max-w-sm">
                 {data?.founderName && (
                   <div className="flex flex-col items-center">
                     <p className="text-xs font-semibold">{data.founderName}</p>
@@ -229,7 +225,6 @@ const ReachLinkPreview = () => {
                     <a href={data?.founderLinkedinUrl || '#'} className="text-[10px] uppercase">LinkedIn</a>
                   </div>
                 )}
-                {/* First Team Member */}
                 {data?.founder1FullName && (
                   <div className="flex flex-col items-center">
                     <p className="text-xs font-semibold">{data.founder1FullName}</p>
@@ -237,7 +232,6 @@ const ReachLinkPreview = () => {
                     <a href={data?.founder1LinkedinProfileURL || '#'} className="text-[10px] uppercase">LinkedIn</a>
                   </div>
                 )}
-                {/* Additional Team Members */}
                 {data?.teamMembers?.slice(0, 2).map((member, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <p className="text-xs font-semibold">{member.fullName}</p>
@@ -247,90 +241,38 @@ const ReachLinkPreview = () => {
                 ))}
               </div>
             </div>
-            {/* Section Navigation - POSITIONED AT BOTTOM RIGHT */}
-            <div className="absolute bottom-0 right-36 flex gap-3">
-              <button
-                onClick={() => {
-                  const currentIndex = tabOrder.indexOf(activeTab);
-                  if (currentIndex > 0) {
-                    setActiveTab(tabOrder[currentIndex - 1]);
-                  }
-                }}
-                disabled={tabOrder.indexOf(activeTab) === 0}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${tabOrder.indexOf(activeTab) === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => {
-                  const currentIndex = tabOrder.indexOf(activeTab);
-                  if (currentIndex < tabOrder.length - 1) {
-                    setActiveTab(tabOrder[currentIndex + 1]);
-                  }
-                }}
-                disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Next
-              </button>
-            </div>
           </div>
         );
       case 'NOTES':
         const currentNote = notesSlides[notesSlideIndex];
         return (
           <div>
-          <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-4 max-w-7xl h-[71vh] overflow-hidden text-center text-gray-300 flex flex-col justify-center items-center bg-black md:p-8 rounded-lg shadow-xl mx-auto relative">
+          <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-4 max-w-7xl h-[71vh] overflow-hidden w-11/12 text-center text-gray-300 flex flex-col justify-center items-center bg-black md:p-8 rounded-lg shadow-xl mx-auto relative">
             <h2 className="text-3xl md:text-4xl text-white/60 font-serif italic mb-8">{currentNote.title}</h2>
             <p className="text-xl md:text-2xl text-white max-w-xl">
               {currentNote.text}
             </p>
             </div>
-            <div className="absolute bottom-0 right-36 flex gap-3">
+            <div className="md:absolute pt-4 md:bottom-0 md:right-36 flex items-center justify-center gap-3">
+
               <button
-                onClick={() => {
-                  if (notesSlideIndex > 0) {
-                    handlePrevSlide('NOTES');
-                  } else {
-                    const currentIndex = tabOrder.indexOf(activeTab);
-                    if (currentIndex > 0) {
-                      setActiveTab(tabOrder[currentIndex - 1]);
-                    }
-                  }
-                }}
-                disabled={tabOrder.indexOf(activeTab) === 0 && notesSlideIndex === 0}
+                onClick={() => handlePrevSlide('NOTES')}
+                disabled={notesSlideIndex === 0}
                 className={`
                   px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
                   transition-colors duration-200
-                  ${tabOrder.indexOf(activeTab) === 0 && notesSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                  ${notesSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
                 `}
               >
                 Prev
               </button>
               <button
-                onClick={() => {
-                  if (notesSlideIndex < notesSlides.length - 1) {
-                    handleNextSlide('NOTES');
-                  } else {
-                    const currentIndex = tabOrder.indexOf(activeTab);
-                    if (currentIndex < tabOrder.length - 1) {
-                      setActiveTab(tabOrder[currentIndex + 1]);
-                    }
-                  }
-                }}
-                disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1 && notesSlideIndex === notesSlides.length - 1}
+                onClick={() => handleNextSlide('NOTES')}
+                disabled={notesSlideIndex === notesSlides.length - 1}
                 className={`
                   px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
                   transition-colors duration-200
-                  ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 && notesSlideIndex === notesSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                  ${notesSlideIndex === notesSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
                 `}
               >
                 Next
@@ -340,10 +282,10 @@ const ReachLinkPreview = () => {
         );
       case 'SCORE':
         return (
-          <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-8 w-7xl bg-black/55 mx-auto h-[71vh] text-center text-gray-300">
+          <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-4 md:p-8 lg:p-8 w-11/12 max-w-7xl lg:min-w-5xl  lg:w-[7xl] bg-black/55 mx-auto h-[71vh] text-center text-gray-300">
             {!submitted ? (
               <>
-                <h2 style={{ fontFamily: "'Crimson Text', serif" }} className="text-3xl md:text-4xl font-normal mb-15">Score This Startup</h2>
+                <h2 style={{ fontFamily: "'Crimson Text', serif" }} className="text-3xl md:text-4xl mt-20 md:mt-0 font-normal mb-15">Score This Startup</h2>
                 <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col items-center mb-8">
                   <input
                     type="range"
@@ -370,7 +312,7 @@ const ReachLinkPreview = () => {
                   >
                   </textarea>
                 </div>
-                <div className='justify-end flex max-w-6xl'>
+                <div className='justify-end flex max-w-6xl md:relative absolute bottom-7 right-8 sm:right-12 md:bottom-0 md:right-0'>
                   <button
                     onClick={handleSubmit}
                     className="px-3 py-1 text-white font-bold text-xl rounded-lg transition duration-200"
@@ -385,43 +327,17 @@ const ReachLinkPreview = () => {
                 <p className="text-xl md:text-2xl leading-relaxed max-w-2xl">
                   {feedback ? feedback : 'No Feedback Given.'}
                 </p>
+                <div className=" justify-end flex max-w-6xl absolute md:bottom-16 bottom-12 right-12 md:right-36">
+                  <button
+                    onClick={() => { setSubmitted(false) }}
+                    className="px-3 py-1 text-white font-bold text-xl rounded-lg transition duration-200"
+                  >
+                    PREV
+                  </button>
+               </div>
               </div>
+              
             )}
-            {/* Section Navigation - POSITIONED AT BOTTOM RIGHT */}
-            <div className="absolute bottom-0 right-36 flex gap-3">
-              <button
-                onClick={() => {
-                  const currentIndex = tabOrder.indexOf(activeTab);
-                  if (currentIndex > 0) {
-                    setActiveTab(tabOrder[currentIndex - 1]);
-                  }
-                }}
-                disabled={tabOrder.indexOf(activeTab) === 0}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${tabOrder.indexOf(activeTab) === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => {
-                  const currentIndex = tabOrder.indexOf(activeTab);
-                  if (currentIndex < tabOrder.length - 1) {
-                    setActiveTab(tabOrder[currentIndex + 1]);
-                  }
-                }}
-                disabled={tabOrder.indexOf(activeTab) === tabOrder.length - 1}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${tabOrder.indexOf(activeTab) === tabOrder.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Next
-              </button>
-            </div>
           </div>
         );
       default:
@@ -440,7 +356,7 @@ const ReachLinkPreview = () => {
 
   if (error) {
     return (
-      <div className="h-full inset-0 bg-cover bg-center text-white font-inter flex flex-col items-center justify-center relative"
+      <div className="h-full inset-0 bg-cover bg-center text-white  flex flex-col items-center justify-between relative overflow-scroll"
         style={{ backgroundImage: `url(${BG})`, fontFamily: "'Crimson Text', serif" }}>
         <div className="text-red-400 text-xl">{error}</div>
       </div>
@@ -456,8 +372,6 @@ const ReachLinkPreview = () => {
         style={{ backgroundImage: `url(${BG})` }}
       ></div>
 
-      {/* Background layer 2: Using upperBG for a subtle overlay or texture, if intended */}
-      {/* This layer is semi-transparent to create a subtle overlay effect, similar to your image's depth. */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-5"
         style={{ backgroundImage: `url(${upperBG})` }}
@@ -467,15 +381,15 @@ const ReachLinkPreview = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-gray-950 via-gray-950 to-transparent opacity-80"></div>
 
       {/* Main content container */}
-      <div className="relative z-10 w-full mx-auto flex flex-col items-start pt-12 pb-8">
+      <div className="relative z-10 w-full mx-auto flex flex-col items-start pt-4 pb-4  md:pt-12 md:pb-8">
         {/* Tabs navigation - styled to be subtle like in the screenshot */}
-        <nav className="flex space-x-8 mb-4 ml-34">
+        <nav className="flex flex-wrap mb-4 mx-auto justify-center items-center md:mx-0 md:space-x-8 md:ml-34">
           {tabOrder.map((tab) => (
             <button
               key={tab}
               style={{ fontFamily: "'Crimson Text', serif" }}
               className={`
-                text-xl font-bold uppercase tracking-wider px-4 py-2
+                sm:text-xl text-sm font-bold uppercase tracking-wider px-4 py-2
                 transition-all duration-300 ease-in-out
                 ${activeTab === tab
                   ? 'text-white' // Active tab has a bottom border
