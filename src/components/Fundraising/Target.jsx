@@ -994,16 +994,16 @@ const getFlagOrContinent = (name) => {
       <div className="pt-12 min-h-[calc(100vh-4rem)] bg-black pb-4" onClick={closeMenu}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8 px-16">
-  <div className="flex flex-col flex-1">
+  <div className="flex flex-col mt-5 sm:mt-auto flex-1">
     <button
       onClick={showSettings ? () => setShowSettings(false) : handleBackClick}
-      className="flex items-center gap-2 transition-colors hover:text-gray-300 mb-4 bg-none border-none cursor-pointer text-white font-['Inter'] text-base font-medium self-start -ml-8"
+      className="flex items-center gap-2 transition-colors hover:text-gray-300 mb-4 bg-none border-none cursor-pointer text-white font-['Inter'] text-base font-medium self-start -ml-17 sm:-ml-8"
     >
       <img src={BackButton || "/placeholder.svg"} alt="Back Icon" className="w-6 h-6" />
       {showSettings ? "Settings" : "Back"}
     </button>
 
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center  -ml-15 sm:ml-0 justify-between w-full">
       {isEditingName ? (
         <div className="flex items-center gap-3 w-full">
           <div className="flex flex-col relative flex-1">
@@ -1090,7 +1090,7 @@ const getFlagOrContinent = (name) => {
         )}
 
         {!showSettings && (
-          <div className="relative">
+          <div className="relative mt-5 sm:mt-auto">
             <button
               onClick={(e) => handleThreeDotsClick(e, selectedList.id)}
               className="p-2 hover:bg-gray-700 rounded transition-colors text-[#B8B8B8]"
@@ -1113,7 +1113,7 @@ const getFlagOrContinent = (name) => {
 </div>
 
         {/* Main Content Area */}
-        <div className="w-[calc(100%-8rem)] h-[calc(100vh-14rem)] rounded-lg bg-[#0F0E16] relative p-10 mx-16 flex flex-col">
+        <div className="md:w-[calc(100%-8rem)] mt-16 sm:mt-auto w-full h-[50vh] md:h-[calc(100vh-14rem)] rounded-lg bg-[#0F0E16] relative p-0 sm:p-4 md:p-10 mx-0 md:mx-16 flex flex-col">
           {showSettings ? (
             // Settings Content
             <div className="space-y-6">
@@ -1241,29 +1241,30 @@ const getFlagOrContinent = (name) => {
             // Empty State
             <>
               <div
-                className="w-full h-[calc(100%-6rem)] bg-[length:100%_100%] bg-center bg-no-repeat rounded-md mb-[4.5rem] flex flex-col items-center justify-center gap-8"
+                className="w-full h-[calc(100%-6rem)] bg-[length:100%_100%] bg-center bg-no-repeat rounded-md mb-8 md:mb-[4.5rem] flex flex-col items-center justify-center gap-2 md:gap-8"
                 style={{
                   backgroundImage: `url(${Rectangle119})`,
                 }}
               >
-                <h2 className="text-white font-['Inter'] text-xl font-semibold m-0">No investors are in this list.</h2>                <div className="flex items-center gap-4">
+                <h2 className="text-white font-['Inter'] text-base sm:text-xl font-semibold m-0">No investors are in this list.</h2>               
+                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   {canEdit && (
                     <button
                       onClick={handleAddInvestorsClick}
                       className="flex items-center justify-center gap-2 transition-colors hover:bg-purple-700 w-40 h-10 rounded bg-[#5F248D] border-none cursor-pointer"
                     >
-                      <img src={AddIcon || "/placeholder.svg"} alt="Add Icon" className="w-[1.125rem] h-[1.125rem]" />
-                      <span className="text-white font-['Inter'] text-sm font-medium">Add Investors</span>
+                      <img src={AddIcon || "/placeholder.svg"} alt="Add Icon" className="w-[15px] sm:w-[1.125rem] h-[15px] sm:h-[1.125rem]" />
+                      <span className="text-white font-['Inter'] text-xs sm:text-sm font-medium">Add Investors</span>
                     </button>
                   )}
 
                   {canView && (
                     <button
                       onClick={() => setShowInviteCollab(true)}
-                      className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 w-[11.25rem] h-10 rounded bg-white border-none cursor-pointer"
+                      className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 w-40 h-10 rounded bg-white border-none cursor-pointer"
                     >
-                      <img src={ShareIcon || "/placeholder.svg"} alt="Share Icon" className="w-[1.125rem] h-[1.125rem]" />
-                      <span className="text-black font-['Inter'] text-sm font-medium">Invite and Collab</span>
+                      <img src={ShareIcon || "/placeholder.svg"} alt="Share Icon" className="w-[15px] sm:w-[1.125rem] h-[15px] sm:h-[1.125rem]" />
+                      <span className="text-black font-['Inter'] text-xs sm:text-sm font-medium">Invite and Collab</span>
                     </button>
                   )}
                 </div>
