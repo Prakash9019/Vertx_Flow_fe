@@ -455,8 +455,6 @@ const getFlagOrContinent = (name) => {
     "US": "us",
     "UK": "gb",
     "UAE": "ae",
-    "South Korea": "kr",
-    "North Korea": "kp",
     "Ivory Coast": "ci",
     "DR Congo": "cd",
     "Czech Republic": "cz",

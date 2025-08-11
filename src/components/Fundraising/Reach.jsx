@@ -7,7 +7,7 @@ import API_KEY from "../../../key";
 import BasicInfoForm from "./BasicForm";
 import Image from "./img.jpg"
 import ReachImage from "../../assets/Rectangle 119.png"; 
-
+import { Upload } from "lucide-react";
 const Reach = () => {
   const { user_id,profileData  } = useStartupProfile();
 
@@ -388,16 +388,7 @@ const Reach = () => {
               className="inline-flex font-semibold items-center gap-2 px-6 py-3 bg-white text-black rounded cursor-pointer hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
               style={{ fontFamily: "Inter" }}
             >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
+            <Upload />
               Upload deck
             </button>
 
