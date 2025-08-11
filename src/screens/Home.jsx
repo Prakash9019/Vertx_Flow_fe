@@ -25,7 +25,7 @@ function HomePage() {
         </div>
       </div>{/* Body with input */}      
       <div className="md:col-span-9 w-full flex flex-col md:flex-row min-h-screen bg-black text-white pb-10">
-        <div className="flex-grow  flex justify-center items-end relative z-10  pb-10 ">
+        <div className="flex-grow  flex justify-center items-end relative pb-10 ">
           <div className="bg-black h-[15rem] relative rounded-lg p-4 flex items-center w-full  sm:w-4xl">
             <input
               type="text"
