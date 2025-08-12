@@ -260,7 +260,7 @@ function FundraisingManagePage() {
         )}
 
         {/* Tab Content */}
-        <div className="pl-8 md:pl-14 pr-9 md:pr-16"
+        <div className="pl-0 md:pl-14 pr-0 md:pr-16"
           // style={{
           //   paddingLeft: activeTab === "Target" && isTargetListSelected ? "0" : "3.44rem",
           //   paddingRight: activeTab === "Target" && isTargetListSelected ? "0" : "3.87rem",

@@ -232,7 +232,7 @@ const Reach = () => {
   const renderSubTabs = () => (
     <div className="flex gap-8 font-[Inter]">
       {subTabs.map((sub) => (
-        <div key={sub} className="relative inline-block">
+        <div key={sub} className="relative ml-1 md:ml-0 inline-block">
           <button
             onClick={() => setActiveSubTab(sub)}
             className="pb-2 text-sm sm:text-base font-medium text-left transition-colors"
@@ -338,10 +338,10 @@ const Reach = () => {
     backgroundPosition: 'center',
     backgroundSize: 'cover',
   }}
-  className="w-[52.5rem] h-[27rem] flex-shrink-0 rounded-lg font-[inter] flex items-center justify-center  max-w-full sm:w-[90%] sm:h-[22rem] xs:h-[18rem]"
+  className="w-[52.5rem] md:h-[27rem] flex-shrink-0 rounded-lg font-[inter] flex items-center justify-center  max-w-full sm:w-[90%] sm:h-[22rem] h-[18rem]"
 >
   <div className="text-center px-4">
-    <h2 className="text-2xl font-semibold mb-6 text-white">
+    <h2 className="text-lg sm:text-2xl font-semibold mb-6 text-white">
       You have no active Reachlinks.
     </h2>
     <button
@@ -379,20 +379,22 @@ const Reach = () => {
     >
         <div className=" w-full h-full flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-6 text-white">
+            <h2 className="text-lg sm:text-2xl font-semibold mb-6 text-white">
               The only link you need for fundraising.
             </h2>
 
             <button
               onClick={openFilePicker}
-              className="inline-flex font-semibold items-center gap-2 px-6 py-3 bg-white text-black rounded cursor-pointer hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
+              className="inline-flex font-semibold items-center gap-1 px-3 py-1.5 sm:gap-2 sm:px-6 sm:py-3 bg-white text-base text-black rounded cursor-pointer hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-purple-600 transition-colors"
               style={{ fontFamily: "Inter" }}
             >
-            <Upload />
-              Upload deck
+            <span className=" scale-70 sm:scale-100"><Upload /></span>
+            
+            <span className="text-xs sm:text-base">Upload deck</span>
+              
             </button>
 
-            <p className="mt-2 text-xs text-neutral-300 font-medium">
+            <p className="mt-2 text-[8px] sm:text-xs text-neutral-300 font-medium">
               .PDF | .PPT | .PPTX | 10MB Limit
             </p>
 
@@ -435,9 +437,9 @@ const Reach = () => {
   };
 
   return (
-    <div className="min-h-screen font-[inter] bg-black text-white flex relative">
+    <div className="min-h-full mb-12 font-[inter] bg-black text-white flex relative">
 
-      <div className="flex-1 h-screen overflow-y-auto">
+      <div className="flex-1 h-full overflow-y-auto">
 
         <div className="pt-8 px-9 md:px-14 mb-8">
           {activeTab === "Reach Link" && (
