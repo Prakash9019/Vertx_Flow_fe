@@ -327,7 +327,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
   const renderInput = (type, field, placeholder, label, onChangeHandler = handleInputChange, value = undefined) => (
     <div>
-      <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
+      <label htmlFor={field} className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
         {label}
       </label>
       <input
@@ -344,7 +344,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
   // Helper function for currency inputs with focus styling
   const renderCurrencyInput = (field, label, placeholder = "") => (
     <div>
-      <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
+      <label htmlFor={field} className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
         {label}
       </label>
       <div className="relative">
@@ -380,7 +380,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
   // Helper function to render common textarea styles
   const renderTextarea = (field, placeholder, label, maxLength) => (
     <div>
-      <label htmlFor={field} className="block text-white font-['Inter'] text-base font-medium mb-4">
+      <label htmlFor={field} className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-8 mt-3 sm:mt-0 md:mb-4">
         {label}
       </label>
       <textarea
@@ -412,17 +412,17 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
         {/* Main modal content container with background image */}
         <div
           className="relative flex flex-col items-center bg-cover bg-center bg-no-repeat
-                      w-full max-w-6xl h-[calc(100vh-1rem)] sm:h-[calc(100vh-7.5rem)] overflow-y-auto "
+                      w-full max-w-6xl h-[calc(100vh-3rem)] sm:h-[calc(100vh-7.5rem)] overflow-y-auto "
           style={{
             backgroundImage: `url(${Rectangle82})`, // Use the imported image
           }}
         >
           {isOpen && !isTrue && (
             <>
-              <div className="relative h-32 w-full">
+              <div className="relative h-40 md:h-32 w-full">
                 <div className="absolute inset-0" />
                 <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-6">
-                  <h1 className="text-white text-2xl font-semibold mb-2 font-['Inter']">
+                  <h1 className="text-white text-lg sm:text-xl md:text[22px] lg:text-2xl mt-8 md:mt-6 font-semibold mb-2 font-['Inter']">
                     {currentView === "profile" && "Profile Information"}
                     {currentView === "basics" && "Company Information"}
                     {currentView === "team" && "Founder's Information"}
@@ -433,7 +433,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                     {currentView === "fundraising" && "Fundraising Information"}
                     {currentView === "deck" && "Pitch Deck"}
                   </h1>
-                  <p className="text-white/90 text-sm font-normal font-['Inter']">
+                  <p className="text-white/90 text-sm mb-2 font-normal font-['Inter']">
                     {currentView === "profile" && "Start by adding your profile and contact information"}
                     {currentView === "basics" && "Let's fill some basic information about your company."}
                     {currentView === "team" && "Add your founding team profile details"}
@@ -449,7 +449,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
               <div className="w-full flex items-start justify-center relative mb-5">
                 {/* Sidebar - positioned absolutely to overlay */}
-                <div className="absolute left-0 top-0 w-64 h-full p-6 overflow-y-auto flex items-start justify-center z-10">
+                <div className="absolute left-0 top-0 w-40 hidden md:block  lg:w-64 h-full p-6 overflow-y-auto  items-start justify-center z-10">
                   <div className="space-y-1">
                     <div
                       className={`font-medium mb-1 font-['Inter'] cursor-pointer transition-colors ${currentView === "profile" ? "text-white text-[16px]" : "text-gray-400 text-sm hover:text-white"
@@ -538,7 +538,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                 </div>
 
                 {/* Centered Form Container with scrolling and masked edges */}
-                <div className="w-full max-w-[40rem] rounded-[0.3125rem] bg-black/76 relative p-6 sm:p-8 sm:pb-13 overflow-hidden h-[360px]">
+                <div className="w-99/100 max-w-120 lg:max-w-[40rem] rounded-[0.3125rem] bg-black/76 relative p-4 sm:p-8 sm:pb-13 overflow-hidden h-[360px]">
                   {/* Content container with scroll */}
                   <div className="h-full overflow-y-auto">
                     {/* Conditional Form Content */}
@@ -552,7 +552,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                       </div>
                     )}
                     {currentView === "basics" && (
-                      <div className="space-y-6">
+                      <div className="space-y-3 md:space-y-6">
                         {/* Founded and Company Website Row */}
                         <div className="grid grid-cols-2 gap-4">
                           {renderInput('date', 'founded', 'YYYY', 'Founded')}
@@ -561,10 +561,10 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
                         {/* Business Category with separate checkbox and label */}
                         <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             How would you describe your business category?
                           </label>
-                          <div className="grid grid-cols-4 gap-2">
+                          <div className="grid grid-cols-4 gap-1 sm:gap-2">
                             {['B2C', 'B2B', 'B2B2C', 'Other'].map((category) => (
                               <div
                                 key={category}
@@ -573,12 +573,12 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                               >
                                 {/* Custom Checkbox */}
                                 <div
-                                  className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.businessCategory === category ? 'bg-purple-600' : 'bg-transparent'
+                                  className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.businessCategory === category ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
                                 >
                                   {localFormData.businessCategory === category && (
                                     <svg
-                                      className="h-5 w-5 text-white"
+                                      className="lg:h-5 lg:w-5 md:w-4 md:h-4 h-3 w-3 text-white"
                                       fill="none"
                                       stroke="currentColor"
                                       viewBox="0 0 24 24"
@@ -589,7 +589,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                   )}
                                 </div>
                                 {/* Category Label */}
-                                <span className="text-white font-['Inter'] text-[16px] font-medium">
+                                <span className="text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
                                   {category}
                                 </span>
                               </div>
@@ -597,25 +597,25 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </div>
                         </div>
                         <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
-                            What sectors are your business in? <span className="text-sm font-normal">(you can choose a max of 3)</span>
+                          <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
+                            What sectors are your business in? <span className="text-[10px] sm:text-xs md:text-sm font-normal">(you can choose a max of 3)</span>
                           </label>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-1 sm:gap-2">
                             {sectorsList.map((sector) => (
                               <button
                                 key={sector}
                                 onClick={() => handleSectorToggle(sector)}
-                                className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-sm font-medium transition-colors flex items-center gap-2 ${localFormData.businessSectors.includes(sector)
+                                className={`px-3 py-1 rounded-[0.125rem] font-['Inter'] text-[10px] sm:text-xs md:text-sm font-medium transition-colors flex items-center gap-2 ${localFormData.businessSectors.includes(sector)
                                   ? 'bg-purple-600 text-white'
                                   : 'bg-white/11 text-white hover:bg-white/20'
                                   }`}
                               >
                                 {sector}
                                 {localFormData.businessSectors.includes(sector) && (
-                                  <span className="text-[16px]">×</span>
+                                  <span className="text-xs sm:text-sm md:text-base">×</span>
                                 )}
                                 {!localFormData.businessSectors.includes(sector) && (
-                                  <span className="text-[16px]">+</span>
+                                  <span className="text-xs sm:text-sm md:text-base">+</span>
                                 )}
                               </button>
                             ))}
@@ -624,10 +624,10 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
                         {/* Company Stage */}
                         <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             What is the current stage of your company?
                           </label>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-3 gap-1 sm:gap-2">
                             {['Pre-Product', 'Pre-Revenue', 'Post-Revenue'].map((stage) => (
                               <div
                                 key={stage}
@@ -636,15 +636,15 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                               >
                                 {/* Custom Radio Button */}
                                 <div
-                                  className={`w-6 h-6 rounded-full border border-white flex items-center justify-center transition-colors ${localFormData.companyStage === stage ? 'bg-purple-600' : 'bg-transparent'
+                                  className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 rounded-full border border-white flex items-center justify-center transition-colors ${localFormData.companyStage === stage ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
                                 >
                                   {localFormData.companyStage === stage && (
-                                    <div className="w-3 h-3 rounded-full bg-white"></div>
+                                    <div className="lg:w-3 md:w-2 md:h-2 lg:h-3 sm:w-1.5 sm:h-1.5 w-1 h-1 rounded-full bg-white"></div>
                                   )}
                                 </div>
                                 {/* Stage Label */}
-                                <span className="text-white font-['Inter'] text-[16px] font-medium">
+                                <span className="text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
                                   {stage}
                                 </span>
                               </div>
@@ -654,19 +654,19 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
                         {/* Business Type */}
                         <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             What type of business is your company? (multiple)
                           </label>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-3 gap-1 sm:gap-2 ">
                             {['Ecommerce', 'Marketplace', 'Social Network', 'SaaS', 'Hardware', 'Other'].map((source) => (
                               <div
                                 key={source}
-                                className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                                className="flex items-center gap-1 sm:gap-2  p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                 onClick={() => handleRaisedFromToggle(source)}
                               >
                                 {/* Custom Checkbox */}
                                 <div
-                                  className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
+                                  className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
                                 >
                                   {localFormData.raisedFrom.includes(source) && (
@@ -682,7 +682,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                   )}
                                 </div>
                                 {/* Source Label */}
-                                <span className="text-white font-['Inter'] text-[16px] font-medium">
+                                <span className="text-white font-['Inter'] text-[10px] sm:text-xs md:text-sm lg:text-base font-medium">
                                   {source}
                                 </span>
                               </div>
@@ -693,14 +693,14 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                     )}
 
                     {currentView === "team" && (
-                      <div className="space-y-6">
-                        <p className="text-[#656565] font-['Inter'] text-base font-medium">
+                      <div className="space-y-3 sm:space-y-6">
+                        <p className="text-[#656565] font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
                           Edit the CEO info in the <span className="font-bold text-white">Profile</span> section.
                         </p>
 
                         {/* Fixed Team Member 1 (No remove button) */}
-                        <div className="relative p-4 border border-white/10 rounded-lg space-y-4">
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                        <div className="relative p-2 sm:p-4 border border-white/10 rounded-lg space-y-2 sm:space-y-4">
+                          <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-3 sm:gap-y-6">
                             {renderInput('text', 'founder1FullName', 'Full Name', 'Full Name')}
                             {renderInput('text', 'founder1TitleRole', 'Title/Role', 'Title/Role')}
                             <div className="col-span-2">
@@ -711,8 +711,8 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
                         {/* Dynamically added Team Members (Team Member 2, 3, etc. onwards) */}
                         {localFormData.teamMembers.map((member, index) => (
-                          <div key={member.id} className="relative p-4 border border-white/10 rounded-lg space-y-4">
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                          <div key={member.id} className="relative p-2 sm:p-4 border border-white/10 rounded-lg space-y-2 sm:space-y-4">
+                            <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-3 sm:gap-y-6">
                               {renderInput('text', 'fullName', 'Full Name', 'Full Name',
                                 (field, value) => handleDynamicTeamMemberInputChange(member.id, field, value),
                                 member.fullName)}
@@ -727,7 +727,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                             </div>
                             <button
                               onClick={() => handleRemoveDynamicTeamMember(member.id)}
-                              className="absolute bottom-1 right-4 text-white text-xs font-medium cursor-pointer transition-colors"
+                              className="absolute sm:bottom-1 right-4 text-white text-[10px] sm:text-xs font-medium cursor-pointer transition-colors"
                             >
                               DISCARD FOUNDER
                             </button>
@@ -736,8 +736,8 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
                         {/* The note section, which is conditionally rendered */}
                         {showTeamNoteTextarea && (
-                          <div className="relative p-4 border border-white/10 rounded-lg space-y-4">
-                            <label htmlFor="team-note" className="block text-white font-['Inter'] text-base font-medium">
+                          <div className="relative p-2 sm:p-4 border border-white/10 rounded-lg space-y-2 sm:space-y-4">
+                            <label htmlFor="team-note" className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
                               Team Note
                             </label>
                             <textarea
@@ -762,7 +762,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           {(1 + localFormData.teamMembers.length) < 9 && (
                             <button
                               onClick={handleAddDynamicTeamMember}
-                              className="w-full h-9 text-white rounded-[0.125rem] font-['Inter'] text-xs font-normal cursor-pointer transition-colors flex items-center justify-start gap-2"
+                              className="w-full h-9 text-white rounded-[0.125rem] font-['Inter'] text-[10px] sm:text-xs font-normal cursor-pointer transition-colors flex items-center justify-start gap-2"
                             >
                               <svg
                                 className="h-4 w-4"
@@ -781,7 +781,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           {/* "Add a note about your team" button, now with an onClick handler and dynamic text */}
                           <button
                             onClick={handleToggleTeamNote} // New handler function
-                            className={`h-9 text-white rounded-[0.125rem] font-['Inter'] cursor-pointer text-xs font-normal  transition-colors flex items-center justify-end gap-2 ${(1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : '' // Make full width if no "add teammate" button
+                            className={`h-9 text-white rounded-[0.125rem] font-['Inter'] cursor-pointer text-[10px] sm:text-xs font-normal  transition-colors flex items-center justify-end gap-2 ${(1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : '' // Make full width if no "add teammate" button
                               }`}
                           >
                             <svg
@@ -829,28 +829,28 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                     )}
 
                     {currentView === "fundraising" && (
-                      <div className="space-y-6">
+                      <div className="space-y-4 md:space-y-6">
                         {renderCurrencyInput('raisedAmount', 'How much money have you raised?')}
 
                         <div>
-                          <label className="block text-white font-['Inter'] text-base font-medium mb-4">
+                          <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             Who did you raise from?
                           </label>
-                          <div className="flex gap-4">
+                          <div className="grid grid-cols-3 gap-1 sm:gap-2 md:gap-4">
                             {['Bootstrapped', 'Family/Friends', 'VC/Angel'].map((source) => (
                               <div
                                 key={source}
-                                className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
+                                className="flex items-center gap-1 sm:gap-2 p-0 sm:p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                 onClick={() => handleRaisedFromToggle(source)}
                               >
                                 {/* Custom Checkbox */}
                                 <div
-                                  className={`w-6 h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
+                                  className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
                                 >
                                   {localFormData.raisedFrom.includes(source) && (
                                     <svg
-                                      className="h-6 w-6 text-white"
+                                      className="lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 text-white"
                                       fill="none"
                                       stroke="currentColor"
                                       viewBox="0 0 24 24"
@@ -861,7 +861,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                   )}
                                 </div>
                                 {/* Source Label */}
-                                <span className="text-white font-['Inter'] text-lg font-medium">
+                                <span className="text-white font-['Inter'] text-xs sm:text-sm md:text-lg font-medium">
                                   {source}
                                 </span>
                               </div>
@@ -878,7 +878,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                       <>
                         {/* Deck Preview */}
                         <div className="space-y-2 flex flex-col items-center justify-center h-full">
-                          <div className="relative w-full max-w-[480px] top-8 h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center">
+                          <div className="relative w-full max-w-[480px] h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center">
                             {localFormData.deckUrl ? (
                               <iframe
                                 title="Pitch Deck Preview"
@@ -910,7 +910,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
               </div>
 
               {currentView !== "deck" && (
-                <div className="w-full flex flex-col items-center pb-6 mt-2">
+                <div className="w-99/100 flex flex-col items-center pb-6 mt-2">
                   <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
                     <button
                       onClick={handleBack}
@@ -931,7 +931,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                   </div>
 
                   <div className="pt-10 w-full max-w-[32rem] flex justify-center">
-                    <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
+                    <p className="text-[#B8B8B8] hidden md:block text-xs font-normal font-['Inter'] leading-[1.4] text-center">
                       This is private, by default. No one can see any of this. The only people
                       who can ever see the contents of your information are people you've
                       explicitly shared its private link with.
@@ -940,7 +940,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                 </div>
               )}
               {currentView == "deck" && (
-                <div className="w-full flex flex-col items-center pb-6 mt-2">
+                <div className="w-99/100 flex flex-col items-center pb-6 mt-2">
                   <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
                     <button
                       onClick={handleBack}
@@ -961,7 +961,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                   </div>
 
                   <div className="pt-10 w-full max-w-[32rem] flex justify-center">
-                    <p className="text-[#B8B8B8] text-xs font-normal font-['Inter'] leading-[1.4] text-center">
+                    <p className="text-[#B8B8B8] hidden md:block text-xs font-normal font-['Inter'] leading-[1.4] text-center">
                       This is private, by default. No one can see any of this. The only people
                       who can ever see the contents of your information are people you've
                       explicitly shared its private link with.
@@ -974,7 +974,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
           {isOpen && isTrue && (
             <>
               <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4"
-                onClick={() => { setIsTrue(false) }}
+                // onClick={() => { setIsTrue(false) }}
               >
                 <div className="absolute inset-0 bg-black/10 cursor-pointer" />
                 <div
@@ -982,24 +982,24 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                 >
                   <button
                     onClick={() => { setIsTrue(false) }}
-                    className="absolute top-0 right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
+                    className="absolute top-0 right-22 sm:right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
                   >
                     &times;
                   </button>
 
-                  <h2 className="text-white text-5xl font-semibold mb-20 font-['Inter']">
+                  <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-semibold mb-20 font-['Inter']">
                     Your link is live!
                   </h2>
 
                   {/* Reachlink container */}
-                  <div className="bg-black/50 p-8 rounded-md w-full max-h-50 max-w-2xl flex flex-col space-y-5">
-                    <p className="text-white justify-start flex text-base font-medium font-['Inter']">Here is your Reachlink</p>
-                    <div className="flex items-center gap-4 w-full max-w-120 bg-white/11 rounded-[0.125rem] pr-2">
+                  <div className="bg-black/50 p-3 sm:p-8 rounded-md w-full max-h-50 max-w-82 sm:max-w-2xl flex flex-col space-y-5">
+                    <p className="text-white justify-center sm:justify-start flex text-base font-medium font-['Inter']">Here is your Reachlink</p>
+                    <div className="flex items-center gap-4 w-full max-w-xs sm:max-w-120 bg-white/11 rounded-[0.125rem] pr-0 sm:pr-2">
                       <input
                         type="text"
                         value={reachLink}
                         readOnly
-                        className="flex-grow max-w-md  text-white outline-none px-4 py-2 font-['Inter'] text-xs font-normal"
+                        className="flex-grow w-80 max-w-80 sm:max-w-md  text-white outline-none px-1.5 py-1 sm:px-4 sm:py-2 font-['Inter'] text-xs font-normal"
                       />
                       {/* Copy button with functionality */}
                       <button
@@ -1031,7 +1031,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                   </div>
                   <button
                     onClick={handleNextClick}
-                    className="absolute bottom-0 right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
+                    className="absolute bottom-0 right-22 sm:right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
                   >
                     Next
                   </button>
