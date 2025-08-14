@@ -411,18 +411,17 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
         {/* Main modal content container with background image */}
         <div
-          className="relative flex flex-col items-center bg-cover bg-center bg-no-repeat
-                      w-full max-w-6xl h-[calc(100vh-3rem)] sm:h-[calc(100vh-7.5rem)] overflow-y-auto "
+          className="relative flex flex-col items-center bg-cover bg-center bg-no-repeat w-full max-w-6xl h-[86vh] max-h-[calc(86vh)] sm:h-[calc(100vh)] overflow-y-auto "
           style={{
             backgroundImage: `url(${Rectangle82})`, // Use the imported image
           }}
         >
           {isOpen && !isTrue && (
             <>
-              <div className="relative h-40 md:h-32 w-full">
+              <div className="relative h-32 w-full">
                 <div className="absolute inset-0" />
-                <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-6">
-                  <h1 className="text-white text-lg sm:text-xl md:text[22px] lg:text-2xl mt-8 md:mt-6 font-semibold mb-2 font-['Inter']">
+                <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-6 mt-2 mb-2">
+                  <h1 className="text-white text-lg sm:text-xl md:text[22px] lg:text-2xl mt-0 md:mt-6 font-semibold mb-2 font-['Inter']">
                     {currentView === "profile" && "Profile Information"}
                     {currentView === "basics" && "Company Information"}
                     {currentView === "team" && "Founder's Information"}
@@ -910,8 +909,8 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
               </div>
 
               {currentView !== "deck" && (
-                <div className="w-99/100 flex flex-col items-center pb-6 mt-2">
-                  <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
+                <div className="w-99/100 flex flex-col items-center pb-0 md:pb-6 mt-2">
+                  <div className="flex justify-end items-center gap-2 sm:mb-3 w-full lg:max-w-[40rem] max-w-120">
                     <button
                       onClick={handleBack}
                       className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
@@ -940,8 +939,8 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                 </div>
               )}
               {currentView == "deck" && (
-                <div className="w-99/100 flex flex-col items-center pb-6 mt-2">
-                  <div className="flex justify-end items-center gap-2 mb-3 w-full max-w-[40rem]">
+                <div className="w-99/100 flex flex-col items-center pb-0 md:pb-6 mt-2">
+                  <div className="flex justify-end items-center gap-2 sm:mb-3 w-full lg:max-w-[40rem] max-w-120">
                     <button
                       onClick={handleBack}
                       className="w-20 h-8 bg-white/20 rounded-[0.125rem] border-none cursor-pointer text-white transition-colors hover:bg-gray-500"
@@ -982,7 +981,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                 >
                   <button
                     onClick={() => { setIsTrue(false) }}
-                    className="absolute top-0 right-22 sm:right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
+                    className="absolute top-6 right-24 sm:right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
                   >
                     &times;
                   </button>
@@ -1031,7 +1030,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                   </div>
                   <button
                     onClick={handleNextClick}
-                    className="absolute bottom-0 right-22 sm:right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
+                    className="absolute bottom-6 right-24 sm:right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
                   >
                     Next
                   </button>
