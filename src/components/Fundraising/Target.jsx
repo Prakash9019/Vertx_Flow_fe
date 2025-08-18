@@ -989,19 +989,19 @@ const getFlagOrContinent = (name) => {
 
 
     return (
-      <div className="pt-12 min-h-[calc(100vh-4rem)] bg-black pb-4" onClick={closeMenu}>
+      <div className="md:pt-12 max-w-99/100 pt-6 min-h-[calc(100vh-4rem)] bg-black pb-4" onClick={closeMenu}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 px-16">
-  <div className="flex flex-col mt-5 sm:mt-auto flex-1">
+        <div className="flex items-center justify-between -mb-8 sm:mb-4 md:mb-8 px-3 sm:px-9 md:px-7 lg:px-16">
+  <div className="flex flex-col md:mt-5 sm:mt-auto flex-1">
     <button
       onClick={showSettings ? () => setShowSettings(false) : handleBackClick}
-      className="flex items-center gap-2 transition-colors hover:text-gray-300 mb-4 bg-none border-none cursor-pointer text-white font-['Inter'] text-base font-medium self-start -ml-17 sm:-ml-8"
+      className="flex items-center gap-2 transition-colors hover:text-gray-300 mb-4 bg-none border-none cursor-pointer text-white font-['Inter'] text-base font-medium self-start md:-ml-17 sm:-ml-8"
     >
       <img src={BackButton || "/placeholder.svg"} alt="Back Icon" className="w-6 h-6" />
       {showSettings ? "Settings" : "Back"}
     </button>
 
-    <div className="flex items-center  -ml-15 sm:ml-0 justify-between w-full">
+    <div className="flex items-center ml-0  md:-ml-15 justify-between w-full">
       {isEditingName ? (
         <div className="flex items-center gap-3 w-full">
           <div className="flex flex-col relative flex-1">
@@ -1026,8 +1026,8 @@ const getFlagOrContinent = (name) => {
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-3">
-          <h1 className="text-white font-['Inter'] text-2xl font-semibold m-0">{selectedList.name}</h1>
+        <div className="flex items-center gap-3 md:gap-2 lg:gap-3">
+          <h1 className="text-white font-['Inter'] text-lg lg:text-2xl font-semibold m-0">{selectedList.name}</h1>
           <div className="flex items-center justify-center w-21 h-[1.3125rem] rounded-[6.25rem] bg-[#33005C] text-white font-['Inter'] text-[0.5rem] font-semibold">
             {selectedList.investorCount || 0} INVESTORS
           </div>
@@ -1037,7 +1037,7 @@ const getFlagOrContinent = (name) => {
   </div>
 
   {/* Action Buttons and Three Dots Menu */}
-  <div className="flex mt-9 items-center gap-4">
+  <div className="flex md:mt-9 items-center gap-4">
     {isEditingName ? (
       <div className="flex items-center gap-3">
         <button
@@ -1064,31 +1064,31 @@ const getFlagOrContinent = (name) => {
       </div>
     ) : (
       <>        {hasInvestors && !showSettings && canEdit && (
-          <>
+          <div className="md:flex md:gap-2 md:relative md:bottom-0 md:right-0 z-999 fixed bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
             <button
               onClick={() => setShowSettings(true)}
-              className="flex items-center justify-center gap-2 transition-colors hover:bg-gray-100 h-10 rounded bg-white border-none cursor-pointer px-4"
+              className="flex items-center justify-center gap-1 lg:gap-2 transition-colors hover:bg-gray-100 h-10 rounded  bg-white border-none cursor-pointer px-2 py-1 lg:px-4"
             >
               <img
                 src={SettingsIcon || "/placeholder.svg"}
                 alt="Settings Icon"
                 className="w-[1.125rem] h-[1.125rem]"
               />
-              <span className="text-black font-['Inter'] text-sm font-medium">Settings</span>
+              <span className="text-black font-['Inter'] text-xs sm:text-sm font-medium">Settings</span>
             </button>
 
             <button
               onClick={handleAddInvestorsClick}
-              className="flex items-center justify-center gap-2 transition-colors hover:bg-purple-700 h-10 rounded bg-[#5F248D] border-none cursor-pointer px-4"
+              className="flex items-center justify-center gap-1 lg:gap-2 transition-colors hover:bg-purple-700 h-10 rounded bg-[#5F248D] border-none cursor-pointer px-1 py-1 sm:px-2 lg:px-4"
             >
               <img src={AddIcon || "/placeholder.svg"} alt="Add Icon" className="w-[1.125rem] h-[1.125rem]" />
-              <span className="text-white font-['Inter'] text-sm font-medium">Add Investors</span>
+              <span className="text-white font-['Inter'] text-xs sm:text-sm font-medium">Add Investors</span>
             </button>
-          </>
+          </div>
         )}
 
         {!showSettings && (
-          <div className="relative mt-5 sm:mt-auto">
+          <div className="relative mt-7 sm:mt-8 md:mt-auto ">
             <button
               onClick={(e) => handleThreeDotsClick(e, selectedList.id)}
               className="p-2 hover:bg-gray-700 rounded transition-colors text-[#B8B8B8]"
@@ -1292,57 +1292,51 @@ const getFlagOrContinent = (name) => {
           ) : (
             // Investor List View
             <>
-              {/* Table Header */}
-              <div className="flex items-center py-4 px-4 xl:px-6">
+              {/* Table Header (hidden on small screens) */}
+              <div className="md:flex hidden items-center py-4 px-4 xl:px-6">
                 <div className="w-[17rem] flex-shrink-0">
                   <div className="text-white font-semibold text-xs uppercase tracking-[0.05em] font-['Inter'] text-[0.5rem]">
                     INVESTOR NAME
                   </div>
                 </div>
-
+                {/* ... (rest of the table header content) ... */}
                 <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 overflow-hidden min-w-0 pl-4">
                   <div className="flex justify-center flex-shrink-0 w-12">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       CHECK SIZE
                     </div>
                   </div>
-
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       STAGE
                     </div>
                   </div>
-
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       INDUSTRY
                     </div>
                   </div>
-
                   <div className="flex justify-center flex-shrink-0 w-16">
-                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem] ">
+                    <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       GEOGRAPHY
                     </div>
                   </div>
-
                   <div className="flex justify-center flex-shrink-0 w-12">
                     <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       MATCH
                     </div>
                   </div>
-
                   <div className="flex justify-center flex-shrink-0 w-16">
                     <div className="text-white font-semibold text-xs uppercase tracking-wider text-center whitespace-nowrap font-['Inter'] text-[0.5rem]">
                       SUBMIT DECK
                     </div>
                   </div>
-
                   <div className="flex-shrink-0 w-6"></div>
                 </div>
               </div>
 
-              {/* Scrollable Investor List */}
-              <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide">
+              {/* Scrollable Investor List - Table View (visible on md and up) */}
+              <div className="bg-gray-900/30 rounded-b-lg max-h-96 overflow-y-auto scrollbar-hide md:block hidden">
                 {currentInvestors.map((investor) => (
                   <div
                     key={investor.id}
@@ -1352,34 +1346,19 @@ const getFlagOrContinent = (name) => {
                       <img
                         src={investor.profile_image || investor.avatar || fallbackAvatar}
                         alt={investor.name}
-                        className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white" />
+                        className="rounded object-contain w-12 h-12 xl:w-[3.75rem] xl:h-[3.75rem] bg-white"
+                      />
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
                           <span className="text-white font-normal text-base truncate font-['Inter']">
                             {investor.name}
                           </span>
-
                           <div className="flex gap-1">
-                            <img
-                              src={LinkedIn || "/placeholder.svg"}
-                              alt="LinkedIn"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-[#0077B5]"
-                            />
-                            <img
-                              src={Link || "/placeholder.svg"}
-                              alt="Link"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
-                            />
-                            <img
-                              src={Mail || "/placeholder.svg"}
-                              alt="Mail"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
-                            />
-                            <img
-                              src={Twitter || "/placeholder.svg"}
-                              alt="Twitter"
-                              className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400"
-                            />
+                            {/* Social media icons */}
+                            <img src={LinkedIn || "/placeholder.svg"} alt="LinkedIn" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-[#0077B5]" />
+                            <img src={Link || "/placeholder.svg"} alt="Link" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400" />
+                            <img src={Mail || "/placeholder.svg"} alt="Mail" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400" />
+                            <img src={Twitter || "/placeholder.svg"} alt="Twitter" className="w-2 h-2 xl:w-2.5 xl:h-2.5 cursor-pointer text-gray-400" />
                           </div>
                         </div>
                         <div className="flex items-center gap-2 mt-1 overflow-hidden">
@@ -1394,122 +1373,244 @@ const getFlagOrContinent = (name) => {
                     </div>
 
                     <div className="flex items-center justify-between flex-grow gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-10 min-w-0">
-
-                    {/* Check Size */}
-                    <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
-                      {investor.checkSize || "—"}
-                    </div>
-
-                    {/* Stage */}
-                    <div className="flex flex-col gap-y-1 flex-shrink-0">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
-                        {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+                      {/* Check Size */}
+                      <div className="bg-[#18002C] text-white text-xs font-semibold w-20 h-6 rounded-sm flex items-center justify-center flex-shrink-0 font-['Inter'] text-[0.625rem]">
+                        {investor.checkSize || "—"}
                       </div>
-                      {(investor.stage?.length > 1 || investor.invests_in_rounds?.length > 1) && (
-                        <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                          {investor.stage?.length > 1
-                            ? `+${investor.stage.length - 1}`
-                            : `+${investor.invests_in_rounds.length - 1}`}
+
+                      {/* Stage */}
+                      <div className="flex flex-col gap-y-1 flex-shrink-0">
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
+                          {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
                         </div>
-                      )}
-                    </div>
-
-                    {/* Industry */}
-                    <div className="flex flex-col gap-y-1 flex-shrink-0">
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
-                        {investor.industry?.[0] || investor.sectors?.[0] || "—"}
-                      </div>
-                    {(investor.industry?.length > 1 || investor.sectors?.length > 1) && (
-                      <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        {investor.industry?.length > 1
-                          ? `+${investor.industry.length - 1}`
-                          : `+${investor.sectors.length - 1}`}
-                      </div>
-                    )}
-                    </div>
-
-                    {/* Geography */}
-                    <div className="col-span-1 flex flex-row gap-x-1 items-center">
-                      {/* Flag Box */}
-                      <div className="w-6 h-6 bg-[#18002C] rounded-sm flex items-center justify-center">
-                        {getFlagOrContinent(investor.countries?.[0])}
+                        {(investor.stage?.length > 1 || investor.invests_in_rounds?.length > 1) && (
+                          <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                            {investor.stage?.length > 1 ? `+${investor.stage.length - 1}` : `+${investor.invests_in_rounds.length - 1}`}
+                          </div>
+                        )}
                       </div>
 
-                      {/* Total Countries This Investor Covers */}
-                      <div className="w-6 h-6 bg-[#18002C] text-white text-xs font-semibold rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
-                        <span>+</span>
-                        {investor.countries?.length || 0}
+                      {/* Industry */}
+                      <div className="flex flex-col gap-y-1 flex-shrink-0">
+                        <div className="bg-[#18002C] text-white text-xs font-semibold w-16 h-6 rounded-sm flex items-center pl-2 font-['Inter'] text-[0.625rem]">
+                          {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+                        </div>
+                        {(investor.industry?.length > 1 || investor.sectors?.length > 1) && (
+                          <div className="bg-[#18002C] text-white text-xs font-semibold w-6 h-6 rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                            {investor.industry?.length > 1 ? `+${investor.industry.length - 1}` : `+${investor.sectors.length - 1}`}
+                          </div>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Match Value */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ background: getMatchColor(investor.matchValue) }}
-                      ></div>
-                      <span className="text-white text-base font-semibold font-['Inter']">{investor.match || "—"}</span>
-                    </div>
+                      {/* Geography */}
+                      <div className="col-span-1 flex flex-row gap-x-1 items-center">
+                        <div className="w-6 h-6 bg-[#18002C] rounded-sm flex items-center justify-center">
+                          {getFlagOrContinent(investor.countries?.[0])}
+                        </div>
+                        <div className="w-6 h-6 bg-[#18002C] text-white text-xs font-semibold rounded-sm flex items-center justify-center font-['Inter'] text-[0.625rem]">
+                          <span>+</span>
+                          {investor.countries?.length || 0}
+                        </div>
+                      </div>
 
-                    {/* Submit Button */}
-                    <button
-                      className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem] transition-all hover:scale-105"
-                      style={{
-                        background:
-                          "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
-                      }}
-                    >
-                      Submit
-                    </button>
+                      {/* Match Value */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ background: getMatchColor(investor.matchValue) }}
+                        ></div>
+                        <span className="text-white text-base font-semibold font-['Inter']">{investor.match || "—"}</span>
+                      </div>
 
-                    {/* Dropdown */}
-                    <div className="relative flex-shrink-0">
+                      {/* Submit Button */}
                       <button
-                        className="hover:opacity-70 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                        className="text-white text-xs font-medium rounded w-15 h-7 flex-shrink-0 font-['Inter'] text-[0.625rem] transition-all hover:scale-105"
+                        style={{
+                          background: "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
                         }}
                       >
-                        <MoreVertical className="w-6 h-6 text-gray-400" />
+                        Submit
                       </button>
 
-                      {activeDropdown === investor.id && (
-                        <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
-                          <div className="py-1">
-                            {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
+                      {/* Dropdown */}
+                      <div className="relative flex-shrink-0">
+                        <button
+                          className="hover:opacity-70 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                          }}
+                        >
+                          <MoreVertical className="w-6 h-6 text-gray-400" />
+                        </button>
+                        {activeDropdown === investor.id && (
+                          <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] h-[5.125rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                            <div className="py-1">
+                              {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
                               { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
                               { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
-                            ].filter(item => {
-                              if (item.requiresEdit && !canEdit) return false;
-                              if (item.requiresView && !canView) return false;
-                              return true;
-                            }).map((item, index) => (
-                              <button
-                                key={index}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  item.action();
-                                }}
-                                className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
-                              >
-                                <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
-                                  {item.icon}
-                                </div>
-                                {item.text}
-                              </button>
-                            ))}
+                              ].filter(item => {
+                                if (item.requiresEdit && !canEdit) return false;
+                                if (item.requiresView && !canView) return false;
+                                return true;
+                              }).map((item, index) => (
+                                <button
+                                  key={index}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    item.action();
+                                  }}
+                                  className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                                >
+                                  <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                                    {item.icon}
+                                  </div>
+                                  {item.text}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-
                   </div>
                 ))}
               </div>
 
-              {/* Bottom Info and Pagination Container for Investor List */}
+              {/* Card View (visible on small screens) */}
+              <div className="bg-gray-900/30 rounded-b-lg p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-4 md:hidden">
+    {currentInvestors.map((investor) => (
+      <div
+        key={investor.id}
+        className="bg-black rounded-lg p-4 flex flex-col gap-y-4 h-full"
+      >
+        {/* Investor Name and Image */}
+        <div className="flex items-center gap-4">
+          <img
+            src={investor.profile_image || investor.avatar || fallbackAvatar}
+            alt={investor.name}
+            className="rounded-lg object-contain w-16 h-16 bg-white"
+          />
+          <div className="flex flex-col flex-1">
+            <span className="text-white text-lg font-bold">{investor.name}</span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-gray-400 text-sm">{investor.company || investor.firm || investor.fund}</span>
+              <span className="text-white text-[0.5rem] font-bold rounded-full bg-blue-600 px-2 py-1 flex-shrink-0">
+                {investor.type}
+              </span>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <img src={LinkedIn || "/placeholder.svg"} alt="LinkedIn" className="w-4 h-4 cursor-pointer text-[#0077B5]" />
+              <img src={Link || "/placeholder.svg"} alt="Link" className="w-4 h-4 cursor-pointer text-gray-400" />
+              <img src={Mail || "/placeholder.svg"} alt="Mail" className="w-4 h-4 cursor-pointer text-gray-400" />
+              <img src={Twitter || "/placeholder.svg"} alt="Twitter" className="w-4 h-4 cursor-pointer text-gray-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* Data Points */}
+        <div className="flex flex-wrap gap-2 justify-between">
+          <div className="flex-1 min-w-[40%]">
+            <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Check Size</p>
+            <div className="bg-[#18002C] text-white text-sm font-semibold rounded-sm p-2 flex justify-center">
+              {investor.checkSize || "—"}
+            </div>
+          </div>
+          <div className="flex-1 min-w-[40%]">
+            <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Stage</p>
+            <div className="bg-[#18002C] text-white text-sm font-semibold rounded-sm p-2 flex items-center justify-center">
+              {investor.stage?.[0] || investor.invests_in_rounds?.[0] || "—"}
+              {(investor.stage?.length > 1 || investor.invests_in_rounds?.length > 1) && (
+                <span className="ml-1 text-[0.625rem] text-gray-400">
+                  +{investor.stage?.length > 1 ? investor.stage.length - 1 : investor.invests_in_rounds.length - 1}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex-1 min-w-[40%]">
+            <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Industry</p>
+            <div className="bg-[#18002C] text-white text-sm font-semibold rounded-sm p-2 flex items-center justify-center">
+              {investor.industry?.[0] || investor.sectors?.[0] || "—"}
+              {(investor.industry?.length > 1 || investor.sectors?.length > 1) && (
+                <span className="ml-1 text-[0.625rem] text-gray-400">
+                  +{investor.industry?.length > 1 ? investor.industry.length - 1 : investor.sectors.length - 1}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex-1 min-w-[40%]">
+            <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Geography</p>
+            <div className="bg-[#18002C] text-white text-sm font-semibold rounded-sm p-2 flex items-center justify-center gap-2">
+              {getFlagOrContinent(investor.countries?.[0])}
+              <span className="ml-1 text-[0.625rem] text-gray-400">
+                +{investor.countries?.length || 0}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Match and Actions */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ background: getMatchColor(investor.matchValue) }}
+            ></div>
+            <span className="text-white text-base font-semibold">Match: {investor.match || "—"}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              className="text-white text-xs font-medium rounded px-4 py-2 flex-shrink-0 transition-all hover:scale-105"
+              style={{
+                background: "linear-gradient(260deg, rgba(0, 0, 0, 0.25) -22.9%, rgba(252, 65, 65, 0.25) 119.49%), linear-gradient(99deg, #000 -4%, #33005C 104%)",
+              }}
+            >
+              Submit
+            </button>
+            <div className="relative">
+              <button
+                className="hover:opacity-70 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveDropdown(activeDropdown === investor.id ? null : investor.id);
+                }}
+              >
+                <MoreVertical className="w-6 h-6 text-gray-400" />
+              </button>
+              {activeDropdown === investor.id && (
+                <div className="absolute right-0 top-full mt-1 z-50 border w-[8.0625rem] rounded border-[#0F0E16] bg-black shadow-lg">
+                  {/* Dropdown content */}
+                  <div className="py-1">
+                    {[{ text: "Add to pipeline", icon: "💰", action: () => console.log("Add to pipeline clicked"), requiresEdit: true },
+                    { text: "Remove from list", icon: "🗑️", action: () => handleRemoveInvestor(investor.id || investor._id), requiresEdit: true },
+                    { text: "Report an error", icon: "⚠️", action: () => console.log("Report error clicked"), requiresView: true },
+                    ].filter(item => {
+                      if (item.requiresEdit && !canEdit) return false;
+                      if (item.requiresView && !canView) return false;
+                      return true;
+                    }).map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => { e.stopPropagation(); item.action(); }}
+                        className="w-full flex items-center gap-2 px-2 py-1 text-left hover:text-white transition-colors text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal h-5 hover:bg-[#33005C]"
+                      >
+                        <div className="flex-shrink-0 bg-gray-300 rounded flex items-center justify-center text-xs w-3 h-3">
+                          {item.icon}
+                        </div>
+                        {item.text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+              {/* Bottom Info and Pagination Container */}
               <div className="flex items-center justify-between mt-auto pt-6">
                 <div className="flex items-center justify-center w-[9.375rem] h-[1.875rem] rounded-[0.125rem] bg-black text-[#B8B8B8] font-['Inter'] text-[0.5rem] font-normal">
                   {investors.length} results found | 10 per page
