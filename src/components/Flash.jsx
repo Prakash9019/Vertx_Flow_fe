@@ -30,19 +30,19 @@ const Flash = () => {
         <div className="bg-black text-white">
                 <Sidebar />
         </div>
-        <div className='relative m-8 w-full bg-no-repeat bg-cover bg-right' style={{
+        <div className='relative md:m-8 m-4 w-full bg-no-repeat bg-cover bg-right' style={{
         fontFamily: "'Crimson Text', serif",
         backgroundImage: `url(${Bg})`
         }}>
         <div className="absolute inset-0 backdrop-brightness-50"></div>
-        <div className="relative z-10 p-4 text-white flex flex-col items-center justify-center text-center h-full">
-            <h1 className="text-5xl font-normal mb-2">
+        <div className="relative z-10 md:p-4 p-2 text-white flex flex-col items-center justify-center text-center h-full">
+            <h1 className="lg:text-5xl md:text-[42px] text-3xl font-normal mb-2">
                 Generate Pitch Decks Instantly.
             </h1>
-            <p className="text-base font-semibold font-[inter] mb-8">
+            <p className="lg:text-base md:text-sm text-xs font-semibold font-[inter] mb-8">
                 Decks that highlight your vision, crafted for investors and designed for impact.
             </p>
-            <button onClick={handleClicked} className="bg-white text-black px-12 py-3 rounded-md font-semibold text-lg font-[inter] hover:bg-gray-200 transition-colors duration-300">
+            <button onClick={handleClicked} className="bg-white text-black md:px-12 md:py-3 py-1.5 px-6 rounded-sm md:rounded-md font-semibold text-lg font-[inter] hover:bg-gray-200 transition-colors duration-300">
                 Create now
             </button>
         </div>
