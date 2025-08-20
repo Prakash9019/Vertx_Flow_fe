@@ -332,13 +332,12 @@ const Reach = () => {
       return (
         <div
   style={{
-    // backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.76), rgba(0, 0, 0, 0.76)), url(${ReachImage})`,
     backgroundImage : `url(${ReachImage})`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     backgroundSize: 'cover',
   }}
-  className="w-[52.5rem] md:h-[27rem] flex-shrink-0 rounded-lg font-[inter] flex items-center justify-center  max-w-full sm:w-[90%] sm:h-[22rem] h-[18rem]"
+  className="w-[52.5rem] min-h-[calc(75vh-11.5rem)] bg-center bg-cover  md:h-[27rem] flex-shrink-0 rounded-lg font-[inter] flex items-center justify-center  max-w-full sm:w-[90%] sm:h-[22rem] h-[18rem]"
 >
   <div className="text-center px-4">
     <h2 className="text-lg sm:text-2xl font-semibold mb-6 text-white">

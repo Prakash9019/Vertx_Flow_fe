@@ -1111,7 +1111,7 @@ const getFlagOrContinent = (name) => {
 </div>
 
         {/* Main Content Area */}
-        <div className="md:w-[calc(100%-8rem)] mt-16 sm:mt-auto w-full h-[52vh] md:h-[calc(100vh-14rem)] rounded-lg bg-[#0F0E16] relative p-0 sm:p-4 md:p-10 mx-0 md:mx-16 flex flex-col">
+        <div className="lg:w-[calc(100%-8rem)] mt-36 sm:mt-auto w-full h-[52vh] md:h-[calc(100vh-14rem)] rounded-lg bg-[#0F0E16] relative p-0 sm:p-4 lg:p-10 mx-0 lg:mx-16 flex flex-col">
           {showSettings ? (
             // Settings Content
             <div className="space-y-6">
@@ -1238,6 +1238,7 @@ const getFlagOrContinent = (name) => {
           ) : !hasInvestors ? (
             // Empty State
             <>
+            {/* text and button div for all normal pages inside Target */}
               <div
                 className="w-full h-[calc(100%-6rem)] bg-[length:100%_100%] bg-center bg-no-repeat rounded-md mb-8 md:mb-[4.5rem] flex flex-col items-center justify-center gap-2 md:gap-8"
                 style={{
