@@ -57,6 +57,8 @@ import CompaniesReachLink from "./components/Fundraising/CompaniesReachLink.jsx"
 import ReachLinkPreview from "./components/Fundraising/ReachLinkPreview.jsx";
 import ReachRedirect from "./components/ReachRedirect.jsx";
 import Flash from "./components/Flash.jsx";
+import EditorPage from "./components/new/EditorPage.jsx";
+import UserBGselect from "./components/new/UserBGselect.jsx";
 
 
 
@@ -74,6 +76,8 @@ function App() {
     { path: "/addfounder", element: <AddCofounder_Page /> },
     { path: "/homepage", element: <HomePage /> },
     { path: "/flash", element: <Flash /> },
+    { path: "/ep", element: <EditorPage /> },
+    { path: "/ub", element: <UserBGselect /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/gettingStarted", element: <GettingStarted /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
