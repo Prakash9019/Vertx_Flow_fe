@@ -1,173 +1,144 @@
 
-import React, { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import Toolbar from './Toolbar';
-import SlideSidebar from './SlideSidebar';
-import SlideCanvas from './SlideCanvas';
-import Preview from './Preview';
-import AddSlide from './AddSlide';
 
-function newId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
-}
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import UserBGselect from './UserBGselect';
 
-const LAYOUTS = {
-  title: () => ({
-    id: newId('s'),
-    layout: 'title',
-    blocks: [
-      { id: newId('b'), type: 'text', style: 'heading', content: 'Slide title' },
-      { id: newId('b'), type: 'text', style: 'paragraph', content: 'Subtitle or description' },
-    ],
-  }),
-  titleContent: () => ({
-    id: newId('s'),
-    layout: 'titleContent',
-    blocks: [
-      { id: newId('b'), type: 'text', style: 'heading', content: 'Section title' },
-      { id: newId('b'), type: 'text', style: 'paragraph', content: 'Body content here...' },
-    ],
-  }),
-  splitImageText: () => ({
-    id: newId('s'),
-    layout: 'splitImageText',
-    blocks: [
-      { id: newId('b'), type: 'image', src: '', alt: 'Placeholder' },
-      { id: newId('b'), type: 'text', style: 'paragraph', content: 'Describe the visual' },
-    ],
-  }),
-  video: () => ({
-    id: newId('s'),
-    layout: 'video',
-    blocks: [
-      { id: newId('b'), type: 'video', src: '', alt: 'Demo' },
-      { id: newId('b'), type: 'text', style: 'heading', content: 'Demo' },
-    ],
-  }),
+// Component One with its own data
+const ComponentOne = () => (
+  <div className="h-screen w-screen flex items-center justify-center bg-gray-200">
+    <div className="bg-white bg-opacity-80 backdrop-blur-lg rounded-3xl p-8 max-w-xl text-center shadow-2xl">
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-4 font-sans tracking-tight leading-tight">
+        A New Way to Present Content
+      </h1>
+      <p className="text-lg text-gray-700 font-medium leading-relaxed">
+        This is a unique component with its own content and styling. It does not receive any props from the main app component.
+      </p>
+    </div>
+  </div>
+);
+
+// Component Two with its own data
+const ComponentTwo = () => (
+  <div className="h-screen w-screen flex items-center justify-center bg-gray-300">
+    <div className="bg-white bg-opacity-80 backdrop-blur-lg rounded-3xl p-8 max-w-xl text-center shadow-2xl">
+      <h1 className="text-4xl font-extrabold text-gray-900 mb-4 font-sans tracking-tight leading-tight">
+        Fully Self-Contained
+      </h1>
+      <p className="text-lg text-gray-700 font-medium leading-relaxed">
+        This component is completely independent and can be used on any slide without needing external data.
+      </p>
+    </div>
+  </div>
+);
+
+// UserBGselect component with its own data
+const UserBGselected = () => {
+  const data = {
+    title: 'Welcome to Our Website',
+    text: 'This is the first slide. Each component now manages its own data and content.',
+    color: '#A0B4D1', // Soft Blue
+  };
+
+  return (
+    <div
+      className={`relative h-screen w-screen flex items-center justify-center p-8 transition-colors duration-500`}
+      style={{ backgroundColor: data.color }}
+    >
+      <div className="bg-white bg-opacity-80 backdrop-blur-lg rounded-3xl p-8 max-w-xl text-center shadow-2xl">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 font-sans tracking-tight leading-tight">
+          {data.title}
+        </h1>
+        <p className="text-lg text-gray-700 font-medium leading-relaxed">
+          {data.text}
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default function EditorPage() {
-  const { id } = useParams();
-  const [deck, setDeck] = useState(null);
-  const [slides, setSlides] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [showPreview, setShowPreview] = useState(false);
-  const [showAdd, setShowAdd] = useState(false);
-  const navigate = useNavigate();
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const isAnimatingRef = useRef(false);
+
+  // Array of components to render for each slide
+  const slides = [
+    <UserBGselect />,
+    <ComponentOne />,
+    <UserBGselected />,
+    <ComponentTwo />,
+    <UserBGselected />,
+    <ComponentOne />,
+    <UserBGselected />,
+    <ComponentTwo />,
+    <UserBGselected />,
+  ];
+  const totalSlides = slides.length;
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await axios.get(`http://localhost:5000/api/decks/${id}`);
-        setDeck(res.data);
-        setSlides(res.data.slides || []);
-        setCurrent(0);
-      } catch (err) {
-        alert('Failed to load deck. Returning to list.');
-        // navigate('/');
+    const handleWheel = (event) => {
+      if (isAnimatingRef.current) return;
+      
+      const deltaY = event.deltaY;
+      let newIndex = currentSlideIndex;
+
+      if (deltaY > 0 && currentSlideIndex < totalSlides - 1) {
+        newIndex = currentSlideIndex + 1;
+      } else if (deltaY < 0 && currentSlideIndex > 0) {
+        newIndex = currentSlideIndex - 1;
       }
-    }
-    load();
-  }, [id, navigate]);
 
-  function updateCurrentSlide(newSlide) {
-    const newSlides = slides.map((s, i) => (i === current ? newSlide : s));
-    setSlides(newSlides);
-  }
-
-  async function handleSave() {
-    const payload = {
-      ...(deck || {}),
-      slides,
+      if (newIndex !== currentSlideIndex) {
+        isAnimatingRef.current = true;
+        setCurrentSlideIndex(newIndex);
+      }
     };
-    try {
-      await axios.put(`http://localhost:5000/api/decks/${id}`, payload);
-      alert('Deck saved successfully!');
-    } catch (err) {
-      alert('Failed to save deck.');
-    }
-  }
 
-  async function handleSaveAs() {
-    const newId = `deck-${Date.now()}`;
-    const payload = {
-      ...deck,
-      id: newId,
-      title: (deck?.title || 'Untitled') + ' (Copy)',
-      createdAt: new Date().toISOString(),
-      slides,
-    };
-    try {
-      await axios.post(`http://localhost:5000/api/decks`, payload);
-      navigate(`/editor/${newId}`);
-    } catch (err) {
-      alert('Failed to save a new copy.');
-    }
-  }
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [currentSlideIndex, totalSlides]);
 
-  function handleAddSlide(layoutKey) {
-    const newSlide = LAYOUTS[layoutKey]();
-    setSlides([...slides, newSlide]);
-    setCurrent(slides.length);
-  }
+  const transition = {
+    duration: 1.1,
+    ease: [0.8, 0.08, -0.015, 1.0],
+  };
 
-  function handleDeleteSlide() {
-    if (slides.length <= 1) return;
-    const newSlides = slides.filter((_, i) => i !== current);
-    setSlides(newSlides);
-    setCurrent(Math.max(0, current - 1));
-  }
- 
-  const currentSlide = useMemo(() => slides[current] || null, [slides, current]);
-
-  function handlePrevSlide() {
-    setCurrent((c) => Math.max(0, c - 1));
-  }
-
-  function handleNextSlide() {
-    setCurrent((c) => Math.min(slides.length - 1, c + 1));
-  }
+  const containerVariants = {
+    initial: { y: 0 },
+    animate: { y: `-${currentSlideIndex * 100}vh` },
+  };
 
   return (
-    <section className='bg-black text-white min-h-full'>
-    <div className="p-6 max-w-7xl mx-auto">
-      <Toolbar
-        onSave={handleSave}
-        onSaveAs={handleSaveAs}
-        onAddSlide={() => setShowAdd(true)}
-        onPreview={() => setShowPreview(true)}
-      />
-      <div className="grid grid-cols-4 mt-4 h-full gap-4">
-        <div className="col-span-1 h-screen max-h-[100vh] overflow-y-scroll">
-          <SlideSidebar
-            slides={slides}
-            setSlides={setSlides}
-            currentIndex={current}
-            setCurrentIndex={setCurrent}
-          />
-        </div>
-        <div className="col-span-3">
-          <SlideCanvas slide={currentSlide} onUpdate={updateCurrentSlide} />
-        </div>
+    <div className="App font-sans antialiased text-gray-900 bg-gray-50 h-screen w-screen relative overflow-hidden">
+      <motion.div
+        variants={containerVariants}
+        initial="initial"
+        animate="animate"
+        transition={transition}
+        onAnimationComplete={() => { isAnimatingRef.current = false; }}
+      >
+        {slides.map((slide, index) => (
+          <div key={index}>
+            {slide}
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Slide Navigation Bars */}
+      <div className="absolute top-1/2 left-10 -translate-y-1/2 flex flex-col space-y-4 z-50">
+        {slides.map((_, index) => (
+          <div
+            key={index}
+            className={`
+              h-0.5 rounded-full transition-all duration-300 ease-in-out cursor-pointer
+              ${index === currentSlideIndex ? 'w-7 bg-white' : 'w-3 bg-gray-500'}
+            `}
+            onClick={() => setCurrentSlideIndex(index)}
+          ></div>
+        ))}
       </div>
-      <div className="mt-4 flex justify-end">
-        <button className="btn-ghost" onClick={handleDeleteSlide}>Delete Slide</button>
-      </div>
-      <Preview
-        open={showPreview}
-        slide={currentSlide}
-        onClose={() => setShowPreview(false)}
-        onPrev={handlePrevSlide}
-        onNext={handleNextSlide}
-      />
-      <AddSlide
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        onAddSlide={handleAddSlide}
-      />
     </div>
-    </section>
   );
 }
+
 

@@ -23,6 +23,11 @@ import A21 from "./21.jpg";
 import A22 from "./22.jpg";
 import A23 from "./23.jpg";
 import { ImageIcon, Palette, Check } from 'lucide-react';
+import { BiDockRight } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
+import { IoPersonCircleOutline } from "react-icons/io5";
+import { PiDotsThreeBold } from "react-icons/pi";
+
 
 const images = [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22, A23];
 
@@ -31,7 +36,7 @@ const themes = {
     name: 'Original',
     containerClass: 'bg-black',
     textClass: 'text-white',
-    buttonBg: 'bg-black',
+    buttonBg: 'bg-gray-900',
     buttonText: 'text-white',
     modalBg: 'bg-gray-900',
     modalText: 'text-white',
@@ -100,7 +105,7 @@ const UserBGselect = () => {
     setIsModalOpen(false);
     setIsNoCover(false);
   };
-
+  const navigate = useNavigate();
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -155,21 +160,64 @@ const UserBGselect = () => {
       style={{ backgroundImage: isNoCover ? 'none' : `url(${backgroundImage})` }}
     >
       <div
-        className={`${currentTheme.textClass} text-center p-4 transition-all duration-500 relative
+        className={`${currentTheme.textClass} text-center p-4  mx-auto transition-all duration-500 relative
           ${textPosition === 'top-left' ? 'absolute top-10 left-10' : 'flex flex-col justify-center items-center h-full w-full'}`}
       >
-        <h2 className={`text-5xl font-inter font-bold`}>
+        <h2 className={`xl:text-7xl max-w-5xl lg:text-5xl md:text-4xl sm:text-3xl text-2xl font-[inter] font-semibold`}>
           Vertx: Pioneering Deeptech Innovation
+        </h2>
+        <h2 className={`xl:text-xl max-w-5xl lg:text-[19px] md:text-lg sm:text-base text-sm  mt-10 font-[inter]`}>
+          Transforming The Future Through Breakthrough Technology
         </h2>
         {glowEffect && (
           <div className="w-full absolute bottom-0 left-0 glowing-text-bottom"></div>
         )}
       </div>
+      <div className="absolute top-2 left-2 flex">
+        <button
+          onClick={() => navigate(-1)}
+          className={`py-2 px-4 text-base font-[inter] font-semibold cursor-pointer rounded-l-xl border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
+        >
+          <BiDockRight size={24} />
+        </button>
+        <button
+          className={`pr-3 text-sm cursor-pointer font-[inter] font-semibold rounded-r-xl border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors flex items-center`}
+        >
+            <span>Vertx: Pioneering Deeptech Innovation</span>
+        </button>
+      </div>
 
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex space-x-4">
+      <div className="absolute top-2 right-2 flex">
+        <button
+          onClick={() => navigate()}
+          className={`py-2 px-2 text-base font-[inter] font-semibold cursor-pointer rounded-l-xl border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
+        >
+          <IoPersonCircleOutline size={24} />
+        </button>
+        <button
+          className={`px-2 text-sm cursor-pointer font-[inter] font-semibold border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors flex items-center`}
+        >
+            <span>Share</span>
+        </button>
+
+        <button
+          className={`px-2 text-sm cursor-pointer font-[inter] font-semibold border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors flex items-center`}
+        >
+            <span>Present</span>
+        </button>
+
+        <button
+          onClick={() => navigate()}
+          className={`py-2 px-2 text-base font-[inter] font-extrabold cursor-pointer rounded-r-xl border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
+        >
+          <PiDotsThreeBold size={24} />
+        </button>
+      </div>
+
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex ">
         <button
           onClick={() => setIsModalOpen(true)}
-          className={`py-2 px-4 text-base font-[inter] font-semibold cursor-pointer rounded-md border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
+          className={`py-2 px-4 text-base font-[inter] font-semibold cursor-pointer rounded-l-xl border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
         >
           <ImageIcon size={24} />
         </button>
@@ -177,7 +225,7 @@ const UserBGselect = () => {
         <div className="relative">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`py-3 px-4 text-sm font-[inter] font-semibold cursor-pointer rounded-md border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
+            className={`py-3 px-4 text-sm font-[inter] font-semibold cursor-pointer border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors`}
           >
             {selectedOptions.join(' & ')}
           </button>
@@ -201,7 +249,7 @@ const UserBGselect = () => {
 
         <button
           onClick={() => setIsThemeModalOpen(true)}
-          className={` px-4 text-sm cursor-pointer font-[inter] font-semibold rounded-md border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors flex items-center`}
+          className={` px-4 text-sm cursor-pointer font-[inter] font-semibold rounded-r-xl border-none ${currentTheme.buttonBg} bg-opacity-50 ${currentTheme.buttonText} hover:bg-opacity-70 transition-colors flex items-center`}
         >
           <Palette size={20} className="mr-2" />
             <span>{currentTheme.name === 'Original' ? 'Select Theme' : currentTheme.name}</span>
