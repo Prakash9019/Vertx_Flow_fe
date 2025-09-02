@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import UserBGselect from './UserBGselect';
+import TheChallangePage from './TheChallangePage';
 
 // Component One with its own data
 const ComponentOne = () => (
@@ -64,7 +65,7 @@ export default function EditorPage() {
   // Array of components to render for each slide
   const slides = [
     <UserBGselect />,
-    <ComponentOne />,
+    <TheChallangePage />,
     <UserBGselected />,
     <ComponentTwo />,
     <UserBGselected />,
