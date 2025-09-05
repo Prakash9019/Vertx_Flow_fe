@@ -4,6 +4,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import UserBGselect from './UserBGselect';
 import TheChallangePage from './TheChallangePage';
+import OurSolutionPage from './OurSloutionPage';
+import MarketPotentialPage from './MarketPotentialPage';
+import CompetitiveEdgePAge from './CompetitiveEdgePAge';
+import GrowthTrajectoryPage from './GrowthTrajectoryPage';
 
 // Component One with its own data
 const ComponentOne = () => (
@@ -66,10 +70,10 @@ export default function EditorPage() {
   const slides = [
     <UserBGselect />,
     <TheChallangePage />,
-    <UserBGselected />,
-    <ComponentTwo />,
-    <UserBGselected />,
-    <ComponentOne />,
+    <OurSolutionPage />,
+    <MarketPotentialPage />,
+    <CompetitiveEdgePAge />,
+    <GrowthTrajectoryPage />,
     <UserBGselected />,
     <ComponentTwo />,
     <UserBGselected />,
