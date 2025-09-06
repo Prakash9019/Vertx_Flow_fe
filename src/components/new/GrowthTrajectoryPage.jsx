@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import C1 from "./26.jpg"
 import B1 from "./2.png"
-import A1 from "./21.jpg"
-import A3 from "./22.jpg"
+import A1 from "./1.jpg"
+import A3 from "./2.jpg"
 
 
 const GrowthTrajectoryPage = () => {

@@ -8,59 +8,10 @@ import OurSolutionPage from './OurSloutionPage';
 import MarketPotentialPage from './MarketPotentialPage';
 import CompetitiveEdgePAge from './CompetitiveEdgePAge';
 import GrowthTrajectoryPage from './GrowthTrajectoryPage';
+import ProvenModelPage from './ProvenModelPage';
+import SeriesAPage from './SeriesAPage';
+import JoinUsPage from './JoinUsPage';
 
-// Component One with its own data
-const ComponentOne = () => (
-  <div className="h-screen w-screen flex items-center justify-center bg-gray-200">
-    <div className="bg-white bg-opacity-80 backdrop-blur-lg rounded-3xl p-8 max-w-xl text-center shadow-2xl">
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-4 font-sans tracking-tight leading-tight">
-        A New Way to Present Content
-      </h1>
-      <p className="text-lg text-gray-700 font-medium leading-relaxed">
-        This is a unique component with its own content and styling. It does not receive any props from the main app component.
-      </p>
-    </div>
-  </div>
-);
-
-// Component Two with its own data
-const ComponentTwo = () => (
-  <div className="h-screen w-screen flex items-center justify-center bg-gray-300">
-    <div className="bg-white bg-opacity-80 backdrop-blur-lg rounded-3xl p-8 max-w-xl text-center shadow-2xl">
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-4 font-sans tracking-tight leading-tight">
-        Fully Self-Contained
-      </h1>
-      <p className="text-lg text-gray-700 font-medium leading-relaxed">
-        This component is completely independent and can be used on any slide without needing external data.
-      </p>
-    </div>
-  </div>
-);
-
-// UserBGselect component with its own data
-const UserBGselected = () => {
-  const data = {
-    title: 'Welcome to Our Website',
-    text: 'This is the first slide. Each component now manages its own data and content.',
-    color: '#A0B4D1', // Soft Blue
-  };
-
-  return (
-    <div
-      className={`relative h-screen w-screen flex items-center justify-center p-8 transition-colors duration-500`}
-      style={{ backgroundColor: data.color }}
-    >
-      <div className="bg-white bg-opacity-80 backdrop-blur-lg rounded-3xl p-8 max-w-xl text-center shadow-2xl">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-4 font-sans tracking-tight leading-tight">
-          {data.title}
-        </h1>
-        <p className="text-lg text-gray-700 font-medium leading-relaxed">
-          {data.text}
-        </p>
-      </div>
-    </div>
-  );
-};
 
 export default function EditorPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -74,9 +25,9 @@ export default function EditorPage() {
     <MarketPotentialPage />,
     <CompetitiveEdgePAge />,
     <GrowthTrajectoryPage />,
-    <UserBGselected />,
-    <ComponentTwo />,
-    <UserBGselected />,
+    <ProvenModelPage />,
+    <SeriesAPage />,
+    <JoinUsPage />,
   ];
   const totalSlides = slides.length;
 
