@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import BG from '../../assets/IntroBG85.jpg';
 import upperBG from '../../assets/IntroBGx22.jpg';
@@ -16,6 +16,16 @@ const ReachLinkPreview = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // PDF Viewer states
+  const [pdfDoc, setPdfDoc] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState('');
+  const [pageRendering, setPageRendering] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     if (!slug) {
@@ -43,13 +53,217 @@ const ReachLinkPreview = () => {
       });
   }, [slug]);
 
+  // PDF Viewer functions
+  const loadPDF = async (pdfUrl) => {
+    if (!window.pdfjsLib) {
+      console.error('PDF.js library not loaded');
+      setPdfError('PDF viewer library not loaded');
+      return;
+    }
 
-  // --- New states for DECK and NOTES sliders ---
-  const [deckSlideIndex, setDeckSlideIndex] = useState(0);
+    // Configure PDF.js worker
+    if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    try {
+      setPdfLoading(true);
+      setPdfError('');
+      
+      // Use uploaded PDF as primary, fallback PDF as backup
+      const fallbackPdfUrl = 'https://storage.googleapis.com/rech_link/1754055313199-Vertx%20Deck%20(2).pdf';
+      const primaryProxyUrl = `${API_KEY}/api/pdf/proxy-pdf?url=${encodeURIComponent(pdfUrl)}`;
+      const fallbackProxyUrl = `${API_KEY}/api/pdf/proxy-pdf?url=${encodeURIComponent(fallbackPdfUrl)}`;
+
+      const urls = [
+        primaryProxyUrl,  // Uploaded/data PDF first
+        fallbackProxyUrl  // Fallback PDF as backup
+      ];
+
+      let pdf = null;
+      let lastError = null;
+
+      for (const url of urls) {
+        try {
+          console.log('Attempting to load PDF from:', url);
+          const loadingTask = window.pdfjsLib.getDocument({
+            url: url,
+            httpHeaders: {
+              'Accept': 'application/pdf'
+            }
+          });
+          pdf = await loadingTask.promise;
+          console.log('Successfully loaded PDF');
+          break;
+        } catch (error) {
+          lastError = error;
+          console.warn(`Failed to load PDF from ${url}:`, error);
+        }
+      }
+
+      if (!pdf) {
+        throw lastError || new Error('Failed to load PDF from all URLs');
+      }
+      
+      setPdfDoc(pdf);
+      setTotalPages(pdf.numPages);
+      setCurrentPage(1);
+      
+      // Small delay to ensure container is properly sized before rendering
+      setTimeout(() => {
+        renderPage(pdf, 1, true); // Pass true for first load
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error loading PDF:', error);
+      setPdfError('Failed to load PDF document. The PDF may be restricted or unavailable.');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
+  const renderPage = async (pdf, pageNumber, isFirstLoad = false) => {
+    if (!pdf || !canvasRef.current) return;
+
+    try {
+      if (!isFirstLoad) {
+        setPageRendering(true);
+        setIsTransitioning(true);
+      }
+      
+      const page = await pdf.getPage(pageNumber);
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      
+      // Only apply fade out for page transitions, not first load
+      if (!isFirstLoad) {
+        canvas.style.opacity = '0';
+        // Shorter delay for better responsiveness
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      // Clear the canvas before rendering
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Calculate scale to fit the container
+      const viewport = page.getViewport({ scale: 1.0 });
+      
+      // Get the container dimensions more reliably
+      const container = canvas.parentElement;
+      const containerRect = container.getBoundingClientRect();
+      const containerWidth = containerRect.width * 0.9;
+      const containerHeight = containerRect.height * 0.9;
+      
+      // Ensure minimum dimensions
+      const minWidth = 300;
+      const minHeight = 400;
+      const effectiveWidth = Math.max(containerWidth, minWidth);
+      const effectiveHeight = Math.max(containerHeight, minHeight);
+      
+      const scaleWidth = effectiveWidth / viewport.width;
+      const scaleHeight = effectiveHeight / viewport.height;
+      const scale = Math.min(scaleWidth, scaleHeight, 2.0); // Cap at 2x for readability
+      
+      const scaledViewport = page.getViewport({ scale });
+      
+      // Set canvas dimensions
+      const pixelRatio = window.devicePixelRatio || 1;
+      canvas.width = scaledViewport.width * pixelRatio;
+      canvas.height = scaledViewport.height * pixelRatio;
+      canvas.style.width = scaledViewport.width + 'px';
+      canvas.style.height = scaledViewport.height + 'px';
+      
+      // Scale the context for high DPI displays
+      context.scale(pixelRatio, pixelRatio);
+      
+      const renderContext = {
+        canvasContext: context,
+        viewport: scaledViewport
+      };
+      
+      await page.render(renderContext).promise;
+      
+      // Quick fade in effect after rendering
+      canvas.style.opacity = '1';
+      
+    } catch (error) {
+      console.error('Error rendering page:', error);
+      setPdfError('Failed to render PDF page');
+    } finally {
+      if (!isFirstLoad) {
+        setPageRendering(false);
+        setTimeout(() => setIsTransitioning(false), 150);
+      }
+    }
+  };
+
+  const goToNextPage = () => {
+    if (pdfDoc && currentPage < totalPages) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      renderPage(pdfDoc, nextPage);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (pdfDoc && currentPage > 1) {
+      const prevPage = currentPage - 1;
+      setCurrentPage(prevPage);
+      renderPage(pdfDoc, prevPage);
+    }
+  };
+
+  // Load PDF when DECK tab is activated and data is available
+  useEffect(() => {
+    if (activeTab === 'DECK' && data?.deckUrl) {
+      if (!pdfDoc) {
+        loadPDF(data.deckUrl);
+      } else {
+        // Re-render the current page when returning to DECK tab
+        setTimeout(() => {
+          renderPage(pdfDoc, currentPage, true);
+        }, 100);
+      }
+    }
+  }, [activeTab, data?.deckUrl]);
+
+  // Keyboard navigation for PDF
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (activeTab === 'DECK' && pdfDoc) {
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          goToPreviousPage();
+        } else if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+          e.preventDefault();
+          goToNextPage();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeTab, pdfDoc, currentPage, totalPages]);
+
+  // Handle window resize for PDF rendering
+  useEffect(() => {
+    const handleResize = () => {
+      if (pdfDoc && activeTab === 'DECK') {
+        renderPage(pdfDoc, currentPage);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [pdfDoc, currentPage, activeTab]);
+
+
+  // --- New states for NOTES sliders ---
   const [notesSlideIndex, setNotesSlideIndex] = useState(0);
-
-  // Remove unused deck slides
-  const deckSlides = [upperBG];
 
   // Dynamic content for NOTES slider based on actual data
   const notesSlides = [
@@ -91,19 +305,15 @@ const ReachLinkPreview = () => {
   const maxScore = 10;
   const fillPercentage = ((score - minScore) / (maxScore - minScore)) * 100;
 
-  // --- Handlers for individual sliders ---
+  // --- Handlers for NOTES slider ---
   const handleNextSlide = (tabName) => {
-    if (tabName === 'DECK') {
-      setDeckSlideIndex(prevIndex => (prevIndex < deckSlides.length - 1 ? prevIndex + 1 : prevIndex));
-    } else if (tabName === 'NOTES') {
+    if (tabName === 'NOTES') {
       setNotesSlideIndex(prevIndex => (prevIndex < notesSlides.length - 1 ? prevIndex + 1 : prevIndex));
     }
   };
 
   const handlePrevSlide = (tabName) => {
-    if (tabName === 'DECK') {
-      setDeckSlideIndex(prevIndex => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
-    } else if (tabName === 'NOTES') {
+    if (tabName === 'NOTES') {
       setNotesSlideIndex(prevIndex => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
     }
   };
@@ -114,49 +324,85 @@ const ReachLinkPreview = () => {
       case 'DECK':
         return (
           <div>
-          <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col rounded-lg lg:w-[7xl] max-w-7xl w-11/12   lg:h-[71vh] h-120 aspect-video lg:aspect-auto overflow-hidden mx-auto items-center justify-center p-0 relative">
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white">
-              <div className="text-center">
-                <h3 className="text-2xl mb-4">Startup Deck</h3>
-                <p className="text-lg mb-6">Click below to view the pitch deck</p>
-                <a 
-                  href={data?.deckUrl || 'https://storage.googleapis.com/rech_link/1754055313199-Vertx Deck (2).pdf'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
-                >
-                  View Deck (PDF)
-                </a>
-              </div>
+            <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col rounded-lg lg:w-[7xl] max-w-7xl w-11/12 lg:h-[71vh] h-120 aspect-video lg:aspect-auto overflow-hidden mx-auto items-center justify-center p-0 relative bg-gray-900">
+              {pdfLoading && (
+                <div className="w-full h-full flex flex-col items-center justify-center text-white">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+                  <p className="text-lg">Loading PDF...</p>
+                </div>
+              )}
+              
+              {pdfError && (
+                <div className="w-full h-full flex flex-col items-center justify-center text-white">
+                  <div className="text-center">
+                    <h3 className="text-2xl mb-4 text-red-400">Error Loading PDF</h3>
+                    <p className="text-lg mb-6">{pdfError}</p>
+                    <a 
+                      href={`${API_KEY}/api/pdf/proxy-pdf?url=${encodeURIComponent(data?.deckUrl || 'https://storage.googleapis.com/rech_link/1754055313199-Vertx%20Deck%20(2).pdf')}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
+                    >
+                      View Deck (PDF)
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {pdfDoc && !pdfLoading && !pdfError && (
+                <>
+                  <canvas 
+                    ref={canvasRef}
+                    className="max-w-full max-h-full object-contain shadow-lg"
+                    style={{ 
+                      display: 'block', 
+                      transition: 'opacity 0.2s ease-in-out',
+                      opacity: 1
+                    }}
+                  />
+                  
+                  {/* PDF Navigation Controls */}
+                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+                    <span className="text-sm font-medium">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </div>
+                </>
+              )}
+              
+              {!pdfDoc && !pdfLoading && !pdfError && (
+                <div className="w-full h-full flex flex-col items-center justify-center text-white">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+                  <p className="text-lg">Loading PDF...</p>
+                </div>
+              )}
+            </div>
+
+            <div className="md:absolute pt-4 md:bottom-0 md:right-36 flex items-center justify-center gap-3">
+              <button
+                  onClick={goToPreviousPage}
+                  disabled={!pdfDoc || currentPage <= 1}
+                  className={`
+                    px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
+                    transition-colors duration-200
+                    ${!pdfDoc || currentPage <= 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                  `}
+              >
+                Prev
+              </button>
+              <button
+                  onClick={goToNextPage}
+                  disabled={!pdfDoc || currentPage >= totalPages}
+                  className={`
+                    px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
+                    transition-colors duration-200
+                    ${!pdfDoc || currentPage >= totalPages ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
+                  `}
+              >
+                Next
+              </button>
             </div>
           </div>
-
-
-          <div className="md:absolute pt-4 md:bottom-0 md:right-36 flex items-center justify-center gap-3">
-            <button
-              onClick={() => handlePrevSlide('DECK')}
-              disabled={deckSlideIndex === 0}
-              className={`
-                px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
-                transition-colors duration-200
-                ${deckSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-              `}
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => handleNextSlide('DECK')}
-              disabled={deckSlideIndex === deckSlides.length - 1}
-              className={`
-                px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
-                transition-colors duration-200
-                ${deckSlideIndex === deckSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-              `}
-            >
-              Next
-            </button>
-          </div>
-        </div>
         );
       case 'BRIEF':
         return (
@@ -404,7 +650,7 @@ const ReachLinkPreview = () => {
         </nav>
 
         {/* Content display area - styled to look like the main image container */}
-        <div className="rounded-lg shadow-2xl w-full overflow-scroll">
+        <div className="rounded-lg shadow-2xl w-full overflow-hidden transition-all duration-300 ease-in-out">
           {renderContent()}
         </div>
 
