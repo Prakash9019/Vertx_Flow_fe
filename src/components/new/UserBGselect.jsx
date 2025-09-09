@@ -31,7 +31,7 @@ import { PiDotsThreeBold } from "react-icons/pi";
 
 const images = [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22, A23];
 
-const themes = {
+const themes2 = {
   original: {
     name: 'Original',
     containerClass: 'bg-black',
@@ -152,7 +152,7 @@ const UserBGselect = () => {
     setIsNoCover(newIsNoCover);
   }, [selectedOptions]);
 
-  const currentTheme = themes[selectedTheme];
+  const currentTheme = themes2[selectedTheme];
 
   return (
     <div
@@ -298,7 +298,7 @@ const UserBGselect = () => {
           >
             <h3 className="text-lg font-semibold mb-4">Change document theme</h3>
             <div className="space-y-2">
-              {Object.keys(themes).map((themeKey) => (
+              {Object.keys(themes2).map((themeKey) => (
                 <button
                   key={themeKey}
                   onClick={() => handleThemeClick(themeKey)}
@@ -307,11 +307,11 @@ const UserBGselect = () => {
                 >
                   <div className="flex items-center space-x-3">
                     <span
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center ${themes[themeKey].modalBg} ${themes[themeKey].textClass}`}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center ${themes2[themeKey].modalBg} ${themes2[themeKey].textClass}`}
                     >
                       <span className="font-bold text-xl">Aa</span>
                     </span>
-                    <span className="font-medium">{themes[themeKey].name}</span>
+                    <span className="font-medium">{themes2[themeKey].name}</span>
                   </div>
                   {selectedTheme === themeKey && (
                     <Check size={20} className="text-white" />
