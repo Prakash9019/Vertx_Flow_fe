@@ -5,13 +5,13 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import Sidebar from "../Sidebar"
-import AddRoundPopup from "./AddRoundPopup"
-import FindInvestors from "./FindInvestors"
-import Target from "./Target"
+import AddRoundPopup from "./Manage/AddRoundPopup"
+import FindInvestors from "./Find/FindInvestors"
+import Target from "./Target/Target"
 import BgImg from "../../assets/imgBackground.png";
 import { useStartupProfile } from "../../context/StartupProfileContext";
 import API_KEY from "../../../key";
-import Reach from "./Reach"
+import Reach from "./Reach_link/Reach"
 function FundraisingManagePage() {
   
   const { profileData } = useStartupProfile();

@@ -2,9 +2,9 @@ import React from "react";
 import Sidebar from "../components/Sidebar";
 import Background from "../assets/imgBackground.png";
 import ToggleTabHeader from "../components/ToggleTabHeader";
-import FundraisingDashboard from "../components/FundraisingDashboard";
+import FundraisingDashboard from "../components/Fundraising/fundraising";
 import { useState } from "react";
-import FundraisingMatches from "../components/FundraisingMatches";
+import FundraisingMatches from "./evaluate/FundraisingMatches";
 import { useStartupProfile } from "../context/StartupProfileContext";
 
 function FundraisingPage() {

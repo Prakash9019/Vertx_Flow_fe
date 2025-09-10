@@ -12,14 +12,14 @@ import AuthError from "./screens/AuthError";
 import Payment_Page from "./screens/Payment_Page";
 
 // Screens for Profile Setup
-import ProfileSetup_Page from "./screens/ProfileSetup_Page";
-import Profile_Manual_Page from "./screens/Profile_Manual_Page";
-import ProfileSetup from "./screens/ProfileSetup"; // Stage
-import LocationSetup from "./screens/LocationSetup"; // Location input
-import RaiseFunds from "./screens/RaiseFunds"; // Raise input
-import RevenueStatus from "./screens/RevenueStatus"; // Revenue input (ensure component name matches if it's RevenueStaus.jsx)
-import InvestorsIndustry from "./screens/InvestorsIndustry"; // Industry input
-import InvestorsPitch from "./screens/InvestorsPitch"; // Pitch input
+import ProfileSetup_Page from "./screens/profile/ProfileSetup_Page.jsx";
+import Profile_Manual_Page from "./screens/profile/Profile_Manual_Page";
+import ProfileSetup from "./screens/profile/ProfileSetup"; // Stage
+import LocationSetup from "./screens/profile/StartupLocation"; // Location input
+import RaiseFunds from "./screens/profile/RaiseFunds"; // Raise input
+import RevenueStatus from "./screens/profile/RevenueStatus"; // Revenue input (ensure component name matches if it's RevenueStaus.jsx)
+import InvestorsIndustry from "./screens/profile/InvestorsIndustry"; // Industry input
+import InvestorsPitch from "./screens/profile/InvestorsPitch"; // Pitch input
 import GenerateEmail from "./screens/emails";
 import Pipeline from "./screens/events";
 import Matchflow from "./screens/matchflow"; 
@@ -31,32 +31,32 @@ import FundraisingManagePage from "./components/Fundraising/fundraising"
 import InviteAcceptPage from "./components/InviteAcceptPage";
 
 // Intermediate "Selected" pages (if you decide to keep them)
-import StartupLocation from "./screens/StartupLocation"; // Stage Selected confirmation
-import LocationSelect from "./screens/LocationSelect"; // Location Selected confirmation
-import RaiseSelected from "./screens/RaiseSelected"; // Raise Selected confirmation
-import RevenueSelected from "./screens/RevenueSelected"; // Revenue Selected confirmation
-import IndustrySelected from "./screens/IndustrySelected"; // Industry Selected confirmation
+
+import LocationSelect from "./screens/profile/LocationSelect"; // Location Selected confirmation
+import RaiseSelected from "./screens/profile/RaiseSelected"; // Raise Selected confirmation
+import RevenueSelected from "./screens/profile/RevenueSelected"; // Revenue Selected confirmation
+import IndustrySelected from "./screens/profile/IndustrySelected"; // Industry Selected confirmation
 
 // Other Screens
 import Usage_Page from "./screens/Usage_Page";
 import AddCofounder_Page from "./screens/AddCofounder_Page";
-import Evaluate_Page from "./screens/Evaluate_Page";
-import EvaluateReport_page from "./screens/EvaluateReport_page";
+import Evaluate_Page from "./screens/evaluate/Evaluate_Page";
+import EvaluateReport_page from "./screens/evaluate/EvaluateReport_page.jsx";
 import FundraisingPage from "./screens/FundraisingPage";
 import HomePage from "./screens/Home";
 //import Login from './components/Login';
-import Reach from "./components/Fundraising/Reach.jsx";
+import Reach from "./components/Fundraising/Reach_link/Reach.jsx";
 //screens for PlayGround 
-import PlayGround from "./components/PlayGround"
+import PlayGround from "./components/Mock_Pitching/PlayGround.jsx"
 import { PermissionNotificationProvider } from "./context/PermissionNotificationContext.jsx";
-import MockPitching from "./components/MockPitching";
-import CallReportPage from "./components/callReportPage";
-import CreateREportPage, { CreatePersonaPage, PersonaSelectionPage } from "./components/CreateREportPage.jsx";
+import MockPitching from "./components/Mock_Pitching/MockPitching.jsx";
+import CallReportPage from "./components/Mock_Pitching/callReportPage.jsx";
+import CreateREportPage, { CreatePersonaPage, PersonaSelectionPage } from "./components/Mock_Pitching/CreateREportPage.jsx";
 import GettingStarted from "./components/GettingStarted.jsx";
 import CompaniesReachLink from "./components/Fundraising/CompaniesReachLink.jsx";
-import ReachLinkPreview from "./components/Fundraising/ReachLinkPreview.jsx";
+import ReachLinkPreview from "./components/Fundraising/Reach_link/ReachLinkPreview.jsx";
 import ReachRedirect from "./components/ReachRedirect.jsx";
-import Flash from "./components/Flash.jsx";
+import Flash from "./components/Flash/Flash.jsx";
 import EditorPage from "./components/new/EditorPage.jsx";
 import UserBGselect from "./components/new/UserBGselect.jsx";
 
