@@ -1,8 +1,6 @@
-// BasicInfoForm.jsx
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import confetti from 'canvas-confetti';
 import Rectangle82 from "../../../assets/Rectangle 82.png";
-import ConF1 from "../../../assets/ConF1.png";
-import ConF2 from "../../../assets/ConF2.png";
 import BgImg from "./img.jpg";
 import axios from "axios";
 import API_KEY from "../../../../key";
@@ -27,6 +25,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
   ];
 
   const [isTrue, setIsTrue] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const handleClick = async () => {
     setIsTrue(!isTrue);
   };
@@ -49,12 +48,12 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
     navigate('/fundraising/reach-link');
   };
 
-const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
+  const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
   const [localFormData, setLocalFormData] = useState({
     companyName: formData?.companyName || "",
     linkedinUrl: formData?.linkedinUrl || "",
-    founderName: formData?.founderName || "", // This is specifically for the CEO in 'Profile' view
+    founderName: formData?.founderName || "",
     founderLinkedinUrl: formData?.founderLinkedinUrl || "",
     founderEmail: formData?.founderEmail || "",
     founded: formData?.founded || "",
@@ -70,19 +69,12 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
     fundraisingTarget: formData?.fundraisingTarget || "",
     fundsAllocation: formData?.fundsAllocation || "",
     companyStage: formData?.companyStage || "",
-
-    // Fixed fields for Team Member 1 (The primary founder/CEO in "Team" tab)
     founder1FullName: formData?.founder1FullName || "",
     founder1TitleRole: formData?.founder1TitleRole || "",
     founder1LinkedinProfileURL: formData?.founder1LinkedinProfileURL || "",
-
-    // Dynamic `teamMembers` array to hold ALL team members from #2 onwards
     teamMembers: formData?.teamMembers || [],
     hqLocation: formData?.hqLocation || "",
-
     teamNotes: formData?.teamNotes || [],
-
-    // Spread existing formData to capture any other fields that might be passed in
     ...formData
   });
 
@@ -98,9 +90,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
   const [reachLink, setReachLink] = useState("");
 
-  // State for generating unique IDs for newly added dynamic team members
   const [nextDynamicTeamMemberCounter, setNextDynamicTeamMemberCounter] = useState(() => {
-    // Find the max ID from existing dynamic members to ensure uniqueness
     if (localFormData.teamMembers.length > 0) {
       const maxId = Math.max(...localFormData.teamMembers.map(m => parseInt(m.id?.replace('new-', '') || 0) || 0));
       return maxId + 1;
@@ -108,7 +98,52 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
     return 0;
   });
 
-  // Effect to ensure localFormData is synced with incoming formData
+  function triggerConfetti() {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 }
+    };
+
+    function fire(particleRatio, opts) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
+      });
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+    fire(0.2, {
+      spread: 60,
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  }
+
+
+  useEffect(() => {
+    if (showConfetti) {
+      triggerConfetti();
+      setShowConfetti(false);
+    }
+  }, [showConfetti]);
+
   useEffect(() => {
     setLocalFormData(prev => {
       let updatedData = { ...prev };
@@ -121,7 +156,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
         }
       }
 
-      // Special handling for teamMembers array
       if (
         formData.teamMembers &&
         (prev.teamMembers === undefined || JSON.stringify(prev.teamMembers) !== JSON.stringify(formData.teamMembers))
@@ -136,7 +170,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
       return changed ? updatedData : prev;
     });
   }, [formData]);
-
 
 
   const handleInputChange = (field, value) => {
@@ -162,7 +195,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
     }
   };
 
-  // Handler for changes within a specific dynamic team member's fields (Team Member 2 onwards)
+
   const handleDynamicTeamMemberInputChange = (id, fieldName, value) => {
     setLocalFormData(prev => {
       const updatedTeamMembers = prev.teamMembers.map(member =>
@@ -178,17 +211,17 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
     });
   };
 
-  // Function to add a new empty dynamic team member (Team Member 2 onwards)
+
   const handleAddDynamicTeamMember = () => {
     const MAX_TOTAL_TEAM_MEMBERS = 9;
     if ((1 + localFormData.teamMembers.length) < MAX_TOTAL_TEAM_MEMBERS) {
       const newMember = {
-        id: `new-${nextDynamicTeamMemberCounter}`, // Use a counter for unique IDs
+        id: `new-${nextDynamicTeamMemberCounter}`,
         fullName: '',
         titleRole: '',
         linkedinUrl: ''
       };
-      setNextDynamicTeamMemberCounter(prev => prev + 1); // Increment for the next new member
+      setNextDynamicTeamMemberCounter(prev => prev + 1);
       setLocalFormData(prev => ({
         ...prev,
         teamMembers: [...prev.teamMembers, newMember]
@@ -202,7 +235,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
     }
   };
 
-  // Function to remove a dynamic team member (from the dynamic list - Team Member 2 onwards)
+
   const handleRemoveDynamicTeamMember = (id) => {
     setLocalFormData(prev => {
       const filteredMembers = prev.teamMembers.filter(member => member.id !== id);
@@ -255,66 +288,45 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
   };
 
   const handleNext = async () => {
-  console.log("✅ handleNext called");
-  console.log("📌 currentView =", currentView);
-
-  const currentIndex = views.indexOf(currentView);
-  console.log("📊 currentView index =", currentIndex);
-  console.log("📏 views.length =", views.length);
-
-  // Check if there is another view left
-  if (currentIndex < views.length - 1) {
-    const nextView = views[currentIndex + 1];
-    console.log("➡️ Moving to next view:", nextView);
-    setCurrentView(nextView);
-    return;
-  }
-
-  // Final step: currentView is "deck", now submit form
-  console.log("🚀 Final Step Reached: Submitting Form");
-  console.log("🧾 Form Data:", localFormData);
-
-  try {
-    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-    console.log('🔐 Token Check:', token ? 'Token exists' : 'No token found');
-
-    if (!token) {
-      toast.error('Please log in to continue');
+    const currentIndex = views.indexOf(currentView);
+    if (currentIndex < views.length - 1) {
+      const nextView = views[currentIndex + 1];
+      setCurrentView(nextView);
       return;
     }
 
-    const response = await axios.post(
-      `${API_KEY}/api/upgrade-deck`,
-      localFormData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+    try {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to continue');
+        return;
+      }
+
+      const response = await axios.post(
+        `${API_KEY}/api/upgrade-deck`,
+        localFormData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         }
+      );
+
+      if (response.data.success) {
+        if (response.data.data?.reachLink) {
+          setReachLink(response.data.data.reachLink);
+          setIsTrue(true);
+          setShowConfetti(true);
+        }
+        toast.success('Upgrade deck data saved successfully!');
+      } else {
+        toast.error('Failed to save upgrade deck data');
       }
-    );
-
-    console.log("📦 Server Response:", response);
-
-    if (response.data.success) {
-      console.log("✅ Upgrade deck saved");
-
-      if (response.data.data?.reachLink) {
-        console.log("🌐 Received reachLink:", response.data.data.reachLink);
-        setReachLink(response.data.data.reachLink);
-        setIsTrue(true);
-      }
-
-      toast.success('Upgrade deck data saved successfully!');
-    } else {
-      console.warn("⚠️ Failed to save upgrade deck");
-      toast.error('Failed to save upgrade deck data');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'An error occurred while saving your data');
     }
-  } catch (error) {
-    console.error('❌ Error during submission:', error);
-    toast.error(error.response?.data?.message || 'An error occurred while saving your data');
-  }
-};
+  };
 
 
   const handleCancel = () => {
@@ -343,7 +355,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
     </div>
   );
 
-  // Helper function for currency inputs with focus styling
   const renderCurrencyInput = (field, label, placeholder = "") => (
     <div>
       <label htmlFor={field} className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
@@ -379,7 +390,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
   );
 
 
-  // Helper function to render common textarea styles
   const renderTextarea = (field, placeholder, label, maxLength) => (
     <div>
       <label htmlFor={field} className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-8 mt-3 sm:mt-0 md:mb-4">
@@ -405,17 +415,13 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
   return (
     <>
-      {/* BasicInfoForm Modal */}
-
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Dimmed background overlay */}
         <div className="absolute inset-0 bg-black/70 cursor-pointer" onClick={handleCancel} />
 
-        {/* Main modal content container with background image */}
         <div
           className="relative flex flex-col items-center bg-cover bg-center bg-no-repeat w-full max-w-6xl h-[86vh] max-h-[calc(86vh)] sm:h-[calc(100vh)] overflow-y-auto "
           style={{
-            backgroundImage: `url(${Rectangle82})`, // Use the imported image
+            backgroundImage: `url(${Rectangle82})`,
           }}
         >
           {isOpen && !isTrue && (
@@ -449,7 +455,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
               </div>
 
               <div className="w-full flex items-start justify-center relative mb-5">
-                {/* Sidebar - positioned absolutely to overlay */}
                 <div className="absolute left-0 top-0 w-40 hidden md:block  lg:w-64 h-full p-6 overflow-y-auto  items-start justify-center z-10">
                   <div className="space-y-1">
                     <div
@@ -538,11 +543,8 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                   </div>
                 </div>
 
-                {/* Centered Form Container with scrolling and masked edges */}
                 <div className="w-99/100 max-w-120 lg:max-w-[40rem] rounded-[0.3125rem] bg-black/76 relative p-4 sm:p-8 sm:pb-13 overflow-hidden h-[360px]">
-                  {/* Content container with scroll */}
                   <div className="h-full overflow-y-auto">
-                    {/* Conditional Form Content */}
                     {currentView === "profile" && (
                       <div className="space-y-6">
                         {renderInput('text', 'companyName', 'Enter company name', 'Company Name')}
@@ -554,13 +556,11 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                     )}
                     {currentView === "basics" && (
                       <div className="space-y-3 md:space-y-6">
-                        {/* Founded and Company Website Row */}
                         <div className="grid grid-cols-2 gap-4">
                           {renderInput('date', 'founded', 'YYYY', 'Founded')}
                           {renderInput('url', 'companyWebsite', 'https://www.yourcompany.com', 'Company Website')}
                         </div>
 
-                        {/* Business Category with separate checkbox and label */}
                         <div>
                           <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             How would you describe your business category?
@@ -572,7 +572,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                 className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                 onClick={() => handleInputChange('businessCategory', category)}
                               >
-                                {/* Custom Checkbox */}
                                 <div
                                   className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.businessCategory === category ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
@@ -589,7 +588,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                     </svg>
                                   )}
                                 </div>
-                                {/* Category Label */}
                                 <span className="text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
                                   {category}
                                 </span>
@@ -623,7 +621,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </div>
                         </div>
 
-                        {/* Company Stage */}
                         <div>
                           <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             What is the current stage of your company?
@@ -635,7 +632,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                 className="flex items-center gap-2 p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                 onClick={() => handleInputChange('companyStage', stage)}
                               >
-                                {/* Custom Radio Button */}
                                 <div
                                   className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 rounded-full border border-white flex items-center justify-center transition-colors ${localFormData.companyStage === stage ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
@@ -644,7 +640,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                     <div className="lg:w-3 md:w-2 md:h-2 lg:h-3 sm:w-1.5 sm:h-1.5 w-1 h-1 rounded-full bg-white"></div>
                                   )}
                                 </div>
-                                {/* Stage Label */}
                                 <span className="text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
                                   {stage}
                                 </span>
@@ -653,7 +648,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </div>
                         </div>
 
-                        {/* Business Type */}
                         <div>
                           <label className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium mb-4">
                             What type of business is your company? (multiple)
@@ -665,7 +659,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                 className="flex items-center gap-1 sm:gap-2  p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                 onClick={() => handleRaisedFromToggle(source)}
                               >
-                                {/* Custom Checkbox */}
                                 <div
                                   className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
@@ -682,7 +675,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                     </svg>
                                   )}
                                 </div>
-                                {/* Source Label */}
                                 <span className="text-white font-['Inter'] text-[10px] sm:text-xs md:text-sm lg:text-base font-medium">
                                   {source}
                                 </span>
@@ -699,7 +691,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           Edit the CEO info in the <span className="font-bold text-white">Profile</span> section.
                         </p>
 
-                        {/* Fixed Team Member 1 (No remove button) */}
                         <div className="relative p-2 sm:p-4 border border-white/10 rounded-lg space-y-2 sm:space-y-4">
                           <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-3 sm:gap-y-6">
                             {renderInput('text', 'founder1FullName', 'Full Name', 'Full Name')}
@@ -710,7 +701,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </div>
                         </div>
 
-                        {/* Dynamically added Team Members (Team Member 2, 3, etc. onwards) */}
                         {localFormData.teamMembers.map((member, index) => (
                           <div key={member.id} className="relative p-2 sm:p-4 border border-white/10 rounded-lg space-y-2 sm:space-y-4">
                             <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-3 sm:gap-y-6">
@@ -735,7 +725,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </div>
                         ))}
 
-                        {/* The note section, which is conditionally rendered */}
                         {showTeamNoteTextarea && (
                           <div className="relative p-2 sm:p-4 border border-white/10 rounded-lg space-y-2 sm:space-y-4">
                             <label htmlFor="team-note" className="block text-white font-['Inter'] text-xs sm:text-sm md:text-base font-medium">
@@ -757,9 +746,7 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </div>
                         )}
 
-                        {/* Action Buttons */}
                         <div className="grid grid-cols-2 gap-4 mt-6">
-                          {/* "Add another teammate" button - considers max 9 total members (1 fixed + 8 dynamic) */}
                           {(1 + localFormData.teamMembers.length) < 9 && (
                             <button
                               onClick={handleAddDynamicTeamMember}
@@ -779,10 +766,9 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                             </button>
                           )}
 
-                          {/* "Add a note about your team" button, now with an onClick handler and dynamic text */}
                           <button
-                            onClick={handleToggleTeamNote} // New handler function
-                            className={`h-9 text-white rounded-[0.125rem] font-['Inter'] cursor-pointer text-[10px] sm:text-xs font-normal  transition-colors flex items-center justify-end gap-2 ${(1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : '' // Make full width if no "add teammate" button
+                            onClick={handleToggleTeamNote}
+                            className={`h-9 text-white rounded-[0.125rem] font-['Inter'] cursor-pointer text-[10px] sm:text-xs font-normal  transition-colors flex items-center justify-end gap-2 ${(1 + localFormData.teamMembers.length) >= 9 ? 'col-span-2' : ''
                               }`}
                           >
                             <svg
@@ -799,7 +785,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                           </button>
                         </div>
 
-                        {/* Where is HQ based? */}
                         <div className="mt-6">
                           {renderInput('text', 'hqLocation', 'Location...', 'Where is HQ based?')}
                         </div>
@@ -844,7 +829,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                 className="flex items-center gap-1 sm:gap-2 p-0 sm:p-2 rounded-[0.125rem] cursor-pointer transition-colors"
                                 onClick={() => handleRaisedFromToggle(source)}
                               >
-                                {/* Custom Checkbox */}
                                 <div
                                   className={`lg:w-6 md:w-5 md:h-5 sm:w-4 sm:h-4 h-3 w-3 lg:h-6 rounded-[0.125rem] border border-white flex items-center justify-center transition-colors ${localFormData.raisedFrom.includes(source) ? 'bg-purple-600' : 'bg-transparent'
                                     }`}
@@ -861,7 +845,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                                     </svg>
                                   )}
                                 </div>
-                                {/* Source Label */}
                                 <span className="text-white font-['Inter'] text-xs sm:text-sm md:text-lg font-medium">
                                   {source}
                                 </span>
@@ -877,7 +860,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
 
                     {currentView === "deck" ? (
                       <>
-                        {/* Deck Preview */}
                         <div className="space-y-2 flex flex-col items-center justify-center h-full">
                           <div className="relative w-full max-w-[480px] h-[270px] bg-neutral-900 rounded-lg overflow-hidden shadow-lg flex items-center justify-center">
                             {localFormData.deckUrl ? (
@@ -899,7 +881,6 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
                         </div>
                       </>
                     ) : (
-                      // All other views' shared footer buttons
                       <div className="w-full flex flex-col items-center pb-6 mt-2">
                       </div>
                     )}
@@ -972,102 +953,86 @@ const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
               )}
             </>
           )}
-          { isOpen && isTrue && (
-              <>
-                <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4">
-                  <div
-                    className="absolute inset-0 bg-black/10 cursor-pointer"
+          {isOpen && isTrue && (
+            <>
+              <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4">
+                <div
+                  className="absolute inset-0 bg-black/10 cursor-pointer"
+                  onClick={() => {
+                    setIsTrue(false);
+                  }}
+                />
+                <div className="relative w-full min-w-lg max-w-6xl p-6 min-h-[600px] mx-auto rounded-lg flex flex-col items-center justify-center text-center">
+                  <button
                     onClick={() => {
                       setIsTrue(false);
                     }}
-                  />
-                  <div className="relative w-full min-w-lg max-w-6xl p-6 min-h-[600px] mx-auto rounded-lg flex flex-col items-center justify-center text-center">
-                    {/* Confetti Image 1 (Bottom Left) */}
-                    <img
-                      src={ConF1}
-                      alt="Confetti decoration"
-                      className="absolute top-110 lg:-left-100 rotate-[85.35deg]  h-auto w-auto"
-                    />
+                    className="absolute top-6 right-24 sm:right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
+                  >
+                    &times;
+                  </button>
 
-                    {/* Confetti Image 2 (Bottom Right) */}
-                    <img
-                      src={ConF2}
-                      alt="Confetti decoration"
-                      className="absolute top-70 lg:left-93 -rotate-[172.1deg]  h-auto w-auto"
-                    />
+                  <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-semibold -mt-10 mb-10 font-['Inter']">
+                    Your link is live!
+                  </h2>
 
-                    <button
-                      onClick={() => {
-                        setIsTrue(false);
-                      }}
-                      className="absolute top-6 right-24 sm:right-3 text-white text-2xl font-semibold bg-transparent border-none cursor-pointer"
-                    >
-                      &times;
-                    </button>
-
-                    <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-semibold -mt-10 mb-10 font-['Inter']">
-                      Your link is live!
-                    </h2>
-
-                    {/* Reachlink container */}
-                    <div className="bg-black/76 p-3 sm:p-8 rounded-md w-full max-h-50 max-w-82 sm:max-w-140 z-10 flex flex-col space-y-5">
-                      <p className="text-white justify-center sm:justify-start flex text-base font-medium font-['Inter']">
-                        Here is your Reachlink
-                      </p>
-                      <div className="flex items-center sm:gap-4 w-full max-w-xs sm:max-w-120 bg-white/11 rounded-[0.125rem]">
-                        <input
-                          type="text"
-                          value={reachLink}
-                          readOnly
-                          className="flex-grow w-80 max-w-80 sm:max-w-md text-white outline-none px-1.5 py-1 sm:px-4 sm:py-2 font-['Inter'] text-xs font-normal"
-                        />
-                        {/* Copy button with functionality */}
-                        <button
-                          onClick={handleCopyLink}
-                          className="p-2 text-white hover:text-gray-300"
-                          title="Copy to clipboard"
+                  <div className="bg-black/76 p-3 sm:p-8 rounded-md w-full max-h-50 max-w-82 sm:max-w-140 z-10 flex flex-col space-y-5">
+                    <p className="text-white justify-center sm:justify-start flex text-base font-medium font-['Inter']">
+                      Here is your Reachlink
+                    </p>
+                    <div className="flex items-center sm:gap-4 w-full max-w-xs sm:max-w-120 bg-white/11 rounded-[0.125rem]">
+                      <input
+                        type="text"
+                        value={reachLink}
+                        readOnly
+                        className="flex-grow w-80 max-w-80 sm:max-w-md text-white outline-none px-1.5 py-1 sm:px-4 sm:py-2 font-['Inter'] text-xs font-normal"
+                      />
+                      <button
+                        onClick={handleCopyLink}
+                        className="p-2 text-white hover:text-gray-300"
+                        title="Copy to clipboard"
+                      >
+                        <svg
+                          width="13"
+                          height="16"
+                          viewBox="0 0 13 16"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
                         >
-                          <svg
-                            width="13"
-                            height="16"
-                            viewBox="0 0 13 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            {copied ? (
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            ) : (
-                              <path
-                                d="M4.75 12.5C4.3375 12.5 3.98438 12.3531 3.69063 12.0594C3.39688 11.7656 3.25 11.4125 3.25 11V2C3.25 1.5875 3.39688 1.23438 3.69063 0.940625C3.98438 0.646875 4.3375 0.5 4.75 0.5H11.5C11.9125 0.5 12.2656 0.646875 12.5594 0.940625C12.8531 1.23438 13 1.5875 13 2V11C13 11.4125 12.8531 11.7656 12.5594 12.0594C12.2656 12.3531 11.9125 12.5 11.5 12.5H4.75ZM1.75 15.5C1.3375 15.5 0.984375 15.3531 0.690625 15.0594C0.396875 14.7656 0.25 14.4125 0.25 14V4.25C0.25 4.0375 0.321875 3.85938 0.465625 3.71563C0.609375 3.57188 0.7875 3.5 1 3.5C1.2125 3.5 1.39062 3.57188 1.53438 3.71563C1.67813 3.85938 1.75 4.0375 1.75 4.25V14H9.25C9.4625 14 9.64062 14.0719 9.78438 14.2156C9.92813 14.3594 10 14.5375 10 14.75C10 14.9625 9.92813 15.1406 9.78438 15.2844C9.64062 15.4281 9.4625 15.5 9.25 15.5H1.75Z"
-                                fill="#B8B8B8"
-                              />
-                            )}
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => {
-                            onClose();
-                          }}
-                          className="bg-white text-black px-4 py-2 -mr-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
-                        >
-                          Share
-                        </button>
-                      </div>
+                          {copied ? (
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          ) : (
+                            <path
+                              d="M4.75 12.5C4.3375 12.5 3.98438 12.3531 3.69063 12.0594C3.39688 11.7656 3.25 11.4125 3.25 11V2C3.25 1.5875 3.39688 1.23438 3.69063 0.940625C3.98438 0.646875 4.3375 0.5 4.75 0.5H11.5C11.9125 0.5 12.2656 0.646875 12.5594 0.940625C12.8531 1.23438 13 1.5875 13 2V11C13 11.4125 12.8531 11.7656 12.5594 12.0594C12.2656 12.3531 11.9125 12.5 11.5 12.5H4.75ZM1.75 15.5C1.3375 15.5 0.984375 15.3531 0.690625 15.0594C0.396875 14.7656 0.25 14.4125 0.25 14V4.25C0.25 4.0375 0.321875 3.85938 0.465625 3.71563C0.609375 3.57188 0.7875 3.5 1 3.5C1.2125 3.5 1.39062 3.57188 1.53438 3.71563C1.67813 3.85938 1.75 4.0375 1.75 4.25V14H9.25C9.4625 14 9.64062 14.0719 9.78438 14.2156C9.92813 14.3594 10 14.5375 10 14.75C10 14.9625 9.92813 15.1406 9.78438 15.2844C9.64062 15.4281 9.4625 15.5 9.25 15.5H1.75Z"
+                              fill="#B8B8B8"
+                            />
+                          )}
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => {
+                          onClose();
+                        }}
+                        className="bg-white text-black px-4 py-2 -mr-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
+                      >
+                        Share
+                      </button>
                     </div>
-                    <button
-                      onClick={handleNextClick}
-                      className="absolute bottom-6 right-24 sm:right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
-                    >
-                      Next
-                    </button>
                   </div>
+                  <button
+                    onClick={handleNextClick}
+                    className="absolute bottom-6 right-24 sm:right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Next
+                  </button>
                 </div>
-              </>
-            )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>
