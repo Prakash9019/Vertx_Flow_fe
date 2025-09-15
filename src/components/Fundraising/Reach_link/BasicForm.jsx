@@ -45,7 +45,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
       });
   };
   const handleNextClick = () => {
-    navigate('/fundraising/reach-link');
+    // navigate('/fundraising/reach-link');
   };
 
   const [isLinkLiveModalOpen, setIsLinkLiveModalOpen] = useState(false);
@@ -316,6 +316,7 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
       if (response.data.success) {
         if (response.data.data?.reachLink) {
           setReachLink(response.data.data.reachLink);
+          console.log(response.data.data.reachLink);
           setIsTrue(true);
           setShowConfetti(true);
         }

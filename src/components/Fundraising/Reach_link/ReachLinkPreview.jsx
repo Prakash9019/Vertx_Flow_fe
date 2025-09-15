@@ -1,21 +1,76 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, {useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 import BG from '../../../assets/IntroBG85.jpg';
 import upperBG from '../../../assets/IntroBGx22.jpg';
 import logo from '../../../assets/logo.svg';
-import API_KEY from "../../../../key.js";
+import API_KEY from "../../../../key";
+import useScreenTime from '../../../hooks/useScreenTime'; // Your existing hook
+import analytics from '../../../utils/analytics'; // Your existing analytics class
+
+// Tab order
+const tabOrder = ['DECK', 'BRIEF', 'NOTES', 'SCORE'];
+
+// AuthModal Component
+const AuthModal = ({ onChooseIncognito, onChooseGoogleClick }) => {
+  return (
+    <div className="fixed inset-0 bg-black/70 flex flex-col justify-center items-center z-50 text-white font-inter px-4">
+      <div className="bg-black border border-gray-800 p-8 rounded-lg shadow-2xl flex flex-col items-center w-full max-w-sm">
+        <h1 className="text-3xl font-medium mb-2 text-center">
+          Welcome to Vertx
+        </h1>
+        <p className="my-4 text-sm text-gray-400 leading-relaxed text-center">
+          Sign in or continue incognito to view the content.
+        </p>
+
+        <div className="w-full flex flex-col gap-4 mt-4">
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={onChooseGoogleClick}
+              onError={() => alert('Google sign-in failed. Please try again.')}
+              width={288}
+              shape="pill"
+              text="continue_with"
+              theme="filled_blue"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="h-px w-full bg-gray-700"></div>
+            <p className="text-center text-md text-gray-400">or</p>
+            <div className="h-px w-full bg-gray-700"></div>
+          </div>
+
+          <button
+            onClick={onChooseIncognito}
+            className="bg-gray-800 text-sm w-full text-white px-4 py-3 rounded-md shadow hover:bg-gray-700 active:bg-gray-700 transition"
+          >
+            Continue in Incognito Mode
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ReachLinkPreview = () => {
-  // Define the order of global tabs
-  const tabOrder = ['DECK', 'BRIEF', 'NOTES', 'SCORE'];
-  // State to manage the currently active global tab
-  const [activeTab, setActiveTab] = useState(tabOrder[0]); // Initialize with the first tab
-
+  // URL and data states
   const [searchParams] = useSearchParams();
   const slug = searchParams.get('slug');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Authentication states
+  const [authChosen, setAuthChosen] = useState(false);
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('user-email') || null);
+
+  // Navigation states
+  const [activeTab, setActiveTab] = useState(tabOrder[0]);
+  const [deckSlideIndex, setDeckSlideIndex] = useState(0);
+  const [notesSlideIndex, setNotesSlideIndex] = useState(0);
 
   // PDF Viewer states
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -27,25 +82,64 @@ const ReachLinkPreview = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const canvasRef = useRef(null);
 
+  // Scoring states
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Analytics tracking - Get UUIDs from localStorage
+  const userUUID = localStorage.getItem('reachlink-user-uuid');
+  const sessionId = localStorage.getItem('reachlink-session-id');
+
+  // Track screen time using your existing hook
+  useScreenTime({
+    slideIndex: activeTab === 'DECK' ? currentPage - 1 : 
+                activeTab === 'NOTES' ? notesSlideIndex : 
+                activeTab === 'BRIEF' ? 0 : 
+                activeTab === 'SCORE' ? 0 : 0,
+    tabName: activeTab,
+    userUUID,
+    sessionId,
+    isActive: authChosen, // Only track when user has chosen auth method
+  });
+
+  // Check if user has already chosen authentication method
+  useEffect(() => {
+    const hasUUID = localStorage.getItem('reachlink-user-uuid');
+    const hasSession = localStorage.getItem('reachlink-session-id');
+    const hasEmail = localStorage.getItem('user-email');
+    
+    // If user has existing session data, consider them authenticated
+    if (hasUUID && hasSession) {
+      setAuthChosen(true);
+      if (hasEmail) {
+        setUserEmail(hasEmail);
+      }
+    }
+  }, []);
+
+  // Fetch reach link data
   useEffect(() => {
     if (!slug) {
       setError('Missing reach link slug in URL');
+      setLoading(false);
       return;
     }
 
     fetch(`${API_KEY}/api/upgrade-deck/reach/${slug}`)
       .then((res) => res.json())
       .then((res) => {
-        console.log('API Response:', res); // Debug log
+        console.log('API Response:', res);
         if (res.success) {
-          console.log('Data received:', res.data); // Debug log
+          console.log('Data received:', res.data);
           setData(res.data);
         } else {
           setError(res.message || 'Invalid reach link');
         }
       })
       .catch((err) => {
-        console.error('Fetch error:', err); // Debug log
+        console.error('Fetch error:', err);
         setError('Failed to fetch reach profile');
       })
       .finally(() => {
@@ -53,7 +147,66 @@ const ReachLinkPreview = () => {
       });
   }, [slug]);
 
-  // PDF Viewer functions
+  // Authentication handlers
+  const handleIncognito = () => {
+    // Generate UUIDs if they don't exist
+    if (!userUUID) {
+      const newUUID = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('reachlink-user-uuid', newUUID);
+      analytics.userUUID = newUUID;
+    }
+    if (!sessionId) {
+      const newSession = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('reachlink-session-id', newSession);
+      analytics.sessionId = newSession;
+    }
+
+    // Initialize session with no profile data (incognito)
+    analytics.initSession();
+    setAuthChosen(true);
+  };
+
+  const handleGoogleSuccess = (credentialResponse) => {
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      setUserEmail(decoded.email);
+      localStorage.setItem('user-email', decoded.email);
+
+      // Create profile object with Google data
+      const googleProfileData = {
+        email: decoded.email,
+        name: decoded.name,
+        googleId: decoded.sub, // 'sub' is the unique Google ID
+        profilePictureUrl: decoded.picture
+      };
+
+      // Initialize session with Google profile data
+      analytics.initSession(googleProfileData);
+      setAuthChosen(true);
+    } catch (err) {
+      console.error('Google token decode error:', err);
+      alert('Google login failed.');
+    }
+  };
+
+  // Score submission handler
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    try {
+      await analytics.submitFeedback(score, feedback);
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
+      // Still show success to user, but log the error
+      setSubmitted(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // PDF loading function (keep your existing implementation)
   const loadPDF = async (pdfUrl) => {
     if (!window.pdfjsLib) {
       console.error('PDF.js library not loaded');
@@ -61,7 +214,6 @@ const ReachLinkPreview = () => {
       return;
     }
 
-    // Configure PDF.js worker
     if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
@@ -70,15 +222,9 @@ const ReachLinkPreview = () => {
       setPdfLoading(true);
       setPdfError('');
       
-      // Use uploaded PDF as primary, fallback PDF as backup
       const fallbackPdfUrl = 'https://storage.googleapis.com/rech_link/1754055313199-Vertx%20Deck%20(2).pdf';
       const primaryProxyUrl = `${API_KEY}/api/pdf/proxy-pdf?url=${encodeURIComponent(pdfUrl)}`;
-      const fallbackProxyUrl = `${API_KEY}/api/pdf/proxy-pdf?url=${encodeURIComponent(fallbackPdfUrl)}`;
-
-      const urls = [
-        primaryProxyUrl,  // Uploaded/data PDF first
-        fallbackProxyUrl  // Fallback PDF as backup
-      ];
+      const urls = [primaryProxyUrl];
 
       let pdf = null;
       let lastError = null;
@@ -88,9 +234,7 @@ const ReachLinkPreview = () => {
           console.log('Attempting to load PDF from:', url);
           const loadingTask = window.pdfjsLib.getDocument({
             url: url,
-            httpHeaders: {
-              'Accept': 'application/pdf'
-            }
+            httpHeaders: { 'Accept': 'application/pdf' }
           });
           pdf = await loadingTask.promise;
           console.log('Successfully loaded PDF');
@@ -104,16 +248,14 @@ const ReachLinkPreview = () => {
       if (!pdf) {
         throw lastError || new Error('Failed to load PDF from all URLs');
       }
-      
+
       setPdfDoc(pdf);
       setTotalPages(pdf.numPages);
       setCurrentPage(1);
-      
-      // Small delay to ensure container is properly sized before rendering
+
       setTimeout(() => {
-        renderPage(pdf, 1, true); // Pass true for first load
+        renderPage(pdf, 1, true);
       }, 100);
-      
     } catch (error) {
       console.error('Error loading PDF:', error);
       setPdfError('Failed to load PDF document. The PDF may be restricted or unavailable.');
@@ -122,6 +264,7 @@ const ReachLinkPreview = () => {
     }
   };
 
+  // PDF rendering function (keep your existing implementation)
   const renderPage = async (pdf, pageNumber, isFirstLoad = false) => {
     if (!pdf || !canvasRef.current) return;
 
@@ -130,62 +273,50 @@ const ReachLinkPreview = () => {
         setPageRendering(true);
         setIsTransitioning(true);
       }
-      
+
       const page = await pdf.getPage(pageNumber);
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
-      
-      // Only apply fade out for page transitions, not first load
+
       if (!isFirstLoad) {
         canvas.style.opacity = '0';
-        // Shorter delay for better responsiveness
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
-      // Clear the canvas before rendering
+
       context.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Calculate scale to fit the container
+
       const viewport = page.getViewport({ scale: 1.0 });
-      
-      // Get the container dimensions more reliably
       const container = canvas.parentElement;
       const containerRect = container.getBoundingClientRect();
       const containerWidth = containerRect.width * 0.9;
       const containerHeight = containerRect.height * 0.9;
-      
-      // Ensure minimum dimensions
+
       const minWidth = 300;
       const minHeight = 400;
       const effectiveWidth = Math.max(containerWidth, minWidth);
       const effectiveHeight = Math.max(containerHeight, minHeight);
-      
+
       const scaleWidth = effectiveWidth / viewport.width;
       const scaleHeight = effectiveHeight / viewport.height;
-      const scale = Math.min(scaleWidth, scaleHeight, 2.0); // Cap at 2x for readability
-      
+      const scale = Math.min(scaleWidth, scaleHeight, 2.0);
+
       const scaledViewport = page.getViewport({ scale });
-      
-      // Set canvas dimensions
       const pixelRatio = window.devicePixelRatio || 1;
+
       canvas.width = scaledViewport.width * pixelRatio;
       canvas.height = scaledViewport.height * pixelRatio;
       canvas.style.width = scaledViewport.width + 'px';
       canvas.style.height = scaledViewport.height + 'px';
-      
-      // Scale the context for high DPI displays
+
       context.scale(pixelRatio, pixelRatio);
-      
+
       const renderContext = {
         canvasContext: context,
         viewport: scaledViewport
       };
-      
+
       await page.render(renderContext).promise;
-      
-      // Quick fade in effect after rendering
       canvas.style.opacity = '1';
-      
     } catch (error) {
       console.error('Error rendering page:', error);
       setPdfError('Failed to render PDF page');
@@ -197,6 +328,7 @@ const ReachLinkPreview = () => {
     }
   };
 
+  // PDF navigation functions
   const goToNextPage = () => {
     if (pdfDoc && currentPage < totalPages) {
       const nextPage = currentPage + 1;
@@ -213,13 +345,12 @@ const ReachLinkPreview = () => {
     }
   };
 
-  // Load PDF when DECK tab is activated and data is available
+  // Load PDF when DECK tab is activated
   useEffect(() => {
     if (activeTab === 'DECK' && data?.deckUrl) {
       if (!pdfDoc) {
         loadPDF(data.deckUrl);
       } else {
-        // Re-render the current page when returning to DECK tab
         setTimeout(() => {
           renderPage(pdfDoc, currentPage, true);
         }, 100);
@@ -247,7 +378,7 @@ const ReachLinkPreview = () => {
     };
   }, [activeTab, pdfDoc, currentPage, totalPages]);
 
-  // Handle window resize for PDF rendering
+  // Handle window resize for PDF
   useEffect(() => {
     const handleResize = () => {
       if (pdfDoc && activeTab === 'DECK') {
@@ -261,11 +392,7 @@ const ReachLinkPreview = () => {
     };
   }, [pdfDoc, currentPage, activeTab]);
 
-
-  // --- New states for NOTES sliders ---
-  const [notesSlideIndex, setNotesSlideIndex] = useState(0);
-
-  // Dynamic content for NOTES slider based on actual data
+  // Dynamic content for NOTES slider
   const notesSlides = [
     {
       title: 'Market Opportunity',
@@ -285,125 +412,70 @@ const ReachLinkPreview = () => {
     },
   ];
 
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  // Score calculation for visual slider
+  const fillPercentage = ((score - 0) / (10 - 0)) * 100;
 
-  const handleScoreChange = (event) => {
-    setScore(parseFloat(event.target.value));
-  };
-
-  const handleFeedbackChange = (event) => {
-    setFeedback(event.target.value);
-  };
-
-  const handleSubmit = () => {
-    setSubmitted(true);
-  };
-
-  const minScore = 0;
-  const maxScore = 10;
-  const fillPercentage = ((score - minScore) / (maxScore - minScore)) * 100;
-
-  // --- Handlers for NOTES slider ---
-  const handleNextSlide = (tabName) => {
-    if (tabName === 'NOTES') {
-      setNotesSlideIndex(prevIndex => (prevIndex < notesSlides.length - 1 ? prevIndex + 1 : prevIndex));
-    }
-  };
-
-  const handlePrevSlide = (tabName) => {
-    if (tabName === 'NOTES') {
-      setNotesSlideIndex(prevIndex => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
-    }
-  };
-
-  // Function to render content based on the active tab
+  // Render content based on active tab
   const renderContent = () => {
     switch (activeTab) {
       case 'DECK':
         return (
-          <div>
-            <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col rounded-lg lg:w-[7xl] max-w-7xl w-11/12 lg:h-[71vh] h-120 aspect-video lg:aspect-auto overflow-hidden mx-auto items-center justify-center p-0 relative bg-gray-900">
+          <div className="relative w-full h-[71vh]">
+            <div className="w-full h-full flex items-center justify-center bg-black">
               {pdfLoading && (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-                  <p className="text-lg">Loading PDF...</p>
+                <div className="text-white text-center">
+                  <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
+                  Loading PDF...
                 </div>
               )}
               
               {pdfError && (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                  <div className="text-center">
-                    <h3 className="text-2xl mb-4 text-red-400">Error Loading PDF</h3>
-                    <p className="text-lg mb-6">{pdfError}</p>
-                    <a 
-                      href={`${API_KEY}/api/pdf/proxy-pdf?url=${encodeURIComponent(data?.deckUrl || 'https://storage.googleapis.com/rech_link/1754055313199-Vertx%20Deck%20(2).pdf')}`}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
-                    >
-                      View Deck (PDF)
-                    </a>
-                  </div>
+                <div className="text-red-400 text-center p-4">
+                  <p>{pdfError}</p>
+                  <button 
+                    onClick={() => data?.deckUrl && loadPDF(data.deckUrl)}
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Retry Loading PDF
+                  </button>
                 </div>
               )}
-              
-              {pdfDoc && !pdfLoading && !pdfError && (
-                <>
-                  <canvas 
-                    ref={canvasRef}
-                    className="max-w-full max-h-full object-contain shadow-lg"
-                    style={{ 
-                      display: 'block', 
-                      transition: 'opacity 0.2s ease-in-out',
-                      opacity: 1
-                    }}
-                  />
-                  
-                  {/* PDF Navigation Controls */}
-                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-                    <span className="text-sm font-medium">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                  </div>
-                </>
-              )}
-              
-              {!pdfDoc && !pdfLoading && !pdfError && (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-                  <p className="text-lg">Loading PDF...</p>
-                </div>
+
+              {!pdfLoading && !pdfError && (
+                <canvas
+                  ref={canvasRef}
+                  className="max-w-full max-h-full object-contain transition-opacity duration-200"
+                  style={{ opacity: isTransitioning ? 0 : 1 }}
+                />
               )}
             </div>
 
-            <div className="md:absolute pt-4 md:bottom-0 md:right-36 flex items-center justify-center gap-3">
-              <button
-                  onClick={goToPreviousPage}
-                  disabled={!pdfDoc || currentPage <= 1}
-                  className={`
-                    px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
-                    transition-colors duration-200
-                    ${!pdfDoc || currentPage <= 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                  `}
-              >
-                Prev
-              </button>
-              <button
-                  onClick={goToNextPage}
-                  disabled={!pdfDoc || currentPage >= totalPages}
-                  className={`
-                    px-2 py-1 rounded-md text-xs md:text-sm font-semibold uppercase tracking-wider
-                    transition-colors duration-200
-                    ${!pdfDoc || currentPage >= totalPages ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                  `}
-              >
-                Next
-              </button>
-            </div>
+            {pdfDoc && (
+              <div className="absolute bottom-4 w-full md:w-auto md:right-36 flex justify-center md:justify-end gap-3">
+                <div className="bg-black/50 p-1 rounded-md flex gap-3">
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    className="px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors duration-200 text-white disabled:text-gray-500 disabled:cursor-not-allowed"
+                  >
+                    Prev
+                  </button>
+                  <span className="text-white text-xs px-2 flex items-center">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className="px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors duration-200 text-white disabled:text-gray-500 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         );
+
       case 'BRIEF':
         return (
           <div style={{ fontFamily: "'Crimson Text', serif" }} 
@@ -465,30 +537,31 @@ const ReachLinkPreview = () => {
               <h2 className="text-sm md:text-[16px] flex justify-center mx-auto font-semibold uppercase underline tracking-wider text-white/50 mb-2">Team</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-2 text-white mx-auto max-w-sm">
                 {data?.founderName && (
-                  <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center">
                     <p className="text-xs font-semibold">{data.founderName}</p>
-                    <p className="text-xs font-semibold mb-1">CEO</p>
+                  <p className="text-xs font-semibold mb-1">CEO</p>
                     <a href={data?.founderLinkedinUrl || '#'} className="text-[10px] uppercase">LinkedIn</a>
-                  </div>
+                </div>
                 )}
                 {data?.founder1FullName && (
-                  <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center">
                     <p className="text-xs font-semibold">{data.founder1FullName}</p>
                     <p className="text-xs font-semibold mb-1">{data.founder1TitleRole || 'Role'}</p>
                     <a href={data?.founder1LinkedinProfileURL || '#'} className="text-[10px] uppercase">LinkedIn</a>
-                  </div>
+                </div>
                 )}
                 {data?.teamMembers?.slice(0, 2).map((member, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <p className="text-xs font-semibold">{member.fullName}</p>
                     <p className="text-xs font-semibold mb-1">{member.titleRole || 'Role'}</p>
                     <a href={member.linkedinUrl || '#'} className="text-[10px] uppercase">LinkedIn</a>
-                  </div>
+                </div>
                 ))}
               </div>
             </div>
           </div>
         );
+
       case 'NOTES':
         const currentNote = notesSlides[notesSlideIndex];
         return (
@@ -496,174 +569,159 @@ const ReachLinkPreview = () => {
           <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-4 max-w-7xl h-[71vh] overflow-hidden w-11/12 text-center text-gray-300 flex flex-col justify-center items-center bg-black md:p-8 rounded-lg shadow-xl mx-auto relative">
             <h2 className="text-3xl md:text-4xl text-white/60 font-serif italic mb-8">{currentNote.title}</h2>
             <p className="text-xl md:text-2xl text-white max-w-xl">
-              {currentNote.text}
-            </p>
+                {currentNote.text}
+              </p>
             </div>
-            <div className="md:absolute pt-4 md:bottom-0 md:right-36 flex items-center justify-center gap-3">
-
-              <button
-                onClick={() => handlePrevSlide('NOTES')}
-                disabled={notesSlideIndex === 0}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${notesSlideIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => handleNextSlide('NOTES')}
-                disabled={notesSlideIndex === notesSlides.length - 1}
-                className={`
-                  px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider
-                  transition-colors duration-200
-                  ${notesSlideIndex === notesSlides.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'cursor-pointer text-white'}
-                `}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        );
-      case 'SCORE':
-        return (
-          <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-4 md:p-8 lg:p-8 w-11/12 max-w-7xl lg:min-w-5xl  lg:w-[7xl] bg-black/55 mx-auto h-[71vh] text-center text-gray-300">
-            {!submitted ? (
-              <>
-                <h2 style={{ fontFamily: "'Crimson Text', serif" }} className="text-3xl md:text-4xl mt-20 md:mt-0 font-normal mb-15">Score This Startup</h2>
-                <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col items-center mb-8">
-                  <input
-                    type="range"
-                    min={minScore}
-                    max={maxScore}
-                    step="0.1"
-                    value={score}
-                    onChange={handleScoreChange}
-                    className="w-full max-w-6xl h-2 appearance-none cursor-pointer range-lg"
-                    style={{
-                      background: `linear-gradient(to right, #D1D5DB ${fillPercentage}%, #4B5563 ${fillPercentage}%)`,
-                      WebkitAppearance: 'none',
-                      MozAppearance: 'none',
-                    }}
-                  />
-                  <p className="text-5xl md:text-6xl font-bold mt-4">{score.toFixed(1)}</p>
-                </div>
-                <div>
-                  <textarea
-                    className="w-full max-w-6xl mx-auto h-32 p-4 mb-8 bg-white/4 border border-[#B8B8B821] rounded-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
-                    placeholder="Write your thoughts or message here..."
-                    value={feedback}
-                    onChange={handleFeedbackChange}
-                  >
-                  </textarea>
-                </div>
-                <div className='justify-end flex max-w-6xl md:relative absolute bottom-7 right-8 sm:right-12 md:bottom-0 md:right-0'>
-                  <button
-                    onClick={handleSubmit}
-                    className="px-3 py-1 text-white font-bold text-xl rounded-lg transition duration-200"
-                  >
-                    SUBMIT
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div style={{ fontFamily: "'Crimson Text', serif" }} className="flex flex-col items-center justify-center h-[71vh]">
-                <h2 className="text-3xl md:text-4xl font-serif italic mb-4">You've scored {score.toFixed(1)} for this pitch</h2>
-                <p className="text-xl md:text-2xl leading-relaxed max-w-2xl">
-                  {feedback ? feedback : 'No Feedback Given.'}
-                </p>
-                <div className=" justify-end flex max-w-6xl absolute md:bottom-16 bottom-12 right-12 md:right-36">
-                  <button
-                    onClick={() => { setSubmitted(false) }}
-                    className="px-3 py-1 text-white font-bold text-xl rounded-lg transition duration-200"
-                  >
-                    PREV
-                  </button>
-               </div>
+            <div className="absolute bottom-4 w-full md:w-auto md:right-36 flex justify-center md:justify-end gap-3">
+              <div className="bg-black/50 p-1 rounded-md flex gap-3">
+                <button
+                  onClick={() => setNotesSlideIndex(i => (i > 0 ? i - 1 : 0))}
+                  disabled={notesSlideIndex === 0}
+                  className="px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors duration-200 text-white disabled:text-gray-500"
+                >
+                  Prev
+                </button>
+                <span className="text-white text-xs px-2 flex items-center">
+                  {notesSlideIndex + 1} / {notesSlides.length}
+                </span>
+                <button
+                  onClick={() => setNotesSlideIndex(i => (i < notesSlides.length - 1 ? i + 1 : i))}
+                  disabled={notesSlideIndex === notesSlides.length - 1}
+                  className="px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors duration-200 text-white disabled:text-gray-500"
+                >
+                  Next
+                </button>
               </div>
-              
-            )}
+            </div>
           </div>
         );
+
+      case 'SCORE':
+        if (submitted) {
+          return (
+            <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-8 w-full bg-black/55 mx-auto h-[71vh] text-center text-gray-300 flex flex-col items-center justify-center">
+              <h2 className="text-3xl md:text-4xl italic mb-4">You've scored {score.toFixed(1)}</h2>
+              <p className="text-xl md:text-2xl max-w-2xl">{feedback || 'No Feedback Given.'}</p>
+            </div>
+          );
+        }
+
+        return (
+          <div style={{ fontFamily: "'Crimson Text', serif" }} className="p-4 md:p-8 w-full bg-black/55 mx-auto h-[66vh] text-center text-gray-300">
+            <h2 className="text-3xl md:text-4xl font-normal mb-8 md:mb-16">Score This Startup</h2>
+            <div className="flex flex-col items-center mb-8">
+              <input
+                type="range"
+                min={0}
+                max={10}
+                step="0.1"
+                value={score}
+                onChange={e => setScore(parseFloat(e.target.value))}
+                className="w-full max-w-md md:max-w-xl lg:max-w-4xl h-2 appearance-none cursor-pointer range-lg"
+                style={{ background: `linear-gradient(to right, #D1D5DB ${fillPercentage}%, #4B5563 ${fillPercentage}%)` }}
+              />
+              <p className="text-5xl md:text-6xl font-bold mt-4">{score.toFixed(1)}</p>
+            </div>
+            <div>
+              <textarea
+                className="w-full max-w-md md:max-w-xl lg:max-w-4xl mx-auto h-32 p-4 mb-8 bg-white/5 border border-gray-700 rounded-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none"
+                placeholder="Write your thoughts or message here..."
+                value={feedback}
+                onChange={e => setFeedback(e.target.value)}
+              />
+            </div>
+            <div className='justify-end flex max-w-md md:max-w-xl lg:max-w-4xl mx-auto'>
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="px-4 py-2 text-white font-bold text-lg md:text-xl rounded-lg transition duration-200 hover:bg-white/10 disabled:opacity-50"
+              >
+                {isSubmitting ? 'SUBMITTING…' : 'SUBMIT'}
+              </button>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
   };
 
+  // Loading state
   if (loading) {
     return (
-      <div className="h-full inset-0 bg-cover bg-center text-white font-inter flex flex-col items-center justify-center relative"
-        style={{ backgroundImage: `url(${BG})`, fontFamily: "'Crimson Text', serif" }}>
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading reach profile...</p>
+        </div>
       </div>
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="h-full inset-0 bg-cover bg-center text-white  flex flex-col items-center justify-between relative overflow-scroll"
-        style={{ backgroundImage: `url(${BG})`, fontFamily: "'Crimson Text', serif" }}>
-        <div className="text-red-400 text-xl">{error}</div>
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full inset-0 bg-cover bg-center text-white font-inter flex flex-col items-center justify-between relative overflow-scroll"
-      style={{ backgroundImage: `url(${BG})`, fontFamily: "'Crimson Text', serif" }}>
-      {/* Background layer 1: Using BG for the subtle mountain effect, very dark and muted */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{ backgroundImage: `url(${BG})` }}
-      ></div>
-
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-5"
-        style={{ backgroundImage: `url(${upperBG})` }}
-      ></div>
-
-      {/* A dark gradient overlay to ensure the background remains subtle and the content pops */}
+    <div className="min-h-screen bg-gray-900 text-white font-inter flex flex-col items-center" style={{ fontFamily: "'Crimson Text', serif" }}>
+      <div className="absolute inset-0 bg-cover bg-center opacity-10" style={{ backgroundImage: `url(${BG})` }}></div>
+      <div className="absolute inset-0 bg-cover bg-center opacity-5" style={{ backgroundImage: `url(${upperBG})` }}></div>
       <div className="absolute inset-0 bg-gradient-to-b from-gray-950 via-gray-950 to-transparent opacity-80"></div>
-
-      {/* Main content container */}
-      <div className="relative z-10 w-full mx-auto flex flex-col items-start pt-4 pb-4  md:pt-12 md:pb-8">
-        {/* Tabs navigation - styled to be subtle like in the screenshot */}
-        <nav className="flex flex-wrap mb-4 mx-auto justify-center items-center md:mx-0 md:space-x-8 md:ml-34">
+      
+      <div className="relative z-10 w-full flex flex-col items-center pt-8 md:pt-12 pb-8 px-4">
+        <nav className="flex space-x-4 md:space-x-8 mb-4">
           {tabOrder.map((tab) => (
             <button
               key={tab}
               style={{ fontFamily: "'Crimson Text', serif" }}
-              className={`
-                sm:text-xl text-sm font-bold uppercase tracking-wider px-4 py-2
-                transition-all duration-300 ease-in-out
-                ${activeTab === tab
-                  ? 'text-white' // Active tab has a bottom border
-                  : 'text-gray-500 hover:text-gray-300' // Inactive tabs are muted
-                }
-              `}
+              className={`text-lg md:text-xl font-bold uppercase tracking-wider px-2 md:px-4 py-2 transition-all duration-300 ease-in-out ${
+                activeTab === tab ? 'text-white' : 'text-gray-500 hover:text-gray-300'
+              }`}
               onClick={() => setActiveTab(tab)}
             >
               {tab}
             </button>
           ))}
         </nav>
-
-        {/* Content display area - styled to look like the main image container */}
-        <div className="rounded-lg shadow-2xl w-full overflow-hidden transition-all duration-300 ease-in-out">
+        
+        <div className="rounded-lg shadow-2xl w-full max-w-7xl mx-auto">
           {renderContent()}
         </div>
-
       </div>
-
-      {/* Footer - positioned at the very bottom */}
-      <footer
-        style={{ fontFamily: "'Crimson Text', serif" }}
-        className="relative z-10 text-gray-500 text-sm flex -mt-5 ">
-        REACHLINK by <img className='w-4 h-4 mx-2' src={logo} alt="" /> VERTX
+      
+      <footer style={{ fontFamily: "'Crimson Text', serif" }} className="relative z-10 text-gray-500 text-sm flex items-center py-4 mt-auto">
+        REACHLINK by <img className='w-4 h-4 mx-2' src={logo} alt="Vertx Logo" /> VERTX
       </footer>
+
+      {!authChosen && (
+        <AuthModal
+          onChooseIncognito={handleIncognito}
+          onChooseGoogleClick={handleGoogleSuccess}
+        />
+      )}
     </div>
   );
 };
 
-export default ReachLinkPreview;
+// Wrap with GoogleOAuthProvider
+export default function WrappedReachLinkPreview() {
+  return (
+    <GoogleOAuthProvider clientId="817384216349-6knt6pfqq2ajhigvvojd1i2um8sedeg1.apps.googleusercontent.com">
+      <ReachLinkPreview />
+    </GoogleOAuthProvider>
+  );
+}

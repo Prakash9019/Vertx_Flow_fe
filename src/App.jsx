@@ -84,7 +84,6 @@ function App() {
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
     {path:"/fundraising/reach", element: <FundraisingManagePage /> },
-    {path:"/fundraising/reach-link", element: <CompaniesReachLink /> },
 
     
      { path:"/flow/outbound", element:<GenerateEmail />},
