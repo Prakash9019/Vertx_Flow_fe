@@ -149,6 +149,8 @@ const ReachLinkPreview = () => {
 
   // Authentication handlers
   const handleIncognito = () => {
+    console.log('Continuing in incognito mode');
+    console.log('Current UUIDs:', { userUUID, sessionId });
     // Generate UUIDs if they don't exist
     if (!userUUID) {
       const newUUID = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -168,6 +170,8 @@ const ReachLinkPreview = () => {
 
   const handleGoogleSuccess = (credentialResponse) => {
     try {
+      console.log('Google credential response:', credentialResponse);
+      console.log('Current UUIDs before Google auth:', { userUUID, sessionId });
       const decoded = jwtDecode(credentialResponse.credential);
       setUserEmail(decoded.email);
       localStorage.setItem('user-email', decoded.email);

@@ -4,7 +4,8 @@ class AnalyticsAPI {
     this.baseURL = `${API_URL}`;
     this.userUUID = localStorage.getItem('reachlink-user-uuid') || null;
     this.sessionId = localStorage.getItem('reachlink-session-id') || null;
-
+    console.log(this.userUUID, this.sessionId);
+    console.log('AnalyticsAPI initialized with baseURL:', this.baseURL);
     // Ensure userUUID exists
     if (!this.userUUID) {
       this.userUUID = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
