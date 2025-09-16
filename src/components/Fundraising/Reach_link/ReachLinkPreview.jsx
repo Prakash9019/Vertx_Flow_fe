@@ -105,19 +105,18 @@ const ReachLinkPreview = () => {
   });
 
   // Check if user has already chosen authentication method
-  useEffect(() => {
-    const hasUUID = localStorage.getItem('reachlink-user-uuid');
-    const hasSession = localStorage.getItem('reachlink-session-id');
-    const hasEmail = localStorage.getItem('user-email');
-    
-    // If user has existing session data, consider them authenticated
-    if (hasUUID && hasSession) {
-      setAuthChosen(true);
-      if (hasEmail) {
-        setUserEmail(hasEmail);
-      }
-    }
-  }, []);
+useEffect(() => {
+  const hasUUID = localStorage.getItem('reachlink-user-uuid');
+  const hasSession = localStorage.getItem('reachlink-session-id');
+  const hasEmail = localStorage.getItem('user-email');
+  
+  if (hasUUID && hasSession && hasEmail) {
+    // Only auto-auth if Google login was used
+    setAuthChosen(true);
+    setUserEmail(hasEmail);
+  }
+}, []);
+
 
   // Fetch reach link data
   useEffect(() => {
@@ -703,7 +702,19 @@ const ReachLinkPreview = () => {
         </nav>
         
         <div className="rounded-lg shadow-2xl w-full max-w-7xl mx-auto">
-          {renderContent()}
+           {!authChosen && (
+      <AuthModal
+        onChooseIncognito={handleIncognito}
+        onChooseGoogleClick={handleGoogleSuccess}
+      />
+    )}
+
+    {authChosen && (
+      <div>
+        {/* Your normal UI (tabs, deck, brief, notes, etc.) */}
+        {renderContent()}
+      </div>
+    )}
         </div>
       </div>
       
@@ -711,12 +722,12 @@ const ReachLinkPreview = () => {
         REACHLINK by <img className='w-4 h-4 mx-2' src={logo} alt="Vertx Logo" /> VERTX
       </footer>
 
-      {!authChosen && (
+      {/* {!authChosen && (
         <AuthModal
           onChooseIncognito={handleIncognito}
           onChooseGoogleClick={handleGoogleSuccess}
         />
-      )}
+      )} */}
     </div>
   );
 };
