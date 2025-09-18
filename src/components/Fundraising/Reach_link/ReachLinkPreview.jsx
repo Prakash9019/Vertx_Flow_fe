@@ -161,7 +161,7 @@ useEffect(() => {
       localStorage.setItem('reachlink-session-id', newSession);
       analytics.sessionId = newSession;
     }
-
+    analytics.slug = slug;
     // Initialize session with no profile data (incognito)
     analytics.initSession();
     setAuthChosen(true);
@@ -180,7 +180,8 @@ useEffect(() => {
         email: decoded.email,
         name: decoded.name,
         googleId: decoded.sub, // 'sub' is the unique Google ID
-        profilePictureUrl: decoded.picture
+        profilePictureUrl: decoded.picture,
+        slug:slug
       };
 
       // Initialize session with Google profile data
@@ -198,7 +199,7 @@ useEffect(() => {
     setIsSubmitting(true);
     
     try {
-      await analytics.submitFeedback(score, feedback);
+      await analytics.submitFeedback(score, feedback,slug);
       setSubmitted(true);
     } catch (error) {
       console.error('Failed to submit feedback:', error);

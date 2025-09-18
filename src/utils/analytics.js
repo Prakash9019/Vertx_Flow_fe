@@ -28,6 +28,7 @@ class AnalyticsAPI {
     // Combine the user's UUID with any provided profile data
     const body = {
       userUUID: this.userUUID,
+      slug: this.slug,
       ...profileData
     };
 
@@ -46,7 +47,7 @@ class AnalyticsAPI {
       }).catch(err => console.error('Session init failed:', err));
   }
     
-      async submitFeedback(score, message) {
+      async submitFeedback(score, message,slag) {
         const res = await fetch(`${this.baseURL}/api/feedback`, {
           method: 'POST',
           headers: {
@@ -54,7 +55,7 @@ class AnalyticsAPI {
             'X-User-UUID': this.userUUID,
             'X-Session-ID': this.sessionId
           },
-          body: JSON.stringify({ score, message })
+          body: JSON.stringify({ score, message,slag })
         });
         return res.json();
       }
