@@ -33,10 +33,10 @@ function EvaluateReport_page() {
     const [activeTab, setActiveTab] = useState(getTabFromHash());
   useEffect(() => {
     // Check if user has appropriate subscription
-    if (!canUsePdfEvaluation && !permissionsLoading) {
-      setShowUpgradePopup(true);
-      return;
-    }
+    // if (!canUsePdfEvaluation && !permissionsLoading) {
+    //   setShowUpgradePopup(true);
+    //   return;
+    // }
     
     // console.log('EvaluateReport_page: Checking for report data');
     // console.log('Incoming data:', incomingData);
