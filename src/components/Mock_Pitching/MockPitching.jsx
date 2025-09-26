@@ -2665,9 +2665,12 @@ function MockPitching({ onBack, loading  }) {
         </div>
 
         {selectedInvestor && (
-          <div
-            className="lg:w-[59%] w-full p-6 px-4 bg-[#0F0E16] rounded-[0.3125rem] transition duration-500 ease-in-out fixed  right-0 lg:right-[1.88rem] h-screen overflow-scroll translate-x-0 opacity-100 pt-2 md:pt-4 lg:pt-8"
-          >
+            <div
+              className="lg:w-[59%] w-full p-6 px-4 bg-[#0F0E16] rounded-[0.3125rem] 
+                        transition duration-500 ease-in-out fixed right-0 lg:right-[1.88rem] 
+                        h-screen overflow-y-auto translate-x-0 opacity-100 pt-2 md:pt-4 lg:pt-8"
+            >
+
             <div className="flex flex-col items-center gap-6 mb-8 mt-0 md:mt-15 md:flex-row">
               <div className="bg-gray-600 overflow-scroll flex items-center justify-center w-[12rem] h-[12rem] md:w-[15.625rem] md:h-[15.625rem] rounded-[0.3125rem] flex-shrink-0">
                 <img

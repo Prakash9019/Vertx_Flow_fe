@@ -1756,9 +1756,8 @@ const JoinUsPage = ({ theme }) => {
   );
 };
 
-const NewFroalaPage = ({ id, theme }) => {
+const TitleOnlyPage = ({ id, theme }) => {
   const headingRef = useRef(null);
-  const paragraphRef = useRef(null);
   const currentTheme = themes[theme];
 
   useEffect(() => {
@@ -1779,17 +1778,7 @@ const NewFroalaPage = ({ id, theme }) => {
             toolbarVisibleWithoutSelection: true,
             charCounterCount: false,
             wordCounterCount: false,
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'insertImage', 'imageManager', 'imageSize'],
-          });
-        }
-        if (paragraphRef.current) {
-          new window.FroalaEditor(paragraphRef.current, {
-            inline: true,
-            toolbarInline: true,
-            toolbarVisibleWithoutSelection: true,
-            charCounterCount: false,
-            wordCounterCount: false,
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'insertImage', 'imageManager', 'imageSize'],
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
           });
         }
       }
@@ -1813,27 +1802,1375 @@ const NewFroalaPage = ({ id, theme }) => {
 
   return (
     <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-      <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
-      <div ref={headingRef}>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium leading-tight mb-4" contentEditable suppressContentEditableWarning>
-          New Slide Title
-        </h1>
-      </div>
-      <div ref={paragraphRef}>
-      <p className="text-lg md:text-xl text-gray-300" contentEditable suppressContentEditableWarning>
-          This is a new slide. You can add your content here.
-      </p>
-      </div>
+      <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+        <div ref={headingRef}>
+          <h1 className="text-7xl font-bold" contentEditable suppressContentEditableWarning>
+            Title Only
+          </h1>
+        </div>
       </div>
     </div>
   );
 };
+
+const TitleAndSubtitlePage = ({ id, theme }) => {
+    const headingRef = useRef(null);
+    const subheadingRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (headingRef.current) {
+                    new window.FroalaEditor(headingRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                if (subheadingRef.current) {
+                    new window.FroalaEditor(subheadingRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
+                <div ref={headingRef}>
+                    <h1 className="text-6xl font-bold" contentEditable suppressContentEditableWarning>
+                        Title & Subtitle
+                    </h1>
+                </div>
+                <div ref={subheadingRef} className="mt-4">
+                    <p className="text-2xl text-gray-300" contentEditable suppressContentEditableWarning>
+                        A traditional opener with a tagline.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TitleAndContentPage = ({ id, theme }) => {
+    const headingRef = useRef(null);
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (headingRef.current) {
+                    new window.FroalaEditor(headingRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+                <div ref={headingRef} className="text-center">
+                    <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>
+                        Title & Content
+                    </h1>
+                </div>
+                <div ref={contentRef} className="mt-8 text-left">
+                    <ul contentEditable suppressContentEditableWarning className="list-disc list-inside text-xl">
+                        <li>Bullet point 1</li>
+                        <li>Bullet point 2</li>
+                        <li>Bullet point 3</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const SectionHeaderPage = ({ id, theme }) => {
+    const headingRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (headingRef.current) {
+                    new window.FroalaEditor(headingRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B1})` }}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl bg-black bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+                <div ref={headingRef}>
+                    <h1 className="text-6xl font-bold text-white" contentEditable suppressContentEditableWarning>
+                        Section Header
+                    </h1>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ContentWithCaptionPage = ({ id, theme }) => {
+    const contentRef = useRef(null);
+    const captionRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+                if (captionRef.current) {
+                    new window.FroalaEditor(captionRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+                <div ref={contentRef} className="text-left">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        Main content with additional context/sources. This is where the primary information goes.
+                    </p>
+                </div>
+                <div ref={captionRef} className="mt-8 text-left">
+                    <p contentEditable suppressContentEditableWarning className="text-lg text-gray-400">
+                        Caption or source information.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TwoContentPage = ({ id, theme }) => {
+    const content1Ref = useRef(null);
+    const content2Ref = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (content1Ref.current) {
+                    new window.FroalaEditor(content1Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+                if (content2Ref.current) {
+                    new window.FroalaEditor(content2Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
+                <div ref={content1Ref} className="w-1/2 pr-4">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        Side-by-side content comparison. This is the first column.
+                    </p>
+                </div>
+                <div ref={content2Ref} className="w-1/2 pl-4">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        This is the second column for comparison.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ComparisonPage = ({ id, theme }) => {
+    const card1Ref = useRef(null);
+    const card2Ref = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (card1Ref.current) {
+                    new window.FroalaEditor(card1Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+                if (card2Ref.current) {
+                    new window.FroalaEditor(card2Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
+                <div ref={card1Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <h3 className="text-2xl font-bold mb-4" contentEditable suppressContentEditableWarning>Feature 1</h3>
+                    <p contentEditable suppressContentEditableWarning>Description of feature 1.</p>
+                </div>
+                <div ref={card2Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <h3 className="text-2xl font-bold mb-4" contentEditable suppressContentEditableWarning>Feature 2</h3>
+                    <p contentEditable suppressContentEditableWarning>Description of feature 2.</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ContentOverImagePage = ({ id, theme }) => {
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B2})` }}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl bg-black bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+                <div ref={contentRef}>
+                    <h1 className="text-5xl font-bold text-white" contentEditable suppressContentEditableWarning>
+                        Impactful Messaging
+                    </h1>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const PictureWithCaptionPage = ({ id, theme }) => {
+    const captionRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (captionRef.current) {
+                    new window.FroalaEditor(captionRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
+                <img src={B3} alt="placeholder" className="w-2/3 rounded-lg" />
+                <div ref={captionRef} className="mt-4 text-center">
+                    <p contentEditable suppressContentEditableWarning className="text-lg text-gray-300">
+                        Large centered image with descriptive text.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ContentWithImagePage = ({ id, theme }) => {
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+                <div ref={contentRef} className="w-1/2 pr-8">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        Text content with supporting image (left-right).
+                    </p>
+                </div>
+                <div className="w-1/2">
+                    <img src={C1} alt="placeholder" className="w-full rounded-lg" />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ImageWithContentPage = ({ id, theme }) => {
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+                <div className="w-1/2">
+                    <img src={A1} alt="placeholder" className="w-full rounded-lg" />
+                </div>
+                <div ref={contentRef} className="w-1/2 pl-8">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        Image-first with supporting text (right-left).
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TwoContentWithImagePage = ({ id, theme }) => {
+    const content1Ref = useRef(null);
+    const content2Ref = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (content1Ref.current) {
+                    new window.FroalaEditor(content1Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+                if (content2Ref.current) {
+                    new window.FroalaEditor(content2Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+                <div ref={content1Ref} className="w-1/3 pr-4">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        Central image with content on both sides.
+                    </p>
+                </div>
+                <div className="w-1/3">
+                    <img src={A2} alt="placeholder" className="w-full rounded-lg" />
+                </div>
+                <div ref={content2Ref} className="w-1/3 pl-4">
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        More content on the other side.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const VerticalTextPage = ({ id, theme }) => {
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+                <div ref={contentRef}>
+                    <p contentEditable suppressContentEditableWarning className="text-xl mb-4">Sequential information in vertical flow.</p>
+                    <p contentEditable suppressContentEditableWarning className="text-xl mb-4">Step 2.</p>
+                    <p contentEditable suppressContentEditableWarning className="text-xl">Step 3.</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const VerticalTitleAndTextPage = ({ id, theme }) => {
+    const titleRef = useRef(null);
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (titleRef.current) {
+                    new window.FroalaEditor(titleRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+                <div ref={titleRef}>
+                    <h1 className="text-4xl font-bold mb-4" contentEditable suppressContentEditableWarning>Title with organized vertical content</h1>
+                </div>
+                <div ref={contentRef}>
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        Content goes here.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const FourObjectsPage = ({ id, theme }) => {
+    const object1Ref = useRef(null);
+    const object2Ref = useRef(null);
+    const object3Ref = useRef(null);
+    const object4Ref = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                [object1Ref, object2Ref, object3Ref, object4Ref].forEach(ref => {
+                    if (ref.current) {
+                        new window.FroalaEditor(ref.current, {
+                            inline: true,
+                            toolbarInline: true,
+                            toolbarVisibleWithoutSelection: true,
+                            charCounterCount: false,
+                            wordCounterCount: false,
+                            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                        });
+                    }
+                });
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto grid grid-cols-2 gap-8`}>
+                <div ref={object1Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <p contentEditable suppressContentEditableWarning>Object 1</p>
+                </div>
+                <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <p contentEditable suppressContentEditableWarning>Object 2</p>
+                </div>
+                <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <p contentEditable suppressContentEditableWarning>Object 3</p>
+                </div>
+                <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <p contentEditable suppressContentEditableWarning>Object 4</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TitleAndFourObjectsPage = ({ id, theme }) => {
+    const titleRef = useRef(null);
+    const object1Ref = useRef(null);
+    const object2Ref = useRef(null);
+    const object3Ref = useRef(null);
+    const object4Ref = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (titleRef.current) {
+                    new window.FroalaEditor(titleRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                [object1Ref, object2Ref, object3Ref, object4Ref].forEach(ref => {
+                    if (ref.current) {
+                        new window.FroalaEditor(ref.current, {
+                            inline: true,
+                            toolbarInline: true,
+                            toolbarVisibleWithoutSelection: true,
+                            charCounterCount: false,
+                            wordCounterCount: false,
+                            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                        });
+                    }
+                });
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+                <div ref={titleRef} className="text-center mb-8">
+                    <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Titled 2x2 grid layout</h1>
+                </div>
+                <div className="grid grid-cols-2 gap-8">
+                    <div ref={object1Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                        <p contentEditable suppressContentEditableWarning>Object 1</p>
+                    </div>
+                    <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                        <p contentEditable suppressContentEditableWarning>Object 2</p>
+                    </div>
+                    <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                        <p contentEditable suppressContentEditableWarning>Object 3</p>
+                    </div>
+                    <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                        <p contentEditable suppressContentEditableWarning>Object 4</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TitleAndTextPage = ({ id, theme }) => {
+    const titleRef = useRef(null);
+    const textRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (titleRef.current) {
+                    new window.FroalaEditor(titleRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                if (textRef.current) {
+                    new window.FroalaEditor(textRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL', 'align'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+                <div ref={titleRef} className="text-center mb-8">
+                    <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Long-form content</h1>
+                </div>
+                <div ref={textRef}>
+                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                        This is a layout for long-form content with professional typography. You can write detailed explanations, articles, or reports here.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TitleAndTwoColumnTextPage = ({ id, theme }) => {
+    const titleRef = useRef(null);
+    const col1Ref = useRef(null);
+    const col2Ref = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (titleRef.current) {
+                    new window.FroalaEditor(titleRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                if (col1Ref.current) {
+                    new window.FroalaEditor(col1Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL', 'align'],
+                    });
+                }
+                if (col2Ref.current) {
+                    new window.FroalaEditor(col2Ref.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL', 'align'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+                <div ref={titleRef} className="text-center mb-8">
+                    <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Organized text in dual columns</h1>
+                </div>
+                <div className="flex">
+                    <div ref={col1Ref} className="w-1/2 pr-4">
+                        <p contentEditable suppressContentEditableWarning className="text-xl">
+                            This is the first column.
+                        </p>
+                    </div>
+                    <div ref={col2Ref} className="w-1/2 pl-4">
+                        <p contentEditable suppressContentEditableWarning className="text-xl">
+                            This is the second column.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const QuotePage = ({ id, theme }) => {
+    const quoteRef = useRef(null);
+    const authorRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (quoteRef.current) {
+                    new window.FroalaEditor(quoteRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+                if (authorRef.current) {
+                    new window.FroalaEditor(authorRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
+                <div ref={quoteRef}>
+                    <blockquote className="text-4xl italic" contentEditable suppressContentEditableWarning>
+                        "Large inspirational quotes with attribution."
+                    </blockquote>
+                </div>
+                <div ref={authorRef} className="mt-4">
+                    <cite className="text-xl" contentEditable suppressContentEditableWarning>
+                        - Author
+                    </cite>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const BlankPage = ({ id, theme }) => {
+    const contentRef = useRef(null);
+    const currentTheme = themes[theme];
+
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+
+        const initializeEditors = () => {
+            if (window.FroalaEditor) {
+                if (contentRef.current) {
+                    new window.FroalaEditor(contentRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'insertImage', 'formatUL', 'formatOL', 'align'],
+                    });
+                }
+            }
+        };
+
+        script.onload = () => {
+            setTimeout(initializeEditors, 100);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+            if (document.head.contains(link)) {
+                document.head.removeChild(link);
+            }
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    return (
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+            <div ref={contentRef} className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+                <p contentEditable suppressContentEditableWarning>Custom content creation canvas.</p>
+            </div>
+        </div>
+    );
+};
+
+
+const LayoutPicker = ({ onSelect, onClose }) => {
+    const layouts = [
+        { name: 'Title Only', component: TitleOnlyPage },
+        { name: 'Title & Subtitle', component: TitleAndSubtitlePage },
+        { name: 'Title & Content', component: TitleAndContentPage },
+        { name: 'Section Header', component: SectionHeaderPage },
+        { name: 'Content with Caption', component: ContentWithCaptionPage },
+        { name: 'Two Content', component: TwoContentPage },
+        { name: 'Comparison', component: ComparisonPage },
+        { name: 'Content Over Image', component: ContentOverImagePage },
+        { name: 'Picture with Caption', component: PictureWithCaptionPage },
+        { name: 'Content with Image', component: ContentWithImagePage },
+        { name: 'Image with Content', component: ImageWithContentPage },
+        { name: 'Two Content with Image', component: TwoContentWithImagePage },
+        { name: 'Vertical Text', component: VerticalTextPage },
+        { name: 'Vertical Title & Text', component: VerticalTitleAndTextPage },
+        { name: 'Four Objects', component: FourObjectsPage },
+        { name: 'Title & Four Objects', component: TitleAndFourObjectsPage },
+        { name: 'Title & Text', component: TitleAndTextPage },
+        { name: 'Title & Two Column Text', component: TitleAndTwoColumnTextPage },
+        { name: 'Quote', component: QuotePage },
+        { name: 'Blank', component: BlankPage },
+    ];
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+            <div className="bg-white rounded-lg p-8 shadow-xl text-black">
+                <h2 className="text-xl font-semibold mb-6 text-gray-800">Choose a Layout</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
+                    {layouts.map(layout => (
+                        <button
+                            key={layout.name}
+                            onClick={() => onSelect(layout.component)}
+                            className="p-4 border rounded-lg hover:bg-gray-100"
+                        >
+                            {layout.name}
+                        </button>
+                    ))}
+                </div>
+                <button
+                    onClick={onClose}
+                    className="mt-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    );
+}
 
 
 export default function EditorPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [theme, setTheme] = useState('dark');
   const [showThemeModal, setShowThemeModal] = useState(false);
+  const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   
   const initialSlides = [
     <UserBGselect key="user-bg-select" />,
@@ -1859,13 +3196,14 @@ export default function EditorPage() {
     }));
   }, [theme]);
 
-  const handleAddSlide = () => {
-    const newSlide = <NewFroalaPage key={Date.now()} id={Date.now()} theme={theme} />;
+  const handleAddSlide = (LayoutComponent) => {
+    const newSlide = <LayoutComponent key={Date.now()} id={Date.now()} theme={theme} />;
     setSlides(prevSlides => {
       const newSlides = [...prevSlides, newSlide];
       setCurrentSlideIndex(newSlides.length - 1);
       return newSlides;
     });
+    setShowLayoutPicker(false);
   };
 
   const handleThemeChange = (newTheme) => {
@@ -1939,7 +3277,7 @@ export default function EditorPage() {
       {currentSlideIndex > 0 && (
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex z-50">
           <button
-            onClick={handleAddSlide}
+            onClick={() => setShowLayoutPicker(true)}
             className={`py-2 px-4 text-base font-[inter] font-semibold cursor-pointer rounded-l-xl border-none bg-gray-700 flex items-center bg-opacity-50 text-white hover:bg-opacity-70 transition-colors`}
           >
             <Plus size={20} className='mr-2'/> Add
@@ -1954,16 +3292,10 @@ export default function EditorPage() {
               <span>Select Theme</span>
             </button>
           </div>
-          {/* <div className="relative">
-            <button
-              className={`px-4 py-3 text-sm cursor-pointer font-[inter] font-semibold rounded-r-xl border-none bg-gray-700 bg-opacity-50 text-white hover:bg-opacity-70 transition-colors flex items-center`}
-            >
-              <Image size={20} className="mr-2" />
-              <span>Background</span>
-            </button>
-          </div> */}
         </div>
       )}
+
+      {showLayoutPicker && <LayoutPicker onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
 
       {/* Theme Selection Modal */}
       {showThemeModal && (

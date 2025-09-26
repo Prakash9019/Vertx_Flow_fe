@@ -59,8 +59,7 @@ import ReachRedirect from "./components/ReachRedirect.jsx";
 import Flash from "./components/Flash/Flash.jsx";
 import EditorPage from "./components/new/EditorPage.jsx";
 import UserBGselect from "./components/new/UserBGselect.jsx";
-
-
+import Editor1_Page from "./components/new/NewEditor.jsx";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -78,9 +77,10 @@ function App() {
     { path: "/flash", element: <Flash /> },
     { path: "/editorPage", element: <EditorPage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
+    { path: "/sample", element: <Editor1_Page /> },
     { path: "/gettingStarted", element: <GettingStarted /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
-    // { path: "/fundraising", element: <FundraisingPage /> },
+    // { path: "/fundraising", element: <FundraisingPage /> },  Editor1_Page
     {path:"/PlayGround", element:<PlayGround /> },
     {path:"/payment", element: <Payment_Page /> },
     {path:"/fundraising/reach", element: <FundraisingManagePage /> },

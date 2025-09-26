@@ -7,9 +7,9 @@ export const usePermissions = () => {
   const [userRole, setUserRole] = useState(null);
   const [permissions, setPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [hasFullAccess, setHasFullAccess] = useState(false);
+  const [hasFullAccess, setHasFullAccess] = useState(true);
   const [subscriptionPlan, setSubscriptionPlan] = useState(null);
-  const [canUsePdfEvaluation, setCanUsePdfEvaluation] = useState(false);
+  const [canUsePdfEvaluation, setCanUsePdfEvaluation] = useState(true);
   const { showPermissionDenied } = usePermissionNotification();
 
   useEffect(() => {
