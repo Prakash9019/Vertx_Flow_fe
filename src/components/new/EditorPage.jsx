@@ -1877,7 +1877,7 @@ const TitleAndSubtitlePage = ({ id, theme }) => {
                     </h1>
                 </div>
                 <div ref={subheadingRef} className="mt-4">
-                    <p className="text-2xl text-gray-300" contentEditable suppressContentEditableWarning>
+                    <p className="text-2xl opacity-60" contentEditable suppressContentEditableWarning>
                         A traditional opener with a tagline.
                     </p>
                 </div>
@@ -1950,7 +1950,7 @@ const TitleAndContentPage = ({ id, theme }) => {
                     </h1>
                 </div>
                 <div ref={contentRef} className="mt-8 text-left">
-                    <ul contentEditable suppressContentEditableWarning className="list-disc list-inside text-xl">
+                    <ul contentEditable suppressContentEditableWarning className="list-disc list-inside opacity-70 text-xl">
                         <li>Bullet point 1</li>
                         <li>Bullet point 2</li>
                         <li>Bullet point 3</li>
@@ -2007,9 +2007,9 @@ const SectionHeaderPage = ({ id, theme }) => {
 
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B1})` }}>
-            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl bg-black bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.bg} bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
                 <div ref={headingRef}>
-                    <h1 className="text-6xl font-bold text-white" contentEditable suppressContentEditableWarning>
+                    <h1 className="text-6xl font-bold" contentEditable suppressContentEditableWarning>
                         Section Header
                     </h1>
                 </div>
@@ -2082,7 +2082,7 @@ const ContentWithCaptionPage = ({ id, theme }) => {
                     </p>
                 </div>
                 <div ref={captionRef} className="mt-8 text-left">
-                    <p contentEditable suppressContentEditableWarning className="text-lg text-gray-400">
+                    <p contentEditable suppressContentEditableWarning className="text-lg opacity-70">
                         Caption or source information.
                     </p>
                 </div>
@@ -2223,12 +2223,12 @@ const ComparisonPage = ({ id, theme }) => {
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
             <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
                 <div ref={card1Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
-                    <h3 className="text-2xl font-bold mb-4" contentEditable suppressContentEditableWarning>Feature 1</h3>
-                    <p contentEditable suppressContentEditableWarning>Description of feature 1.</p>
+                    <h3 className="text-2xl font-bold mb-4 " contentEditable suppressContentEditableWarning>Feature 1</h3>
+                    <p contentEditable suppressContentEditableWarning className=' opacity-80'>Description of feature 1.</p>
                 </div>
                 <div ref={card2Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
                     <h3 className="text-2xl font-bold mb-4" contentEditable suppressContentEditableWarning>Feature 2</h3>
-                    <p contentEditable suppressContentEditableWarning>Description of feature 2.</p>
+                    <p contentEditable suppressContentEditableWarning className='opacity-80'>Description of feature 2.</p>
                 </div>
             </div>
         </div>
@@ -2281,9 +2281,9 @@ const ContentOverImagePage = ({ id, theme }) => {
 
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B2})` }}>
-            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl bg-black bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.bg} bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
                 <div ref={contentRef}>
-                    <h1 className="text-5xl font-bold text-white" contentEditable suppressContentEditableWarning>
+                    <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>
                         Impactful Messaging
                     </h1>
                 </div>
@@ -2293,8 +2293,9 @@ const ContentOverImagePage = ({ id, theme }) => {
 };
 
 const PictureWithCaptionPage = ({ id, theme }) => {
+    const imageRef = useRef(null); 
     const captionRef = useRef(null);
-    const currentTheme = themes[theme];
+    const currentTheme = themes[theme]; 
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2317,11 +2318,33 @@ const PictureWithCaptionPage = ({ id, theme }) => {
                         toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor'],
                     });
                 }
+                
+                if (imageRef.current) {
+                    new window.FroalaEditor(imageRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        toolbarButtons: ['insertImage', 'imageAlign', 'imageSize', 'imageRemove'], 
+                        imageEditButtons: [
+                            'imageReplace', // The button to replace the image
+                            'imageAlign', 
+                            'imageCaption', 
+                            'imageRemove', 
+                            '|', 
+                            'imageLink', 
+                            'imageDisplay', 
+                            'imageAlt', 
+                            'imageSize'
+                        ],
+                    });
+                }
             }
         };
 
         script.onload = () => {
-            setTimeout(initializeEditors, 100);
+            setTimeout(initializeEditors, 100); 
         };
 
         document.body.appendChild(script);
@@ -2339,9 +2362,13 @@ const PictureWithCaptionPage = ({ id, theme }) => {
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
             <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
-                <img src={B3} alt="placeholder" className="w-2/3 rounded-lg" />
+                
+                <div ref={imageRef} className="w-2/3 max-h-125 rounded-lg cursor-pointer">
+                    <img src={B3} alt="placeholder" className="w-full max-h-110 rounded-lg" />
+                </div>
+                
                 <div ref={captionRef} className="mt-4 text-center">
-                    <p contentEditable suppressContentEditableWarning className="text-lg text-gray-300">
+                    <p contentEditable suppressContentEditableWarning className="text-lg opacity-70">
                         Large centered image with descriptive text.
                     </p>
                 </div>
@@ -2352,6 +2379,7 @@ const PictureWithCaptionPage = ({ id, theme }) => {
 
 const ContentWithImagePage = ({ id, theme }) => {
     const contentRef = useRef(null);
+    const imageRef = useRef(null); 
     const currentTheme = themes[theme];
 
     useEffect(() => {
@@ -2365,6 +2393,7 @@ const ContentWithImagePage = ({ id, theme }) => {
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
+                // Initialize Content/Text Editor
                 if (contentRef.current) {
                     new window.FroalaEditor(contentRef.current, {
                         inline: true,
@@ -2373,6 +2402,45 @@ const ContentWithImagePage = ({ id, theme }) => {
                         charCounterCount: false,
                         wordCounterCount: false,
                         toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+                
+                // Initialize Image Editor
+                if (imageRef.current) {
+                    new window.FroalaEditor(imageRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        
+                        // Main toolbar buttons for the image wrapper
+                        toolbarButtons: ['insertImage', 'imageRemove'], 
+                        
+                        // Buttons that appear when you click the image itself
+                        imageEditButtons: [
+                            'imageReplace', 
+                            'imageAlign', 
+                            'imageCaption', 
+                            'imageRemove', 
+                            '|', 
+                            'imageLink', 
+                            'imageDisplay', 
+                            'imageAlt', 
+                            'imageSize'
+                        ],
+                        
+                        // Buttons that appear inside the image pop-up when inserting/replacing
+                        imageInsertButtons: [
+                            'imageBack', 
+                            '|', 
+                            'imageUpload', 
+                            'imageByURL', 
+                            'imageManager'
+                        ],
+                        
+                        // Note: You must configure a valid server endpoint for 'imageUpload' to work
+                        imageUploadURL: '/your-server-endpoint/upload_froala_image' 
                     });
                 }
             }
@@ -2397,14 +2465,19 @@ const ContentWithImagePage = ({ id, theme }) => {
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
             <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+                
+                {/* Content Editor */}
                 <div ref={contentRef} className="w-1/2 pr-8">
                     <p contentEditable suppressContentEditableWarning className="text-xl">
                         Text content with supporting image (left-right).
                     </p>
                 </div>
-                <div className="w-1/2">
-                    <img src={C1} alt="placeholder" className="w-full rounded-lg" />
+                
+                {/* Image Editor */}
+                <div ref={imageRef} className="w-1/2 max-h-150 cursor-pointer">
+                    <img src={C1} alt="placeholder" className="w-full max-h-140 rounded-lg" />
                 </div>
+                
             </div>
         </div>
     );
@@ -2412,6 +2485,7 @@ const ContentWithImagePage = ({ id, theme }) => {
 
 const ImageWithContentPage = ({ id, theme }) => {
     const contentRef = useRef(null);
+    const imageRef = useRef(null);
     const currentTheme = themes[theme];
 
     useEffect(() => {
@@ -2425,6 +2499,42 @@ const ImageWithContentPage = ({ id, theme }) => {
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
+                // Initialize Image Editor
+                if (imageRef.current) {
+                    new window.FroalaEditor(imageRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        
+                        toolbarButtons: ['insertImage', 'imageRemove'], 
+                        
+                        imageEditButtons: [
+                            'imageReplace', 
+                            'imageAlign', 
+                            'imageCaption', 
+                            'imageRemove', 
+                            '|', 
+                            'imageLink', 
+                            'imageDisplay', 
+                            'imageAlt', 
+                            'imageSize'
+                        ],
+                        
+                        imageInsertButtons: [
+                            'imageBack', 
+                            '|', 
+                            'imageUpload', 
+                            'imageByURL', 
+                            'imageManager'
+                        ],
+                        
+                        imageUploadURL: '/your-server-endpoint/upload_froala_image' 
+                    });
+                }
+                
+                // Initialize Content/Text Editor
                 if (contentRef.current) {
                     new window.FroalaEditor(contentRef.current, {
                         inline: true,
@@ -2457,14 +2567,19 @@ const ImageWithContentPage = ({ id, theme }) => {
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
             <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
-                <div className="w-1/2">
+                
+                {/* Image Editor (Left Side) */}
+                <div ref={imageRef} className="w-1/2 cursor-pointer">
                     <img src={A1} alt="placeholder" className="w-full rounded-lg" />
                 </div>
+                
+                {/* Content Editor (Right Side) */}
                 <div ref={contentRef} className="w-1/2 pl-8">
                     <p contentEditable suppressContentEditableWarning className="text-xl">
                         Image-first with supporting text (right-left).
                     </p>
                 </div>
+                
             </div>
         </div>
     );
@@ -2473,6 +2588,7 @@ const ImageWithContentPage = ({ id, theme }) => {
 const TwoContentWithImagePage = ({ id, theme }) => {
     const content1Ref = useRef(null);
     const content2Ref = useRef(null);
+    const imageRef = useRef(null);
     const currentTheme = themes[theme];
 
     useEffect(() => {
@@ -2486,6 +2602,7 @@ const TwoContentWithImagePage = ({ id, theme }) => {
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
+                // Initialize Content 1 Editor
                 if (content1Ref.current) {
                     new window.FroalaEditor(content1Ref.current, {
                         inline: true,
@@ -2496,6 +2613,8 @@ const TwoContentWithImagePage = ({ id, theme }) => {
                         toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
                     });
                 }
+                
+                // Initialize Content 2 Editor
                 if (content2Ref.current) {
                     new window.FroalaEditor(content2Ref.current, {
                         inline: true,
@@ -2504,6 +2623,41 @@ const TwoContentWithImagePage = ({ id, theme }) => {
                         charCounterCount: false,
                         wordCounterCount: false,
                         toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'formatUL', 'formatOL'],
+                    });
+                }
+
+                // Initialize Image Editor
+                if (imageRef.current) {
+                    new window.FroalaEditor(imageRef.current, {
+                        inline: true,
+                        toolbarInline: true,
+                        toolbarVisibleWithoutSelection: true,
+                        charCounterCount: false,
+                        wordCounterCount: false,
+                        
+                        toolbarButtons: ['insertImage', 'imageRemove'], 
+                        
+                        imageEditButtons: [
+                            'imageReplace', 
+                            'imageAlign', 
+                            'imageCaption', 
+                            'imageRemove', 
+                            '|', 
+                            'imageLink', 
+                            'imageDisplay', 
+                            'imageAlt', 
+                            'imageSize'
+                        ],
+                        
+                        imageInsertButtons: [
+                            'imageBack', 
+                            '|', 
+                            'imageUpload', 
+                            'imageByURL', 
+                            'imageManager'
+                        ],
+                        
+                        imageUploadURL: '/your-server-endpoint/upload_froala_image' 
                     });
                 }
             }
@@ -2528,14 +2682,20 @@ const TwoContentWithImagePage = ({ id, theme }) => {
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
             <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+                
+                {/* Content 1 Editor (Left) */}
                 <div ref={content1Ref} className="w-1/3 pr-4">
                     <p contentEditable suppressContentEditableWarning className="text-xl">
                         Central image with content on both sides.
                     </p>
                 </div>
-                <div className="w-1/3">
+                
+                {/* Image Editor (Center) */}
+                <div ref={imageRef} className="w-1/3 cursor-pointer">
                     <img src={A2} alt="placeholder" className="w-full rounded-lg" />
                 </div>
+                
+                {/* Content 2 Editor (Right) */}
                 <div ref={content2Ref} className="w-1/3 pl-4">
                     <p contentEditable suppressContentEditableWarning className="text-xl">
                         More content on the other side.
@@ -2593,7 +2753,7 @@ const VerticalTextPage = ({ id, theme }) => {
     return (
         <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
             <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
-                <div ref={contentRef}>
+                <div className=' opacity-80' ref={contentRef}>
                     <p contentEditable suppressContentEditableWarning className="text-xl mb-4">Sequential information in vertical flow.</p>
                     <p contentEditable suppressContentEditableWarning className="text-xl mb-4">Step 2.</p>
                     <p contentEditable suppressContentEditableWarning className="text-xl">Step 3.</p>
@@ -2665,7 +2825,7 @@ const VerticalTitleAndTextPage = ({ id, theme }) => {
                     <h1 className="text-4xl font-bold mb-4" contentEditable suppressContentEditableWarning>Title with organized vertical content</h1>
                 </div>
                 <div ref={contentRef}>
-                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                    <p contentEditable suppressContentEditableWarning className="text-xl opacity-70">
                         Content goes here.
                     </p>
                 </div>
@@ -2810,16 +2970,16 @@ const TitleAndFourObjectsPage = ({ id, theme }) => {
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Titled 2x2 grid layout</h1>
                 </div>
                 <div className="grid grid-cols-2 gap-8">
-                    <div ref={object1Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <div ref={object1Ref} className={`p-6 min-h-50 rounded-lg shadow-lg ${currentTheme.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 1</p>
                     </div>
-                    <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentTheme.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 2</p>
                     </div>
-                    <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentTheme.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 3</p>
                     </div>
-                    <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentTheme.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 4</p>
                     </div>
                 </div>
@@ -2890,7 +3050,7 @@ const TitleAndTextPage = ({ id, theme }) => {
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Long-form content</h1>
                 </div>
                 <div ref={textRef}>
-                    <p contentEditable suppressContentEditableWarning className="text-xl">
+                    <p contentEditable suppressContentEditableWarning className="text-xl opacity-70">
                         This is a layout for long-form content with professional typography. You can write detailed explanations, articles, or reports here.
                     </p>
                 </div>
@@ -2973,12 +3133,12 @@ const TitleAndTwoColumnTextPage = ({ id, theme }) => {
                 </div>
                 <div className="flex">
                     <div ref={col1Ref} className="w-1/2 pr-4">
-                        <p contentEditable suppressContentEditableWarning className="text-xl">
+                        <p contentEditable suppressContentEditableWarning className="text-xl opacity-70">
                             This is the first column.
                         </p>
                     </div>
                     <div ref={col2Ref} className="w-1/2 pl-4">
-                        <p contentEditable suppressContentEditableWarning className="text-xl">
+                        <p contentEditable suppressContentEditableWarning className="text-xl opacity-70">
                             This is the second column.
                         </p>
                     </div>
@@ -3115,7 +3275,8 @@ const BlankPage = ({ id, theme }) => {
 };
 
 
-const LayoutPicker = ({ onSelect, onClose }) => {
+const LayoutPicker = ({ onSelect, onClose, theme }) => {
+    const currentTheme = themes[theme];
     const layouts = [
         { name: 'Title Only', component: TitleOnlyPage },
         { name: 'Title & Subtitle', component: TitleAndSubtitlePage },
@@ -3140,15 +3301,15 @@ const LayoutPicker = ({ onSelect, onClose }) => {
     ];
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
-            <div className="bg-white rounded-lg p-8 shadow-xl text-black">
-                <h2 className="text-xl font-semibold mb-6 text-gray-800">Choose a Layout</h2>
+        <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-70 flex items-center justify-center z-[100]">
+            <div className={`${currentTheme.bg} rounded-lg p-8 shadow-xl ${currentTheme.text}`}>
+                <h2 className="text-xl font-semibold mb-6">Choose a Layout</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
                     {layouts.map(layout => (
                         <button
                             key={layout.name}
                             onClick={() => onSelect(layout.component)}
-                            className="p-4 border rounded-lg hover:bg-gray-100"
+                            className="p-4 border rounded-lg hover:text-black hover:bg-gray-200 hover:transition-all"
                         >
                             {layout.name}
                         </button>
@@ -3156,7 +3317,7 @@ const LayoutPicker = ({ onSelect, onClose }) => {
                 </div>
                 <button
                     onClick={onClose}
-                    className="mt-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                    className={`mt-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300`}
                 >
                     Close
                 </button>
@@ -3171,7 +3332,7 @@ export default function EditorPage() {
   const [theme, setTheme] = useState('dark');
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
-  
+  const currentTheme = themes[theme];
   const initialSlides = [
     <UserBGselect key="user-bg-select" />,
     <TheChallangePage key="the-challenge" theme={theme} />,
@@ -3183,7 +3344,6 @@ export default function EditorPage() {
     <SeriesAPage key="series-a" theme={theme} />,
     <JoinUsPage key="join-us" theme={theme} />,
   ];
-
   const [slides, setSlides] = useState(initialSlides);
   const isAnimatingRef = useRef(false);
 
@@ -3295,13 +3455,13 @@ export default function EditorPage() {
         </div>
       )}
 
-      {showLayoutPicker && <LayoutPicker onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
+      {showLayoutPicker && <LayoutPicker theme={theme} onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
 
       {/* Theme Selection Modal */}
       {showThemeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
-          <div className="bg-white rounded-lg p-8 shadow-xl flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">Choose a Theme</h2>
+        <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-70 flex items-center justify-center z-[100]">
+          <div className={`bg-gray-400 rounded-lg p-8 shadow-xl flex flex-col items-center`}>
+            <h2 className={`text-xl font-semibold mb-6 ${currentTheme.text}`}>Choose a Theme</h2>
             <div className="flex gap-4">
               <button
                 onClick={() => handleThemeChange('dark')}
