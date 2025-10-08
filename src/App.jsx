@@ -60,6 +60,7 @@ import Flash from "./components/Flash/Flash.jsx";
 import EditorPage from "./components/new/EditorPage.jsx";
 import UserBGselect from "./components/new/UserBGselect.jsx";
 import Editor1_Page from "./components/new/NewEditor.jsx";
+import ReviewP from "./components/Flash/ReviewP.jsx";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -75,6 +76,7 @@ function App() {
     { path: "/addfounder", element: <AddCofounder_Page /> },
     { path: "/homepage", element: <HomePage /> },
     { path: "/flash", element: <Flash /> },
+    { path: "/rp", element: <ReviewP /> },
     { path: "/editorPage", element: <EditorPage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
     { path: "/sample", element: <Editor1_Page /> },
