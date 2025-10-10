@@ -84,9 +84,9 @@ function Login_Page() {
     // Check if this is a cofounder login (has invite token)
     const hasInviteToken = localStorage.getItem("cofounderInviteToken");
     
-    // Only set homepage redirect for cofounders
+    // Only set gettingStarted redirect for cofounders
     if (hasInviteToken) {
-      localStorage.setItem('postLoginRedirect', '/homepage');
+      localStorage.setItem('postLoginRedirect', '/gettingStarted');
     }
     
     // Log for debugging
@@ -144,22 +144,22 @@ function Login_Page() {
               // console.log("Cofounder invite accepted successfully:", inviteResponse.data);
             }
 
-            // Always redirect to homepage after successful login
-            navigate("/homepage");
+            // Always redirect to gettingStarted after successful login
+            navigate("/gettingStarted");
           } catch (inviteError) {
             console.error("Error processing invitation:", inviteError);
-            // Still redirect to homepage even if there's an error processing the invite
-            navigate("/homepage");
+            // Still redirect to gettingStarted even if there's an error processing the invite
+            navigate("/gettingStarted");
           } finally {
             localStorage.removeItem("cofounderInviteToken");
           }        }
         // Check for target list invite redirect flag
         else if (shouldRedirectToHome || pendingInviteId) {
-          // console.log("Redirecting to homepage after target list invite login");
+          // console.log("Redirecting to gettingStarted after target list invite login");
           // Clear the flags after use
           localStorage.removeItem("redirectToHomeAfterLogin");
           localStorage.removeItem("pendingInviteId");
-          navigate("/homepage");
+          navigate("/gettingStarted");
         } 
         else {
           // Check profile completion status before redirecting
@@ -173,8 +173,8 @@ function Login_Page() {
             const { isProfileComplete, redirectTo } = profileResponse.data;
             
             if (isProfileComplete) {
-              // console.log("Profile is complete, redirecting to homepage");
-              navigate("/homepage");
+              // console.log("Profile is complete, redirecting to gettingStarted");
+              navigate("/gettingStarted");
             } else {
               // console.log(`Profile incomplete, redirecting to: ${redirectTo}`);
               navigate(redirectTo || "/profile/manual");

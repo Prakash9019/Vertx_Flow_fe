@@ -108,13 +108,13 @@ const GettingStarted = () => {
             </p>
             <div className='flex gap-2'>
             <button
-              // onClick={() => navigate("/invite-co-founder")}
+              onClick={() => navigate("/evaluate")}
               className="px-4 py-1.5 md:px-6 md:py-2 bg-white text-black hover:text-white rounded-md font-semibold hover:cursor-pointer hover:bg-black/70 transition-colors text-xs md:text-sm"
             >
               Upload Deck
             </button>
             <button
-              // onClick={() => navigate("/invite-co-founder")}
+              onClick={() => navigate("/evaluate")}
               className="px-4 py-1.5 md:px-6 md:py-2 bg-white text-black hover:text-white rounded-md font-semibold hover:cursor-pointer hover:bg-black/70 transition-colors text-xs md:text-sm"
             >
               Customize Deck
@@ -132,13 +132,13 @@ const GettingStarted = () => {
             </p>
             <div className='flex gap-2'>
             <button
-              // onClick={() => navigate("/invite-co-founder")}
+              onClick={() => navigate("/fundraising/manage")}
               className="px-4 py-1.5 md:px-6 md:py-2 bg-white text-black hover:text-white rounded-md font-semibold hover:cursor-pointer hover:bg-black/70 transition-colors text-xs md:text-sm"
             >
               Create a Pipeline
             </button>
             <button
-              // onClick={() => navigate("/invite-co-founder")}
+              onClick={() => navigate("/fundraising/find")}
               className="px-4 py-1.5 md:px-6 md:py-2 bg-white text-black hover:text-white rounded-md font-semibold hover:cursor-pointer hover:bg-black/70 transition-colors text-xs md:text-sm"
             >
               Find Investors
@@ -155,7 +155,7 @@ const GettingStarted = () => {
               Generate a private, shareable link to your fundraising space. Let investors explore your deck, updates, and pipeline with full control and visibility.
             </p>
             <button
-              // onClick={() => navigate("/invite-co-founder")}
+              onClick={() => navigate("/fundraising/reach")}
               className="px-4 py-1.5 md:px-6 md:py-2 bg-white text-black hover:text-white rounded-md font-semibold hover:cursor-pointer hover:bg-black/70 transition-colors text-xs md:text-sm"
             >
               Create ReachLink
@@ -171,7 +171,7 @@ const GettingStarted = () => {
               Push your round live, send investor invites, and collect commitments all in one place. From pitch to close, keep the momentum going.
             </p>
             <button
-              // onClick={() => navigate("/invite-co-founder")}
+              onClick={() => navigate("/fundraising/manage")}
               className="px-4 py-1.5 md:px-6 md:py-2 bg-white text-black hover:text-white rounded-md font-semibold hover:cursor-pointer mb-16 hover:bg-black/70 transition-colors text-xs md:text-sm"
             >
               Raise a Round

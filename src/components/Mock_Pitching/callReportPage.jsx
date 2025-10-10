@@ -185,7 +185,7 @@ const toggleExpand = (index) => {
             ))}
           </div>
 
-          <div
+          {/* <div
             className="flex items-center gap-3 px-3 h-10 rounded-sm bg-[#0F0E16] w-full sm:w-auto sm:flex-1 md:gap-4 md:px-4 md:h-[3.125rem]"
           >
             <button
@@ -204,7 +204,7 @@ const toggleExpand = (index) => {
                 ></div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

@@ -23,7 +23,7 @@ function EvaluateReport_page() {
   const { canUsePdfEvaluation, loading: permissionsLoading } = usePermissions();
   
   // Get current tab from URL hash, default to "Analysis"
-  const validTabs = ["Analysis", "Overview",  "Suggestions"];
+  const validTabs = ["Analysis", "Overview"];
 
   const getTabFromHash = () => {
     const hash = window.location.hash.substring(1); // Remove the #
@@ -114,8 +114,9 @@ function EvaluateReport_page() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   // No need for cleanup since we're not using sessionStorage anymore
-  const companyName = reportData?.overview?.companyName;
-  const tabsArray = ["Analysis", "Overview", "Suggestions"];
+  console.log(reportData);
+  const companyName = reportData?.overview?.company_name;
+  const tabsArray = ["Analysis", "Overview"];
 
   // If no report data, don't render the page content
   if (!reportData) {

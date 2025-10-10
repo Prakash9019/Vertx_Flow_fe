@@ -1025,7 +1025,9 @@ export default function BasicInfoForm({ isOpen = true, onClose = () => { }, form
                     </div>
                   </div>
                   <button
-                    onClick={handleNextClick}
+                     onClick={() => {
+                          onClose();
+                        }}
                     className="absolute bottom-6 right-24 sm:right-4 bg-white text-black px-4 py-2 rounded-[0.125rem] font-['Inter'] text-xs font-medium hover:bg-gray-200 transition-colors"
                   >
                     Next
