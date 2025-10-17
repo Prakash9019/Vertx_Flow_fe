@@ -36,7 +36,7 @@ import { ImageIcon, Check } from 'lucide-react';
 import { BiDockRight } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { PiDotsThreeBold } from "react-icons/pi";
+import { PiDotsThreeBold, PiSelectionBackground } from "react-icons/pi";
 const images = [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22, A23];
 // Theme classes
 const themes = {
@@ -55,6 +55,192 @@ const themes = {
     text: 'text-black',
     card: 'bg-gradient-to-b from-orange-200 to-orange-100',
   },
+  DeepPurple: {
+    bg: 'bg-purple-400',
+    text: 'text-black',
+    card: 'bg-gradient-to-b from-purple-300 to-orange-100',
+  },
+  DarkBlue: {
+    bg: 'bg-blue-950',
+    text: 'text-white',
+    card: 'bg-gradient-to-b from-blue-400 to-blue-100',
+  },
+  EarthStone: {
+    bg: 'bg-stone-800',
+    text: 'text-stone-900',
+    card: 'bg-gradient-to-b from-stone-400 to-stone-100',
+  }
+};
+
+const backgrounds = {
+  original: {
+    text: 'text-white',
+    card: 'bg-gradient-to-b from-black/70 from-35% via-white/30 via-129% to-black to-100%',
+  },
+  light: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-b from-white/70 to-gray-200',
+  },
+  dark: {
+    text: 'text-white',
+    card: 'bg-black',
+  },
+  red: {
+    text: 'text-gray-100',
+    card: 'bg-red-600',
+  },
+  orange: {
+    text: 'text-white',
+    card: 'bg-orange-600',
+  },
+  amber: {
+    text: 'text-gray-900',
+    card: 'bg-amber-400',
+  },
+  yellow: {
+    text: 'text-white',
+    card: 'bg-yellow-600',
+  },
+  pink: {
+    text: 'text-gray-100',
+    card: 'bg-pink-600',
+  },
+  sky: {
+    text: 'text-white',
+    card: 'bg-sky-600',
+  },
+  lime: {
+    text: 'text-gray-900',
+    card: 'bg-lime-600',
+  },
+  teal: {
+    text: 'text-white',
+    card: 'bg-teal-600',
+  },
+  purple: {
+    text: 'text-gray-900',
+    card: 'bg-purple-600',
+  },
+  rose: {
+    text: 'text-white',
+    card: 'bg-rose-600',
+  },
+  green: {
+    text: 'text-gray-900',
+    card: 'bg-green-500',
+  },
+  cyan: {
+    text: 'text-white',
+    card: 'bg-cyan-600',
+  },
+  blue: {
+    text: 'text-gray-900',
+    card: 'bg-blue-700',
+  },
+  emerald: {
+    text: 'text-white',
+    card: 'bg-emerald-700',
+  },
+  indigo: {
+    text: 'text-gray-100',
+    card: 'bg-indigo-800',
+  },
+  emerald: {
+    text: 'text-white',
+    card: 'bg-emerald-700',
+  },
+  violet: {
+    text: 'text-gray-900',
+    card: 'bg-violet-600',
+  },
+  fuchsia: {
+    text: 'text-black',
+    card: 'bg-fuchsia-600',
+  },
+  LightPurple: {
+    text: 'text-black',
+    card: 'bg-gradient-to-b from-purple-300 to-orange-100',
+  },
+  SkyBlue: {
+    text: 'text-white',
+    card: 'bg-gradient-to-b from-blue-400 to-blue-100',
+  },
+  EarthStone: {
+    text: 'text-stone-900',
+    card: 'bg-gradient-to-b from-stone-400 to-stone-100',
+  },
+  OceanSky: {
+    text: 'text-white',
+    card: 'bg-gradient-to-br from-cyan-500 to-blue-800',
+  },
+  Sunrise: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-r from-red-400 via-orange-300 to-yellow-200',
+  },
+  ForestMoss: {
+    text: 'text-white',
+    card: 'bg-gradient-to-b from-green-700 to-lime-500',
+  },
+  CrimsonFade: {
+    text: 'text-white',
+    card: 'bg-gradient-to-t from-red-800 to-pink-500', // Bottom-up fade from dark red
+  },
+  Midnight: {
+    text: 'text-white',
+    card: 'bg-gradient-to-l from-gray-900 via-indigo-900 to-blue-900', // Dark, multi-stop leftward fade
+  },
+  PeachCobbler: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-tr from-orange-200 to-pink-100', // Top-right light gradient
+  },
+  CoolMint: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-r from-teal-200 to-green-100', // Light green and teal
+  },
+  Cyberpunk: {
+    text: 'text-white',
+    card: 'bg-gradient-to-bl from-fuchsia-600 via-purple-700 to-black', // Neon/Dark contrast
+  },
+  GoldenHour: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-b from-yellow-300 via-amber-400 to-orange-500', // Sunset golds
+  },
+  LavenderDream: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-tl from-indigo-300 to-pink-200', // Top-left gentle purple and pink
+  },
+  OceanDeep: {
+    text: 'text-white',
+    card: 'bg-gradient-to-b from-blue-900 to-cyan-500', // Dark blue to bright cyan
+  },
+  DesertHeat: {
+    text: 'text-white',
+    card: 'bg-gradient-to-r from-red-700 via-yellow-600 to-amber-900', // Hot desert tones
+  },
+  AuroraBorealis: {
+    text: 'text-white',
+    card: 'bg-gradient-to-br from-emerald-400 via-lime-500 to-sky-400', // Vibrant northern lights colors
+  },
+  PlumBlossom: {
+    text: 'text-white',
+    card: 'bg-gradient-to-r from-purple-800 to-rose-500', // Rich purple to rose
+  },
+  StoneWash: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-t from-gray-300 to-white', // Simple light gray/white
+  },
+  NeonPunch: {
+    text: 'text-black',
+    card: 'bg-gradient-to-l from-lime-300 to-fuchsia-300', // Very bright, high-contrast colors
+  },
+  SlateOcean: {
+    text: 'text-white',
+    card: 'bg-gradient-to-tr from-slate-900 to-blue-700', // Dark slate to blue
+  },
+  Bubblegum: {
+    text: 'text-gray-900',
+    card: 'bg-gradient-to-b from-pink-400 to-purple-400', // Fun, vibrant pink and purple
+  }
 };
 
 const themes2 = {
@@ -447,9 +633,10 @@ const UserBGselect = () => {
     );
 };
 
-const TheChallangePage = ({theme}) => {
+const TheChallangePage = ({theme, background}) => {
   const editorRef = useRef(null);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
   useEffect(() => {
     // Dynamically load the Froala CSS and JS files from CDN
     const link = document.createElement('link');
@@ -507,8 +694,8 @@ const TheChallangePage = ({theme}) => {
   }, []);
 
   return (
-    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${themes[theme].bg} ${themes[theme].text}`}>
-      <div className={`max-w-5xl shadow-2xl rounded-md ${currentTheme.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
+    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${themes[theme].bg} ${currentBG.text}`}>
+      <div className={`max-w-5xl shadow-2xl rounded-md ${currentBG.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
         <div className='border-[2.5px] w-full min-h-150 p-5'>
           <div
             ref={editorRef}
@@ -526,10 +713,10 @@ const TheChallangePage = ({theme}) => {
   );
 };
 
-const OurSolutionPage = ({ theme }) => {
+const OurSolutionPage = ({ theme, background }) => {
   const editorRef = useRef(null);
   const currentTheme = themes[theme];
-
+  const currentBG = backgrounds[background]
   useEffect(() => {
     // Dynamically load the Froala CSS and JS files from CDN
     const link = document.createElement('link');
@@ -597,7 +784,7 @@ const OurSolutionPage = ({ theme }) => {
   }, []);
 
   return (
-    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
+    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme.bg} ${currentBG.text}`}>
       <style>
         {`
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -610,7 +797,7 @@ const OurSolutionPage = ({ theme }) => {
           }
         `}
       </style>
-      <div className={`max-w-5xl shadow-2xl rounded-md ${currentTheme.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
+      <div className={`max-w-5xl shadow-2xl rounded-md ${currentBG.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
         <div className='border-[2.5px] w-full min-h-150 max-h-170 p-5'>
           <div
             ref={editorRef}
@@ -3424,19 +3611,23 @@ const LayoutPicker = ({ onSelect, onClose, theme }) => {
 export default function EditorPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [theme, setTheme] = useState('dark');
+  const [background, setbackground] = useState('original')
   const [showThemeModal, setShowThemeModal] = useState(false);
+  const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
+  console.log(background)
   const initialSlides = [
     <UserBGselect key="user-bg-select" />,
-    <TheChallangePage key="the-challenge" theme={theme} />,
-    <OurSolutionPage key="our-solution" theme={theme} />,
-    <MarketPotentialPage key="market-potential" theme={theme} />,
-    <CompetitiveEdgePAge key="competitive-edge" theme={theme} />,
-    <GrowthTrajectoryPage key="growth-trajectory" theme={theme} />,
-    <ProvenModelPage key="proven-model" theme={theme} />,
-    <SeriesAPage key="series-a" theme={theme} />,
-    <JoinUsPage key="join-us" theme={theme} />,
+    <TheChallangePage key="the-challenge" theme={theme} background={background} />,
+    <OurSolutionPage key="our-solution" theme={theme} background={background} />,
+    <MarketPotentialPage key="market-potential" theme={theme} background={background} />,
+    <CompetitiveEdgePAge key="competitive-edge" theme={theme} background={background} />,
+    <GrowthTrajectoryPage key="growth-trajectory" theme={theme} background={background} />,
+    <ProvenModelPage key="proven-model" theme={theme} background={background} />,
+    <SeriesAPage key="series-a" theme={theme} background={background} />,
+    <JoinUsPage key="join-us" theme={theme} background={background} />,
   ];
   const [slides, setSlides] = useState(initialSlides);
   const isAnimatingRef = useRef(false);
@@ -3446,9 +3637,9 @@ export default function EditorPage() {
       if (slide.type.name === 'UserBGselect') {
         return slide;
       }
-      return React.cloneElement(slide, { theme });
+      return React.cloneElement(slide, { theme, background });
     }));
-  }, [theme]);
+  }, [theme, background]);
 
   const handleAddSlide = (LayoutComponent) => {
     const newSlide = <LayoutComponent key={Date.now()} id={Date.now()} theme={theme} />;
@@ -3463,6 +3654,10 @@ export default function EditorPage() {
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
     setShowThemeModal(false);
+  };
+  const handleBGChange = (newBG) => {
+    setbackground(newBG);
+    setshowBackgroundModal(false);
   };
 
   useEffect(() => {
@@ -3534,17 +3729,27 @@ export default function EditorPage() {
             onClick={() => setShowLayoutPicker(true)}
             className={`py-2 px-4 text-base font-[inter] font-semibold cursor-pointer rounded-l-xl border-none bg-gray-700 flex items-center bg-opacity-50 text-white hover:bg-opacity-70 transition-colors`}
           >
-            <Plus size={20} className='mr-2'/> Add
+            <Plus size={20} className='mr-2'/> Insert
           </button>
 
-          <div className="relative">
+          <div className="relative flex">
             <button
               onClick={() => setShowThemeModal(true)}
-              className={`px-4 py-3 text-sm cursor-pointer font-[inter] font-semibold border-none bg-gray-700 bg-opacity-50 rounded-r-xl text-white hover:bg-opacity-70 transition-colors flex items-center`}
+              className={`px-4 py-3 text-sm cursor-pointer font-[inter] font-semibold border-none bg-gray-700 bg-opacity-50 text-white hover:bg-opacity-70 transition-colors flex items-center`}
             >
               <Palette size={20} className="mr-2" />
               <span>Select Theme</span>
             </button>
+
+            <div className="relative">
+            <button
+              onClick={() => setshowBackgroundModal(true)}
+              className={`px-4 py-3 text-sm cursor-pointer font-[inter] font-semibold border-none bg-gray-700 bg-opacity-50 rounded-r-xl text-white hover:bg-opacity-70 transition-colors flex items-center`}
+            >
+              <PiSelectionBackground size={20} className='mr-2'/>
+              <span>Background</span>
+            </button>
+          </div>
           </div>
         </div>
       )}
@@ -3578,6 +3783,27 @@ export default function EditorPage() {
                 <div className="w-12 h-12 rounded-full bg-orange-300 mb-2"></div>
                 <span className="text-gray-900 font-medium">Warm</span>
               </button>
+              <button
+                onClick={() => handleThemeChange('DeepPurple')}
+                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-purple-300 border-2 border-transparent hover:border-blue-500 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-purple-400 mb-2"></div>
+                <span className="text-gray-900 font-medium">Deep Purple</span>
+              </button>
+              <button
+                onClick={() => handleThemeChange('DarkBlue')}
+                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-blue-400 border-2 border-transparent hover:border-blue-500 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-blue-900 mb-2"></div>
+                <span className="text-gray-900 font-medium">Dark Blue</span>
+              </button>
+              <button
+                onClick={() => handleThemeChange('EarthStone')}
+                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-stone-400 border-2 border-transparent hover:border-blue-500 transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-stone-600 mb-2"></div>
+                <span className="text-gray-900 font-medium">Earth Stone</span>
+              </button>
             </div>
             <button
               onClick={() => setShowThemeModal(false)}
@@ -3588,6 +3814,64 @@ export default function EditorPage() {
           </div>
         </div>
       )}
+      {showBackgroundModal && (
+    <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-70 flex items-center justify-center z-[100]">
+    <div className={`bg-stone-900 rounded-lg p-8 shadow-xl flex flex-col items-center max-w-160 w-full mx-4`}>
+      <h2 className={`text-xl font-semibold mb-6 ${currentBG.text}`}>Choose a Background</h2>
+
+      {/* Normal Backgrounds Section */}
+      <h2 className={`text-lg font-semibold mt-4 mb-3 ${currentBG.text}`}>Normal</h2>
+      <div className="flex flex-wrap justify-center gap-2 max-w-130">
+        {Object.entries(backgrounds)
+          // Select the first 21 backgrounds for the "Normal" section
+          .slice(0, 20)
+          .map(([key, value], index) => (
+            <button
+              key={key}
+              onClick={() => handleBGChange(key)}
+              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-blue-500 rounded-lg"
+            >
+              <div
+                title={key.replace(/([A-Z])/g, ' $1').trim()} 
+                className={`w-8 h-8 rounded-full ${value.card} shadow-inner border border-gray-300`}
+              >
+              </div>
+            </button>
+          ))}
+      </div>
+
+      {/* Gradient Backgrounds Section */}
+      <h2 className={`text-lg font-semibold mt-6 mb-3 ${currentBG.text}`}>Gradient</h2>
+      <div className="flex flex-wrap justify-center gap-2 max-w-130">
+        {Object.entries(backgrounds)
+          // Select the remaining backgrounds for the "Gradient" section
+          .slice(20, 42)
+          .map(([key, value], index) => (
+            <button
+              key={key}
+              onClick={() => handleBGChange(key)}
+              // Rectangular button class for gradients
+              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-blue-500 rounded-lg"
+            >
+              <div
+                title={key.replace(/([A-Z])/g, ' $1').trim()} // Better title formatting
+                // Rectangular swatch
+                className={`w-14 h-8 rounded-md ${value.card} shadow-inner border border-gray-300`}
+              >
+              </div>
+            </button>
+          ))}
+      </div>
+
+      <button
+        onClick={() => setshowBackgroundModal(false)}
+        className="mt-6 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
