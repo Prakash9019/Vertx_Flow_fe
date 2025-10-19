@@ -137,10 +137,6 @@ const backgrounds = {
     text: 'text-gray-900',
     card: 'bg-blue-700',
   },
-  emerald: {
-    text: 'text-white',
-    card: 'bg-emerald-700',
-  },
   indigo: {
     text: 'text-gray-100',
     card: 'bg-indigo-800',
