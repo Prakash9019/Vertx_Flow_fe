@@ -688,7 +688,6 @@ const TheChallangePage = ({theme, background}) => {
       }
     };
   }, []);
-
   return (
     <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${themes[theme].bg} ${currentBG.text}`}>
       <div className={`max-w-5xl shadow-2xl rounded-md ${currentBG.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
@@ -814,9 +813,10 @@ const OurSolutionPage = ({ theme, background }) => {
   );
 };
 
-const MarketPotentialPage = ({ theme }) => {
+const MarketPotentialPage = ({ theme, background }) => {
   const editorRef = useRef(null);
   const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
   const [cardData, setCardData] = useState([
     {
       icon: 'fas fa-bullseye',
@@ -910,7 +910,7 @@ const MarketPotentialPage = ({ theme }) => {
   }, []);
 
   return (
-    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
+    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme} ${currentBG.text}`}>
       <style>
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -951,7 +951,7 @@ const MarketPotentialPage = ({ theme }) => {
           }
         `}
       </style>
-      <div className={`max-w-7xl mx-auto flex flex-col md:flex-row gap-8 p-5 rounded-md shadow-2xl ${currentTheme.card}`}>
+      <div className={`max-w-7xl mx-auto flex flex-col md:flex-row gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}>
         <div className='flex-1 flex flex-col justify-center text-center items-center'>
           <div className='w-full min-h-150 max-h-170 p-5'>
             <div
@@ -969,9 +969,9 @@ const MarketPotentialPage = ({ theme }) => {
           </div>
         </div>
 
-        <div className='flex flex-col my-auto gap-4 w-full md:w-1/3'>
+        <div className='flex flex-col my-auto gap-4 w-full md:w-1/3 '>
           {cardData.map((card, index) => (
-            <div key={index} className={`rounded-lg shadow-2xl p-2 h-40 overflow-y-auto ${currentTheme.card}`}>
+            <div key={index} className={`rounded-lg shadow-2xl p-2 h-40 overflow-y-auto ${currentBG.card}`}>
               <div className='flex items-center justify-self-start mb-4'>
                 <i className={`${card.icon} text-4xl ${card.color}`}></i>
               </div>
@@ -999,10 +999,11 @@ const MarketPotentialPage = ({ theme }) => {
   );
 };
 
-const CompetitiveEdgePAge = ({ theme }) => {
+const CompetitiveEdgePAge = ({ theme, background }) => {
   const editorRef = useRef(null);
   const imageEditorRef = useRef(null);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
   const [cardData, setCardData] = useState([
     {
       icon: 'fas fa-star',
@@ -1112,7 +1113,7 @@ const CompetitiveEdgePAge = ({ theme }) => {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center justify-center h-screen p-10 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
+    <div className={`flex flex-col items-center justify-center h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style>
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -1165,7 +1166,7 @@ const CompetitiveEdgePAge = ({ theme }) => {
           }
         `}
       </style>
-      <div className={`max-w-7xl min-h-150 max-h-170 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 p-5 rounded-md shadow-2xl ${currentTheme.card}`}>
+      <div className={`max-w-7xl min-h-150 max-h-170 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}>
         {/* Left column: Image */}
         <div ref={imageEditorRef} contentEditable={true} suppressContentEditableWarning={true} className='flex items-center w-auto col-span-1 justify-center p-5'>
           <img 
@@ -1193,7 +1194,7 @@ const CompetitiveEdgePAge = ({ theme }) => {
           {/* Grid for cards */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {cardData.map((card, index) => (
-              <div key={index} className={`rounded-lg shadow-2xl p-2 h-auto overflow-y-auto ${currentTheme.card} flex items-center gap-3`}>
+              <div key={index} className={`rounded-lg shadow-2xl p-2 h-auto overflow-y-auto ${currentBG.card} flex items-center gap-3`}>
                 <i className={`${card.icon} text-3xl text-gray-400`}></i>
                 <h3 
                   className='font-semibold text-sm mb-1 focus:outline-none flex-1'
@@ -1212,13 +1213,14 @@ const CompetitiveEdgePAge = ({ theme }) => {
   );
 };
 
-const GrowthTrajectoryPage = ({ theme }) => {
+const GrowthTrajectoryPage = ({ theme, background }) => {
   const editorRef = useRef(null);
   const imageRef1 = useRef(null);
   const imageRef2 = useRef(null);
   const imageRef3 = useRef(null);
   const imageRef4 = useRef(null);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
 
 
   const [cardData, setCardData] = useState([
@@ -1340,7 +1342,7 @@ const GrowthTrajectoryPage = ({ theme }) => {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${themes[theme].bg} ${themes[theme].text}`}>
+    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style>
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -1395,7 +1397,7 @@ const GrowthTrajectoryPage = ({ theme }) => {
       </style>
 
 
-      <div className={`max-w-7xl mx-auto min-h-150 max-h-160 grid grid-cols-1 md:grid-cols-5 gap-8 p-5 rounded-md shadow-2xl ${currentTheme.card}`}>
+      <div className={`max-w-7xl mx-auto min-h-150 max-h-160 grid grid-cols-1 md:grid-cols-5 gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}>
         {/* Left column: Text */}
         <div className='col-span-1 md:col-span-2 flex flex-col items-start justify-center p-5'>
           <div ref={editorRef} className="focus:outline-none">
@@ -1415,19 +1417,19 @@ const GrowthTrajectoryPage = ({ theme }) => {
         <div className='col-span-1 md:col-span-3 grid grid-cols-3 gap-4'>
           {/* Column 1 */}
           <div className='flex flex-col gap-4'>
-            <div ref={imageRef1} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg row-span-1 shadow-2xl p-2 h-full ${currentTheme.card} flex items-center justify-center`}>
+            <div ref={imageRef1} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg row-span-1 shadow-2xl p-2 h-full ${currentBG.card} flex items-center justify-center`}>
               <img 
                 src={A1}
                 alt="Silhouetted person looking at the sun" 
                 className='h-full w-full object-cover rounded-md'
               />
             </div>
-            <div className={`rounded-lg max-h-48 shadow-2xl p-2 ${currentTheme.card} flex flex-col`}>
+            <div className={`rounded-lg max-h-48 shadow-2xl p-2 ${currentBG.card} flex flex-col`}>
               <h3 className={`font-semibold text-xl mb-2`}>
                 {cardData[0].title}
               </h3>
               <div 
-                className='flex-1 overflow-y-auto overflow-x-hidden focus:outline-none break-words opacity-50 min-w-0'
+                className='flex-1 overflow-y-auto overflow-x-hidden focus:outline-none break-words opacity-70 min-w-0'
                 contentEditable={true}
                 suppressContentEditableWarning={true}
                 onBlur={(e) => handleCardChange(0, 'description', e.target.innerText)}
@@ -1435,7 +1437,7 @@ const GrowthTrajectoryPage = ({ theme }) => {
                 {cardData[0].description}
               </div>
             </div>
-            <div ref={imageRef2} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg row-span-1 shadow-2xl p-2 h-full ${currentTheme.card} flex items-center justify-center`}>
+            <div ref={imageRef2} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg row-span-1 shadow-2xl p-2 h-full ${currentBG.card} flex items-center justify-center`}>
               <img 
                 src={A3}
                 alt="Silhouetted person looking at the sun" 
@@ -1446,19 +1448,19 @@ const GrowthTrajectoryPage = ({ theme }) => {
           
           {/* Column 2 */}
           <div className='flex flex-col gap-4'>
-            <div ref={imageRef3} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg shadow-2xl row-span-2 p-2 h-full ${currentTheme.card} flex items-center justify-center`}>
+            <div ref={imageRef3} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg shadow-2xl row-span-2 p-2 h-full ${currentBG.card} flex items-center justify-center`}>
               <img 
                 src={B4} 
                 alt="Silhouetted person looking at the sun" 
                 className='h-full w-full object-cover rounded-md'
               />
             </div>
-            <div className={`rounded-lg max-h-48 shadow-2xl p-2 ${currentTheme.card} flex flex-col`}>
+            <div className={`rounded-lg max-h-48 shadow-2xl p-2 ${currentBG.card} flex flex-col`}>
               <h3 className={` font-semibold text-xl mb-2`}>
                 {cardData[1].title}
               </h3>
               <div 
-                className='flex-1 overflow-y-auto overflow-x-hidden focus:outline-none break-words opacity-50 min-w-0'
+                className='flex-1 overflow-y-auto overflow-x-hidden focus:outline-none break-words opacity-70 min-w-0'
                 contentEditable={true}
                 suppressContentEditableWarning={true}
                 onBlur={(e) => handleCardChange(1, 'description', e.target.innerText)}
@@ -1470,12 +1472,12 @@ const GrowthTrajectoryPage = ({ theme }) => {
 
           {/* Column 3 */}
           <div className='flex flex-col gap-4'>
-            <div className={`rounded-lg max-h-48 shadow-2xl p-2 ${currentTheme.card} flex flex-col`}>
+            <div className={`rounded-lg max-h-48 shadow-2xl p-2 ${currentBG.card} flex flex-col`}>
               <h3 className={` font-semibold text-xl mb-2`}>
                 {cardData[2].title}
               </h3>
               <div 
-                className='flex-1 overflow-y-auto overflow-x-hidden focus:outline-none break-words min-w-0 opacity-50'
+                className='flex-1 overflow-y-auto overflow-x-hidden focus:outline-none break-words min-w-0 opacity-70'
                 contentEditable={true}
                 suppressContentEditableWarning={true}
                 onBlur={(e) => handleCardChange(2, 'description', e.target.innerText)}
@@ -1483,7 +1485,7 @@ const GrowthTrajectoryPage = ({ theme }) => {
                 {cardData[2].description}
               </div>
             </div>
-            <div ref={imageRef4} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg shadow-2xl row-span-2 p-2 h-full ${currentTheme.card} flex items-center justify-center`}>
+            <div ref={imageRef4} contentEditable={true} suppressContentEditableWarning={true} className={`rounded-lg shadow-2xl row-span-2 p-2 h-full ${currentBG.card} flex items-center justify-center`}>
               <img 
                 src={C1} 
                 alt="Silhouetted person looking at the sun" 
@@ -1497,11 +1499,12 @@ const GrowthTrajectoryPage = ({ theme }) => {
   );
 };
 
-const ProvenModelPage = ({theme}) => {
+const ProvenModelPage = ({ theme, background }) => {
   const editorRef = useRef(null);
   const cardRefs = useRef([]);
   const cardTitleRefs = useRef([]);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
 
   const [cardData, setCardData] = useState([
     {
@@ -1642,7 +1645,7 @@ const ProvenModelPage = ({theme}) => {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${themes[theme].bg} ${themes[theme].text}`}>
+    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style>
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -1666,7 +1669,7 @@ const ProvenModelPage = ({theme}) => {
           }
         `}
       </style>
-      <div className={`max-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentTheme.card}`}>
+      <div className={`max-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentBG.card}`}>
         {/* Top section: Title and description */}
         <div className='text-center p-5'>
           <div ref={editorRef} className="focus:outline-none max-w-5xl">
@@ -1679,9 +1682,9 @@ const ProvenModelPage = ({theme}) => {
         {/* Bottom section: Grid of cards */}
         <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 p-5'>
           {cardData.map((card, index) => (
-            <div ref={el => cardTitleRefs.current[index] = el} key={index} className={`rounded-lg shadow-2xl p-6 ${currentTheme.card} flex flex-col min-h-[350px] max-h-[350px] overflow-y-auto`}>
+            <div ref={el => cardTitleRefs.current[index] = el} key={index} className={`rounded-lg shadow-2xl p-6 ${currentBG.card} flex flex-col min-h-[350px] max-h-[350px] overflow-y-auto`}>
               <h3 
-                className='text-gray-400 font-semibold text-xl mb-2' 
+                className='text-gray-200 font-semibold text-xl mb-2' 
                 contentEditable={true} 
                 suppressContentEditableWarning={true} 
                 onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
@@ -1705,11 +1708,12 @@ const ProvenModelPage = ({theme}) => {
   );
 };
 
-const SeriesAPage = ({theme}) => {
+const SeriesAPage = ({ theme, background }) => {
   const headingRef = useRef(null);
   const cardRefs = useRef([]);
   const cardTitleRefs = useRef([]);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
 
   const [pageData, setPageData] = useState({
     heading: 'Series A funding will accelerate our growth',
@@ -1855,7 +1859,7 @@ const SeriesAPage = ({theme}) => {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${themes[theme].bg} ${themes[theme].text}`}>
+    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style>
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -1864,7 +1868,7 @@ const SeriesAPage = ({theme}) => {
           }
         `}
       </style>
-      <div className={`max-w-7xl min-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentTheme.card} min-h-150 max-h-170`}>
+      <div className={`max-w-7xl min-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentBG.card} min-h-150 max-h-170`}>
         {/* Top section: Title */}
         <div ref={headingRef}  className='text-left max-w-4xl p-5'>
           <h1 
@@ -1882,7 +1886,7 @@ const SeriesAPage = ({theme}) => {
             <div  
               key={index} 
               ref={el => cardTitleRefs.current[index] = el}
-              className={`rounded-lg shadow-2xl overflow-auto p-4 ${currentTheme.card} flex flex-col min-h-[175px] max-h-[175px] ${index < 2 ? 'md:col-span-3' : 'md:col-span-2'}`}
+              className={`rounded-lg shadow-2xl overflow-auto p-4 ${currentBG.card} flex flex-col min-h-[175px] max-h-[175px] ${index < 2 ? 'md:col-span-3' : 'md:col-span-2'}`}
             >
               <div  className="flex items-center space-x-4 mb-4 ">
                 {card.icon}
@@ -1909,10 +1913,11 @@ const SeriesAPage = ({theme}) => {
   );
 };
 
-const JoinUsPage = ({ theme }) => {
+const JoinUsPage = ({ theme, background }) => {
   const textEditorRef = useRef(null);
   const imageEditorRef = useRef(null);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
 
   useEffect(() => {
     // Dynamically load the Froala CSS and JS files from CDN
@@ -1998,7 +2003,7 @@ const JoinUsPage = ({ theme }) => {
   }, []);
 
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${themes[theme].bg} ${themes[theme].text}`}>
+    <div className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
         .fr-style-polaroid {
@@ -2009,7 +2014,7 @@ const JoinUsPage = ({ theme }) => {
           display: inline-block;
         }
       `}} />
-      <div className={`flex flex-col md:flex-row items-center justify-center w-full max-w-7xl min-h-150 max-h-150 rounded-3xl shadow-2xl p-6 sm:p-12 ${currentTheme.card}`}>
+      <div className={`flex flex-col md:flex-row items-center justify-center w-full max-w-7xl min-h-150 max-h-150 rounded-3xl shadow-2xl p-6 sm:p-12 ${currentBG.card}`}>
         
         {/* Left Section: Text Content */}
         <div 
@@ -2033,9 +2038,10 @@ const JoinUsPage = ({ theme }) => {
   );
 };
 
-const TitleOnlyPage = ({ id, theme }) => {
+const TitleOnlyPage = ({ id, theme, background }) => {
   const headingRef = useRef(null);
   const currentTheme = themes[theme];
+  const currentBG = backgrounds[background]
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -2078,8 +2084,8 @@ const TitleOnlyPage = ({ id, theme }) => {
   }, []);
 
   return (
-    <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-      <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+    <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+      <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
         <div ref={headingRef}>
           <h1 className="text-7xl font-bold" contentEditable suppressContentEditableWarning>
             Title Only
@@ -2090,10 +2096,11 @@ const TitleOnlyPage = ({ id, theme }) => {
   );
 };
 
-const TitleAndSubtitlePage = ({ id, theme }) => {
+const TitleAndSubtitlePage = ({ id, theme, background }) => {
     const headingRef = useRef(null);
     const subheadingRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2146,8 +2153,8 @@ const TitleAndSubtitlePage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center ${currentBG.card}`}>
                 <div ref={headingRef}>
                     <h1 className="text-6xl font-bold" contentEditable suppressContentEditableWarning>
                         Title & Subtitle
@@ -2163,10 +2170,11 @@ const TitleAndSubtitlePage = ({ id, theme }) => {
     );
 };
 
-const TitleAndContentPage = ({ id, theme }) => {
+const TitleAndContentPage = ({ id, theme, background }) => {
     const headingRef = useRef(null);
     const contentRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2219,8 +2227,8 @@ const TitleAndContentPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
                 <div ref={headingRef} className="text-center">
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>
                         Title & Content
@@ -2238,9 +2246,10 @@ const TitleAndContentPage = ({ id, theme }) => {
     );
 };
 
-const SectionHeaderPage = ({ id, theme }) => {
+const SectionHeaderPage = ({ id, theme, background }) => {
     const headingRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2283,8 +2292,8 @@ const SectionHeaderPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B1})` }}>
-            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.bg} bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B1})` }}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentBG.card} bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
                 <div ref={headingRef}>
                     <h1 className="text-6xl font-bold" contentEditable suppressContentEditableWarning>
                         Section Header
@@ -2295,10 +2304,11 @@ const SectionHeaderPage = ({ id, theme }) => {
     );
 };
 
-const ContentWithCaptionPage = ({ id, theme }) => {
+const ContentWithCaptionPage = ({ id, theme, background }) => {
     const contentRef = useRef(null);
     const captionRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2351,8 +2361,8 @@ const ContentWithCaptionPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
                 <div ref={contentRef} className="text-left">
                     <p contentEditable suppressContentEditableWarning className="text-xl">
                         Main content with additional context/sources. This is where the primary information goes.
@@ -2368,10 +2378,11 @@ const ContentWithCaptionPage = ({ id, theme }) => {
     );
 };
 
-const TwoContentPage = ({ id, theme }) => {
+const TwoContentPage = ({ id, theme, background }) => {
     const content1Ref = useRef(null);
     const content2Ref = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2424,8 +2435,8 @@ const TwoContentPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
                 <div ref={content1Ref} className="w-1/2 pr-4">
                     <p contentEditable suppressContentEditableWarning className="text-xl">
                         Side-by-side content comparison. This is the first column.
@@ -2441,10 +2452,11 @@ const TwoContentPage = ({ id, theme }) => {
     );
 };
 
-const ComparisonPage = ({ id, theme }) => {
+const ComparisonPage = ({ id, theme, background }) => {
     const card1Ref = useRef(null);
     const card2Ref = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2497,13 +2509,13 @@ const ComparisonPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
-                <div ref={card1Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex justify-around`}>
+                <div ref={card1Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentBG.card}`}>
                     <h3 className="text-2xl font-bold mb-4 " contentEditable suppressContentEditableWarning>Feature 1</h3>
                     <p contentEditable suppressContentEditableWarning className=' opacity-80'>Description of feature 1.</p>
                 </div>
-                <div ref={card2Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                <div ref={card2Ref} className={`w-1/2 p-6 rounded-lg shadow-lg ${currentBG.card}`}>
                     <h3 className="text-2xl font-bold mb-4" contentEditable suppressContentEditableWarning>Feature 2</h3>
                     <p contentEditable suppressContentEditableWarning className='opacity-80'>Description of feature 2.</p>
                 </div>
@@ -2512,9 +2524,10 @@ const ComparisonPage = ({ id, theme }) => {
     );
 };
 
-const ContentOverImagePage = ({ id, theme }) => {
+const ContentOverImagePage = ({ id, theme, background }) => {
     const contentRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2557,8 +2570,8 @@ const ContentOverImagePage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B2})` }}>
-            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.bg} bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text} bg-cover bg-center`} style={{ backgroundImage: `url(${B2})` }}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentBG.card} bg-opacity-50 min-h-[600px] max-h-[600px] overflow-y-auto flex items-center justify-center`}>
                 <div ref={contentRef}>
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>
                         Impactful Messaging
@@ -2569,10 +2582,11 @@ const ContentOverImagePage = ({ id, theme }) => {
     );
 };
 
-const PictureWithCaptionPage = ({ id, theme }) => {
+const PictureWithCaptionPage = ({ id, theme, background }) => {
     const imageRef = useRef(null); 
     const captionRef = useRef(null);
     const currentTheme = themes[theme]; 
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2637,8 +2651,8 @@ const PictureWithCaptionPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
                 
                 <div ref={imageRef} className="w-2/3 max-h-125 rounded-lg cursor-pointer">
                     <img src={B3} alt="placeholder" className="w-full max-h-110 rounded-lg" />
@@ -2654,10 +2668,11 @@ const PictureWithCaptionPage = ({ id, theme }) => {
     );
 };
 
-const ContentWithImagePage = ({ id, theme }) => {
+const ContentWithImagePage = ({ id, theme, background }) => {
     const contentRef = useRef(null);
     const imageRef = useRef(null); 
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2740,8 +2755,8 @@ const ContentWithImagePage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
                 
                 {/* Content Editor */}
                 <div ref={contentRef} className="w-1/2 pr-8">
@@ -2760,10 +2775,11 @@ const ContentWithImagePage = ({ id, theme }) => {
     );
 };
 
-const ImageWithContentPage = ({ id, theme }) => {
+const ImageWithContentPage = ({ id, theme, background }) => {
     const contentRef = useRef(null);
     const imageRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2842,8 +2858,8 @@ const ImageWithContentPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
                 
                 {/* Image Editor (Left Side) */}
                 <div ref={imageRef} className="w-1/2 cursor-pointer">
@@ -2862,11 +2878,12 @@ const ImageWithContentPage = ({ id, theme }) => {
     );
 };
 
-const TwoContentWithImagePage = ({ id, theme }) => {
+const TwoContentWithImagePage = ({ id, theme, background }) => {
     const content1Ref = useRef(null);
     const content2Ref = useRef(null);
     const imageRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -2957,8 +2974,8 @@ const TwoContentWithImagePage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex items-center`}>
                 
                 {/* Content 1 Editor (Left) */}
                 <div ref={content1Ref} className="w-1/3 pr-4">
@@ -2983,9 +3000,10 @@ const TwoContentWithImagePage = ({ id, theme }) => {
     );
 };
 
-const VerticalTextPage = ({ id, theme }) => {
+const VerticalTextPage = ({ id, theme, background }) => {
     const contentRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3028,8 +3046,8 @@ const VerticalTextPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
                 <div className=' opacity-80' ref={contentRef}>
                     <p contentEditable suppressContentEditableWarning className="text-xl mb-4">Sequential information in vertical flow.</p>
                     <p contentEditable suppressContentEditableWarning className="text-xl mb-4">Step 2.</p>
@@ -3040,10 +3058,11 @@ const VerticalTextPage = ({ id, theme }) => {
     );
 };
 
-const VerticalTitleAndTextPage = ({ id, theme }) => {
+const VerticalTitleAndTextPage = ({ id, theme, background }) => {
     const titleRef = useRef(null);
     const contentRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3096,8 +3115,8 @@ const VerticalTitleAndTextPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col justify-center`}>
                 <div ref={titleRef}>
                     <h1 className="text-4xl font-bold mb-4" contentEditable suppressContentEditableWarning>Title with organized vertical content</h1>
                 </div>
@@ -3111,12 +3130,13 @@ const VerticalTitleAndTextPage = ({ id, theme }) => {
     );
 };
 
-const FourObjectsPage = ({ id, theme }) => {
+const FourObjectsPage = ({ id, theme, background }) => {
     const object1Ref = useRef(null);
     const object2Ref = useRef(null);
     const object3Ref = useRef(null);
     const object4Ref = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3161,18 +3181,18 @@ const FourObjectsPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto grid grid-cols-2 gap-8`}>
-                <div ref={object1Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto grid grid-cols-2 gap-8`}>
+                <div ref={object1Ref} className={`p-6 rounded-lg shadow-lg ${currentBG.card}`}>
                     <p contentEditable suppressContentEditableWarning>Object 1</p>
                 </div>
-                <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg ${currentBG.card}`}>
                     <p contentEditable suppressContentEditableWarning>Object 2</p>
                 </div>
-                <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg ${currentBG.card}`}>
                     <p contentEditable suppressContentEditableWarning>Object 3</p>
                 </div>
-                <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg ${currentTheme.card}`}>
+                <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg ${currentBG.card}`}>
                     <p contentEditable suppressContentEditableWarning>Object 4</p>
                 </div>
             </div>
@@ -3180,13 +3200,14 @@ const FourObjectsPage = ({ id, theme }) => {
     );
 };
 
-const TitleAndFourObjectsPage = ({ id, theme }) => {
+const TitleAndFourObjectsPage = ({ id, theme, background }) => {
     const titleRef = useRef(null);
     const object1Ref = useRef(null);
     const object2Ref = useRef(null);
     const object3Ref = useRef(null);
     const object4Ref = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3241,22 +3262,22 @@ const TitleAndFourObjectsPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
                 <div ref={titleRef} className="text-center mb-8">
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Titled 2x2 grid layout</h1>
                 </div>
                 <div className="grid grid-cols-2 gap-8">
-                    <div ref={object1Ref} className={`p-6 min-h-50 rounded-lg shadow-lg ${currentTheme.card}`}>
+                    <div ref={object1Ref} className={`p-6 min-h-50 rounded-lg shadow-lg ${currentBG.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 1</p>
                     </div>
-                    <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentTheme.card}`}>
+                    <div ref={object2Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentBG.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 2</p>
                     </div>
-                    <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentTheme.card}`}>
+                    <div ref={object3Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentBG.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 3</p>
                     </div>
-                    <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentTheme.card}`}>
+                    <div ref={object4Ref} className={`p-6 rounded-lg shadow-lg min-h-50 ${currentBG.card}`}>
                         <p contentEditable suppressContentEditableWarning>Object 4</p>
                     </div>
                 </div>
@@ -3265,10 +3286,11 @@ const TitleAndFourObjectsPage = ({ id, theme }) => {
     );
 };
 
-const TitleAndTextPage = ({ id, theme }) => {
+const TitleAndTextPage = ({ id, theme, background }) => {
     const titleRef = useRef(null);
     const textRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3321,8 +3343,8 @@ const TitleAndTextPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
                 <div ref={titleRef} className="text-center mb-8">
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Long-form content</h1>
                 </div>
@@ -3336,11 +3358,12 @@ const TitleAndTextPage = ({ id, theme }) => {
     );
 };
 
-const TitleAndTwoColumnTextPage = ({ id, theme }) => {
+const TitleAndTwoColumnTextPage = ({ id, theme, background }) => {
     const titleRef = useRef(null);
     const col1Ref = useRef(null);
     const col2Ref = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3403,8 +3426,8 @@ const TitleAndTwoColumnTextPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
                 <div ref={titleRef} className="text-center mb-8">
                     <h1 className="text-5xl font-bold" contentEditable suppressContentEditableWarning>Organized text in dual columns</h1>
                 </div>
@@ -3425,10 +3448,11 @@ const TitleAndTwoColumnTextPage = ({ id, theme }) => {
     );
 };
 
-const QuotePage = ({ id, theme }) => {
+const QuotePage = ({ id, theme, background }) => {
     const quoteRef = useRef(null);
     const authorRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3481,8 +3505,8 @@ const QuotePage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div className={`w-full max-w-7xl p-12 text-center rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto flex flex-col items-center justify-center`}>
                 <div ref={quoteRef}>
                     <blockquote className="text-4xl italic" contentEditable suppressContentEditableWarning>
                         "Large inspirational quotes with attribution."
@@ -3498,9 +3522,10 @@ const QuotePage = ({ id, theme }) => {
     );
 };
 
-const BlankPage = ({ id, theme }) => {
+const BlankPage = ({ id, theme, background }) => {
     const contentRef = useRef(null);
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
 
     useEffect(() => {
         const link = document.createElement('link');
@@ -3543,8 +3568,8 @@ const BlankPage = ({ id, theme }) => {
     }, []);
 
     return (
-        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentTheme.text}`}>
-            <div ref={contentRef} className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentTheme.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
+        <div key={id} className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme} ${currentBG.text}`}>
+            <div ref={contentRef} className={`w-full max-w-7xl p-12 rounded-3xl shadow-2xl ${currentBG.card} min-h-[600px] max-h-[600px] overflow-y-auto`}>
                 <p contentEditable suppressContentEditableWarning>Custom content creation canvas.</p>
             </div>
         </div>
@@ -3552,8 +3577,9 @@ const BlankPage = ({ id, theme }) => {
 };
 
 
-const LayoutPicker = ({ onSelect, onClose, theme }) => {
+const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
     const currentTheme = themes[theme];
+    const currentBG = backgrounds[background]
     const layouts = [
         { name: 'Title Only', component: TitleOnlyPage },
         { name: 'Title & Subtitle', component: TitleAndSubtitlePage },
@@ -3578,15 +3604,15 @@ const LayoutPicker = ({ onSelect, onClose, theme }) => {
     ];
 
     return (
-        <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-70 flex items-center justify-center z-[100]">
-            <div className={`${currentTheme.bg} rounded-lg p-8 shadow-xl ${currentTheme.text}`}>
-                <h2 className="text-xl font-semibold mb-6">Choose a Layout</h2>
+        <div className="fixed inset-0 bg-transparent backdrop-blur-xl bg-opacity-70 flex items-center justify-center z-[100]">
+            <div className={`${currentBG} rounded-lg p-8 shadow-xl`}>
+                <h2 className="text-xl font-semibold text-white mb-6">Choose a Layout</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
                     {layouts.map(layout => (
                         <button
                             key={layout.name}
                             onClick={() => onSelect(layout.component)}
-                            className="p-4 border rounded-lg hover:text-black hover:bg-gray-200 hover:transition-all"
+                            className="p-4 border rounded-lg text-white hover:text-black hover:bg-gray-200 hover:transition-all"
                         >
                             {layout.name}
                         </button>
@@ -3606,55 +3632,155 @@ const LayoutPicker = ({ onSelect, onClose, theme }) => {
 
 export default function EditorPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [theme, setTheme] = useState('dark');
-  const [background, setbackground] = useState('original')
+  // const [theme, setTheme] = useState('dark');
+  // const [background, setbackground] = useState('original')
+  // const [slideBackgrounds, setSlideBackgrounds] = useState({});
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
-  console.log(background)
-  const initialSlides = [
-    <UserBGselect key="user-bg-select" />,
-    <TheChallangePage key="the-challenge" theme={theme} background={background} />,
-    <OurSolutionPage key="our-solution" theme={theme} background={background} />,
-    <MarketPotentialPage key="market-potential" theme={theme} background={background} />,
-    <CompetitiveEdgePAge key="competitive-edge" theme={theme} background={background} />,
-    <GrowthTrajectoryPage key="growth-trajectory" theme={theme} background={background} />,
-    <ProvenModelPage key="proven-model" theme={theme} background={background} />,
-    <SeriesAPage key="series-a" theme={theme} background={background} />,
-    <JoinUsPage key="join-us" theme={theme} background={background} />,
-  ];
-  const [slides, setSlides] = useState(initialSlides);
+  // const currentTheme = themes[theme];
+  // const currentBG = backgrounds[background]
+  // console.log(background)
+  const initialSlidesData = [
+    { id: 'user-bg-select', component: UserBGselect},
+    { id: 'the-challenge', component: TheChallangePage, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'our-solution', component: OurSolutionPage, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'market-potential', component: MarketPotentialPage, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'competitive-edge', component: CompetitiveEdgePAge, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'growth-trajectory', component: GrowthTrajectoryPage, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'proven-model', component: ProvenModelPage, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'series-a', component: SeriesAPage, defaultBg: 'original', defaultTheme: 'dark' },
+    { id: 'join-us', component: JoinUsPage, defaultBg: 'original', defaultTheme: 'dark' },
+]
+const initialSlideBGs = initialSlidesData.reduce((acc, slide) => {
+    acc[slide.id] = slide.defaultBg;
+    return acc;
+}, {});
+
+const initialSlideThemes = initialSlidesData.reduce((acc, slide) => {
+    acc[slide.id] = slide.defaultTheme;
+    return acc;
+}, {});
+
+const initialSlides = initialSlidesData.map(data => 
+    <data.component 
+        key={data.id} 
+        id={data.id} // Pass the ID down
+        theme={initialSlideThemes[data.id]} 
+        background={initialSlideBGs[data.id]} // Pass the specific background
+    />
+    
+);
+const [slides, setSlides] = useState(initialSlides);
+const [slideBackgrounds, setSlideBackgrounds] = useState(initialSlideBGs);
+const [slideThemes, setSlideThemes] = useState(initialSlideThemes);
+  // const initialSlides = [
+  //   <UserBGselect key="user-bg-select" />,
+  //   <TheChallangePage key="the-challenge" theme={theme} background={background} />,
+  //   <OurSolutionPage key="our-solution" theme={theme} background={background} />,
+  //   <MarketPotentialPage key="market-potential" theme={theme} background={background} />,
+  //   <CompetitiveEdgePAge key="competitive-edge" theme={theme} background={background} />,
+  //   <GrowthTrajectoryPage key="growth-trajectory" theme={theme} background={background} />,
+  //   <ProvenModelPage key="proven-model" theme={theme} background={background} />,
+  //   <SeriesAPage key="series-a" theme={theme} background={background} />,
+  //   <JoinUsPage key="join-us" theme={theme} background={background} />,
+  // ];
+  // const [slides, setSlides] = useState(initialSlides);
   const isAnimatingRef = useRef(false);
+  
 
   useEffect(() => {
     setSlides(prevSlides => prevSlides.map(slide => {
+      const currentSlideBG = slideBackgrounds[slide.key];
+      const currentSlideTheme = slideThemes[slide.key];
       if (slide.type.name === 'UserBGselect') {
         return slide;
       }
-      return React.cloneElement(slide, { theme, background });
+      return React.cloneElement(slide, { 
+          theme: currentSlideTheme, 
+          background: currentSlideBG // Passes the individual background key
+      });
     }));
-  }, [theme, background]);
+}, [slideThemes, slideBackgrounds]);
 
-  const handleAddSlide = (LayoutComponent) => {
-    const newSlide = <LayoutComponent key={Date.now()} id={Date.now()} theme={theme} />;
+  // const handleAddSlide = (LayoutComponent) => {
+  //   const newSlide = <LayoutComponent key={Date.now()} id={Date.now()} theme={theme} />;
+  //   setSlides(prevSlides => {
+  //     const newSlides = [...prevSlides, newSlide];
+  //     setCurrentSlideIndex(newSlides.length - 1);
+  //     return newSlides;
+  //   });
+  //   setShowLayoutPicker(false);
+  // };
+
+const handleAddSlide = (LayoutComponent) => {
+    const newId = Date.now().toString(); // Use string ID
+    const defaultNewBG = 'original'; // Set a default for new slides
+    const defaultNewTheme = 'dark';
+    
+    // 1. Update the Background state map
+    setSlideBackgrounds(prevBGs => ({
+        ...prevBGs,
+        [newId]: defaultNewBG,
+    }));
+    
+    // 2. Create the new slide element
+    const newSlide = <LayoutComponent 
+        key={newId} 
+        id={newId} 
+        theme={defaultNewTheme} 
+        background={defaultNewBG} // Pass the initial background
+    />;
+    
+    // 3. Update the slides array
     setSlides(prevSlides => {
       const newSlides = [...prevSlides, newSlide];
       setCurrentSlideIndex(newSlides.length - 1);
       return newSlides;
     });
+    
     setShowLayoutPicker(false);
-  };
+};
 
-  const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
+const handleThemeChange = (newTheme) => {
+    const currentSlideId = slides[currentSlideIndex].key; 
+    
+    setSlideThemes(prevThemes => ({
+        ...prevThemes,
+        [currentSlideId]: newTheme,
+    }));
+    
+    // Close the modal
     setShowThemeModal(false);
-  };
+};
+
+  // const handleThemeChange = (newTheme) => {
+  //   setTheme(newTheme);
+  //   setShowThemeModal(false);
+  // };
+  // const handleBGChange = (newBG) => {
+  //   setbackground(newBG);
+  //   setshowBackgroundModal(false);
+  // };
+
   const handleBGChange = (newBG) => {
-    setbackground(newBG);
+    const currentSlideId = slides[currentSlideIndex].key; 
+    
+    setSlideBackgrounds(prevBGs => ({
+        ...prevBGs,
+        [currentSlideId]: newBG,
+    }));
+    
+    // Close the modal
     setshowBackgroundModal(false);
-  };
+};
+
+const currentSlideKey = slides[currentSlideIndex]?.key;
+const currentThemeKey = slideThemes[currentSlideKey] || 'dark'; // Fallback to 'dark'
+const currentBGKey = slideBackgrounds[currentSlideKey] || 'original'; // Get the current slide's background
+
+const currentTheme = themes[currentThemeKey];
+const currentBG = backgrounds[currentBGKey]
 
   useEffect(() => {
     const handleWheel = (event) => {
@@ -3690,7 +3816,7 @@ export default function EditorPage() {
   };
 
   return (
-    <div className={`App font-sans antialiased h-screen w-screen relative overflow-hidden ${themes[theme].bg} ${themes[theme].text}`}>
+    <div className={`App ${backgrounds[currentBGKey].bg} font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
       <motion.div
         variants={containerVariants}
         initial="initial"
@@ -3750,7 +3876,7 @@ export default function EditorPage() {
         </div>
       )}
 
-      {showLayoutPicker && <LayoutPicker theme={theme} onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
+      {showLayoutPicker && <LayoutPicker theme={currentTheme} onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
 
       {/* Theme Selection Modal */}
       {showThemeModal && (
