@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion,useAnimation } from 'framer-motion';
 import { createRoot } from 'react-dom/client';
+
+import { useInView } from 'react-intersection-observer';
 import { Image, Palette, Plus } from 'lucide-react';
 import A1 from "./1.jpg";
 import A2 from "./2.jpg";
@@ -37,6 +39,9 @@ import { BiDockRight } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { PiDotsThreeBold, PiSelectionBackground } from "react-icons/pi";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import TheChallenagePage from './TheChallengePage';
 const images = [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22, A23];
 // Theme classes
 const themes = {
@@ -297,6 +302,43 @@ const themes2 = {
   },
 };
 
+// SCROLL REVEAL ANIMATION WRAPPER
+const ScrollReveal = ({ 
+  children, 
+  direction = 'up', 
+  delay = 0, 
+  duration = 0.6 
+}) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
+
+  useEffect(() => {
+    if (inView) controls.start('visible');
+  }, [inView, controls]);
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      y: direction === 'up' ? 40 : direction === 'down' ? -40 : 0,
+      x: direction === 'left' ? 40 : direction === 'right' ? -40 : 0,
+      scale: direction === 'zoom' ? 0.95 : 1,
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      transition: { duration, delay, ease: 'easeOut' },
+    },
+  };
+
+  return (
+    <motion.div ref={ref} initial="hidden" animate={controls} variants={variants}>
+      {children}
+    </motion.div>
+  );
+};
+
 
 const UserBGselect = () => {
     // Refs for Froala Editors
@@ -442,6 +484,20 @@ const UserBGselect = () => {
         };
     }, []);
 
+    // Initialize AOS on component mount
+useEffect(() => {
+  AOS.init({
+    duration: 1000,
+    once: true,
+    offset: 100,
+    easing: 'ease-in-out',
+  });
+  return () => {
+    AOS.refresh();
+  };
+}, []);
+
+
     const currentTheme = themes2[selectedTheme];
 
     return (
@@ -454,6 +510,7 @@ const UserBGselect = () => {
                 ${textPosition === 'top-left' ? 'absolute top-10 left-10' : 'flex flex-col justify-center items-center h-full w-full'}`}
             >
                 <div ref={titleRef}>
+                   <ScrollReveal animation="fade-up" duration={800}>
                 <h2  
                     contentEditable 
                     suppressContentEditableWarning 
@@ -461,8 +518,10 @@ const UserBGselect = () => {
                 >
                     Vertx: Pioneering Deeptech Innovation
                 </h2>
+                </ScrollReveal>
                 </div>
                 <div ref={subtitleRef} >
+                    <ScrollReveal animation="fade-up" duration={1000} delay={100}>
                 <h2 
                     contentEditable 
                     suppressContentEditableWarning 
@@ -470,6 +529,7 @@ const UserBGselect = () => {
                 >
                     Transforming The Future Through Breakthrough Technology
                 </h2>
+                </ScrollReveal>
                 </div>
                 {glowEffect && (
                     <div className="w-full absolute bottom-0 left-0 glowing-text-bottom"></div>
@@ -629,48 +689,70 @@ const UserBGselect = () => {
     );
 };
 
-const TheChallangePage = ({theme, background}) => {
+const TheChallangePage = ({ theme = 'dark', background = 'original' }) => {
   const editorRef = useRef(null);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
+  const currentTheme = themes[theme] || themes.dark;
+  const currentBG = backgrounds[background] || backgrounds.original;
+
+  // ✅ Initialize AOS First (Separate useEffect)
   useEffect(() => {
-    // Dynamically load the Froala CSS and JS files from CDN
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100,
+      easing: 'ease-in-out',
+    });
+
+    return () => {
+      AOS.refresh();
+    };
+  }, []);
+
+  // ✅ Initialize Froala Editor (Separate useEffect)
+  useEffect(() => {
+    // Load Froala CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
     document.head.appendChild(link);
 
+    // Load Froala JS
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
-    
+    script.async = true;
+
     const initializeEditor = () => {
       if (editorRef.current && window.FroalaEditor) {
-        new window.FroalaEditor(editorRef.current, {
-          inline: true,
-          toolbarInline: true,
-          toolbarButtons: {
-            'moreText': {
+        try {
+          new window.FroalaEditor(editorRef.current, {
+            inline: true,
+            toolbarInline: true,
+            toolbarButtons: {
+              'moreText': {
                 buttons: [
-                    'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
-                    'fontFamily', 'fontSize', 'textColor', 'backgroundColor', 'insertImage',
-                    'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
-                    'insertLink', 'paragraphStyle', 'insertVideo', 'insertFile', 'insertTable',
-                    'undo', 'redo', 'clearFormatting', 'selectAll', 'html'
+                  'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
+                  'fontFamily', 'fontSize', 'textColor', 'backgroundColor', 'insertImage',
+                  'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
+                  'insertLink', 'paragraphStyle', 'insertVideo', 'insertFile', 'insertTable',
+                  'undo', 'redo', 'clearFormatting', 'selectAll', 'html'
                 ],
                 buttonsVisible: 12,
                 align: 'center'
-            }
-          },
-          imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageRemove'],
-          imageResizer: {
-            handle: 'all',
-            minWidth: 16,
-            minHeight: 16 
-          },
-          charCounterCount: false,
-          wordCounterCount: false,
-          toolbarVisibleWithoutSelection: true
-        });
+              }
+            },
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageRemove'],
+            imageResizer: {
+              handle: 'all',
+              minWidth: 16,
+              minHeight: 16
+            },
+            charCounterCount: false,
+            wordCounterCount: false,
+            toolbarVisibleWithoutSelection: true
+          });
+        } catch (error) {
+          console.error('Froala Editor initialization error:', error);
+        }
       }
     };
 
@@ -678,35 +760,67 @@ const TheChallangePage = ({theme, background}) => {
       setTimeout(initializeEditor, 100);
     };
 
+    script.onerror = () => {
+      console.error('Failed to load Froala Editor script');
+    };
+
     document.body.appendChild(script);
 
+    // ✅ Cleanup
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
-      if (editorRef.current && editorRef.current.editor) {
-        editorRef.current.editor.destroy();
+      try {
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+        if (editorRef.current?.editor) {
+          editorRef.current.editor.destroy();
+        }
+      } catch (error) {
+        console.error('Cleanup error:', error);
       }
     };
   }, []);
+
+  // ✅ Return JSX with ScrollReveal wrappers
   return (
-    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${themes[theme].bg} ${currentBG.text}`}>
-      <div className={`max-w-5xl shadow-2xl rounded-md ${currentBG.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
-        <div className='border-[2.5px] w-full min-h-150 p-5'>
-          <div
-            ref={editorRef}
-            className="prose max-w-xl mx-auto focus:outline-none"
-          >
-            <h1 className="text-4xl font-semibold my-15">
-              The Challenge
-            </h1>
-            <h2>Welcome to the Editable Page. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugiat beatae magni perspiciatis ex earum consequatur, commodi a laudantium incidunt ad.</h2>
-            <p>Feel free to experiment with the different editing options.</p>
-          </div>
+    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme.bg} ${currentBG.text}`}>
+      {/* Main card with fade-up animation */}
+      <ScrollReveal animation="fade-up" duration={800}>
+        <div className={`max-w-5xl shadow-2xl rounded-md ${currentBG.card} p-5 mx-auto flex flex-col justify-center text-center items-center`}>
+          
+          {/* Inner border with zoom-in animation */}
+          <ScrollReveal animation="zoom-in" duration={1000} delay={100}>
+            <div className='border-[2.5px] w-full min-h-[150px] p-5 border-gray-500'>
+              
+              {/* Editor content with fade-up animation */}
+              <ScrollReveal animation="fade-up" duration={1000} delay={200}>
+                <div
+                  ref={editorRef}
+                  className="prose max-w-xl mx-auto focus:outline-none"
+                >
+                  <h1 className="text-4xl font-semibold my-15">
+                    The Challenge
+                  </h1>
+                  <h2 className="text-lg font-medium">
+                    Welcome to the Editable Page. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugiat beatae magni perspiciatis ex earum consequatur, commodi a laudantium incidunt ad.
+                  </h2>
+                  <p className="text-base">
+                    Feel free to experiment with the different editing options.
+                  </p>
+                </div>
+              </ScrollReveal>
+            </div>
+          </ScrollReveal>
         </div>
-      </div>
+      </ScrollReveal>
     </div>
   );
 };
+
+
 
 const OurSolutionPage = ({ theme, background }) => {
   const editorRef = useRef(null);
@@ -798,12 +912,14 @@ const OurSolutionPage = ({ theme, background }) => {
             ref={editorRef}
             className="prose max-w-xl mx-auto focus:outline-none"
           >
+             <ScrollReveal animation="fade-up" duration={1000} delay={100}> 
             <h1 className="text-4xl font-semibold my-8">
               Our solution
             </h1>
             <h2 className='mb-4'>
               Vertx delivers breakthrough technology that bridges innovation gaps, reducing implementation time by 80%.
             </h2>
+            </ScrollReveal>
             {/* The Canvas environment cannot access local files. Please use a public URL for your image. */}
             <img src={B1} alt="Two people silhouetted against a colorful background" className='my-8 w-full rounded-md' />
           </div>
@@ -812,6 +928,7 @@ const OurSolutionPage = ({ theme, background }) => {
     </div>
   );
 };
+
 
 const MarketPotentialPage = ({ theme, background }) => {
   const editorRef = useRef(null);
@@ -3806,7 +3923,7 @@ const currentBG = backgrounds[currentBGKey]
   }, [currentSlideIndex, slides.length]);
 
   const transition = {
-    duration: 1.1,
+    duration: 1,
     ease: [0.8, 0.08, -0.015, 1.0],
   };
 
