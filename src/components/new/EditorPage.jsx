@@ -824,9 +824,40 @@ const TheChallangePage = ({ theme = 'dark', background = 'original' }) => {
 
 const OurSolutionPage = ({ theme, background }) => {
   const editorRef = useRef(null);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  
+  // Use placeholder data for demonstration
+  const currentTheme = themes[theme] || themes.light; 
+  const currentBG = backgrounds[background] || backgrounds.primary;
+
+  // --- FRAMER MOTION VARIANTS ---
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, // Delay each child's animation
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  };
+
+  // --- FROALA INITIALIZATION LOGIC (Now conditional on animation) ---
   useEffect(() => {
+    if (!isAnimationComplete) return;
+
     // Dynamically load the Froala CSS and JS files from CDN
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -878,7 +909,7 @@ const OurSolutionPage = ({ theme, background }) => {
     };
 
     script.onload = () => {
-      setTimeout(initializeEditor, 100);
+      setTimeout(initializeEditor, 50); // Reduced timeout for quick initialization
     };
 
     document.body.appendChild(script);
@@ -890,11 +921,14 @@ const OurSolutionPage = ({ theme, background }) => {
         editorRef.current.editor.destroy();
       }
     };
-  }, []);
+  }, [isAnimationComplete]);
 
+
+  // --- COMPONENT RENDER (SLIDE-AND-FADE TRANSITION) ---
   return (
     <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme.bg} ${currentBG.text}`}>
       <style>
+        {/* Your custom CSS styles for the polaroid effect */}
         {`
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
           .fr-style-polaroid {
@@ -932,8 +966,11 @@ const OurSolutionPage = ({ theme, background }) => {
 
 const MarketPotentialPage = ({ theme, background }) => {
   const editorRef = useRef(null);
-  const currentTheme = themes[theme];
-    const currentBG = backgrounds[background]
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  
+  const currentTheme = themes[theme] || themes.light; 
+  const currentBG = backgrounds[background] || backgrounds.primary;
+
   const [cardData, setCardData] = useState([
     {
       icon: 'fas fa-bullseye',
@@ -963,7 +1000,34 @@ const MarketPotentialPage = ({ theme, background }) => {
     });
   };
 
+  // --- FRAMER MOTION VARIANTS ---
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, // Stagger text elements
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  };
+
+  // --- FROALA INITIALIZATION LOGIC (Conditional on animation completion) ---
   useEffect(() => {
+    if (!isAnimationComplete) return;
+
     // Dynamically load the Froala CSS and JS files from CDN
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -976,6 +1040,7 @@ const MarketPotentialPage = ({ theme, background }) => {
     const initializeEditor = () => {
       if (editorRef.current && window.FroalaEditor) {
         new window.FroalaEditor(editorRef.current, {
+          // ... (Froala config remains the same)
           inline: true,
           toolbarInline: true,
           toolbarVisibleWithoutSelection: true,
@@ -1012,7 +1077,7 @@ const MarketPotentialPage = ({ theme, background }) => {
     };
 
     script.onload = () => {
-      setTimeout(initializeEditor, 100);
+      setTimeout(initializeEditor, 50); 
     };
 
     document.body.appendChild(script);
@@ -1024,94 +1089,122 @@ const MarketPotentialPage = ({ theme, background }) => {
         editorRef.current.editor.destroy();
       }
     };
-  }, []);
+  }, [isAnimationComplete]);
 
+  // --- COMPONENT RENDER (SLIDE-AND-FADE TRANSITION) ---
   return (
-    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme} ${currentBG.text}`}>
+    <div className={`p-10 font-[inter] min-h-screen max-h-screen overflow-hidden ${currentTheme.bg} ${currentBG.text}`}>
       <style>
+        {/* Your custom CSS styles */}
         {`
-          @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
-          .fr-style-polaroid {
-            background-color: white;
-            color: black;
-            padding: 10px 10px 10px 10px;
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
-          .fr-style-red {
-            background-color: #B22222;
-            color: white;
-            padding: 10px 10px 10px 10px;
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
-          .fr-style-green {
-            background-color: #00FA9A;
-            color: black;
-            padding: 10px 10px 10px 10px;
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
-          .fr-style-sky {
-            background-color: #1E90FF;
-            color: white;
-            padding: 10px 10px 10px 10px;
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
-          .fr-style-card {
-          background-color: #004526;
-            color: white;
-            padding: 10px 10px 10px 10px;
-            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+          /* ... (Your existing styles) ... */
+          .fr-style-polaroid { background-color: white; color: black; padding: 10px 10px 10px 10px; box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); display: inline-block; }
+          .fr-style-red { background-color: #B22222; color: white; padding: 10px 10px 10px 10px; box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); display: inline-block; }
+          .fr-style-green { background-color: #00FA9A; color: black; padding: 10px 10px 10px 10px; box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); display: inline-block; }
+          .fr-style-sky { background-color: #1E90FF; color: white; padding: 10px 10px 10px 10px; box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); display: inline-block; }
+          .fr-style-card { background-color: #004526; color: white; padding: 10px 10px 10px 10px; box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); display: inline-block; }
         `}
       </style>
-      <div className={`max-w-7xl mx-auto flex flex-col md:flex-row gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}>
-        <div className='flex-1 flex flex-col justify-center text-center items-center'>
-          <div className='w-full min-h-150 max-h-170 p-5'>
-            <div
-              ref={editorRef}
-              className="focus:outline-none"
-            >
-              <h1 className="text-4xl font-semibold my-5">
-                Market Potential
-              </h1>
-              <h2 className='mb-4'>
-                The deep tech market is projected to reach $125B by 2025 with 35% CAGR.
-              </h2>
-              <img src={B2} alt="Two people silhouetted against a colorful background" className='my-8 w-full max-h-100 rounded-md' />
+      
+      <AnimatePresence mode="wait">
+        {/* A. TEXT REVEAL SECTION (SLIDES UP AND OUT) */}
+        {!isAnimationComplete && (
+          <motion.div
+            key="initial-market-text"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            // EXIT ANIMATION: Slides up 20px and fades out
+            exit={{ y: -20, opacity: 0, transition: { duration: 0.1 } }} 
+            onAnimationComplete={() => setIsAnimationComplete(true)} // Transition trigger
+            className={`max-w-7xl mx-auto flex flex-col md:flex-row gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}
+          >
+            {/* LEFT SIDE: Text and Image (staggered) */}
+            <div className='flex-1 flex flex-col justify-center text-center items-center'>
+              <div className='w-full min-h-150 max-h-170 p-5'>
+                <motion.h1 variants={itemVariants} className="text-4xl font-semibold my-5">
+                  Market Potential
+                </motion.h1>
+                <motion.h2 variants={itemVariants} className='mb-4'>
+                  The deep tech market is projected to reach $125B by 2025 with 35% CAGR.
+                </motion.h2>
+                <motion.img variants={itemVariants} src={B2} alt="Market chart background" className='my-8 w-full max-h-100 rounded-md' />
+              </div>
+            </div>
+
+            {/* RIGHT SIDE: Static Card Structure (fades in with text) */}
+            <motion.div variants={itemVariants} className='flex flex-col my-auto gap-4 w-full md:w-1/3 '>
+              {cardData.map((card, index) => (
+                <div key={index} className={`rounded-lg shadow-2xl p-2 h-40 overflow-y-auto ${currentBG.card}`}>
+                  <div className='flex items-center justify-self-start mb-4'>
+                    <i className={`${card.icon} text-4xl ${card.color}`}></i>
+                  </div>
+                  <h3 className='font-semibold text-xl mb-2'>{card.title}</h3>
+                  <p className='text-sm opacity-50'>{card.description}</p>
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* B. FROALA EDITOR & EDITABLE CARDS SECTION (SLIDES UP AND IN) */}
+      {isAnimationComplete && (
+        <motion.div
+          key="editor-ready-market"
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.7 }} // Delay ensures the previous element is gone
+          className={`max-w-7xl mx-auto flex flex-col md:flex-row gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}
+        >
+          {/* LEFT SIDE: Froala Editor Area */}
+          <div className='flex-1 flex flex-col justify-center text-center items-center'>
+            <div className='w-full min-h-150 max-h-170 p-5'>
+              <div
+                ref={editorRef} // Initialize Froala here
+                className="focus:outline-none"
+              >
+                {/* Initial Content for Froala */}
+                <h1 className="text-4xl font-semibold my-5">
+                  Market Potential
+                </h1>
+                <h2 className='mb-4'>
+                  The deep tech market is projected to reach $125B by 2025 with 35% CAGR.
+                </h2>
+                <img src={B2} alt="Market chart background" className='my-8 w-full max-h-100 rounded-md' />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className='flex flex-col my-auto gap-4 w-full md:w-1/3 '>
-          {cardData.map((card, index) => (
-            <div key={index} className={`rounded-lg shadow-2xl p-2 h-40 overflow-y-auto ${currentBG.card}`}>
-              <div className='flex items-center justify-self-start mb-4'>
-                <i className={`${card.icon} text-4xl ${card.color}`}></i>
+          {/* RIGHT SIDE: Editable Cards */}
+          <div className='flex flex-col my-auto gap-4 w-full md:w-1/3 '>
+            {cardData.map((card, index) => (
+              <div key={index} className={`rounded-lg shadow-2xl p-2 h-40 overflow-y-auto ${currentBG.card}`}>
+                <div className='flex items-center justify-self-start mb-4'>
+                  <i className={`${card.icon} text-4xl ${card.color}`}></i>
+                </div>
+                <h3 
+                  className='font-semibold text-xl mb-2 focus:outline-none'
+                  contentEditable={true}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
+                >
+                  {card.title}
+                </h3>
+                <p 
+                  className='text-sm opacity-50 focus:outline-none'
+                  contentEditable={true}
+                  suppressContentEditableWarning={true}
+                  onBlur={(e) => handleCardChange(index, 'description', e.target.innerText)}
+                >
+                  {card.description}
+                </p>
               </div>
-              <h3 
-                className='font-semibold text-xl mb-2 focus:outline-none'
-                contentEditable={true}
-                suppressContentEditableWarning={true}
-                onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
-              >
-                {card.title}
-              </h3>
-              <p 
-                className='text-sm opacity-50 focus:outline-none'
-                contentEditable={true}
-                suppressContentEditableWarning={true}
-                onBlur={(e) => handleCardChange(index, 'description', e.target.innerText)}
-              >
-                {card.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -1119,25 +1212,16 @@ const MarketPotentialPage = ({ theme, background }) => {
 const CompetitiveEdgePAge = ({ theme, background }) => {
   const editorRef = useRef(null);
   const imageEditorRef = useRef(null);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false); // New state for animation control
+
+  const currentTheme = themes[theme] || themes.light; 
+  const currentBG = backgrounds[background] || backgrounds.primary;
+
   const [cardData, setCardData] = useState([
-    {
-      icon: 'fas fa-star',
-      title: '40% higher customer satisfaction scores'
-    },
-    {
-      icon: 'fas fa-code',
-      title: 'Proprietary technology'
-    },
-    {
-      icon: 'fas fa-handshake-alt',
-      title: 'Strategic partnerships'
-    },
-    {
-      icon: 'fas fa-rocket',
-      title: '3x faster implementation than competitors'
-    }
+    { icon: 'fas fa-star', title: '40% higher customer satisfaction scores' },
+    { icon: 'fas fa-code', title: 'Proprietary technology' },
+    { icon: 'fas fa-handshake-alt', title: 'Strategic partnerships' },
+    { icon: 'fas fa-rocket', title: '3x faster implementation than competitors' }
   ]);
 
   const handleCardChange = (index, field, value) => {
@@ -1148,7 +1232,35 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
     });
   };
 
+  // --- FRAMER MOTION VARIANTS ---
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, 
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  };
+
+
+  // --- FROALA INITIALIZATION LOGIC (Conditional on animation completion) ---
   useEffect(() => {
+    if (!isAnimationComplete) return; // Only run when animation is complete
+
     // Dynamically load the Froala CSS and JS files from CDN
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -1160,6 +1272,7 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
+        // Initialize Text Editor
         if (editorRef.current) {
           new window.FroalaEditor(editorRef.current, {
             inline: true,
@@ -1180,22 +1293,13 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
                   align: 'center'
               }
             },
-            imageResizer: {
-              handle: 'all',
-              minWidth: 16,
-              minHeight: 16 
-            },
-            imageStyles: {
-              'fr-style-card': 'Card',
-              'fr-style-polaroid': 'Polaroid',
-              'fr-style-red': 'Red',
-              'fr-style-green': 'Green',
-              'fr-style-sky': 'Sky'
-            },
+            imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
+            imageStyles: { 'fr-style-card': 'Card', 'fr-style-polaroid': 'Polaroid', 'fr-style-red': 'Red', 'fr-style-green': 'Green', 'fr-style-sky': 'Sky' },
             imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageRemove', 'imageReplace']
           });
         }
         
+        // Initialize Image Editor
         if (imageEditorRef.current) {
             new window.FroalaEditor(imageEditorRef.current, {
                 inline: true,
@@ -1212,7 +1316,7 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
     };
 
     script.onload = () => {
-      setTimeout(initializeEditors, 100);
+      setTimeout(initializeEditors, 50);
     };
 
     document.body.appendChild(script);
@@ -1220,112 +1324,132 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
     return () => {
       document.head.removeChild(link);
       document.body.removeChild(script);
-      if (editorRef.current && editorRef.current.editor) {
-        editorRef.current.editor.destroy();
-      }
-      if (imageEditorRef.current && imageEditorRef.current.editor) {
-        imageEditorRef.current.editor.destroy();
-      }
+      // Clean up both editors
+      if (editorRef.current && editorRef.current.editor) { editorRef.current.editor.destroy(); }
+      if (imageEditorRef.current && imageEditorRef.current.editor) { imageEditorRef.current.editor.destroy(); }
     };
-  }, []);
+  }, [isAnimationComplete]);
 
+  // --- COMPONENT RENDER (SLIDE-AND-FADE TRANSITION) ---
   return (
     <div className={`flex flex-col items-center justify-center h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style>
+        {/* Your custom CSS styles */}
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
-          .fr-style-polaroid {
-            background-color: white;
-            padding: 10px 10px 20px 10px; /* Top, right, left = 10px; Bottom = 20px */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-          }
-          .modal-content {
-            position: relative;
-            max-width: 90%;
-            max-height: 90%;
-          }
-          .modal-image {
-            display: block;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-          }
-          .modal-close {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            z-index: 1001;
-          }
-          .fr-style-red {
-            border: 2px solid red;
-          }
-          .fr-style-green {
-            border: 2px solid green;
-          }
-          .fr-style-sky {
-            border: 2px solid skyblue;
-          }
+          .fr-style-polaroid { background-color: white; padding: 10px 10px 20px 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); display: inline-block; }
+          .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+          .modal-content { position: relative; max-width: 90%; max-height: 90%; }
+          .modal-image { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+          .modal-close { position: absolute; top: 10px; right: 20px; color: white; font-size: 2rem; cursor: pointer; z-index: 1001; }
+          .fr-style-red { border: 2px solid red; }
+          .fr-style-green { border: 2px solid green; }
+          .fr-style-sky { border: 2px solid skyblue; }
         `}
       </style>
-      <div className={`max-w-7xl min-h-150 max-h-170 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}>
-        {/* Left column: Image */}
-        <div ref={imageEditorRef} contentEditable={true} suppressContentEditableWarning={true} className='flex items-center w-auto col-span-1 justify-center p-5'>
-          <img 
-            src={B3} 
-            alt="Strong shadows and light on a city street" 
-            className='w-full max-h-145 object-cover rounded-md cursor-pointer'
-          />
-        </div>
+      
+      <AnimatePresence mode="wait">
+        {/* A. TEXT REVEAL SECTION (Visible first) */}
+        {!isAnimationComplete && (
+          <motion.div
+            key="initial-competitive-text"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            // EXIT ANIMATION: Slides up 20px and fades out
+            exit={{ y: -20, opacity: 0, transition: { duration: 0.1 } }} 
+            onAnimationComplete={() => setIsAnimationComplete(true)} // Transition trigger
+            className={`max-w-7xl min-h-150 max-h-170 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}
+          >
+            {/* Left column: Static Image Placeholder */}
+            <motion.div variants={itemVariants} className='flex items-center w-auto col-span-1 justify-center p-5'>
+              <img 
+                src={B3} 
+                alt="Strong shadows and light on a city street" 
+                className='w-full max-h-145 object-cover rounded-md'
+              />
+            </motion.div>
 
-        {/* Right column: Text and Cards */}
-        <div className='flex flex-col col-span-1 justify-between gap-8 w-full mt-10 md:my-4'>
-          {/* Froala editor for title and description */}
-          <div ref={editorRef} className="focus:outline-none">
-            <span className='inline-block mb-4 px-2 py-1 bg-lime-600 text-white rounded-md text-xs font-semibold uppercase'>
-              Advantage
-            </span>
-            <h1 className="text-5xl mb-2">
-              Competitive Edge
-            </h1>
-            <h2 className='mt-12'>
-              Vertx stands apart through proprietary technology, strategic partnerships, and our founder-investor model.
-            </h2>
-          </div>
-          
-          {/* Grid for cards */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {cardData.map((card, index) => (
-              <div key={index} className={`rounded-lg shadow-2xl p-2 h-auto overflow-y-auto ${currentBG.card} flex items-center gap-3`}>
-                <i className={`${card.icon} text-3xl text-gray-400`}></i>
-                <h3 
-                  className='font-semibold text-sm mb-1 focus:outline-none flex-1'
-                  contentEditable={true}
-                  suppressContentEditableWarning={true}
-                  onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
-                >
-                  {card.title}
-                </h3>
+            {/* Right column: Animated Text and Cards */}
+            <div className='flex flex-col col-span-1 justify-between gap-8 w-full mt-10 md:my-4'>
+              <div className="focus:outline-none">
+                <motion.span variants={itemVariants} className='inline-block mb-4 px-2 py-1 bg-lime-600 text-white rounded-md text-xs font-semibold uppercase'>
+                  Advantage
+                </motion.span>
+                <motion.h1 variants={itemVariants} className="text-5xl mb-2">
+                  Competitive Edge
+                </motion.h1>
+                <motion.h2 variants={itemVariants} className='mt-12'>
+                  Vertx stands apart through proprietary technology, strategic partnerships, and our founder-investor model.
+                </motion.h2>
               </div>
-            ))}
+              
+              {/* Grid for cards (Staggered as a group) */}
+              <motion.div variants={containerVariants} initial="hidden" animate="visible" className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {cardData.map((card, index) => (
+                  <motion.div key={index} variants={itemVariants} className={`rounded-lg shadow-2xl p-2 h-auto flex items-center gap-3 ${currentBG.card}`}>
+                    <i className={`${card.icon} text-3xl text-gray-400`}></i>
+                    <h3 className='font-semibold text-sm mb-1 flex-1'>{card.title}</h3>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* B. FROALA EDITORS & EDITABLE CARDS SECTION (SLIDES UP AND IN) */}
+      {isAnimationComplete && (
+        <motion.div
+          key="editor-ready-competitive"
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.7 }} // Delay ensures the previous element is gone
+          className={`max-w-7xl min-h-150 max-h-170 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 p-5 rounded-md shadow-2xl ${currentBG.card}`}
+        >
+          {/* Left column: Image Editor Area */}
+          <div ref={imageEditorRef} contentEditable={true} suppressContentEditableWarning={true} className='flex items-center w-auto col-span-1 justify-center p-5'>
+            <img 
+              src={B3} 
+              alt="Strong shadows and light on a city street" 
+              className='w-full max-h-145 object-cover rounded-md cursor-pointer'
+            />
           </div>
-        </div>
-      </div>
+
+          {/* Right column: Text Editor and Editable Cards */}
+          <div className='flex flex-col col-span-1 justify-between gap-8 w-full mt-10 md:my-4'>
+            {/* Froala editor for title and description */}
+            <div ref={editorRef} className="focus:outline-none">
+              <span className='inline-block mb-4 px-2 py-1 bg-lime-600 text-white rounded-md text-xs font-semibold uppercase'>
+                Advantage
+              </span>
+              <h1 className="text-5xl mb-2">
+                Competitive Edge
+              </h1>
+              <h2 className='mt-12'>
+                Vertx stands apart through proprietary technology, strategic partnerships, and our founder-investor model.
+              </h2>
+            </div>
+            
+            {/* Grid for cards (Now fully editable) */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              {cardData.map((card, index) => (
+                <div key={index} className={`rounded-lg shadow-2xl p-2 h-auto overflow-y-auto ${currentBG.card} flex items-center gap-3`}>
+                  <i className={`${card.icon} text-3xl text-gray-400`}></i>
+                  <h3 
+                    className='font-semibold text-sm mb-1 focus:outline-none flex-1'
+                    contentEditable={true}
+                    suppressContentEditableWarning={true}
+                    onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
+                  >
+                    {card.title}
+                  </h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -1617,220 +1741,301 @@ const GrowthTrajectoryPage = ({ theme, background }) => {
 };
 
 const ProvenModelPage = ({ theme, background }) => {
-  const editorRef = useRef(null);
-  const cardRefs = useRef([]);
-  const cardTitleRefs = useRef([]);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
+  const editorRef = useRef(null);
+  const cardRefs = useRef([]);
+  const cardTitleRefs = useRef([]);
+  const currentTheme = themes[theme] || themes.light; 
+  const currentBG = backgrounds[background] || backgrounds.primary;
 
-  const [cardData, setCardData] = useState([
-    {
-      title: 'Tangible outcomes',
-      description: 'Our proven methodology delivers consistent results through strategic alignment, data-driven decision-making, and client-focused solutions.'
-    },
-    {
-      title: 'Stakeholder synergy',
-      description: 'Our founder-investor model creates perfect alignment between stakeholders, ensuring all parties are working toward common goals.'
-    },
-    {
-      title: 'Driving responsibility',
-      description: 'The model establishes clear accountability frameworks, which directly contributes to achieving measurable results across the organization.'
-    },
-    {
-      title: 'Market fit confirmed',
-      description: 'Mock pitching sessions with potential clients have yielded an impressive 80% conversion rate, validating our approach to the market.'
-    }
-  ]);
+  // --- NEW STATE for controlling AnimatePresence transition ---
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
 
-  const handleCardChange = (index, field, value) => {
-    setCardData(prevData => {
-      const newData = [...prevData];
-      if (newData[index]) {
-        newData[index][field] = value;
-      }
-      return newData;
-    });
-  };
+  const [cardData, setCardData] = useState([
+    {
+      title: 'Tangible outcomes',
+      description: 'Our proven methodology delivers consistent results through strategic alignment, data-driven decision-making, and client-focused solutions.'
+    },
+    {
+      title: 'Stakeholder synergy',
+      description: 'Our founder-investor model creates perfect alignment between stakeholders, ensuring all parties are working toward common goals.'
+    },
+    {
+      title: 'Driving responsibility',
+      description: 'The model establishes clear accountability frameworks, which directly contributes to achieving measurable results across the organization.'
+    },
+    {
+      title: 'Market fit confirmed',
+      description: 'Mock pitching sessions with potential clients have yielded an impressive 80% conversion rate, validating our approach to the market.'
+    }
+  ]);
 
-  useEffect(() => {
-    // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
+  const handleCardChange = (index, field, value) => {
+    setCardData(prevData => {
+      const newData = [...prevData];
+      if (newData[index]) {
+        newData[index][field] = value;
+      }
+      return newData;
+    });
+  };
 
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
-    
-    const initializeEditors = () => {
-      if (window.FroalaEditor) {
-        if (editorRef.current) {
-          new window.FroalaEditor(editorRef.current, {
-            inline: true,
-            toolbarInline: true,
-            toolbarVisibleWithoutSelection: true,
-            charCounterCount: false,
-            wordCounterCount: false,
-            toolbarButtons: {
-              'moreText': {
-                  buttons: [
-                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
-                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
-                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
-                      'insertLink', 'paragraphStyle', 'undo', 'redo', 'clearFormatting', 'selectAll'
-                  ],
-                  buttonsVisible: 12,
-                  align: 'center'
-              }
-            }
-          });
-        }
+  // --- 1. FROALA INITIALIZATION LOGIC (Updated to depend on isAnimationComplete) ---
+  useEffect(() => {
+    // Only proceed if the text reveal animation is complete
+    if (!isAnimationComplete) return; // Wait for initial animation to complete
 
-        cardRefs.current.forEach(cardRef => {
-          if (cardRef) {
-            new window.FroalaEditor(cardRef, {
-              inline: true,
-              toolbarInline: true,
-              toolbarVisibleWithoutSelection: true,
-              charCounterCount: false,
-              wordCounterCount: false,
-              toolbarButtons: {
-                'moreText': {
-                  buttons: [
-                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
-                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
-                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
-                      'insertLink', 'paragraphStyle', 'undo', 'redo', 'clearFormatting', 'selectAll'
-                  ],
-                  buttonsVisible: 12,
-                  align: 'center'
-                }
-              }
-            });
-          }
-        });
+    // Dynamically load the Froala CSS and JS files from CDN
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+    document.head.appendChild(link);
 
-        cardTitleRefs.current.forEach(titleRef => {
-          if (titleRef) {
-            new window.FroalaEditor(titleRef, {
-              inline: true,
-              toolbarInline: true,
-              toolbarVisibleWithoutSelection: true,
-              charCounterCount: false,
-              wordCounterCount: false,
-              toolbarButtons: {
-                'moreText': {
-                  buttons: [
-                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
-                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
-                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
-                      'insertLink', 'paragraphStyle', 'undo', 'redo', 'clearFormatting', 'selectAll'
-                  ],
-                  buttonsVisible: 12,
-                  align: 'center'
-                }
-              }
-            });
-          }
-        });
-      }
-    };
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    
+    const initializeEditors = () => {
+      if (window.FroalaEditor) {
+        // Initialize main editor
+        if (editorRef.current) {
+          new window.FroalaEditor(editorRef.current, {
+            inline: true,
+            toolbarInline: true,
+            toolbarVisibleWithoutSelection: true,
+            charCounterCount: false,
+            wordCounterCount: false,
+            toolbarButtons: {
+              'moreText': {
+                  buttons: [
+                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
+                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
+                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
+                      'insertLink', 'paragraphStyle', 'undo', 'redo', 'clearFormatting', 'selectAll'
+                  ],
+                  buttonsVisible: 12,
+                  align: 'center'
+              }
+            }
+          });
+        }
 
-    script.onload = () => {
-      setTimeout(initializeEditors, 100);
-    };
+        // Initialize card description editors
+        cardRefs.current.forEach(cardRef => {
+          if (cardRef) {
+            new window.FroalaEditor(cardRef, {
+              inline: true,
+              toolbarInline: true,
+              toolbarVisibleWithoutSelection: true,
+              charCounterCount: false,
+              wordCounterCount: false,
+              toolbarButtons: {
+                'moreText': {
+                  buttons: [
+                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
+                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
+                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
+                      'insertLink', 'paragraphStyle', 'undo', 'redo', 'clearFormatting', 'selectAll'
+                  ],
+                  buttonsVisible: 12,
+                  align: 'center'
+                }
+              }
+            });
+          }
+        });
 
-    document.body.appendChild(script);
+        // Initialize card title editors
+        cardTitleRefs.current.forEach(titleRef => {
+          if (titleRef) {
+            new window.FroalaEditor(titleRef, {
+              inline: true,
+              toolbarInline: true,
+              toolbarVisibleWithoutSelection: true,
+              charCounterCount: false,
+              wordCounterCount: false,
+              toolbarButtons: {
+                'moreText': {
+                  buttons: [
+                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
+                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
+                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
+                      'insertLink', 'paragraphStyle', 'undo', 'redo', 'clearFormatting', 'selectAll'
+                  ],
+                  buttonsVisible: 12,
+                  align: 'center'
+                }
+              }
+            });
+          }
+        });
+      }
+    };
 
-    return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
-      if (editorRef.current && editorRef.current.editor) {
-        editorRef.current.editor.destroy();
-      }
-      cardRefs.current.forEach(cardRef => {
-        if (cardRef && cardRef.editor) {
-          cardRef.editor.destroy();
-        }
-      });
-      cardTitleRefs.current.forEach(titleRef => {
-        if (titleRef && titleRef.editor) {
-          titleRef.editor.destroy();
-        }
-      });
-    };
-  }, []);
+    script.onload = () => {
+      // Small timeout to ensure the DOM is ready for Froala
+      setTimeout(initializeEditors, 50); 
+    };
 
-  return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
-      <style>
-        {`
-          @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
-          .fr-style-polaroid {
-            background-color: white;
-            padding: 10px 10px 20px 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: inline-block;
-          }
-          .fr-style-red {
-            border: 2px solid red;
-          }
-          .fr-style-green {
-            border: 2px solid green;
-          }
-          .fr-style-sky {
-            border: 2px solid skyblue;
-          }
-          .froala-content {
-            word-break: break-all;
-          }
-        `}
-      </style>
-      <div className={`max-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentBG.card}`}>
-        {/* Top section: Title and description */}
-        <div className='text-center p-5'>
-          <div ref={editorRef} className="focus:outline-none max-w-5xl">
-            <h1 className="text-6xl font-[inter] font-medium mb-2 my-5">
-              <span className='text-gray-600'>Proven model</span> creates alignment and drives results
-            </h1>
-          </div>
-        </div>
-        
-        {/* Bottom section: Grid of cards */}
-        <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 p-5'>
-          {cardData.map((card, index) => (
-            <div ref={el => cardTitleRefs.current[index] = el} key={index} className={`rounded-lg shadow-2xl p-6 ${currentBG.card} flex flex-col min-h-[350px] max-h-[350px] overflow-y-auto`}>
-              <h3 
-                className='text-gray-200 font-semibold text-xl mb-2' 
-                contentEditable={true} 
-                suppressContentEditableWarning={true} 
-                onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
-                
-              >
-                {card.title}
-              </h3>
-              <div 
-                className='froala-content flex-1 text-base overflow-y-auto overflow-x-hidden min-h-0 focus:outline-none break-words min-w-0'
-                contentEditable={true}
-                suppressContentEditableWarning={true}
-                onBlur={(e) => handleCardChange(index, 'description', e.target.innerText)}
-              >
-                {card.description}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+    document.body.appendChild(script);
+
+    return () => {
+      document.head.removeChild(link);
+      document.body.removeChild(script);
+      // Cleanup Froala instances
+      if (editorRef.current && editorRef.current.editor) {
+        editorRef.current.editor.destroy();
+      }
+      cardRefs.current.forEach(cardRef => {
+        if (cardRef && cardRef.editor) {
+          cardRef.editor.destroy();
+        }
+      });
+      cardTitleRefs.current.forEach(titleRef => {
+        if (titleRef && titleRef.editor) {
+          titleRef.editor.destroy();
+        }
+      });
+    };
+  }, [isAnimationComplete]); // Re-run Froala init when animation completes
+
+  // --- 2. FRAMER MOTION VARIANTS (Adapted with delays and spring) ---
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, // Delay each child's animation
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  };
+
+  // --- 3. COMPONENT RENDER (Using AnimatePresence and state) ---
+  return (
+    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
+      <style>
+        {`
+          @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+          .fr-style-polaroid {
+            background-color: white;
+            padding: 10px 10px 20px 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+          }
+          .fr-style-red {
+            border: 2px solid red;
+          }
+          .fr-style-green {
+            border: 2px solid green;
+          }
+          .fr-style-sky {
+            border: 2px solid skyblue;
+          }
+          .froala-content {
+            word-break: break-all;
+          }
+        `}
+      </style>
+      
+      <div className={`max-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentBG.card}`}>
+        <AnimatePresence mode="wait">
+          {/* A. INITIAL WELCOME TEXT (SLIDES UP AND OUT) */}
+          {!isAnimationComplete && (
+            <motion.div
+              key="initial-welcome-text"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              // EXIT ANIMATION: Slides up 20px and fades out (like TheChallengePage)
+              exit={{ y: -20, opacity: 0, transition: { duration: 0.1 } }} 
+              onAnimationComplete={() => setIsAnimationComplete(true)}
+              className="prose max-w-xl mx-auto focus:outline-none text-center"
+            >
+              <motion.h1 variants={itemVariants} className="text-4xl font-semibold my-15">
+                Our Proven Model
+              </motion.h1>
+              <motion.h2 variants={itemVariants}>
+                Discover how our model creates alignment and drives exceptional results.
+              </motion.h2>
+              <motion.p variants={itemVariants}>
+                Prepare to explore our key strengths.
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+          {/* B. PROVEN MODEL CONTENT (SLIDES UP AND IN after initial animation) */}
+          {isAnimationComplete && (
+            <motion.div
+              key="proven-model-content"
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.7 }} // Delay ensures the previous element is gone
+              className="w-full flex flex-col items-center" // Ensure content takes full width
+            >
+              {/* Top section: Title */}
+              <div className='text-center p-5'>
+                <div ref={editorRef} className="focus:outline-none max-w-5xl">
+                  <h1 className="text-6xl font-[inter] font-medium mb-2 my-5">
+                    <span className='text-gray-600'>Proven model</span> creates alignment and drives results
+                  </h1>
+                </div>
+              </div>
+              
+              {/* Bottom section: Grid of cards */}
+              <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 p-5'>
+                {cardData.map((card, index) => (
+                  <div 
+                    key={index} 
+                    className={`rounded-lg shadow-2xl p-6 ${currentBG.card} flex flex-col min-h-[350px] max-h-[350px] overflow-y-auto`}
+                  >
+                    <h3 
+                      ref={el => cardTitleRefs.current[index] = el}
+                      className='text-gray-200 font-semibold text-xl mb-2' 
+                      contentEditable={true} 
+                      suppressContentEditableWarning={true} 
+                      onBlur={(e) => handleCardChange(index, 'title', e.target.innerText)}
+                    >
+                      {card.title}
+                    </h3>
+                    <div 
+                      ref={el => cardRefs.current[index] = el}
+                      className='froala-content flex-1 text-base overflow-y-auto overflow-x-hidden min-h-0 focus:outline-none break-words min-w-0'
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                      onBlur={(e) => handleCardChange(index, 'description', e.target.innerText)}
+                    >
+                      {card.description}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+      </div>
+    </div>
+  );
 };
 
 const SeriesAPage = ({ theme, background }) => {
   const headingRef = useRef(null);
   const cardRefs = useRef([]);
   const cardTitleRefs = useRef([]);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
+  const currentTheme = themes[theme]; 
+  const currentBG = backgrounds[background];
+
+  // --- NEW STATE for controlling AnimatePresence transition ---
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
 
   const [pageData, setPageData] = useState({
     heading: 'Series A funding will accelerate our growth',
@@ -1887,7 +2092,11 @@ const SeriesAPage = ({ theme, background }) => {
     });
   };
 
+  // --- 1. FROALA INITIALIZATION LOGIC (Updated to depend on isAnimationComplete) ---
   useEffect(() => {
+    // Only proceed if the initial animation is complete
+    if (!isAnimationComplete) return; 
+
     // Dynamically load the Froala CSS and JS files from CDN
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -1901,7 +2110,7 @@ const SeriesAPage = ({ theme, background }) => {
       if (window.FroalaEditor) {
         // Main heading editor
         if (headingRef.current) {
-          const editor = new window.FroalaEditor(headingRef.current, {
+          new window.FroalaEditor(headingRef.current, {
             inline: true,
             toolbarInline: true,
             toolbarVisibleWithoutSelection: true,
@@ -1909,15 +2118,12 @@ const SeriesAPage = ({ theme, background }) => {
             wordCounterCount: false,
             toolbarButtons: ['bold', 'italic', 'underline', '|', 'fontSize', 'textColor', 'backgroundColor', '|', 'undo', 'redo'],
           });
-          // editor.events.on('contentChanged', function() {
-          //   handlePageChange('heading', this.html.get());
-          // });
         }
         
         // Card editors for descriptions
-        cardRefs.current.forEach((cardRef, index) => {
+        cardRefs.current.forEach((cardRef) => {
           if (cardRef) {
-            const editor = new window.FroalaEditor(cardRef, {
+            new window.FroalaEditor(cardRef, {
               inline: true,
               toolbarInline: true,
               toolbarVisibleWithoutSelection: true,
@@ -1925,16 +2131,13 @@ const SeriesAPage = ({ theme, background }) => {
               wordCounterCount: false,
               toolbarButtons: ['bold', 'italic', 'underline', '|', 'fontSize', 'textColor', 'backgroundColor', '|', 'undo', 'redo'],
             });
-            // editor.events.on('contentChanged', function() {
-            //   handleCardChange(index, 'description', this.html.get());
-            // });
           }
         });
 
         // Card editors for titles
-        cardTitleRefs.current.forEach((titleRef, index) => {
+        cardTitleRefs.current.forEach((titleRef) => {
           if (titleRef) {
-            const editor = new window.FroalaEditor(titleRef, {
+            new window.FroalaEditor(titleRef, {
               inline: true,
               toolbarInline: true,
               toolbarVisibleWithoutSelection: true,
@@ -1942,16 +2145,14 @@ const SeriesAPage = ({ theme, background }) => {
               wordCounterCount: false,
               toolbarButtons: ['bold', 'italic', 'underline', '|', 'fontSize', 'textColor', 'backgroundColor', '|', 'undo', 'redo'],
             });
-            // editor.events.on('contentChanged', function() {
-            //   handleCardChange(index, 'title', this.html.get());
-            // });
           }
         });
       }
     };
 
     script.onload = () => {
-      setTimeout(initializeEditors, 100);
+      // Small timeout to ensure the DOM is ready for Froala
+      setTimeout(initializeEditors, 50); 
     };
 
     document.body.appendChild(script);
@@ -1959,6 +2160,7 @@ const SeriesAPage = ({ theme, background }) => {
     return () => {
       document.head.removeChild(link);
       document.body.removeChild(script);
+      // Cleanup Froala instances
       if (headingRef.current && headingRef.current.editor) {
         headingRef.current.editor.destroy();
       }
@@ -1973,10 +2175,35 @@ const SeriesAPage = ({ theme, background }) => {
         }
       });
     };
-  }, []);
+  }, [isAnimationComplete]); // Re-run Froala init when animation completes
 
+  // --- 2. FRAMER MOTION VARIANTS (Copied from TheChallangePage) ---
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, // Delay each child's animation
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  };
+
+  // --- 3. COMPONENT RENDER (Using AnimatePresence and state) ---
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
+    <div className={`flex flex-col items-center justify-center min-h-screen overflow-y-clip p-10 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
       <style>
         {`
           @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
@@ -1985,174 +2212,294 @@ const SeriesAPage = ({ theme, background }) => {
           }
         `}
       </style>
+      
       <div className={`max-w-7xl min-w-7xl mx-auto flex flex-col items-center p-5 rounded-md shadow-2xl ${currentBG.card} min-h-150 max-h-170`}>
-        {/* Top section: Title */}
-        <div ref={headingRef}  className='text-left max-w-4xl p-5'>
-          <h1 
-            className="text-[51px] font-[inter] font-medium mb-2 my-5 leading-14 "
-            contentEditable={true}
-            suppressContentEditableWarning={true}
-          >
-            {pageData.heading}
-          </h1>
-        </div>
-        
-        {/* Bottom section: Grid of cards with 6 columns */}
-        <div  className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-6 gap-8 p-5'>
-          {pageData.cards.map((card, index) => (
-            <div  
-              key={index} 
-              ref={el => cardTitleRefs.current[index] = el}
-              className={`rounded-lg shadow-2xl overflow-auto p-4 ${currentBG.card} flex flex-col min-h-[175px] max-h-[175px] ${index < 2 ? 'md:col-span-3' : 'md:col-span-2'}`}
+        <AnimatePresence mode="wait">
+          
+          {/* A. INITIAL WELCOME TEXT (SLIDES UP AND OUT) */}
+          {!isAnimationComplete && (
+            <motion.div
+              key="initial-series-a-text"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              // EXIT ANIMATION: Slides up 20px and fades out (like TheChallengePage)
+              exit={{ y: -20, opacity: 0, transition: { duration: 0.1 } }} 
+              onAnimationComplete={() => setIsAnimationComplete(true)}
+              className="prose max-w-xl mx-auto focus:outline-none text-center"
             >
-              <div  className="flex items-center space-x-4 mb-4 ">
-                {card.icon}
-                <h3 
-                  className='font-semibold text-xl opacity-90' 
-                  contentEditable={true} 
+              <motion.h1 variants={itemVariants} className="text-4xl font-semibold my-15">
+                Funding the Future
+              </motion.h1>
+              <motion.h2 variants={itemVariants}>
+                Our Series A capital will propel us into our next phase of hyper-growth.
+              </motion.h2>
+              <motion.p variants={itemVariants}>
+                See our key growth drivers below.
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+          {/* B. SERIES A CONTENT (SLIDES UP AND IN after initial animation) */}
+          {isAnimationComplete && (
+            <motion.div
+              key="series-a-content"
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.7 }} // Delay ensures the previous element is gone
+              className="w-full flex flex-col items-center" 
+            >
+              {/* Top section: Title */}
+              <div ref={headingRef} className='text-left max-w-4xl p-5'>
+                <h1 
+                  className="text-[51px] font-[inter] font-medium mb-2 my-5 leading-14 "
+                  contentEditable={true}
                   suppressContentEditableWarning={true}
                 >
-                  {card.title}
-                </h3>
+                  {pageData.heading}
+                </h1>
               </div>
-              <div 
-                className='froala-content flex-1 text-sm overflow-y-auto overflow-x-hidden min-h-0 focus:outline-none break-words min-w-0 opacity-60'
-                contentEditable={true}
-                suppressContentEditableWarning={true}
-              >
-                {card.description}
+              
+              {/* Bottom section: Grid of cards with 6 columns */}
+              <div className='w-full max-w-4xl grid grid-cols-1 md:grid-cols-6 gap-8 p-5'>
+                {pageData.cards.map((card, index) => (
+                  <motion.div 
+                    key={index} 
+                    // Stagger the cards in the main grid
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ 
+                      type: "spring", 
+                      damping: 12, 
+                      stiffness: 100,
+                      delay: 0.7 + (index * 0.1) // Start after the main fade-in (0.7s) and stagger each card
+                    }}
+                    ref={el => cardTitleRefs.current[index] = el}
+                    className={`rounded-lg shadow-2xl overflow-auto p-4 ${currentBG.card} flex flex-col min-h-[175px] max-h-[175px] ${index < 2 ? 'md:col-span-3' : 'md:col-span-2'}`}
+                  >
+                    <div className="flex items-center space-x-4 mb-4 ">
+                      {card.icon}
+                      <h3 
+                        className='font-semibold text-xl opacity-90' 
+                        contentEditable={true} 
+                        suppressContentEditableWarning={true}
+                      >
+                        {card.title}
+                      </h3>
+                    </div>
+                    <div 
+                      // ref={el => cardRefs.current[index] = el}
+                      className='froala-content flex-1 text-sm overflow-y-auto overflow-x-hidden min-h-0 focus:outline-none break-words min-w-0 opacity-60'
+                      contentEditable={true}
+                      suppressContentEditableWarning={true}
+                    >
+                      {card.description}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            </div>
-          ))}
-        </div>
+            </motion.div>
+          )}
       </div>
     </div>
   );
 };
 
 const JoinUsPage = ({ theme, background }) => {
-  const textEditorRef = useRef(null);
-  const imageEditorRef = useRef(null);
-  const currentTheme = themes[theme];
-  const currentBG = backgrounds[background]
+  const textEditorRef = useRef(null);
+  const imageEditorRef = useRef(null);
+  const currentTheme = themes[theme]; 
+  const currentBG = backgrounds[background];
 
-  useEffect(() => {
-    // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
+  // --- NEW STATE for controlling AnimatePresence transition ---
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
 
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
-    
-    const initializeEditors = () => {
-      if (window.FroalaEditor) {
-        // Initialize the text editor
-        if (textEditorRef.current) {
-          new window.FroalaEditor(textEditorRef.current, {
-            inline: true,
-            toolbarInline: true,
-            toolbarVisibleWithoutSelection: true,
-            charCounterCount: false,
-            wordCounterCount: false,
-            toolbarButtons: {
-              'moreText': {
-                  buttons: [
-                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
-                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
-                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
-                      'insertLink', 'paragraphStyle',
-                      'undo', 'redo', 'clearFormatting', 'selectAll', 'html'
-                  ],
-                  buttonsVisible: 12,
-                  align: 'center'
-              }
-            }
-          });
-        }
-        // Initialize the image editor with image-specific options
-        if (imageEditorRef.current) {
-          new window.FroalaEditor(imageEditorRef.current, {
-            inline: true,
-            toolbarInline: true,
-            toolbarVisibleWithoutSelection: true,
-            charCounterCount: false,
-            wordCounterCount: false,
-            toolbarButtons: [ 'insertImage', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace' ],
-            imageResizer: {
-              handle: 'all',
-              minWidth: 16,
-              minHeight: 16 
-            },
-            imageStyles: {
-              'fr-style-card': 'Card',
-              'fr-style-polaroid': 'Polaroid'
-            },
-            imageFilters: [
-              { title: 'Normal', filter: 'none' },
-              { title: 'Grayscale', filter: 'grayscale(100%)' },
-              { title: 'Sepia', filter: 'sepia(100%)' },
-              { title: 'Blur', filter: 'blur(2px)' }
-            ],
-            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace']
-          });
-        }
-      }
-    };
+  // --- 1. FROALA INITIALIZATION LOGIC (Updated to depend on isAnimationComplete) ---
+  useEffect(() => {
+    // Only proceed if the initial animation is complete
+    if (!isAnimationComplete) return; 
 
-    script.onload = () => {
-      setTimeout(initializeEditors, 100);
-    };
+    // Dynamically load the Froala CSS and JS files from CDN
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+    document.head.appendChild(link);
 
-    document.body.appendChild(script);
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    
+    const initializeEditors = () => {
+      if (window.FroalaEditor) {
+        // Initialize the text editor
+        if (textEditorRef.current) {
+          new window.FroalaEditor(textEditorRef.current, {
+            inline: true,
+            toolbarInline: true,
+            toolbarVisibleWithoutSelection: true,
+            charCounterCount: false,
+            wordCounterCount: false,
+            toolbarButtons: {
+              'moreText': {
+                  buttons: [
+                      'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
+                      'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
+                      'align', 'quote', 'formatOL', 'formatUL', 'outdent', 'indent',
+                      'insertLink', 'paragraphStyle',
+                      'undo', 'redo', 'clearFormatting', 'selectAll', 'html'
+                  ],
+                  buttonsVisible: 12,
+                  align: 'center'
+              }
+            }
+          });
+        }
+        // Initialize the image editor with image-specific options
+        if (imageEditorRef.current) {
+          new window.FroalaEditor(imageEditorRef.current, {
+            inline: true,
+            toolbarInline: true,
+            toolbarVisibleWithoutSelection: true,
+            charCounterCount: false,
+            wordCounterCount: false,
+            toolbarButtons: [ 'insertImage', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace' ],
+            imageResizer: {
+              handle: 'all',
+              minWidth: 16,
+              minHeight: 16 
+            },
+            imageStyles: {
+              'fr-style-card': 'Card',
+              'fr-style-polaroid': 'Polaroid'
+            },
+            imageFilters: [
+              { title: 'Normal', filter: 'none' },
+              { title: 'Grayscale', filter: 'grayscale(100%)' },
+              { title: 'Sepia', filter: 'sepia(100%)' },
+              { title: 'Blur', filter: 'blur(2px)' }
+            ],
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace']
+          });
+        }
+      }
+    };
 
-    return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
-      if (textEditorRef.current && textEditorRef.current.editor) {
-        textEditorRef.current.editor.destroy();
-      }
-      if (imageEditorRef.current && imageEditorRef.current.editor) {
-        imageEditorRef.current.editor.destroy();
-      }
-    };
-  }, []);
+    script.onload = () => {
+      // Small timeout to ensure the DOM is ready for Froala
+      setTimeout(initializeEditors, 50); 
+    };
 
-  return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
-      <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
-        .fr-style-polaroid {
-          background-color: white;
-          color: black;
-          padding: 10px 10px 20px 10px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          display: inline-block;
-        }
-      `}} />
-      <div className={`flex flex-col md:flex-row items-center justify-center w-full max-w-7xl min-h-150 max-h-150 rounded-3xl shadow-2xl p-6 sm:p-12 ${currentBG.card}`}>
-        
-        {/* Left Section: Text Content */}
-        <div 
-          ref={textEditorRef}
-          className="flex-1 focus:outline-none"
-        >
-          <span className="text-sm font-semibold tracking-wider bg-lime-600 uppercase text-white mb-4">
-            Investment Opportunity
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl max-w-110 font-medium leading-tight mb-4">
-            Join us in revolutionizing deep tech
-          </h1>
-        </div>
+    document.body.appendChild(script);
 
-        {/* Right Section: Blurry Image/Placeholder */}
-        <div ref={imageEditorRef} className="flex-1 w-full h-80 md:h-96 relative overflow-hidden">
-          <img src={B1} alt="Two people silhouetted against a colorful background" className=' w-full' />
-        </div>
-      </div>
-    </div>
-  );
+    return () => {
+      document.head.removeChild(link);
+      document.body.removeChild(script);
+      // Cleanup Froala instances
+      if (textEditorRef.current && textEditorRef.current.editor) {
+        textEditorRef.current.editor.destroy();
+      }
+      if (imageEditorRef.current && imageEditorRef.current.editor) {
+        imageEditorRef.current.editor.destroy();
+      }
+    };
+  }, [isAnimationComplete]);
+
+  // --- 2. FRAMER MOTION VARIANTS (Copied from TheChallangePage) ---
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1, // Delay each child's animation
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  };
+
+  // --- 3. COMPONENT RENDER (Using AnimatePresence and state) ---
+  return (
+    <div className={`flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 font-[inter] ${currentTheme.bg} ${currentBG.text}`}>
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+        .fr-style-polaroid {
+          background-color: white;
+          color: black;
+          padding: 10px 10px 20px 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          display: inline-block;
+        }
+      `}} />
+      
+      <AnimatePresence mode="wait">
+        
+        {/* A. INITIAL WELCOME TEXT (SLIDES UP AND OUT) */}
+        {!isAnimationComplete && (
+          <motion.div
+            key="initial-join-us-text"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            // EXIT ANIMATION: Slides up 20px and fades out (like TheChallengePage)
+            exit={{ y: -20, opacity: 0, transition: { duration: 0.1 } }} 
+            onAnimationComplete={() => setIsAnimationComplete(true)}
+            className="prose max-w-xl mx-auto focus:outline-none text-center"
+          >
+            <motion.h1 variants={itemVariants} className="text-4xl font-semibold my-15">
+              Ready to Invest?
+            </motion.h1>
+            <motion.h2 variants={itemVariants}>
+              We are opening up the next round for strategic partners.
+            </motion.h2>
+            <motion.p variants={itemVariants}>
+              Get ready to see the full details of the opportunity.
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+        {/* B. JOIN US CONTENT (SLIDES UP AND IN after initial animation) */}
+        {isAnimationComplete && (
+          <motion.div
+            key="join-us-content"
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }} // Delay ensures the previous element is gone
+            className={`flex flex-col md:flex-row items-center justify-center w-full max-w-7xl min-h-150 max-h-150 rounded-3xl shadow-2xl p-6 sm:p-12 ${currentBG.card}`}
+          >
+            
+            {/* Left Section: Text Content */}
+            <div 
+              ref={textEditorRef}
+              className="flex-1 focus:outline-none"
+            >
+              <span className="text-sm font-semibold tracking-wider bg-lime-600 uppercase text-white mb-4">
+                Investment Opportunity
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl max-w-110 font-medium leading-tight mb-4">
+                Join us in revolutionizing deep tech
+              </h1>
+            </div>
+
+            {/* Right Section: Image/Placeholder */}
+            <div ref={imageEditorRef} className="flex-1 w-full h-80 md:h-96 relative overflow-hidden">
+              <img src={B1} alt="Two people silhouetted against a colorful background" className=' w-full' />
+            </div>
+          </motion.div>
+        )}
+    </div>
+  );
 };
 
 const TitleOnlyPage = ({ id, theme, background }) => {

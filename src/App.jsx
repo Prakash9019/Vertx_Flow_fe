@@ -61,6 +61,7 @@ import EditorPage from "./components/new/EditorPage.jsx";
 import UserBGselect from "./components/new/UserBGselect.jsx";
 import Editor1_Page from "./components/new/NewEditor.jsx";
 import ReviewP from "./components/Flash/ReviewP.jsx";
+import BasicForm2 from "./components/Fundraising/Reach_link/BasicForm2.jsx";
 
 function App() {
   const streamlinedProtectedRoutes = [
@@ -92,6 +93,7 @@ function App() {
     { path:"/flow/match flow", element:<Matchflow />} ,    {path:"/flow/pipeline", element:<Pipeline /> },    {path:"/fundraising", element:<FundraisingManagePage /> },
     {path:"/fundraising/manage", element:<FundraisingManagePage /> },
     {path:"/fundraising/find", element:<FundraisingManagePage /> },
+    {path:"/fundraising/BasicForm2", element:<BasicForm2 /> },
     {path:"/fundraising/target", element:<FundraisingManagePage /> },
     {path:"/fundraising/network", element:<FundraisingManagePage /> },
     {path:"/invite/:inviteId", element:<InviteAcceptPage /> },
