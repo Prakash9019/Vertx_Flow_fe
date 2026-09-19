@@ -38,7 +38,6 @@ export function FreeElementLayer({ elements, onUpdateElement }) {
             transform: `rotate(${element.rotation}deg)`,
             zIndex: element.zIndex,
           }}
-          onClick={() => onUpdateElement?.(element.id, {})}
         >
           <ElementContent element={element} />
         </div>
