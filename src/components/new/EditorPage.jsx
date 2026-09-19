@@ -53,7 +53,7 @@ import { defaultMedia3PointsContent } from "./deck/layouts/Media3PointsLayout";
 import { defaultMetricsGridContent } from "./deck/layouts/MetricsGridLayout";
 import { defaultTeamGridContent } from "./deck/layouts/TeamGridLayout";
 import { defaultCtaContent } from "./deck/layouts/CtaLayout";
-import { THEME_REGISTRY, getTheme, DEFAULT_THEME_ID, themeToRootStyle } from "./deck/theme/themeTokens";
+import { THEME_REGISTRY, getTheme, DEFAULT_THEME_ID, themeToRootStyle, normalizeTheme } from "./deck/theme/themeTokens";
 
 // --- Shared Froala Editor CDN loader ---------------------------------------
 // Every slide below used to inject its own <link>/<script> pair for Froala,
@@ -3832,11 +3832,14 @@ function EditorPageBody() {
     setshowBackgroundModal(false);
   };
 
-  // `deck.theme` is always a full structured theme by the time it reaches
-  // this component - either from the initial seed deck (new/local deck) or
-  // `migrateDeck` (loaded from the backend) - so no normalization happens
-  // here; this component only ever reads/dispatches it.
-  const deckTheme = deck.theme;
+  // `deck.theme` is a full structured theme today only because the seed
+  // deck is hardcoded that way - nothing else constructs a deck yet.
+  // `normalizeTheme` is a defensive no-op on an already-current theme
+  // (idempotent) so this is zero behavior change now, and keeps
+  // `themeToRootStyle` safe once a future deck's `theme` field isn't yet
+  // a full structured object (e.g. an old/partial deck loaded before
+  // migration runs).
+  const deckTheme = normalizeTheme(deck.theme);
 
   useEffect(() => {
     const handleWheel = (event) => {
