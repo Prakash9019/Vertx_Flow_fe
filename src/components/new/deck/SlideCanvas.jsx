@@ -53,6 +53,7 @@ export function SlideCanvas({ slide }) {
       style={slideBackgroundStyle(slide.background)}
     >
       <LayoutComponent
+        key={slide.id}
         content={slide.content}
         onChangeContent={(patch) => dispatch({ type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: patch })}
       />

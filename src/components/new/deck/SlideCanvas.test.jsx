@@ -48,6 +48,33 @@ describe("SlideCanvas", () => {
     expect(screen.getByTestId("slide-canvas")).toHaveStyle({ backgroundColor: "#ff0000" });
   });
 
+  it("remounts the layout when navigating to a different slide sharing the same layout type", () => {
+    const slideOne = createSlide({ layout: "title", content: { title: "Slide One", subtitle: "" }, order: 0 });
+    const slideTwo = createSlide({ layout: "title", content: { title: "Slide Two", subtitle: "" }, order: 1 });
+
+    function TwoSlideHost({ index }) {
+      const { deck } = useDeck();
+      return <SlideCanvas slide={deck.slides[index]} />;
+    }
+
+    const deck = createDeck({ title: "Deck", theme: "dark", slides: [slideOne, slideTwo] });
+    const { rerender } = render(
+      <DeckProvider initialDeck={deck}>
+        <TwoSlideHost index={0} />
+      </DeckProvider>
+    );
+    expect(screen.getByText("Slide One")).toBeInTheDocument();
+
+    rerender(
+      <DeckProvider initialDeck={deck}>
+        <TwoSlideHost index={1} />
+      </DeckProvider>
+    );
+
+    expect(screen.queryByText("Slide One")).toBeNull();
+    expect(screen.getByText("Slide Two")).toBeInTheDocument();
+  });
+
   it("warns and renders nothing for an unknown layout instead of throwing", () => {
     const slide = createSlide({ layout: "not-a-layout", content: {}, order: 0 });
     const warn = vi.fn();
