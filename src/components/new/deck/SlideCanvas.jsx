@@ -3,6 +3,38 @@ import { getRegistryEntry } from "./SlideRegistry";
 import { FreeElementLayer } from "./FreeElementLayer";
 import { useDeck } from "./DeckContext";
 
+/**
+ * Turns a `SlideBackground` (see the spec's discriminated union) into an inline
+ * style object for the slide box. Unknown/absent backgrounds render nothing so
+ * the surrounding page background shows through.
+ */
+export function slideBackgroundStyle(background) {
+  if (!background || typeof background !== "object") return {};
+  switch (background.kind) {
+    case "solid":
+      return { backgroundColor: background.color };
+    case "gradient": {
+      const stops = Array.isArray(background.stops) ? background.stops : [];
+      if (stops.length === 0) return {};
+      const angle = typeof background.angle === "number" ? background.angle : 180;
+      return { backgroundImage: `linear-gradient(${angle}deg, ${stops.join(", ")})` };
+    }
+    case "image":
+    case "media": {
+      if (!background.url) return {};
+      if (background.kind === "media" && background.type === "video") return {};
+      return {
+        backgroundImage: `url(${background.url})`,
+        backgroundSize: background.fit === "contain" ? "contain" : "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      };
+    }
+    default:
+      return {};
+  }
+}
+
 export function SlideCanvas({ slide }) {
   const { dispatch } = useDeck();
   const entry = getRegistryEntry(slide.layout);
@@ -15,7 +47,11 @@ export function SlideCanvas({ slide }) {
   const LayoutComponent = entry.component;
 
   return (
-    <div className="relative w-full aspect-video">
+    <div
+      className="relative w-full aspect-video overflow-hidden"
+      data-testid="slide-canvas"
+      style={slideBackgroundStyle(slide.background)}
+    >
       <LayoutComponent
         content={slide.content}
         onChangeContent={(patch) => dispatch({ type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: patch })}

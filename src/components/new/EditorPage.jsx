@@ -329,6 +329,58 @@ const backgrounds = {
   }
 };
 
+// Maps a `backgrounds` preset key to a `SlideBackground` (deckTypes / spec
+// shape) so the existing picker can persist into the deck model rather than
+// into dead local state. Any key not listed here falls back to the deck's
+// default solid colour.
+const BACKGROUND_PRESET_MODELS = {
+  original: { kind: "gradient", stops: ["#000000", "#ffffff", "#000000"], angle: 180 },
+  light: { kind: "gradient", stops: ["#ffffff", "#e5e7eb"], angle: 180 },
+  dark: { kind: "solid", color: "#000000" },
+  red: { kind: "solid", color: "#dc2626" },
+  orange: { kind: "solid", color: "#ea580c" },
+  amber: { kind: "solid", color: "#fbbf24" },
+  yellow: { kind: "solid", color: "#ca8a04" },
+  pink: { kind: "solid", color: "#db2777" },
+  sky: { kind: "solid", color: "#0284c7" },
+  lime: { kind: "solid", color: "#65a30d" },
+  teal: { kind: "solid", color: "#0d9488" },
+  purple: { kind: "solid", color: "#9333ea" },
+  rose: { kind: "solid", color: "#e11d48" },
+  green: { kind: "solid", color: "#22c55e" },
+  cyan: { kind: "solid", color: "#0891b2" },
+  blue: { kind: "solid", color: "#1d4ed8" },
+  indigo: { kind: "solid", color: "#3730a3" },
+  emerald: { kind: "solid", color: "#047857" },
+  violet: { kind: "solid", color: "#7c3aed" },
+  fuchsia: { kind: "solid", color: "#c026d3" },
+  LightPurple: { kind: "gradient", stops: ["#d8b4fe", "#ffedd5"], angle: 180 },
+  SkyBlue: { kind: "gradient", stops: ["#60a5fa", "#dbeafe"], angle: 180 },
+  EarthStone: { kind: "gradient", stops: ["#a8a29e", "#f5f5f4"], angle: 180 },
+  OceanSky: { kind: "gradient", stops: ["#06b6d4", "#1e40af"], angle: 135 },
+  Sunrise: { kind: "gradient", stops: ["#f87171", "#fdba74", "#fef08a"], angle: 90 },
+  ForestMoss: { kind: "gradient", stops: ["#15803d", "#84cc16"], angle: 180 },
+  CrimsonFade: { kind: "gradient", stops: ["#991b1b", "#ec4899"], angle: 0 },
+  Midnight: { kind: "gradient", stops: ["#111827", "#312e81", "#1e3a8a"], angle: 270 },
+  PeachCobbler: { kind: "gradient", stops: ["#fed7aa", "#fce7f3"], angle: 45 },
+  CoolMint: { kind: "gradient", stops: ["#99f6e4", "#dcfce7"], angle: 90 },
+  Cyberpunk: { kind: "gradient", stops: ["#c026d3", "#7e22ce", "#000000"], angle: 225 },
+  GoldenHour: { kind: "gradient", stops: ["#fde047", "#fbbf24", "#f97316"], angle: 180 },
+  LavenderDream: { kind: "gradient", stops: ["#a5b4fc", "#fbcfe8"], angle: 315 },
+  OceanDeep: { kind: "gradient", stops: ["#1e3a8a", "#06b6d4"], angle: 180 },
+  DesertHeat: { kind: "gradient", stops: ["#b91c1c", "#ca8a04", "#78350f"], angle: 90 },
+  AuroraBorealis: { kind: "gradient", stops: ["#34d399", "#84cc16", "#38bdf8"], angle: 135 },
+  PlumBlossom: { kind: "gradient", stops: ["#6b21a8", "#f43f5e"], angle: 90 },
+  StoneWash: { kind: "gradient", stops: ["#d1d5db", "#ffffff"], angle: 0 },
+  NeonPunch: { kind: "gradient", stops: ["#bef264", "#f0abfc"], angle: 270 },
+  SlateOcean: { kind: "gradient", stops: ["#0f172a", "#1d4ed8"], angle: 45 },
+  Bubblegum: { kind: "gradient", stops: ["#f472b6", "#c084fc"], angle: 180 },
+};
+
+export function backgroundPresetToSlideBackground(key) {
+  return BACKGROUND_PRESET_MODELS[key] ?? { kind: "solid", color: "#0b2d2b" };
+}
+
 const themes2 = {
   original: {
     name: 'Original',
@@ -3746,11 +3798,11 @@ function EditorPageBody() {
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
-  // NOTE: background/theme picker UI is explicitly out of scope for wiring into the deck
-  // model in this task (see plan's "Explicitly out of scope"). These remain local,
-  // cosmetic-only state so the existing modals keep rendering/working without errors;
-  // per-slide background now lives on `currentSlide.background` in the deck model.
-  const [background, setBackground] = useState('original');
+  // NOTE: building a richer background/theme *picker UI* is out of scope (see the
+  // plan's "Explicitly out of scope"). The existing background swatches, however,
+  // write through to the deck model: per-slide background lives on
+  // `currentSlide.background` and is applied by `SlideCanvas`.
+  // `uiTheme` is still local - no reducer action exists for deck theme yet.
   const [uiTheme, setUiTheme] = useState(deck.theme || 'dark');
   const isAnimatingRef = useRef(false);
 
@@ -3771,13 +3823,17 @@ function EditorPageBody() {
   };
 
   const handleBGChange = (newBG) => {
-    setBackground(newBG);
+    if (currentSlide) {
+      dispatch({
+        type: "SET_SLIDE_BACKGROUND",
+        slideId: currentSlide.id,
+        background: backgroundPresetToSlideBackground(newBG),
+      });
+    }
     setshowBackgroundModal(false);
   };
 
   const currentTheme = themes[uiTheme] || themes.dark;
-  const currentBGKey = background || 'original';
-  const currentBG = backgrounds[currentBGKey] || backgrounds.original;
 
   useEffect(() => {
     const handleWheel = (event) => {
@@ -3804,7 +3860,7 @@ function EditorPageBody() {
   }, [currentSlideIndex, deck.slides.length]);
 
   return (
-    <div className={`App ${currentBG.bg} font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
+    <div className={`App font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
       <div className="h-screen w-screen overflow-y-auto">
         {currentSlide ? <SlideCanvas slide={currentSlide} /> : null}
       </div>
