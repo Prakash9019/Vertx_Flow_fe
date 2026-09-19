@@ -1,11 +1,16 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, { createContext, useContext } from "react";
 import { deckReducer } from "./deckReducer";
+import { useDeckHistory } from "./useDeckHistory";
 
 const DeckStateContext = createContext(null);
 
 export function DeckProvider({ initialDeck, children }) {
-  const [deck, dispatch] = useReducer(deckReducer, initialDeck);
-  return <DeckStateContext.Provider value={{ deck, dispatch }}>{children}</DeckStateContext.Provider>;
+  const { present: deck, dispatch, undo, redo, canUndo, canRedo } = useDeckHistory(deckReducer, initialDeck);
+  return (
+    <DeckStateContext.Provider value={{ deck, dispatch, undo, redo, canUndo, canRedo }}>
+      {children}
+    </DeckStateContext.Provider>
+  );
 }
 
 export function useDeck() {

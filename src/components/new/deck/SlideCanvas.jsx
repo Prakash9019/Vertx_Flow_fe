@@ -35,7 +35,13 @@ export function slideBackgroundStyle(background) {
   }
 }
 
-export function SlideCanvas({ slide }) {
+export function SlideCanvas({
+  slide,
+  selectedElementId = null,
+  editingElementId = null,
+  onSelectElement = () => {},
+  onStartEditing = () => {},
+}) {
   const { dispatch } = useDeck();
   const entry = getRegistryEntry(slide.layout);
 
@@ -59,7 +65,27 @@ export function SlideCanvas({ slide }) {
       />
       <FreeElementLayer
         elements={slide.freeElements}
-        onUpdateElement={(elementId, patch) => dispatch({ type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId, patch })}
+        selectedElementId={selectedElementId}
+        editingElementId={editingElementId}
+        onSelectElement={onSelectElement}
+        onStartEditing={onStartEditing}
+        onUpdateElement={(elementId, patch, coalesceId) =>
+          dispatch(
+            { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId, patch },
+            coalesceId ? { coalesce: true, coalesceId } : undefined
+          )
+        }
+        onDeleteElement={(elementId) => dispatch({ type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId })}
+        onDuplicateElement={(element) => dispatch({ type: "ADD_FREE_ELEMENT", slideId: slide.id, element })}
+        onReorderElements={(updates) => {
+          const coalesceId = `reorder-${slide.id}-${Date.now()}`;
+          updates.forEach(({ id, zIndex }) =>
+            dispatch(
+              { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId: id, patch: { zIndex } },
+              { coalesce: true, coalesceId }
+            )
+          );
+        }}
       />
     </div>
   );
