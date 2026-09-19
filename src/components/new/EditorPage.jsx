@@ -42,6 +42,18 @@ import { PiDotsThreeBold, PiSelectionBackground } from "react-icons/pi";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
+import { DeckProvider, useDeck } from "./deck/DeckContext";
+import { SlideCanvas } from "./deck/SlideCanvas";
+import { createDeck, createSlide } from "./deck/deckTypes";
+import { getRegistryEntry } from "./deck/SlideRegistry";
+import { defaultTitleContent } from "./deck/layouts/TitleLayout";
+import { defaultProblemContent } from "./deck/layouts/ProblemLayout";
+import { defaultMediaDescriptionContent } from "./deck/layouts/MediaDescriptionLayout";
+import { defaultMedia3PointsContent } from "./deck/layouts/Media3PointsLayout";
+import { defaultMetricsGridContent } from "./deck/layouts/MetricsGridLayout";
+import { defaultTeamGridContent } from "./deck/layouts/TeamGridLayout";
+import { defaultCtaContent } from "./deck/layouts/CtaLayout";
+
 // --- Shared Froala Editor CDN loader ---------------------------------------
 // Every slide below used to inject its own <link>/<script> pair for Froala,
 // which meant the same CDN assets were fetched and parsed dozens of times.
@@ -3663,27 +3675,17 @@ const BlankPage = ({ id, theme, background }) => {
 const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
     const currentTheme = themes[theme];
     const currentBG = backgrounds[background]
+    // Only layouts registered in the new deck model's LAYOUT_IDS (Task 2/7) are offered here.
+    // Legacy layout-picker options with no equivalent in LAYOUT_IDS (Title Only, Comparison,
+    // Quote, etc.) have been removed rather than wired to a nonexistent layout id.
     const layouts = [
-        { name: 'Title Only', component: TitleOnlyPage },
-        { name: 'Title & Subtitle', component: TitleAndSubtitlePage },
-        { name: 'Title & Content', component: TitleAndContentPage },
-        { name: 'Section Header', component: SectionHeaderPage },
-        { name: 'Content with Caption', component: ContentWithCaptionPage },
-        { name: 'Two Content', component: TwoContentPage },
-        { name: 'Comparison', component: ComparisonPage },
-        { name: 'Content Over Image', component: ContentOverImagePage },
-        { name: 'Picture with Caption', component: PictureWithCaptionPage },
-        { name: 'Content with Image', component: ContentWithImagePage },
-        { name: 'Image with Content', component: ImageWithContentPage },
-        { name: 'Two Content with Image', component: TwoContentWithImagePage },
-        { name: 'Vertical Text', component: VerticalTextPage },
-        { name: 'Vertical Title & Text', component: VerticalTitleAndTextPage },
-        { name: 'Four Objects', component: FourObjectsPage },
-        { name: 'Title & Four Objects', component: TitleAndFourObjectsPage },
-        { name: 'Title & Text', component: TitleAndTextPage },
-        { name: 'Title & Two Column Text', component: TitleAndTwoColumnTextPage },
-        { name: 'Quote', component: QuotePage },
-        { name: 'Blank', component: BlankPage },
+        { name: 'Title', id: 'title' },
+        { name: 'Problem', id: 'problem' },
+        { name: 'Media & Description', id: 'media-description' },
+        { name: 'Media & 3 Points', id: 'media-3points' },
+        { name: 'Metrics Grid', id: 'metrics-grid' },
+        { name: 'Team Grid', id: 'team-grid' },
+        { name: 'Call To Action', id: 'cta' },
     ];
 
     return (
@@ -3693,8 +3695,8 @@ const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
                     {layouts.map(layout => (
                         <button
-                            key={layout.name}
-                            onClick={() => onSelect(layout.component)}
+                            key={layout.id}
+                            onClick={() => onSelect(layout.id)}
                             className="p-4 border rounded-lg text-white hover:text-black hover:bg-gray-200 hover:transition-all"
                         >
                             {layout.name}
@@ -3714,165 +3716,77 @@ const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
 
 
 export default function EditorPage() {
+  const initialDeck = React.useMemo(
+    () =>
+      createDeck({
+        title: "Untitled Deck",
+        theme: "dark",
+        slides: [
+          createSlide({ layout: "title", content: defaultTitleContent(), order: 0 }),
+          createSlide({ layout: "problem", content: defaultProblemContent(), order: 1 }),
+          createSlide({ layout: "media-description", content: defaultMediaDescriptionContent(), order: 2 }),
+          createSlide({ layout: "media-3points", content: defaultMedia3PointsContent(), order: 3 }),
+          createSlide({ layout: "metrics-grid", content: defaultMetricsGridContent(), order: 4 }),
+          createSlide({ layout: "team-grid", content: defaultTeamGridContent(), order: 5 }),
+          createSlide({ layout: "cta", content: defaultCtaContent(), order: 6 }),
+        ],
+      }),
+    []
+  );
+  return (
+    <DeckProvider initialDeck={initialDeck}>
+      <EditorPageBody />
+    </DeckProvider>
+  );
+}
+
+function EditorPageBody() {
+  const { deck, dispatch } = useDeck();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  // const [theme, setTheme] = useState('dark');
-  // const [background, setbackground] = useState('original')
-  // const [slideBackgrounds, setSlideBackgrounds] = useState({});
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
-  // const currentTheme = themes[theme];
-  // const currentBG = backgrounds[background]
-  // console.log(background)
-  const initialSlidesData = [
-    { id: 'user-bg-select', component: UserBGselect},
-    { id: 'the-challenge', component: TheChallangePage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'our-solution', component: OurSolutionPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'market-potential', component: MarketPotentialPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'competitive-edge', component: CompetitiveEdgePAge, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'growth-trajectory', component: GrowthTrajectoryPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'proven-model', component: ProvenModelPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'series-a', component: SeriesAPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'join-us', component: JoinUsPage, defaultBg: 'original', defaultTheme: 'dark' },
-]
-const initialSlideBGs = initialSlidesData.reduce((acc, slide) => {
-    acc[slide.id] = slide.defaultBg;
-    return acc;
-}, {});
-
-const initialSlideThemes = initialSlidesData.reduce((acc, slide) => {
-    acc[slide.id] = slide.defaultTheme;
-    return acc;
-}, {});
-
-const initialSlides = initialSlidesData.map(data => 
-    <data.component 
-        key={data.id} 
-        id={data.id} // Pass the ID down
-        theme={initialSlideThemes[data.id]} 
-        background={initialSlideBGs[data.id]} // Pass the specific background
-    />
-    
-);
-const [slides, setSlides] = useState(initialSlides);
-const [slideBackgrounds, setSlideBackgrounds] = useState(initialSlideBGs);
-const [slideThemes, setSlideThemes] = useState(initialSlideThemes);
-  // const initialSlides = [
-  //   <UserBGselect key="user-bg-select" />,
-  //   <TheChallangePage key="the-challenge" theme={theme} background={background} />,
-  //   <OurSolutionPage key="our-solution" theme={theme} background={background} />,
-  //   <MarketPotentialPage key="market-potential" theme={theme} background={background} />,
-  //   <CompetitiveEdgePAge key="competitive-edge" theme={theme} background={background} />,
-  //   <GrowthTrajectoryPage key="growth-trajectory" theme={theme} background={background} />,
-  //   <ProvenModelPage key="proven-model" theme={theme} background={background} />,
-  //   <SeriesAPage key="series-a" theme={theme} background={background} />,
-  //   <JoinUsPage key="join-us" theme={theme} background={background} />,
-  // ];
-  // const [slides, setSlides] = useState(initialSlides);
+  // NOTE: background/theme picker UI is explicitly out of scope for wiring into the deck
+  // model in this task (see plan's "Explicitly out of scope"). These remain local,
+  // cosmetic-only state so the existing modals keep rendering/working without errors;
+  // per-slide background now lives on `currentSlide.background` in the deck model.
+  const [background, setBackground] = useState('original');
+  const [uiTheme, setUiTheme] = useState(deck.theme || 'dark');
   const isAnimatingRef = useRef(false);
-  
 
-  useEffect(() => {
-    setSlides(prevSlides => prevSlides.map(slide => {
-      const currentSlideBG = slideBackgrounds[slide.key];
-      const currentSlideTheme = slideThemes[slide.key];
-      if (slide.type.name === 'UserBGselect') {
-        return slide;
-      }
-      return React.cloneElement(slide, { 
-          theme: currentSlideTheme, 
-          background: currentSlideBG // Passes the individual background key
-      });
-    }));
-}, [slideThemes, slideBackgrounds]);
+  const currentSlide = deck.slides[currentSlideIndex];
 
-  // const handleAddSlide = (LayoutComponent) => {
-  //   const newSlide = <LayoutComponent key={Date.now()} id={Date.now()} theme={theme} />;
-  //   setSlides(prevSlides => {
-  //     const newSlides = [...prevSlides, newSlide];
-  //     setCurrentSlideIndex(newSlides.length - 1);
-  //     return newSlides;
-  //   });
-  //   setShowLayoutPicker(false);
-  // };
-
-const handleAddSlide = (LayoutComponent) => {
-    const newId = Date.now().toString(); // Use string ID
-    const defaultNewBG = 'original'; // Set a default for new slides
-    const defaultNewTheme = 'dark';
-    
-    // 1. Update the Background state map
-    setSlideBackgrounds(prevBGs => ({
-        ...prevBGs,
-        [newId]: defaultNewBG,
-    }));
-    
-    // 2. Create the new slide element
-    const newSlide = <LayoutComponent 
-        key={newId} 
-        id={newId} 
-        theme={defaultNewTheme} 
-        background={defaultNewBG} // Pass the initial background
-    />;
-    
-    // 3. Update the slides array
-    setSlides(prevSlides => {
-      const newSlides = [...prevSlides, newSlide];
-      setCurrentSlideIndex(newSlides.length - 1);
-      return newSlides;
-    });
-    
+  const handleAddSlide = (layoutId) => {
+    const entry = getRegistryEntry(layoutId);
+    if (!entry) return;
+    const newIndex = deck.slides.length;
+    dispatch({ type: "ADD_SLIDE", layout: layoutId, content: entry.defaultContent() });
+    setCurrentSlideIndex(newIndex);
     setShowLayoutPicker(false);
-};
+  };
 
-const handleThemeChange = (newTheme) => {
-    const currentSlideId = slides[currentSlideIndex].key; 
-    
-    setSlideThemes(prevThemes => ({
-        ...prevThemes,
-        [currentSlideId]: newTheme,
-    }));
-    
-    // Close the modal
+  const handleThemeChange = (newTheme) => {
+    setUiTheme(newTheme);
     setShowThemeModal(false);
-};
-
-  // const handleThemeChange = (newTheme) => {
-  //   setTheme(newTheme);
-  //   setShowThemeModal(false);
-  // };
-  // const handleBGChange = (newBG) => {
-  //   setbackground(newBG);
-  //   setshowBackgroundModal(false);
-  // };
+  };
 
   const handleBGChange = (newBG) => {
-    const currentSlideId = slides[currentSlideIndex].key; 
-    
-    setSlideBackgrounds(prevBGs => ({
-        ...prevBGs,
-        [currentSlideId]: newBG,
-    }));
-    
-    // Close the modal
+    setBackground(newBG);
     setshowBackgroundModal(false);
-};
+  };
 
-const currentSlideKey = slides[currentSlideIndex]?.key;
-const currentThemeKey = slideThemes[currentSlideKey] || 'dark'; // Fallback to 'dark'
-const currentBGKey = slideBackgrounds[currentSlideKey] || 'original'; // Get the current slide's background
-
-const currentTheme = themes[currentThemeKey];
-const currentBG = backgrounds[currentBGKey]
+  const currentTheme = themes[uiTheme] || themes.dark;
+  const currentBGKey = background || 'original';
+  const currentBG = backgrounds[currentBGKey] || backgrounds.original;
 
   useEffect(() => {
     const handleWheel = (event) => {
       if (isAnimatingRef.current) return;
-      
+
       const deltaY = event.deltaY;
       let newIndex = currentSlideIndex;
 
-      if (deltaY > 0 && currentSlideIndex < slides.length - 1) {
+      if (deltaY > 0 && currentSlideIndex < deck.slides.length - 1) {
         newIndex = currentSlideIndex + 1;
       } else if (deltaY < 0 && currentSlideIndex > 0) {
         newIndex = currentSlideIndex - 1;
@@ -3881,42 +3795,23 @@ const currentBG = backgrounds[currentBGKey]
       if (newIndex !== currentSlideIndex) {
         isAnimatingRef.current = true;
         setCurrentSlideIndex(newIndex);
+        setTimeout(() => { isAnimatingRef.current = false; }, 600);
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [currentSlideIndex, slides.length]);
-
-  const transition = {
-    duration: 1,
-    ease: [0.8, 0.08, -0.015, 1.0],
-  };
-
-  const containerVariants = {
-    initial: { y: 0 },
-    animate: { y: `-${currentSlideIndex * 100}vh` },
-  };
+  }, [currentSlideIndex, deck.slides.length]);
 
   return (
-    <div className={`App ${backgrounds[currentBGKey].bg} font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
-      <motion.div
-        variants={containerVariants}
-        initial="initial"
-        animate="animate"
-        transition={transition}
-        onAnimationComplete={() => { isAnimatingRef.current = false; }}
-      >
-        {slides.map((slide, index) => (
-          <div key={slide.key || index} className="h-screen w-screen">
-            {slide}
-          </div>
-        ))}
-      </motion.div>
+    <div className={`App ${currentBG.bg} font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
+      <div className="h-screen w-screen overflow-y-auto">
+        {currentSlide ? <SlideCanvas slide={currentSlide} /> : null}
+      </div>
 
       {/* Slide Navigation Bars */}
       <div className="absolute top-1/2 left-8 -translate-y-1/2 flex flex-col space-y-3 z-50">
-        {slides.map((_, index) => (
+        {deck.slides.map((_, index) => (
           <div
             key={index}
             title={`Slide ${index + 1}`}
