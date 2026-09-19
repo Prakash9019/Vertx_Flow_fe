@@ -161,6 +161,31 @@ describe("deckReducer", () => {
     expect(next.slides[0].freeElements).toEqual([]);
   });
 
+  it("SET_DECK_THEME replaces deck.theme", () => {
+    const { deck } = deckWithOneSlide();
+    const newTheme = { id: "dark", colors: { background: "#000000" } };
+    const next = deckReducer(deck, { type: "SET_DECK_THEME", theme: newTheme });
+    expect(next.theme).toBe(newTheme);
+    expect(next.slides).toBe(deck.slides); // slides/content are untouched
+  });
+
+  it("SET_DECK_THEME warns and no-ops when theme is missing colors", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "SET_DECK_THEME", theme: { id: "dark" } });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("SET_DECK_THEME warns and no-ops when theme is missing entirely", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "SET_DECK_THEME" });
+    expect(next).toBe(deck);
+    warn.mockRestore();
+  });
+
   it("returns the same deck and warns for an unknown action type", () => {
     const { deck } = deckWithOneSlide();
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});

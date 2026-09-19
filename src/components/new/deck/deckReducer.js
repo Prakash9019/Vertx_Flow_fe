@@ -187,6 +187,14 @@ export function deckReducer(deck, action) {
       return { ...deck, slides };
     }
 
+    case "SET_DECK_THEME": {
+      if (!action.theme || typeof action.theme !== "object" || !action.theme.colors) {
+        warnInvalid(action, "theme is missing or has no colors");
+        return deck;
+      }
+      return { ...deck, theme: action.theme };
+    }
+
     default:
       warnInvalid(action, "unknown action type");
       return deck;
