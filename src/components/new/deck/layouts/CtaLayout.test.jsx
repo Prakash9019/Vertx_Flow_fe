@@ -22,4 +22,17 @@ describe("CtaLayout", () => {
     expect(screen.getByText("Reach out.")).toBeInTheDocument();
     expect(screen.getByText("Contact us")).toBeInTheDocument();
   });
+
+  it("styles the button from theme tokens instead of a hardcoded color", () => {
+    render(
+      <CtaLayout
+        content={{ heading: "Join Us", body: "<p>Reach out.</p>", buttonLabel: "Contact us" }}
+        onChangeContent={() => {}}
+      />
+    );
+    const button = screen.getByText("Contact us");
+    expect(button.className).not.toMatch(/bg-teal-400|text-black/);
+    expect(button.style.backgroundColor).toBe("var(--theme-primary)");
+    expect(button.style.color).toBe("var(--theme-background)");
+  });
 });

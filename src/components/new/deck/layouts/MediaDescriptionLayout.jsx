@@ -13,7 +13,12 @@ export function defaultMediaDescriptionContent() {
 function MediaColumn({ media }) {
   if (!media.url) {
     return (
-      <div data-col="media" data-testid="media-placeholder" className="flex-1 bg-white/10 rounded-2xl min-h-[300px]" />
+      <div
+        data-col="media"
+        data-testid="media-placeholder"
+        className="flex-1 rounded-2xl min-h-[300px]"
+        style={{ backgroundColor: "var(--theme-surface-muted)" }}
+      />
     );
   }
   if (media.type === "video") {
@@ -36,12 +41,14 @@ export function MediaDescriptionLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold"
+        style={{ fontFamily: "var(--theme-heading-font)" }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
       <RichText
         as="div"
         className="mt-6 text-lg opacity-80"
+        style={{ fontFamily: "var(--theme-body-font)" }}
         value={content.body}
         onChange={(html) => onChangeContent({ body: html })}
       />

@@ -26,6 +26,7 @@ export function Media3PointsLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold text-center"
+        style={{ fontFamily: "var(--theme-heading-font)" }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
@@ -33,7 +34,7 @@ export function Media3PointsLayout({ content, onChangeContent }) {
         {content.media.url ? (
           <img src={content.media.url} alt="" className="flex-1 rounded-2xl object-cover" />
         ) : (
-          <div className="flex-1 bg-white/10 rounded-2xl min-h-[300px]" />
+          <div className="flex-1 rounded-2xl min-h-[300px]" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
         )}
         <div className="flex-1 flex flex-col gap-6">
           {visiblePoints.map((point, index) => (
@@ -42,6 +43,7 @@ export function Media3PointsLayout({ content, onChangeContent }) {
                 <RichText
                   as="h3"
                   className="text-xl font-semibold"
+                  style={{ fontFamily: "var(--theme-heading-font)" }}
                   value={point.title}
                   onChange={(html) => updatePoint(index, { title: html })}
                 />
@@ -49,6 +51,7 @@ export function Media3PointsLayout({ content, onChangeContent }) {
               <RichText
                 as="p"
                 className="opacity-80"
+                style={{ fontFamily: "var(--theme-body-font)" }}
                 value={point.body}
                 onChange={(html) => updatePoint(index, { body: html })}
               />

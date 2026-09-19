@@ -23,6 +23,7 @@ export function MetricsGridLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold text-center"
+        style={{ fontFamily: "var(--theme-heading-font)" }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
@@ -32,12 +33,14 @@ export function MetricsGridLayout({ content, onChangeContent }) {
             <RichText
               as="div"
               className="text-5xl font-bold"
+              style={{ fontFamily: "var(--theme-heading-font)", color: "var(--theme-primary)" }}
               value={metric.value}
               onChange={(html) => updateMetric(index, { value: html })}
             />
             <RichText
               as="div"
               className="mt-2 opacity-70"
+              style={{ fontFamily: "var(--theme-body-font)" }}
               value={metric.label}
               onChange={(html) => updateMetric(index, { label: html })}
             />

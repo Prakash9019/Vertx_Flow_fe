@@ -16,6 +16,7 @@ export function TeamGridLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold text-center"
+        style={{ fontFamily: "var(--theme-heading-font)" }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
@@ -25,17 +26,19 @@ export function TeamGridLayout({ content, onChangeContent }) {
             {member.photoUrl ? (
               <img src={member.photoUrl} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
             ) : (
-              <div className="w-24 h-24 rounded-full mx-auto bg-white/10" />
+              <div className="w-24 h-24 rounded-full mx-auto" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
             )}
             <RichText
               as="div"
               className="mt-4 font-semibold"
+              style={{ fontFamily: "var(--theme-heading-font)" }}
               value={member.name}
               onChange={(html) => updateMember(index, { name: html })}
             />
             <RichText
               as="div"
               className="opacity-70"
+              style={{ fontFamily: "var(--theme-body-font)" }}
               value={member.role}
               onChange={(html) => updateMember(index, { role: html })}
             />

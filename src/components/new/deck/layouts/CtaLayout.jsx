@@ -11,18 +11,21 @@ export function CtaLayout({ content, onChangeContent }) {
       <RichText
         as="h1"
         className="text-5xl font-bold"
+        style={{ fontFamily: "var(--theme-heading-font)" }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
       <RichText
         as="div"
         className="mt-6 text-xl opacity-80 max-w-2xl"
+        style={{ fontFamily: "var(--theme-body-font)" }}
         value={content.body}
         onChange={(html) => onChangeContent({ body: html })}
       />
       <RichText
         as="div"
-        className="mt-10 inline-block px-8 py-3 rounded-full bg-teal-400 text-black font-semibold"
+        className="mt-10 inline-block px-8 py-3 rounded-full font-semibold"
+        style={{ backgroundColor: "var(--theme-primary)", color: "var(--theme-background)", fontFamily: "var(--theme-body-font)" }}
         value={content.buttonLabel}
         onChange={(html) => onChangeContent({ buttonLabel: html })}
       />

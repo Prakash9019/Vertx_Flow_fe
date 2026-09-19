@@ -11,6 +11,7 @@ export function TitleLayout({ content, onChangeContent }) {
       <RichText
         as="h1"
         className="text-7xl font-bold"
+        style={{ fontFamily: "var(--theme-heading-font)" }}
         value={content.title}
         onChange={(html) => onChangeContent({ title: html })}
       />
@@ -19,6 +20,7 @@ export function TitleLayout({ content, onChangeContent }) {
           <RichText
             as="p"
             className="text-2xl opacity-60"
+            style={{ fontFamily: "var(--theme-body-font)" }}
             value={content.subtitle}
             onChange={(html) => onChangeContent({ subtitle: html })}
           />
