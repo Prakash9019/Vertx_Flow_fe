@@ -78,9 +78,7 @@ function App() {
     { path: "/homepage", element: <HomePage /> },
     { path: "/flash", element: <Flash /> },
     { path: "/rp", element: <ReviewP /> },
-    { path: "/editorPage", element: <EditorPage /> },
     { path: "/evaluate", element: <Evaluate_Page /> },
-    { path: "/sample", element: <Editor1_Page /> },
     { path: "/gettingStarted", element: <GettingStarted /> },
     { path: "/evaluate/report", element: <EvaluateReport_page /> },
     // { path: "/fundraising", element: <FundraisingPage /> },  Editor1_Page
@@ -121,7 +119,11 @@ function App() {
           
           {/* Public preview route */}
           <Route path="/fundraising/preview" element={<ReachLinkPreview />} />
-          
+
+          {/* Public sample/editor pages (no login required) */}
+          <Route path="/sample" element={<Editor1_Page />} />
+          <Route path="/editorPage" element={<EditorPage />} />
+
           {/* Auth routes */}
           <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
           <Route path="/auth-error" element={<AuthError />} />

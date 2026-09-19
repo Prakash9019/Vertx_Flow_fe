@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pitch Editor — Redesign Preview</title>
+<style>
+  :root{
+    --teal-950:#021e1d;
+    --teal-900:#0b2d2b;
+    --teal-400:#14b8a6;
+    --line:rgba(255,255,255,0.10);
+    --text:#e6f3f2;
+    --text-dim:rgba(230,243,242,0.65);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#050f0e;
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 60px;
+  }
+  .wrap{width:100%;max-width:1180px;}
+  header.page{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-bottom:20px;flex-wrap:wrap;gap:12px;
+  }
+  header.page h1{font-size:20px;margin:0 0 4px;font-weight:600;}
+  header.page p{margin:0;color:var(--text-dim);font-size:13px;}
+  .toggle{
+    display:flex;background:rgba(255,255,255,0.06);border:1px solid var(--line);
+    border-radius:999px;padding:4px;gap:4px;
+  }
+  .toggle button{
+    border:none;background:transparent;color:var(--text-dim);
+    padding:8px 18px;border-radius:999px;font-size:13px;font-weight:600;
+    cursor:pointer;transition:background .2s, color .2s;
+  }
+  .toggle button.active{background:var(--teal-400);color:#012322;}
+
+  .stage{
+    position:relative;
+    border-radius:20px;
+    overflow:hidden;
+    aspect-ratio:16/9;
+    background:linear-gradient(160deg,#0e2320,#04100f 70%);
+    border:1px solid var(--line);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+
+  /* ---------- AFTER (redesigned) ---------- */
+  .slide-after{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    padding:5% 6% 4%;
+  }
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-400);
+    background:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.35);
+    padding:5px 12px;border-radius:999px;margin-bottom:18px;font-weight:600;
+  }
+  .headline{font-size:clamp(22px,3.4vw,40px);font-weight:700;line-height:1.15;margin:0 0 10px;max-width:70%;}
+  .sub{color:var(--text-dim);font-size:clamp(12px,1.2vw,15px);max-width:56%;margin:0 0 26px;line-height:1.5;}
+  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;flex:1;min-height:0;}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start;}
+  .stat{
+    background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;position:relative;
+  }
+  .stat .num{font-size:clamp(18px,2.2vw,26px);font-weight:700;color:#fff;}
+  .stat .lbl{font-size:11px;color:var(--text-dim);margin-top:4px;}
+  .art{
+    position:relative;border-radius:16px;overflow:hidden;
+    background:linear-gradient(135deg,#123f3a,#0a2422);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .art svg{width:46%;opacity:.85;}
+  .handle{
+    position:absolute;width:10px;height:10px;border-radius:3px;
+    background:var(--teal-400);border:2px solid #04100f;
+  }
+  .h-tl{top:8px;left:8px;} .h-tr{top:8px;right:8px;}
+  .h-bl{bottom:8px;left:8px;} .h-br{bottom:8px;right:8px;}
+  .art-tag{
+    position:absolute;bottom:10px;left:10px;background:rgba(2,20,19,0.75);
+    border:1px solid var(--line);color:var(--text-dim);font-size:10px;
+    padding:3px 8px;border-radius:6px;
+  }
+
+  .float-toolbar{
+    position:absolute;top:16%;left:6%;
+    display:flex;gap:2px;background:var(--teal-900);border:1px solid var(--line);
+    border-radius:10px;padding:5px;box-shadow:0 12px 30px rgba(0,0,0,0.4);
+  }
+  .float-toolbar button{
+    width:28px;height:28px;border:none;background:transparent;color:var(--text);
+    border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;
+  }
+  .float-toolbar button:hover{background:rgba(255,255,255,0.08);}
+  .float-toolbar .sep{width:1px;background:var(--line);margin:4px 2px;}
+
+  .dots{
+    position:absolute;bottom:64px;left:50%;transform:translateX(-50%);
+    display:flex;gap:6px;
+  }
+  .dot{height:6px;border-radius:999px;background:rgba(255,255,255,0.3);width:12px;transition:.2s;}
+  .dot.active{width:26px;background:var(--teal-400);}
+
+  .pill-bar{
+    position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+    display:flex;align-items:center;gap:2px;padding:6px;border-radius:16px;
+    background:rgba(0,0,0,0.45);backdrop-filter:blur(18px);
+    border:1px solid var(--line);box-shadow:0 20px 40px rgba(0,0,0,0.5);
+  }
+  .pill-bar button{
+    display:flex;align-items:center;gap:7px;border:none;background:transparent;
+    color:var(--text);padding:9px 16px;border-radius:12px;font-size:12.5px;font-weight:600;
+    cursor:pointer;transition:background .15s;
+  }
+  .pill-bar button:hover{background:rgba(255,255,255,0.1);}
+  .pill-bar button.primary{background:var(--teal-400);color:#012322;}
+  .pill-bar button.primary:hover{background:#2dd4c0;}
+  .pill-div{width:1px;align-self:stretch;background:var(--line);margin:4px 2px;}
+
+  /* ---------- BEFORE (previous state) ---------- */
+  .slide-before{
+    position:absolute;inset:0;display:none;flex-direction:column;
+    padding:5% 6% 4%;background:#e9e9e9;color:#222;
+  }
+  .slide-before .headline{color:#111;max-width:80%;font-size:clamp(20px,3vw,34px);}
+  .slide-before .sub{color:#555;max-width:70%;}
+  .slide-before .grid{grid-template-columns:1.1fr .9fr;}
+  .slide-before .stat{background:#f4f4f4;border:1px solid #d9d9d9;border-radius:6px;}
+  .slide-before .stat .num{color:#111;}
+  .slide-before .stat .lbl{color:#666;}
+  .slide-before .art{background:#dcdcdc;border-radius:4px;border:1px dashed #aaa;}
+  .before-toolbar{
+    position:absolute;top:0;left:0;right:0;height:15%;
+    background:#f1f1f1;border-bottom:1px solid #ccc;
+    display:flex;align-items:center;gap:6px;padding:0 14px;flex-wrap:wrap;
+  }
+  .before-toolbar span{
+    font-size:11px;background:#fff;border:1px solid #d3d3d3;border-radius:3px;
+    padding:4px 8px;color:#444;
+  }
+  .before-bottombar{
+    position:absolute;bottom:14px;left:14px;display:flex;gap:8px;
+  }
+  .before-bottombar span{
+    background:#dedede;border:1px solid #bbb;border-radius:5px;
+    padding:7px 14px;font-size:11px;color:#333;
+  }
+  .watermark{
+    position:absolute;top:16%;right:6%;background:rgba(255,255,255,0.9);
+    border:1px solid #ccc;color:#999;font-size:10px;padding:3px 8px;border-radius:4px;
+  }
+
+  /* ---------- notes ---------- */
+  .notes{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:760px){.notes{grid-template-columns:1fr;}}
+  .card{
+    background:rgba(255,255,255,0.04);border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px;
+  }
+  .card h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--teal-400);}
+  .card ul{margin:0;padding-left:18px;color:var(--text-dim);font-size:13px;line-height:1.7;}
+  .card.warn h3{color:#f0b429;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <div>
+      <h1>Pitch Deck Editor — Visual Redesign Preview</h1>
+      <p>Static mockup of the after-state. Toggle to compare against the prior look.</p>
+    </div>
+    <div class="toggle">
+      <button id="btn-after" class="active" onclick="show('after')">After</button>
+      <button id="btn-before" onclick="show('before')">Before</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <!-- AFTER -->
+    <div class="slide-after" id="after">
+      <span class="kicker">● Series A · Traction</span>
+      <h2 class="headline">Growing 3.2x revenue, quarter over quarter</h2>
+      <p class="sub">Consistent, repeatable growth across enterprise and mid-market segments since the seed round.</p>
+      <div class="grid">
+        <div class="stats">
+          <div class="stat"><div class="num">$2.4M</div><div class="lbl">ARR (current)</div></div>
+          <div class="stat"><div class="num">142%</div><div class="lbl">Net revenue retention</div></div>
+          <div class="stat"><div class="num">38</div><div class="lbl">Enterprise logos</div></div>
+          <div class="stat"><div class="num">14 mo</div><div class="lbl">Payback period</div></div>
+        </div>
+        <div class="art">
+          <svg viewBox="0 0 200 120" fill="none"><polyline points="5,100 40,80 75,88 110,50 145,58 195,15" stroke="#5eead4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="handle h-tl"></div><div class="handle h-tr"></div>
+          <div class="handle h-bl"></div><div class="handle h-br"></div>
+          <div class="art-tag">Drag corner to resize</div>
+        </div>
+      </div>
+
+      <div class="float-toolbar">
+        <button><b>B</b></button><button><i>I</i></button><button><u>U</u></button>
+        <div class="sep"></div>
+        <button>A</button><button>¶</button>
+        <div class="sep"></div>
+        <button>🔗</button>
+      </div>
+
+      <div class="dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot active"></div>
+        <div class="dot"></div><div class="dot"></div>
+      </div>
+
+      <div class="pill-bar">
+        <button>➕ Insert</button>
+        <div class="pill-div"></div>
+        <button>🎨 Theme</button>
+        <div class="pill-div"></div>
+        <button>🖼 Background</button>
+        <div class="pill-div"></div>
+        <button class="primary">Present</button>
+      </div>
+    </div>
+
+    <!-- BEFORE -->
+    <div class="slide-before" id="before">
+      <div class="before-toolbar">
+        <span>Paragraph</span><span>B</span><span>I</span><span>U</span><span>Font ▾</span><span>Size ▾</span><span>Insert Image</span>
+      </div>
+      <div style="margin-top:15%;">
+        <h2 class="headline">Growing 3.2x revenue, quarter over quarter</h2>
+        <p class="sub">Consistent, repeatable growth across enterprise and mid-market segments since the seed round.</p>
+        <div class="grid">
+          <div class="stats">
+            <div class="stat"><div class="num">$2.4M</div><div class="lbl">ARR (current)</div></div>
+            <div class="stat"><div class="num">142%</div><div class="lbl">Net revenue retention</div></div>
+            <div class="stat"><div class="num">38</div><div class="lbl">Enterprise logos</div></div>
+            <div class="stat"><div class="num">14 mo</div><div class="lbl">Payback period</div></div>
+          </div>
+          <div class="art"></div>
+        </div>
+      </div>
+      <div class="watermark">Froala trial</div>
+      <div class="before-bottombar">
+        <span>Insert</span><span>Theme</span><span>Background</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="card">
+      <h3>What changed (already shipped in EditorPage.jsx)</h3>
+      <ul>
+        <li>One shared, idempotent Froala loader — replaces 29 duplicated CDN-injection effects that were fighting over the same script/link tags.</li>
+        <li>Unified image toolbar (resize, align, filter, replace, alt text) across all 7 slides instead of a different subset per slide.</li>
+        <li>Dark teal skin overriding Froala's default light toolbar/popups so the editor UI stops clashing with the app.</li>
+        <li>Bottom action bar rebuilt as one cohesive glass pill instead of three disjointed gray buttons.</li>
+        <li>Theme/Background picker modals restyled to the app palette; fixed a real contrast bug (dark-on-dark heading text).</li>
+        <li>Removed dead files: <code>TheChallangePage.jsx</code>, <code>OurSloutionPage.jsx</code>.</li>
+      </ul>
+    </div>
+    <div class="card warn">
+      <h3>Still open</h3>
+      <ul>
+        <li>No AI pipeline yet — prompt → slide generation is unbuilt on both frontend and backend (by design, per your "future" note).</li>
+        <li>Froala is CDN-injected with no license key — shows a trial watermark; needs a real license or an npm-installed key before this ships.</li>
+        <li><code>VITE_GEMINI_API_KEY</code> is sitting unused in a committed <code>.env</code> — rotate it and stop committing it once the AI flow is built.</li>
+        <li>Redesign was verified with a clean production build only — worth a manual click-through in a browser to sanity-check contrast/spacing live.</li>
+        <li><code>NewEditor.jsx</code> (route <code>/sample</code>) is a disconnected, cruder duplicate — worth deleting once you confirm nothing depends on it.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(which){
+  document.getElementById('after').style.display = which === 'after' ? 'flex' : 'none';
+  document.getElementById('before').style.display = which === 'before' ? 'flex' : 'none';
+  document.getElementById('btn-after').classList.toggle('active', which === 'after');
+  document.getElementById('btn-before').classList.toggle('active', which === 'before');
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion,useAnimation } from 'framer-motion';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { createRoot } from 'react-dom/client';
 
 import { useInView } from 'react-intersection-observer';
@@ -41,7 +41,80 @@ import { IoPersonCircleOutline } from "react-icons/io5";
 import { PiDotsThreeBold, PiSelectionBackground } from "react-icons/pi";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import TheChallenagePage from './TheChallengePage';
+
+// --- Shared Froala Editor CDN loader ---------------------------------------
+// Every slide below used to inject its own <link>/<script> pair for Froala,
+// which meant the same CDN assets were fetched and parsed dozens of times.
+// These helpers load the assets exactly once and let every slide share them.
+let froalaLinkEl = null;
+let froalaScriptEl = null;
+function ensureFroalaAssets() {
+  if (!froalaLinkEl) {
+    froalaLinkEl = document.createElement('link');
+    froalaLinkEl.rel = 'stylesheet';
+    froalaLinkEl.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
+  }
+  if (!document.head.contains(froalaLinkEl)) {
+    document.head.appendChild(froalaLinkEl);
+  }
+  if (!document.getElementById('froala-theme-overrides')) {
+    const overrideStyle = document.createElement('style');
+    overrideStyle.id = 'froala-theme-overrides';
+    overrideStyle.textContent = `
+      .fr-toolbar, .fr-popup, .fr-dropdown-menu {
+        background: #0b2d2b !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+        font-family: inherit !important;
+      }
+      .fr-toolbar { padding: 2px !important; }
+      .fr-btn-grp { margin: 0 4px !important; }
+      .fr-command.fr-btn, .fr-command.fr-btn svg path {
+        color: #e6f3f2 !important;
+        fill: #e6f3f2 !important;
+      }
+      .fr-command.fr-btn:hover, .fr-command.fr-btn:focus {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-radius: 8px !important;
+      }
+      .fr-command.fr-btn.fr-active {
+        background: #14b8a6 !important;
+        border-radius: 8px !important;
+      }
+      .fr-toolbar .fr-separator { background: rgba(255, 255, 255, 0.1) !important; }
+      .fr-popup .fr-input-line input, .fr-popup .fr-input-line textarea {
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: #e6f3f2 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+      .fr-popup .fr-input-line label { color: rgba(230, 243, 242, 0.7) !important; }
+      .fr-dropdown-menu .fr-dropdown-wrapper { background: #0b2d2b !important; }
+      .fr-dropdown-menu li a { color: #e6f3f2 !important; }
+      .fr-dropdown-menu li a:hover { background: rgba(255, 255, 255, 0.08) !important; }
+      .fr-image-resizer .fr-handler { background: #14b8a6 !important; border-color: #0b2d2b !important; }
+      .fr-tooltip { background: #0b2d2b !important; color: #e6f3f2 !important; }
+    `;
+    document.head.appendChild(overrideStyle);
+  }
+  if (!froalaScriptEl) {
+    froalaScriptEl = document.createElement('script');
+    froalaScriptEl.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    document.body.appendChild(froalaScriptEl);
+  } else if (!document.body.contains(froalaScriptEl)) {
+    document.body.appendChild(froalaScriptEl);
+  }
+  return { link: froalaLinkEl, script: froalaScriptEl };
+}
+// Runs `callback` once Froala is available — immediately if it's already
+// loaded, otherwise the next time the shared script finishes loading.
+function onFroalaReady(script, callback) {
+  if (window.FroalaEditor) {
+    callback();
+  } else {
+    script.addEventListener('load', callback);
+  }
+}
 const images = [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22, A23];
 // Theme classes
 const themes = {
@@ -409,15 +482,7 @@ const UserBGselect = () => {
 
     // Froala Editor Initialization
     useEffect(() => {
-        // Load CSS
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        // Load JS
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+        const { link, script } = ensureFroalaAssets();
 
         // Define the requested expanded configuration object
         const expandedFroalaConfig = {
@@ -441,12 +506,8 @@ const UserBGselect = () => {
                 }
             },
             
-            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageRemove'],
-            imageResizer: {
-                handle: 'all',
-                minWidth: 16,
-                minHeight: 16
-            },
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
+            imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
         };
 
         const initializeEditors = () => {
@@ -464,20 +525,12 @@ const UserBGselect = () => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
             // Cleanup the dynamically added elements
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
             // Froala editor cleanup (if required, though for inline this often works without it)
             // Note: Destroying a Froala instance requires accessing the instance object which is not directly exposed by `new window.FroalaEditor` call.
             // For a clean React unmount, you'd typically manage the editor instances, but for brevity, we focus on DOM cleanup.
@@ -710,16 +763,7 @@ const TheChallangePage = ({ theme = 'dark', background = 'original' }) => {
 
   // ✅ Initialize Froala Editor (Separate useEffect)
   useEffect(() => {
-    // Load Froala CSS
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    // Load Froala JS
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
-    script.async = true;
+    const { link, script } = ensureFroalaAssets();
 
     const initializeEditor = () => {
       if (editorRef.current && window.FroalaEditor) {
@@ -740,12 +784,8 @@ const TheChallangePage = ({ theme = 'dark', background = 'original' }) => {
                 align: 'center'
               }
             },
-            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageRemove'],
-            imageResizer: {
-              handle: 'all',
-              minWidth: 16,
-              minHeight: 16
-            },
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
+            imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
             charCounterCount: false,
             wordCounterCount: false,
             toolbarVisibleWithoutSelection: true
@@ -756,25 +796,13 @@ const TheChallangePage = ({ theme = 'dark', background = 'original' }) => {
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       setTimeout(initializeEditor, 100);
-    };
-
-    script.onerror = () => {
-      console.error('Failed to load Froala Editor script');
-    };
-
-    document.body.appendChild(script);
+    });
 
     // ✅ Cleanup
     return () => {
       try {
-        if (document.head.contains(link)) {
-          document.head.removeChild(link);
-        }
-        if (document.body.contains(script)) {
-          document.body.removeChild(script);
-        }
         if (editorRef.current?.editor) {
           editorRef.current.editor.destroy();
         }
@@ -859,13 +887,7 @@ const OurSolutionPage = ({ theme, background }) => {
     if (!isAnimationComplete) return;
 
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditor = () => {
       if (editorRef.current && window.FroalaEditor) {
@@ -888,12 +910,8 @@ const OurSolutionPage = ({ theme, background }) => {
                 align: 'center'
             }
           },
-          imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace'],
-          imageResizer: {
-            handle: 'all',
-            minWidth: 16,
-            minHeight: 16 
-          },
+          imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
+          imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
           imageStyles: {
             'fr-style-card': 'Card',
             'fr-style-polaroid': 'Polaroid'
@@ -908,15 +926,11 @@ const OurSolutionPage = ({ theme, background }) => {
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       setTimeout(initializeEditor, 50); // Reduced timeout for quick initialization
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       if (editorRef.current && editorRef.current.editor) {
         editorRef.current.editor.destroy();
       }
@@ -1029,13 +1043,7 @@ const MarketPotentialPage = ({ theme, background }) => {
     if (!isAnimationComplete) return;
 
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditor = () => {
       if (editorRef.current && window.FroalaEditor) {
@@ -1059,11 +1067,7 @@ const MarketPotentialPage = ({ theme, background }) => {
                 align: 'center'
             }
           },
-          imageResizer: {
-            handle: 'all',
-            minWidth: 16,
-            minHeight: 16 
-          },
+          imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
           imageStyles: {
             'fr-style-card': 'Card',
             'fr-style-polaroid': 'Polaroid',
@@ -1071,20 +1075,16 @@ const MarketPotentialPage = ({ theme, background }) => {
             'fr-style-green': 'Green',
             'fr-style-sky': 'Sky'
           },
-          imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageRemove', 'imageReplace']
+          imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt']
         });
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       setTimeout(initializeEditor, 50); 
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       if (editorRef.current && editorRef.current.editor) {
         editorRef.current.editor.destroy();
       }
@@ -1262,13 +1262,7 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
     if (!isAnimationComplete) return; // Only run when animation is complete
 
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
@@ -1295,7 +1289,7 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
             },
             imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
             imageStyles: { 'fr-style-card': 'Card', 'fr-style-polaroid': 'Polaroid', 'fr-style-red': 'Red', 'fr-style-green': 'Green', 'fr-style-sky': 'Sky' },
-            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageRemove', 'imageReplace']
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt']
           });
         }
         
@@ -1308,22 +1302,18 @@ const CompetitiveEdgePAge = ({ theme, background }) => {
                 charCounterCount: false,
                 wordCounterCount: false,
                 toolbarButtons: ['insertImage'],
-                imageResizer: true,
-                imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageRemove', 'imageReplace']
+                imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
+                imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt']
             });
         }
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       setTimeout(initializeEditors, 50);
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       // Clean up both editors
       if (editorRef.current && editorRef.current.editor) { editorRef.current.editor.destroy(); }
       if (imageEditorRef.current && imageEditorRef.current.editor) { imageEditorRef.current.editor.destroy(); }
@@ -1491,13 +1481,7 @@ const GrowthTrajectoryPage = ({ theme, background }) => {
 
   useEffect(() => {
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
@@ -1521,11 +1505,7 @@ const GrowthTrajectoryPage = ({ theme, background }) => {
                   align: 'center'
               }
             },
-            imageResizer: {
-              handle: 'all',
-              minWidth: 16,
-              minHeight: 16 
-            },
+            imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
             imageStyles: {
               'fr-style-card': 'Card',
               'fr-style-polaroid': 'Polaroid',
@@ -1533,7 +1513,7 @@ const GrowthTrajectoryPage = ({ theme, background }) => {
               'fr-style-green': 'Green',
               'fr-style-sky': 'Sky'
             },
-            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageRemove', 'imageReplace']
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt']
           });
         }
 
@@ -1546,12 +1526,8 @@ const GrowthTrajectoryPage = ({ theme, background }) => {
               toolbarVisibleWithoutSelection: true,
               charCounterCount: false,
               wordCounterCount: false,
-              imageResizer: {
-                handle: 'all',
-                minWidth: 16,
-                minHeight: 16
-              },
-              imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageRemove', 'imageReplace'],
+              imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
+              imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
               toolbarButtons: {
                 'moreText': {
                   buttons: ['insertImage']
@@ -1563,15 +1539,11 @@ const GrowthTrajectoryPage = ({ theme, background }) => {
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       setTimeout(initializeEditors, 100);
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       if (editorRef.current && editorRef.current.editor) {
         editorRef.current.editor.destroy();
       }
@@ -1785,13 +1757,7 @@ const ProvenModelPage = ({ theme, background }) => {
     if (!isAnimationComplete) return; // Wait for initial animation to complete
 
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
@@ -1870,16 +1836,12 @@ const ProvenModelPage = ({ theme, background }) => {
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       // Small timeout to ensure the DOM is ready for Froala
       setTimeout(initializeEditors, 50); 
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       // Cleanup Froala instances
       if (editorRef.current && editorRef.current.editor) {
         editorRef.current.editor.destroy();
@@ -2098,13 +2060,7 @@ const SeriesAPage = ({ theme, background }) => {
     if (!isAnimationComplete) return; 
 
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
@@ -2150,16 +2106,12 @@ const SeriesAPage = ({ theme, background }) => {
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       // Small timeout to ensure the DOM is ready for Froala
       setTimeout(initializeEditors, 50); 
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       // Cleanup Froala instances
       if (headingRef.current && headingRef.current.editor) {
         headingRef.current.editor.destroy();
@@ -2321,13 +2273,7 @@ const JoinUsPage = ({ theme, background }) => {
     if (!isAnimationComplete) return; 
 
     // Dynamically load the Froala CSS and JS files from CDN
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
@@ -2363,11 +2309,7 @@ const JoinUsPage = ({ theme, background }) => {
             charCounterCount: false,
             wordCounterCount: false,
             toolbarButtons: [ 'insertImage', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace' ],
-            imageResizer: {
-              handle: 'all',
-              minWidth: 16,
-              minHeight: 16 
-            },
+            imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
             imageStyles: {
               'fr-style-card': 'Card',
               'fr-style-polaroid': 'Polaroid'
@@ -2378,22 +2320,18 @@ const JoinUsPage = ({ theme, background }) => {
               { title: 'Sepia', filter: 'sepia(100%)' },
               { title: 'Blur', filter: 'blur(2px)' }
             ],
-            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace']
+            imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt']
           });
         }
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       // Small timeout to ensure the DOM is ready for Froala
       setTimeout(initializeEditors, 50); 
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
       // Cleanup Froala instances
       if (textEditorRef.current && textEditorRef.current.editor) {
         textEditorRef.current.editor.destroy();
@@ -2508,13 +2446,7 @@ const TitleOnlyPage = ({ id, theme, background }) => {
   const currentBG = backgrounds[background]
 
   useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
     
     const initializeEditors = () => {
       if (window.FroalaEditor) {
@@ -2531,19 +2463,11 @@ const TitleOnlyPage = ({ id, theme, background }) => {
       }
     };
 
-    script.onload = () => {
+    onFroalaReady(script, () => {
       setTimeout(initializeEditors, 100);
-    };
-
-    document.body.appendChild(script);
+    });
 
     return () => {
-      if (document.head.contains(link)) {
-        document.head.removeChild(link);
-      }
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
     };
   }, []);
 
@@ -2567,13 +2491,7 @@ const TitleAndSubtitlePage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -2600,19 +2518,11 @@ const TitleAndSubtitlePage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -2641,13 +2551,7 @@ const TitleAndContentPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -2674,19 +2578,11 @@ const TitleAndContentPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -2716,13 +2612,7 @@ const SectionHeaderPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -2739,19 +2629,11 @@ const SectionHeaderPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -2775,13 +2657,7 @@ const ContentWithCaptionPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -2808,19 +2684,11 @@ const ContentWithCaptionPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -2849,13 +2717,7 @@ const TwoContentPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -2882,19 +2744,11 @@ const TwoContentPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -2923,13 +2777,7 @@ const ComparisonPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -2956,19 +2804,11 @@ const ComparisonPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -2994,13 +2834,7 @@ const ContentOverImagePage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3017,19 +2851,11 @@ const ContentOverImagePage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3053,13 +2879,7 @@ const PictureWithCaptionPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3082,35 +2902,18 @@ const PictureWithCaptionPage = ({ id, theme, background }) => {
                         charCounterCount: false,
                         wordCounterCount: false,
                         toolbarButtons: ['insertImage', 'imageAlign', 'imageSize', 'imageRemove'], 
-                        imageEditButtons: [
-                            'imageReplace', // The button to replace the image
-                            'imageAlign', 
-                            'imageCaption', 
-                            'imageRemove', 
-                            '|', 
-                            'imageLink', 
-                            'imageDisplay', 
-                            'imageAlt', 
-                            'imageSize'
-                        ],
+                        imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
+                        imageResizer: { handle: 'all', minWidth: 16, minHeight: 16 },
                     });
                 }
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100); 
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3139,13 +2942,7 @@ const ContentWithImagePage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3174,17 +2971,7 @@ const ContentWithImagePage = ({ id, theme, background }) => {
                         toolbarButtons: ['insertImage', 'imageRemove'], 
                         
                         // Buttons that appear when you click the image itself
-                        imageEditButtons: [
-                            'imageReplace', 
-                            'imageAlign', 
-                            'imageCaption', 
-                            'imageRemove', 
-                            '|', 
-                            'imageLink', 
-                            'imageDisplay', 
-                            'imageAlt', 
-                            'imageSize'
-                        ],
+                        imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
                         
                         // Buttons that appear inside the image pop-up when inserting/replacing
                         imageInsertButtons: [
@@ -3202,19 +2989,11 @@ const ContentWithImagePage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3246,13 +3025,7 @@ const ImageWithContentPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3267,17 +3040,7 @@ const ImageWithContentPage = ({ id, theme, background }) => {
                         
                         toolbarButtons: ['insertImage', 'imageRemove'], 
                         
-                        imageEditButtons: [
-                            'imageReplace', 
-                            'imageAlign', 
-                            'imageCaption', 
-                            'imageRemove', 
-                            '|', 
-                            'imageLink', 
-                            'imageDisplay', 
-                            'imageAlt', 
-                            'imageSize'
-                        ],
+                        imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
                         
                         imageInsertButtons: [
                             'imageBack', 
@@ -3305,19 +3068,11 @@ const ImageWithContentPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3350,13 +3105,7 @@ const TwoContentWithImagePage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3395,17 +3144,7 @@ const TwoContentWithImagePage = ({ id, theme, background }) => {
                         
                         toolbarButtons: ['insertImage', 'imageRemove'], 
                         
-                        imageEditButtons: [
-                            'imageReplace', 
-                            'imageAlign', 
-                            'imageCaption', 
-                            'imageRemove', 
-                            '|', 
-                            'imageLink', 
-                            'imageDisplay', 
-                            'imageAlt', 
-                            'imageSize'
-                        ],
+                        imageEditButtons: ['imageDisplay', 'imageAlign', 'imageSize', 'imageCaption', 'imageStyle', 'imageFilter', 'imageRemove', 'imageReplace', 'imageLink', 'imageAlt'],
                         
                         imageInsertButtons: [
                             'imageBack', 
@@ -3421,19 +3160,11 @@ const TwoContentWithImagePage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3470,13 +3201,7 @@ const VerticalTextPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3493,19 +3218,11 @@ const VerticalTextPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3529,13 +3246,7 @@ const VerticalTitleAndTextPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3562,19 +3273,11 @@ const VerticalTitleAndTextPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3603,13 +3306,7 @@ const FourObjectsPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3628,19 +3325,11 @@ const FourObjectsPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3674,13 +3363,7 @@ const TitleAndFourObjectsPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3709,19 +3392,11 @@ const TitleAndFourObjectsPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3757,13 +3432,7 @@ const TitleAndTextPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3790,19 +3459,11 @@ const TitleAndTextPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3830,13 +3491,7 @@ const TitleAndTwoColumnTextPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3873,19 +3528,11 @@ const TitleAndTwoColumnTextPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3919,13 +3566,7 @@ const QuotePage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -3952,19 +3593,11 @@ const QuotePage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -3992,13 +3625,7 @@ const BlankPage = ({ id, theme, background }) => {
     const currentBG = backgrounds[background]
 
     useEffect(() => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/css/froala_editor.pkgd.min.css';
-        document.head.appendChild(link);
-
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.2.0/js/froala_editor.pkgd.min.js';
+    const { link, script } = ensureFroalaAssets();
 
         const initializeEditors = () => {
             if (window.FroalaEditor) {
@@ -4015,19 +3642,11 @@ const BlankPage = ({ id, theme, background }) => {
             }
         };
 
-        script.onload = () => {
+    onFroalaReady(script, () => {
             setTimeout(initializeEditors, 100);
-        };
-
-        document.body.appendChild(script);
+    });
 
         return () => {
-            if (document.head.contains(link)) {
-                document.head.removeChild(link);
-            }
-            if (document.body.contains(script)) {
-                document.body.removeChild(script);
-            }
         };
     }, []);
 
@@ -4296,13 +3915,14 @@ const currentBG = backgrounds[currentBGKey]
       </motion.div>
 
       {/* Slide Navigation Bars */}
-      <div className="absolute top-1/2 left-10 -translate-y-1/2 flex flex-col space-y-4 z-50">
+      <div className="absolute top-1/2 left-8 -translate-y-1/2 flex flex-col space-y-3 z-50">
         {slides.map((_, index) => (
           <div
             key={index}
+            title={`Slide ${index + 1}`}
             className={`
-              h-0.5 rounded-full transition-all duration-300 ease-in-out cursor-pointer
-              ${index === currentSlideIndex ? 'w-7 bg-gray-400' : 'w-3 bg-gray-500'}
+              h-1 rounded-full transition-all duration-300 ease-in-out cursor-pointer hover:bg-white/70
+              ${index === currentSlideIndex ? 'w-8 bg-teal-400' : 'w-3 bg-white/30'}
             `}
             onClick={() => setCurrentSlideIndex(index)}
           ></div>
@@ -4310,33 +3930,33 @@ const currentBG = backgrounds[currentBGKey]
       </div>
 
       {currentSlideIndex > 0 && (
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex z-50">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl z-50">
           <button
             onClick={() => setShowLayoutPicker(true)}
-            className={`py-2 px-4 text-base font-[inter] font-semibold cursor-pointer rounded-l-xl border-none bg-gray-700 flex items-center bg-opacity-50 text-white hover:bg-opacity-70 transition-colors`}
+            className="py-2.5 px-4 text-sm cursor-pointer font-[inter] font-medium rounded-xl border-none bg-transparent flex items-center text-white/90 hover:bg-white/10 hover:text-white transition-colors"
           >
-            <Plus size={20} className='mr-2'/> Insert
+            <Plus size={18} className='mr-2'/> Insert
           </button>
 
-          <div className="relative flex">
-            <button
-              onClick={() => setShowThemeModal(true)}
-              className={`px-4 py-3 text-sm cursor-pointer font-[inter] font-semibold border-none bg-gray-700 bg-opacity-50 text-white hover:bg-opacity-70 transition-colors flex items-center`}
-            >
-              <Palette size={20} className="mr-2" />
-              <span>Select Theme</span>
-            </button>
+          <div className="w-px h-6 bg-white/10" />
 
-            <div className="relative">
-            <button
-              onClick={() => setshowBackgroundModal(true)}
-              className={`px-4 py-3 text-sm cursor-pointer font-[inter] font-semibold border-none bg-gray-700 bg-opacity-50 rounded-r-xl text-white hover:bg-opacity-70 transition-colors flex items-center`}
-            >
-              <PiSelectionBackground size={20} className='mr-2'/>
-              <span>Background</span>
-            </button>
-          </div>
-          </div>
+          <button
+            onClick={() => setShowThemeModal(true)}
+            className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
+          >
+            <Palette size={18} className="mr-2" />
+            <span>Theme</span>
+          </button>
+
+          <div className="w-px h-6 bg-white/10" />
+
+          <button
+            onClick={() => setshowBackgroundModal(true)}
+            className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
+          >
+            <PiSelectionBackground size={18} className='mr-2'/>
+            <span>Background</span>
+          </button>
         </div>
       )}
 
@@ -4344,56 +3964,56 @@ const currentBG = backgrounds[currentBGKey]
 
       {/* Theme Selection Modal */}
       {showThemeModal && (
-        <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-70 flex items-center justify-center z-[100]">
-          <div className={`bg-gray-400 rounded-lg p-8 shadow-xl flex flex-col items-center`}>
-            <h2 className={`text-xl font-semibold mb-6 ${currentTheme.text}`}>Choose a Theme</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
+          <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+            <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Theme</h2>
             <div className="flex gap-4">
               <button
                 onClick={() => handleThemeChange('dark')}
-                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-[#021e1d] border-2 border-transparent hover:border-blue-500 transition-colors"
+                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-[#021e1d] border-2 border-transparent hover:border-teal-400 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-gray-600 mb-2"></div>
-                <span className="text-white font-medium">Dark</span>
+                <div className="w-10 h-10 rounded-full bg-gray-600 mb-2"></div>
+                <span className="text-white text-sm font-medium">Dark</span>
               </button>
               <button
                 onClick={() => handleThemeChange('light')}
-                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-gray-100 border-2 border-transparent hover:border-blue-500 transition-colors"
+                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-gray-100 border-2 border-transparent hover:border-teal-400 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-gray-400 mb-2"></div>
-                <span className="text-gray-900 font-medium">Light</span>
+                <div className="w-10 h-10 rounded-full bg-gray-400 mb-2"></div>
+                <span className="text-gray-900 text-sm font-medium">Light</span>
               </button>
               <button
                 onClick={() => handleThemeChange('warm')}
-                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-orange-100 border-2 border-transparent hover:border-blue-500 transition-colors"
+                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-orange-100 border-2 border-transparent hover:border-teal-400 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-orange-300 mb-2"></div>
-                <span className="text-gray-900 font-medium">Warm</span>
+                <div className="w-10 h-10 rounded-full bg-orange-300 mb-2"></div>
+                <span className="text-gray-900 text-sm font-medium">Warm</span>
               </button>
               <button
                 onClick={() => handleThemeChange('DeepPurple')}
-                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-purple-300 border-2 border-transparent hover:border-blue-500 transition-colors"
+                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-purple-300 border-2 border-transparent hover:border-teal-400 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-purple-400 mb-2"></div>
-                <span className="text-gray-900 font-medium">Deep Purple</span>
+                <div className="w-10 h-10 rounded-full bg-purple-400 mb-2"></div>
+                <span className="text-gray-900 text-sm font-medium">Deep Purple</span>
               </button>
               <button
                 onClick={() => handleThemeChange('DarkBlue')}
-                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-blue-400 border-2 border-transparent hover:border-blue-500 transition-colors"
+                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-blue-400 border-2 border-transparent hover:border-teal-400 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-blue-900 mb-2"></div>
-                <span className="text-gray-900 font-medium">Dark Blue</span>
+                <div className="w-10 h-10 rounded-full bg-blue-900 mb-2"></div>
+                <span className="text-gray-900 text-sm font-medium">Dark Blue</span>
               </button>
               <button
                 onClick={() => handleThemeChange('EarthStone')}
-                className="flex flex-col items-center justify-center p-4 rounded-md w-32 h-32 bg-stone-400 border-2 border-transparent hover:border-blue-500 transition-colors"
+                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-stone-400 border-2 border-transparent hover:border-teal-400 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-stone-600 mb-2"></div>
-                <span className="text-gray-900 font-medium">Earth Stone</span>
+                <div className="w-10 h-10 rounded-full bg-stone-600 mb-2"></div>
+                <span className="text-gray-900 text-sm font-medium">Earth Stone</span>
               </button>
             </div>
             <button
               onClick={() => setShowThemeModal(false)}
-              className="mt-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
             >
               Close
             </button>
@@ -4401,12 +4021,12 @@ const currentBG = backgrounds[currentBGKey]
         </div>
       )}
       {showBackgroundModal && (
-    <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-70 flex items-center justify-center z-[100]">
-    <div className={`bg-stone-900 rounded-lg p-8 shadow-xl flex flex-col items-center max-w-160 w-full mx-4`}>
-      <h2 className={`text-xl font-semibold mb-6 ${currentBG.text}`}>Choose a Background</h2>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
+    <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center max-w-160 w-full mx-4">
+      <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Background</h2>
 
       {/* Normal Backgrounds Section */}
-      <h2 className={`text-lg font-semibold mt-4 mb-3 ${currentBG.text}`}>Normal</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-wide mt-4 mb-3 text-white/50">Normal</h2>
       <div className="flex flex-wrap justify-center gap-2 max-w-130">
         {Object.entries(backgrounds)
           // Select the first 21 backgrounds for the "Normal" section
@@ -4415,11 +4035,11 @@ const currentBG = backgrounds[currentBGKey]
             <button
               key={key}
               onClick={() => handleBGChange(key)}
-              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-blue-500 rounded-lg"
+              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-teal-400 rounded-lg"
             >
               <div
-                title={key.replace(/([A-Z])/g, ' $1').trim()} 
-                className={`w-8 h-8 rounded-full ${value.card} shadow-inner border border-gray-300`}
+                title={key.replace(/([A-Z])/g, ' $1').trim()}
+                className={`w-8 h-8 rounded-full ${value.card} shadow-inner border border-white/20`}
               >
               </div>
             </button>
@@ -4427,7 +4047,7 @@ const currentBG = backgrounds[currentBGKey]
       </div>
 
       {/* Gradient Backgrounds Section */}
-      <h2 className={`text-lg font-semibold mt-6 mb-3 ${currentBG.text}`}>Gradient</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-wide mt-6 mb-3 text-white/50">Gradient</h2>
       <div className="flex flex-wrap justify-center gap-2 max-w-130">
         {Object.entries(backgrounds)
           // Select the remaining backgrounds for the "Gradient" section
@@ -4437,12 +4057,12 @@ const currentBG = backgrounds[currentBGKey]
               key={key}
               onClick={() => handleBGChange(key)}
               // Rectangular button class for gradients
-              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-blue-500 rounded-lg"
+              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-teal-400 rounded-lg"
             >
               <div
                 title={key.replace(/([A-Z])/g, ' $1').trim()} // Better title formatting
                 // Rectangular swatch
-                className={`w-14 h-8 rounded-md ${value.card} shadow-inner border border-gray-300`}
+                className={`w-14 h-8 rounded-md ${value.card} shadow-inner border border-white/20`}
               >
               </div>
             </button>
@@ -4451,7 +4071,7 @@ const currentBG = backgrounds[currentBGKey]
 
       <button
         onClick={() => setshowBackgroundModal(false)}
-        className="mt-6 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+        className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
       >
         Close
       </button>
