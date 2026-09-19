@@ -1242,7 +1242,7 @@ git commit -m "feat(deck): port ProblemLayout onto the deck data model"
 ```jsx
 // src/components/new/deck/layouts/MediaDescriptionLayout.test.jsx
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import { MediaDescriptionLayout, defaultMediaDescriptionContent } from "./MediaDescriptionLayout";
 
 describe("defaultMediaDescriptionContent", () => {
@@ -1285,6 +1285,7 @@ describe("MediaDescriptionLayout", () => {
       />
     );
     expect(leftContainer.querySelector('[data-col="media"]')).toBe(leftContainer.querySelector(".flex > *:first-child"));
+    cleanup();
 
     const { container: rightContainer } = render(
       <MediaDescriptionLayout
