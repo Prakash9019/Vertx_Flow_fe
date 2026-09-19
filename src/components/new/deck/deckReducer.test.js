@@ -53,6 +53,26 @@ describe("deckReducer", () => {
     expect(next.slides[1].layout).toBe(slide.layout);
   });
 
+  it("DUPLICATE_SLIDE clones the background instead of sharing it by reference", () => {
+    const original = createSlide({
+      layout: "title",
+      content: { title: "Hi" },
+      background: { kind: "gradient", angle: 90, stops: ["#000", "#fff"] },
+      order: 0,
+    });
+    const deck = createDeck({ title: "Deck", theme: "dark", slides: [original] });
+    const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: original.id });
+    const duplicate = next.slides[1];
+
+    expect(duplicate.background).toEqual(original.background);
+    expect(duplicate.background).not.toBe(original.background);
+    expect(duplicate.background.stops).not.toBe(original.background.stops);
+
+    // Mutating the duplicate's background must never affect the original.
+    duplicate.background.stops.push("#f00");
+    expect(original.background.stops).toEqual(["#000", "#fff"]);
+  });
+
   it("REORDER_SLIDES moves a slide to the target index and renumbers order", () => {
     const { deck, slide } = deckWithOneSlide();
     const withSecond = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: {} });

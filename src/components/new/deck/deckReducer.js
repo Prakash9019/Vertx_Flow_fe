@@ -14,6 +14,17 @@ function renumber(slides) {
   return slides.map((s, index) => ({ ...s, order: index }));
 }
 
+// `background` is a discriminated union that (for `gradient`) holds a nested
+// `stops` array - a shallow `{ ...background }` would still share that array
+// by reference between the original slide and the duplicate.
+function cloneBackground(background) {
+  if (!background || typeof background !== "object") return background;
+  if (background.kind === "gradient" && Array.isArray(background.stops)) {
+    return { ...background, stops: [...background.stops] };
+  }
+  return { ...background };
+}
+
 export function deckReducer(deck, action) {
   switch (action.type) {
     case "ADD_SLIDE": {
@@ -60,7 +71,7 @@ export function deckReducer(deck, action) {
       const copy = createSlide({
         layout: original.layout,
         content: { ...original.content },
-        background: original.background,
+        background: cloneBackground(original.background),
         freeElements: original.freeElements.map((el) => ({ ...el })),
         order: index + 1,
       });
