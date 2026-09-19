@@ -20,6 +20,7 @@ describe("paragraphToBulletsMapper", () => {
       { title: "", body: "Onboarding takes weeks" },
       { title: "", body: "Support tickets pile up." },
     ]);
+    expect(result.media).toEqual({ url: "", type: "image" });
   });
 
   it("returns an empty points array and a default media when body is missing", () => {
