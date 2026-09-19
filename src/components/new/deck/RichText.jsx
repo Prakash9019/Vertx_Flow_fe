@@ -28,24 +28,46 @@ function onFroalaReady(script, callback) {
 export function RichText({ value, onChange, toolbarButtons, className, as: Tag = "div" }) {
   const ref = useRef(null);
   const editorRef = useRef(null);
+  const seededRef = useRef(false);
+
+  // Latest props, kept in refs so the imperatively-registered Froala event
+  // handlers below never read a stale first-render closure. No deps array:
+  // this effect runs after EVERY render.
+  const onChangeRef = useRef(onChange);
+  const toolbarButtonsRef = useRef(toolbarButtons);
+  const valueRef = useRef(value);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    toolbarButtonsRef.current = toolbarButtons;
+    valueRef.current = value;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.document.createElement) return;
 
+    // Seed the DOM exactly once. Froala owns this node imperatively from here
+    // on, so `value` is deliberately NOT re-synced into the DOM on later
+    // renders - doing so would blow away Froala's internal DOM state and reset
+    // the caret while the user is typing.
+    if (ref.current && !seededRef.current) {
+      seededRef.current = true;
+      ref.current.innerHTML = valueRef.current ?? "";
+    }
+
     const { script } = ensureFroalaAssets();
 
     const initEditor = () => {
-      if (!window.FroalaEditor || !ref.current) return;
+      if (!window.FroalaEditor || !ref.current || editorRef.current) return;
       editorRef.current = new window.FroalaEditor(ref.current, {
         inline: true,
         toolbarInline: true,
         toolbarVisibleWithoutSelection: true,
         charCounterCount: false,
         wordCounterCount: false,
-        toolbarButtons: toolbarButtons ?? ["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor"],
+        toolbarButtons: toolbarButtonsRef.current ?? ["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor"],
         events: {
           "contentChanged": function () {
-            onChange(this.html.get());
+            onChangeRef.current(this.html.get());
           },
         },
       });
@@ -59,9 +81,10 @@ export function RichText({ value, onChange, toolbarButtons, className, as: Tag =
       if (editorRef.current && typeof editorRef.current.destroy === "function") {
         editorRef.current.destroy();
       }
+      editorRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <Tag ref={ref} className={className} dangerouslySetInnerHTML={{ __html: value }} />;
+  return <Tag ref={ref} className={className} />;
 }
