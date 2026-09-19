@@ -7,7 +7,7 @@ export function defaultTitleContent() {
 
 export function TitleLayout({ content, onChangeContent }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 text-center">
+    <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
       <RichText
         as="h1"
         className="text-7xl font-bold"

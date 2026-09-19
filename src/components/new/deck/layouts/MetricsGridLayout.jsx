@@ -19,7 +19,7 @@ export function MetricsGridLayout({ content, onChangeContent }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-8 sm:p-16">
+    <div className="flex flex-col h-full w-full p-8 sm:p-16">
       <RichText
         as="h2"
         className="text-4xl font-bold text-center"

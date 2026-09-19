@@ -8,6 +8,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test/setup.js",
+    // Scratch/debugging files are never part of the suite.
+    exclude: ["**/node_modules/**", "**/dist/**", "**/scratch/**"],
   },
   resolve: {
     alias: {

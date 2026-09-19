@@ -7,7 +7,7 @@ export function defaultProblemContent() {
 
 export function ProblemLayout({ content, onChangeContent }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-16">
+    <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16">
       <RichText
         as="h1"
         className="text-5xl font-bold text-center"

@@ -25,7 +25,7 @@ function MediaColumn({ media }) {
   }
   return (
     <div data-col="media" className="flex-1">
-      <img src={media.url} alt="media" className="w-full rounded-2xl object-cover" />
+      <img src={media.url} alt="" className="w-full rounded-2xl object-cover" />
     </div>
   );
 }
@@ -50,7 +50,7 @@ export function MediaDescriptionLayout({ content, onChangeContent }) {
   const mediaColumn = <MediaColumn media={content.media} />;
 
   return (
-    <div className="grid place-items-center min-h-screen p-8 sm:p-16">
+    <div className="grid place-items-center h-full w-full p-8 sm:p-16">
       <div className="flex gap-10 w-full max-w-6xl items-center">
         {content.mediaPosition === "left" ? mediaColumn : textColumn}
         {content.mediaPosition === "left" ? textColumn : mediaColumn}

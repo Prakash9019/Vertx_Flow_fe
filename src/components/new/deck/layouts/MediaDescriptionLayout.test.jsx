@@ -25,13 +25,17 @@ describe("MediaDescriptionLayout", () => {
   });
 
   it("renders an img when media.type is image and url is set", () => {
-    render(
+    // The image is decorative (alt=""), so it has no "img" role - query the element.
+    const { container } = render(
       <MediaDescriptionLayout
         content={{ heading: "H", body: "<p>B</p>", media: { url: "https://example.com/a.png", type: "image" }, mediaPosition: "left" }}
         onChangeContent={() => {}}
       />
     );
-    expect(screen.getByRole("img")).toHaveAttribute("src", "https://example.com/a.png");
+    const img = container.querySelector("img");
+    expect(img).not.toBeNull();
+    expect(img).toHaveAttribute("src", "https://example.com/a.png");
+    expect(img).toHaveAttribute("alt", "");
   });
 
   it("puts the media column first when mediaPosition is left and last when right", () => {
