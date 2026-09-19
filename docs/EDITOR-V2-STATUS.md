@@ -26,7 +26,7 @@ listed separately as "data model ready" so the gap is visible.
 - **Layer/element controls** — bring-forward/send-backward (`reorderZIndex` in `freeElementFactory.js`) and duplicate (`duplicateWidget`) are implemented as part of the Insert engine above and exposed through `FreeElementToolbar`.
 - **Slide sidebar component** — `SlideSidebar.jsx`/`SlideThumbnail.jsx`/`SlideThumbnailContent.jsx` render thumbnails with active-slide highlighting; unit-tested (`SlideThumbnail.test.jsx`). Not yet imported into `EditorPage.jsx` — see limitations below.
 - **Schema versioning + persistence plumbing** — `deckSchema.js` (`migrateDeck`/`serializeDeck`, `CURRENT_SCHEMA_VERSION`) and `src/utils/deckApi.js` exist as the migration/save-load contract. Not yet imported into `EditorPage.jsx` or exercised against a real backend/DB — see limitations below.
-- **94 tests / 19 files**, all passing; suite has grown, not shrunk, across every task and fix round, including this one (see §5 below).
+- **109 tests / 21 files**, all passing; suite has grown, not shrunk, across every task and fix round, including this one (see §5 below).
 
 ## 1e. Sub-project #6: Theme Token System — Implemented
 
@@ -68,7 +68,6 @@ started":
 
 ## 3. Not started at all
 
-- **Theme system.** `deck.theme` is a bare string set once at deck creation; nothing ever dispatches a change to it (the reducer's `SET_DECK_THEME` action and the theme token schema/registry exist per the architecture review, but nothing in the UI dispatches it yet). `EditorPage.jsx`'s `uiTheme` is local-only cosmetic state, never persisted, never actually re-themes the layouts (which still hardcode their own Tailwind classes rather than consuming tokens).
 - **Remix system** — no design or implementation yet, and per the architecture doc it's explicitly a different operation from Layout Change (§4 of the architecture doc), not a variant of it.
 - **AI storyline / 10+ slide generation, content intelligence** (detect numbers→metrics, lists→bullets, image prompts→media).
 - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
@@ -90,7 +89,7 @@ started":
 
 ## 5. Test status
 
-**94/94 tests passing** across 19 files (`npm run test`), `npm run build` passing.
+**109/109 tests passing** across 21 files (`npm run test`), `npm run build` passing. This includes the Theme Token System sub-project's additions (see §1e) on top of the previous 94/19 baseline.
 
 This count includes a fix round on `FreeElementInteraction.integration.test.jsx` (5 tests that were failing after an untracked-file recovery). Root cause was not a test or environment bug: `FreeElementLayer.jsx` was a stale stub that rendered `freeElements[]` statically and never wired in the already-implemented `useFreeElementInteraction.js`/`FreeElementSelection.jsx`/`FreeElementToolbar.jsx`, and `DeckContext.jsx` never wired in the already-implemented `useDeckHistory.js` (so `useDeck()` had no `undo`/`redo`/`canUndo`/`canRedo` at all). Fixed by wiring both together; no test assertions were weakened and no reducer/hook logic changed.
 
@@ -122,7 +121,7 @@ started.
 | 14 | Change Case tool | — | Not started |
 | 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Not started |
 | 16 | Performance optimization | most other items | Not started |
-| 17 | Full regression testing | everything | Not started (94/94 automated; real-browser pass still outstanding, see §4) |
+| 17 | Full regression testing | everything | Not started (109/109 automated; real-browser pass still outstanding, see §4) |
 
 Do not implement the full list in one pass. Sub-project #6 (Theme Token System) has been
 implemented (see §1e). Next up is the Background system (#7) — awaiting explicit go-ahead
