@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { deckReducer } from "./deckReducer";
-import { createDeck, createSlide, createFreeElement } from "./deckTypes";
+import { createDeck, createSlide, createFreeElement, LAYOUT_IDS } from "./deckTypes";
+import { getRegistryEntry } from "./SlideRegistry";
+import { defaultMetricsGridContent } from "./layouts/MetricsGridLayout";
 
 function deckWithOneSlide() {
   const slide = createSlide({ layout: "title", content: { title: "Hi" }, order: 0 });
@@ -75,6 +77,31 @@ describe("deckReducer", () => {
       { title: "", body: "Onboarding takes weeks" },
       { title: "", body: "Support tickets pile up." },
     ]);
+  });
+
+  it("SET_SLIDE_LAYOUT fills unmapped fields from the target layout's defaults", () => {
+    // title -> metrics-grid has NO bespoke mapper, so identityMapper would
+    // otherwise hand MetricsGridLayout a content object with no `metrics`.
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: slide.id, layout: "metrics-grid" });
+    expect(next.slides[0].layout).toBe("metrics-grid");
+    expect(Array.isArray(next.slides[0].content.metrics)).toBe(true);
+    expect(next.slides[0].content.metrics.length).toBeGreaterThan(0);
+    expect(next.slides[0].content).toEqual({
+      ...defaultMetricsGridContent(),
+      ...slide.content,
+    });
+  });
+
+  it("SET_SLIDE_LAYOUT never leaves any layout missing its required fields", () => {
+    const { deck, slide } = deckWithOneSlide();
+    for (const layout of LAYOUT_IDS) {
+      const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: slide.id, layout });
+      const defaults = getRegistryEntry(layout).defaultContent();
+      for (const key of Object.keys(defaults)) {
+        expect(next.slides[0].content[key]).toBeDefined();
+      }
+    }
   });
 
   it("UPDATE_SLIDE_CONTENT shallow-merges into existing content", () => {

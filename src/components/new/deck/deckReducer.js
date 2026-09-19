@@ -1,5 +1,6 @@
 import { LAYOUT_IDS, createSlide } from "./deckTypes";
 import { getContentMapper } from "./contentMappers";
+import { getRegistryEntry } from "./SlideRegistry";
 
 function warnInvalid(action, reason) {
   console.warn(`deckReducer: ignoring ${action.type} - ${reason}`);
@@ -96,8 +97,16 @@ export function deckReducer(deck, action) {
       const slide = deck.slides[index];
       const mapper = getContentMapper(slide.layout, action.layout);
       const mappedContent = mapper(slide.content);
+      // Most layout pairs have no bespoke mapper and fall back to
+      // identityMapper, which hands the target layout a foreign content shape.
+      // Merging over the target layout's defaults guarantees every field the
+      // target layout reads exists, while anything the mapper did produce wins.
+      const entry = getRegistryEntry(action.layout);
+      const mergedContent = entry
+        ? { ...entry.defaultContent(), ...mappedContent }
+        : mappedContent;
       const slides = [...deck.slides];
-      slides[index] = { ...slide, layout: action.layout, content: mappedContent };
+      slides[index] = { ...slide, layout: action.layout, content: mergedContent };
       return { ...deck, slides };
     }
 
