@@ -53,6 +53,7 @@ import { defaultMedia3PointsContent } from "./deck/layouts/Media3PointsLayout";
 import { defaultMetricsGridContent } from "./deck/layouts/MetricsGridLayout";
 import { defaultTeamGridContent } from "./deck/layouts/TeamGridLayout";
 import { defaultCtaContent } from "./deck/layouts/CtaLayout";
+import { THEME_REGISTRY, getTheme, DEFAULT_THEME_ID, themeToRootStyle } from "./deck/theme/themeTokens";
 
 // --- Shared Froala Editor CDN loader ---------------------------------------
 // Every slide below used to inject its own <link>/<script> pair for Froala,
@@ -3772,7 +3773,7 @@ export default function EditorPage() {
     () =>
       createDeck({
         title: "Untitled Deck",
-        theme: "dark",
+        theme: getTheme(DEFAULT_THEME_ID),
         slides: [
           createSlide({ layout: "title", content: defaultTitleContent(), order: 0 }),
           createSlide({ layout: "problem", content: defaultProblemContent(), order: 1 }),
@@ -3802,8 +3803,6 @@ function EditorPageBody() {
   // plan's "Explicitly out of scope"). The existing background swatches, however,
   // write through to the deck model: per-slide background lives on
   // `currentSlide.background` and is applied by `SlideCanvas`.
-  // `uiTheme` is still local - no reducer action exists for deck theme yet.
-  const [uiTheme, setUiTheme] = useState(deck.theme || 'dark');
   const isAnimatingRef = useRef(false);
 
   const currentSlide = deck.slides[currentSlideIndex];
@@ -3817,8 +3816,8 @@ function EditorPageBody() {
     setShowLayoutPicker(false);
   };
 
-  const handleThemeChange = (newTheme) => {
-    setUiTheme(newTheme);
+  const handleThemeChange = (themeId) => {
+    dispatch({ type: "SET_DECK_THEME", theme: getTheme(themeId) });
     setShowThemeModal(false);
   };
 
@@ -3833,7 +3832,11 @@ function EditorPageBody() {
     setshowBackgroundModal(false);
   };
 
-  const currentTheme = themes[uiTheme] || themes.dark;
+  // `deck.theme` is always a full structured theme by the time it reaches
+  // this component - either from the initial seed deck (new/local deck) or
+  // `migrateDeck` (loaded from the backend) - so no normalization happens
+  // here; this component only ever reads/dispatches it.
+  const deckTheme = deck.theme;
 
   useEffect(() => {
     const handleWheel = (event) => {
@@ -3860,7 +3863,7 @@ function EditorPageBody() {
   }, [currentSlideIndex, deck.slides.length]);
 
   return (
-    <div className={`App font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
+    <div className="App font-sans antialiased h-screen w-screen relative overflow-hidden" style={themeToRootStyle(deckTheme)}>
       <div className="h-screen w-screen overflow-y-auto">
         {currentSlide ? <SlideCanvas slide={currentSlide} /> : null}
       </div>
@@ -3911,56 +3914,32 @@ function EditorPageBody() {
         </div>
       )}
 
-      {showLayoutPicker && <LayoutPicker theme={currentTheme} onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
+      {showLayoutPicker && <LayoutPicker onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
 
       {/* Theme Selection Modal */}
       {showThemeModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
           <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Theme</h2>
-            <div className="flex gap-4">
-              <button
-                onClick={() => handleThemeChange('dark')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-[#021e1d] border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-gray-600 mb-2"></div>
-                <span className="text-white text-sm font-medium">Dark</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('light')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-gray-100 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-gray-400 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Light</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('warm')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-orange-100 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-orange-300 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Warm</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('DeepPurple')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-purple-300 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-purple-400 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Deep Purple</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('DarkBlue')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-blue-400 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-blue-900 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Dark Blue</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('EarthStone')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-stone-400 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-stone-600 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Earth Stone</span>
-              </button>
+            <div className="flex gap-4 flex-wrap justify-center max-w-2xl">
+              {THEME_REGISTRY.map((themeOption) => (
+                <button
+                  key={themeOption.id}
+                  onClick={() => handleThemeChange(themeOption.id)}
+                  className={`relative flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 border-2 transition-colors ${
+                    deckTheme.id === themeOption.id ? "border-teal-400" : "border-transparent hover:border-teal-400/50"
+                  }`}
+                  style={{ backgroundColor: themeOption.colors.background }}
+                >
+                  {deckTheme.id === themeOption.id && (
+                    <Check size={16} className="absolute top-2 right-2" style={{ color: themeOption.colors.primary }} />
+                  )}
+                  <div className="w-10 h-10 rounded-full mb-2" style={{ backgroundColor: themeOption.colors.primary }} />
+                  <span className="text-sm font-medium" style={{ color: themeOption.colors.text }}>
+                    {themeOption.name}
+                  </span>
+                </button>
+              ))}
             </div>
             <button
               onClick={() => setShowThemeModal(false)}
