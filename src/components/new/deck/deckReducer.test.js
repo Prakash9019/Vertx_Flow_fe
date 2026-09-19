@@ -1,0 +1,125 @@
+import { describe, it, expect, vi } from "vitest";
+import { deckReducer } from "./deckReducer";
+import { createDeck, createSlide, createFreeElement } from "./deckTypes";
+
+function deckWithOneSlide() {
+  const slide = createSlide({ layout: "title", content: { title: "Hi" }, order: 0 });
+  const deck = createDeck({ title: "Deck", theme: "dark", slides: [slide] });
+  return { deck, slide };
+}
+
+describe("deckReducer", () => {
+  it("ADD_SLIDE appends a new slide with the given layout and content", () => {
+    const { deck } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: { heading: "Problem" } });
+    expect(next.slides).toHaveLength(2);
+    expect(next.slides[1].layout).toBe("problem");
+    expect(next.slides[1].content).toEqual({ heading: "Problem" });
+    expect(next.slides[1].order).toBe(1);
+  });
+
+  it("ADD_SLIDE warns and no-ops on an unknown layout", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "ADD_SLIDE", layout: "not-a-layout", content: {} });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("DELETE_SLIDE removes the slide by id", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "DELETE_SLIDE", slideId: slide.id });
+    expect(next.slides).toHaveLength(0);
+  });
+
+  it("DELETE_SLIDE warns and no-ops on a missing slideId", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "DELETE_SLIDE", slideId: "missing" });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("DUPLICATE_SLIDE inserts a copy with a new id right after the original", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: slide.id });
+    expect(next.slides).toHaveLength(2);
+    expect(next.slides[1].id).not.toBe(slide.id);
+    expect(next.slides[1].content).toEqual(slide.content);
+    expect(next.slides[1].layout).toBe(slide.layout);
+  });
+
+  it("REORDER_SLIDES moves a slide to the target index and renumbers order", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const withSecond = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: {} });
+    const second = withSecond.slides[1];
+    const reordered = deckReducer(withSecond, { type: "REORDER_SLIDES", slideId: second.id, toIndex: 0 });
+    expect(reordered.slides.map((s) => s.id)).toEqual([second.id, slide.id]);
+    expect(reordered.slides[0].order).toBe(0);
+    expect(reordered.slides[1].order).toBe(1);
+  });
+
+  it("SET_SLIDE_LAYOUT changes layout and remaps content via the registered mapper", () => {
+    const problemSlide = createSlide({
+      layout: "problem",
+      content: { heading: "The Problem", body: "<p>Onboarding takes weeks. Support tickets pile up.</p>" },
+      order: 0,
+    });
+    const deck = createDeck({ title: "Deck", theme: "dark", slides: [problemSlide] });
+    const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: problemSlide.id, layout: "media-3points" });
+    expect(next.slides[0].layout).toBe("media-3points");
+    expect(next.slides[0].content.heading).toBe("The Problem");
+    expect(next.slides[0].content.points).toEqual([
+      { title: "", body: "Onboarding takes weeks" },
+      { title: "", body: "Support tickets pile up." },
+    ]);
+  });
+
+  it("UPDATE_SLIDE_CONTENT shallow-merges into existing content", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: { subtitle: "New" } });
+    expect(next.slides[0].content).toEqual({ title: "Hi", subtitle: "New" });
+  });
+
+  it("SET_SLIDE_BACKGROUND replaces the slide's background", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const bg = { kind: "gradient", stops: ["#000", "#fff"], angle: 45 };
+    const next = deckReducer(deck, { type: "SET_SLIDE_BACKGROUND", slideId: slide.id, background: bg });
+    expect(next.slides[0].background).toEqual(bg);
+  });
+
+  it("ADD_FREE_ELEMENT appends an element to the slide's freeElements", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const next = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    expect(next.slides[0].freeElements).toEqual([el]);
+  });
+
+  it("UPDATE_FREE_ELEMENT patches an existing element by id", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    const next = deckReducer(withEl, { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId: el.id, patch: { x: 50 } });
+    expect(next.slides[0].freeElements[0].x).toBe(50);
+    expect(next.slides[0].freeElements[0].y).toBe(5);
+  });
+
+  it("REMOVE_FREE_ELEMENT removes an element by id", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    const next = deckReducer(withEl, { type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId: el.id });
+    expect(next.slides[0].freeElements).toEqual([]);
+  });
+
+  it("returns the same deck and warns for an unknown action type", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "NOT_A_REAL_ACTION" });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});
