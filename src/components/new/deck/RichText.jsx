@@ -25,7 +25,7 @@ function onFroalaReady(script, callback) {
   script.addEventListener("load", callback, { once: true });
 }
 
-export function RichText({ value, onChange, toolbarButtons, className, as: Tag = "div" }) {
+export function RichText({ value, onChange, toolbarButtons, className, style, as: Tag = "div" }) {
   const ref = useRef(null);
   const editorRef = useRef(null);
   const seededRef = useRef(false);
@@ -86,5 +86,5 @@ export function RichText({ value, onChange, toolbarButtons, className, as: Tag =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <Tag ref={ref} className={className} />;
+  return <Tag ref={ref} className={className} style={style} />;
 }

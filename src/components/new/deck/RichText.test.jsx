@@ -44,6 +44,12 @@ describe("RichText", () => {
       render(<RichText value="<p>Text</p>" onChange={() => {}} as="div" />)
     ).not.toThrow();
   });
+
+  it("forwards a style prop to the underlying element", () => {
+    render(<RichText as="h1" className="text-5xl" style={{ fontFamily: "Georgia, serif" }} value="Hi" onChange={() => {}} />);
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading.style.fontFamily).toBe("Georgia, serif");
+  });
 });
 
 describe("RichText with Froala present", () => {
