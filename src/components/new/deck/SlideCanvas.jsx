@@ -2,6 +2,16 @@ import React from "react";
 import { getRegistryEntry } from "./SlideRegistry";
 import { FreeElementLayer } from "./FreeElementLayer";
 import { useDeck } from "./DeckContext";
+import { normalizeTheme } from "./theme/themeTokens";
+
+// architecture doc §6's two-tier model: a slide with no background override
+// (`slide.background == null`) inherits the deck theme's default; an
+// explicit override always wins. Selection state stays out of this (it's UI
+// state, not persisted document state) - this is purely "what background
+// does this slide actually show right now".
+export function effectiveBackground(slide, deckTheme) {
+  return slide.background ?? deckTheme.defaultBackground;
+}
 
 /**
  * Turns a `SlideBackground` (see the spec's discriminated union) into an inline
@@ -42,7 +52,7 @@ export function SlideCanvas({
   onSelectElement = () => {},
   onStartEditing = () => {},
 }) {
-  const { dispatch } = useDeck();
+  const { deck, dispatch } = useDeck();
   const entry = getRegistryEntry(slide.layout);
 
   if (!entry) {
@@ -51,13 +61,33 @@ export function SlideCanvas({
   }
 
   const LayoutComponent = entry.component;
+  const background = effectiveBackground(slide, normalizeTheme(deck.theme));
+  const isVideoBackground = background?.kind === "media" && background?.type === "video" && background.url;
 
   return (
     <div
       className="relative w-full aspect-video overflow-hidden"
       data-testid="slide-canvas"
-      style={slideBackgroundStyle(slide.background)}
+      style={slideBackgroundStyle(background)}
     >
+      {isVideoBackground && (
+        <video
+          data-testid="slide-background-video"
+          src={background.url}
+          className="absolute inset-0 w-full h-full object-cover"
+          muted
+          loop
+          autoPlay
+          playsInline
+        />
+      )}
+      {background?.overlay && (
+        <div
+          data-testid="slide-background-overlay"
+          className="absolute inset-0"
+          style={{ backgroundColor: background.overlay.color, opacity: background.overlay.opacity }}
+        />
+      )}
       <LayoutComponent
         key={slide.id}
         content={slide.content}

@@ -20,7 +20,12 @@ export function createSlide({ layout, content, background, freeElements, order }
     id: generateId("slide"),
     layout,
     content,
-    background: background ?? { kind: "solid", color: "#0b2d2b" },
+    // `null` means "no per-slide override, inherit the deck theme's default
+    // background" (architecture doc §6's two-tier model) - SlideCanvas
+    // resolves this via `slide.background ?? deckTheme.defaultBackground`.
+    // A slide only gets a background object here when the caller passes one
+    // explicitly (e.g. DUPLICATE_SLIDE cloning an existing override).
+    background: background ?? null,
     freeElements: freeElements ?? [],
     order,
   };

@@ -36,7 +36,8 @@ describe("createSlide", () => {
     expect(slide.id).toMatch(/^slide-/);
     expect(slide.layout).toBe("title");
     expect(slide.content).toEqual({ title: "Hi" });
-    expect(slide.background).toEqual({ kind: "solid", color: "#0b2d2b" });
+    // null = "inherit the deck theme's default background" (architecture doc §6).
+    expect(slide.background).toBeNull();
     expect(slide.freeElements).toEqual([]);
     expect(slide.order).toBe(0);
   });

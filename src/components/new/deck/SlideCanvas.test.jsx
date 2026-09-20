@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { SlideCanvas, slideBackgroundStyle } from "./SlideCanvas";
 import { DeckProvider, useDeck } from "./DeckContext";
 import { createDeck, createSlide, createFreeElement } from "./deckTypes";
+import { getTheme } from "./theme/themeTokens";
 
 function Host() {
   const { deck } = useDeck();
@@ -46,6 +47,71 @@ describe("SlideCanvas", () => {
     });
     renderSlide(slide);
     expect(screen.getByTestId("slide-canvas")).toHaveStyle({ backgroundColor: "#ff0000" });
+  });
+
+  it("falls back to the deck theme's default background when the slide has no override", () => {
+    const slide = createSlide({ layout: "title", content: { title: "Hello Deck", subtitle: "" }, order: 0 });
+    expect(slide.background).toBeNull();
+    const deck = createDeck({ title: "Deck", theme: getTheme("dark"), slides: [slide] });
+    render(
+      <DeckProvider initialDeck={deck}>
+        <Host />
+      </DeckProvider>
+    );
+    expect(screen.getByTestId("slide-canvas")).toHaveStyle({ backgroundColor: getTheme("dark").defaultBackground.color });
+  });
+
+  it("an explicit per-slide background wins over the deck theme's default", () => {
+    const slide = createSlide({
+      layout: "title",
+      content: { title: "Hello Deck", subtitle: "" },
+      background: { kind: "solid", color: "#00ffcc" },
+      order: 0,
+    });
+    const deck = createDeck({ title: "Deck", theme: getTheme("dark"), slides: [slide] });
+    render(
+      <DeckProvider initialDeck={deck}>
+        <Host />
+      </DeckProvider>
+    );
+    expect(screen.getByTestId("slide-canvas")).toHaveStyle({ backgroundColor: "#00ffcc" });
+  });
+
+  it("renders a video element for a media/video background", () => {
+    const slide = createSlide({
+      layout: "title",
+      content: { title: "Hello Deck", subtitle: "" },
+      background: { kind: "media", type: "video", url: "https://example.com/bg.mp4" },
+      order: 0,
+    });
+    renderSlide(slide);
+    const video = screen.getByTestId("slide-background-video");
+    expect(video.tagName).toBe("VIDEO");
+    expect(video).toHaveAttribute("src", "https://example.com/bg.mp4");
+  });
+
+  it("renders a color overlay layer when the background has one, independent of its kind", () => {
+    const slide = createSlide({
+      layout: "title",
+      content: { title: "Hello Deck", subtitle: "" },
+      background: { kind: "image", url: "https://example.com/bg.png", overlay: { color: "#000000", opacity: 0.5 } },
+      order: 0,
+    });
+    renderSlide(slide);
+    const overlay = screen.getByTestId("slide-background-overlay");
+    expect(overlay).toHaveStyle({ backgroundColor: "#000000" });
+    expect(overlay.style.opacity).toBe("0.5");
+  });
+
+  it("renders no overlay layer when the background has none", () => {
+    const slide = createSlide({
+      layout: "title",
+      content: { title: "Hello Deck", subtitle: "" },
+      background: { kind: "solid", color: "#fff" },
+      order: 0,
+    });
+    renderSlide(slide);
+    expect(screen.queryByTestId("slide-background-overlay")).toBeNull();
   });
 
   it("remounts the layout when navigating to a different slide sharing the same layout type", () => {
