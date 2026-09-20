@@ -99,9 +99,12 @@ describe("deckReducer", () => {
     ]);
   });
 
-  it("SET_SLIDE_LAYOUT fills unmapped fields from the target layout's defaults", () => {
-    // title -> metrics-grid has NO bespoke mapper, so identityMapper would
-    // otherwise hand MetricsGridLayout a content object with no `metrics`.
+  it("SET_SLIDE_LAYOUT fills unmapped fields from the target layout's defaults, carrying over the heading", () => {
+    // title -> metrics-grid: no metrics concept exists in a title slide, so
+    // `metrics` must come from metrics-grid's own defaults, but the heading
+    // (title's `title` field) is real semantic content and must carry over -
+    // not get discarded, and not leave stray `title`/`subtitle` keys behind
+    // from a raw identity passthrough.
     const { deck, slide } = deckWithOneSlide();
     const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: slide.id, layout: "metrics-grid" });
     expect(next.slides[0].layout).toBe("metrics-grid");
@@ -109,7 +112,7 @@ describe("deckReducer", () => {
     expect(next.slides[0].content.metrics.length).toBeGreaterThan(0);
     expect(next.slides[0].content).toEqual({
       ...defaultMetricsGridContent(),
-      ...slide.content,
+      heading: slide.content.title,
     });
   });
 

@@ -1,5 +1,5 @@
 import { LAYOUT_IDS, createSlide } from "./deckTypes";
-import { getContentMapper } from "./contentMappers";
+import { getMappedContent } from "./contentMappers";
 import { getRegistryEntry } from "./SlideRegistry";
 
 function warnInvalid(action, reason) {
@@ -106,13 +106,13 @@ export function deckReducer(deck, action) {
         return deck;
       }
       const slide = deck.slides[index];
-      const mapper = getContentMapper(slide.layout, action.layout);
-      const mappedContent = mapper(slide.content);
-      // Most layout pairs have no bespoke mapper and fall back to
-      // identityMapper, which hands the target layout a foreign content shape.
-      // Merging over the target layout's defaults guarantees every field the
-      // target layout reads exists, while anything the mapper did produce wins.
       const entry = getRegistryEntry(action.layout);
+      const mappedContent = getMappedContent(slide.layout, action.layout, slide.content, entry.defaultContent());
+      // getMappedContent's denormalizers already fill every field of the
+      // target layout's shape (falling back to defaultContent() field-by-field
+      // for anything the semantic model has nothing for), but this merge
+      // stays as a defense-in-depth safety net so the target layout is
+      // guaranteed every field it reads even if a denormalizer is missing one.
       const mergedContent = entry
         ? { ...entry.defaultContent(), ...mappedContent }
         : mappedContent;
