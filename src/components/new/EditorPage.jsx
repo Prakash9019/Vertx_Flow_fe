@@ -42,8 +42,13 @@ import { PiDotsThreeBold, PiSelectionBackground } from "react-icons/pi";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
+import { useParams } from "react-router-dom";
 import { DeckProvider, useDeck } from "./deck/DeckContext";
 import { SlideCanvas } from "./deck/SlideCanvas";
+import { SlideSidebar } from "./deck/SlideSidebar";
+import { useDeckLoader } from "./deck/useDeckLoader";
+import { useAutosave } from "./deck/useAutosave";
+import { reorderedIndexOf, indexAfterDelete, indexAfterInsert } from "./deck/slideSidebarLogic";
 import { createDeck, createSlide } from "./deck/deckTypes";
 import { getRegistryEntry } from "./deck/SlideRegistry";
 import { defaultTitleContent } from "./deck/layouts/TitleLayout";
@@ -3768,37 +3773,70 @@ const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
 }
 
 
+function seedDeck() {
+  return createDeck({
+    title: "Untitled Deck",
+    theme: getTheme(DEFAULT_THEME_ID),
+    slides: [
+      createSlide({ layout: "title", content: defaultTitleContent(), order: 0 }),
+      createSlide({ layout: "problem", content: defaultProblemContent(), order: 1 }),
+      createSlide({ layout: "media-description", content: defaultMediaDescriptionContent(), order: 2 }),
+      createSlide({ layout: "media-3points", content: defaultMedia3PointsContent(), order: 3 }),
+      createSlide({ layout: "metrics-grid", content: defaultMetricsGridContent(), order: 4 }),
+      createSlide({ layout: "team-grid", content: defaultTeamGridContent(), order: 5 }),
+      createSlide({ layout: "cta", content: defaultCtaContent(), order: 6 }),
+    ],
+  });
+}
+
+// `/editorPage` (no id) keeps the hardcoded seed deck as an unsaved demo -
+// nothing to load, nothing to autosave to. `/editor/:deckId` loads and
+// migrates a real persisted deck (see useDeckLoader/useDeckSchema) and
+// EditorPageBody's `useAutosave` PATCHes it back on every edit.
 export default function EditorPage() {
-  const initialDeck = React.useMemo(
-    () =>
-      createDeck({
-        title: "Untitled Deck",
-        theme: getTheme(DEFAULT_THEME_ID),
-        slides: [
-          createSlide({ layout: "title", content: defaultTitleContent(), order: 0 }),
-          createSlide({ layout: "problem", content: defaultProblemContent(), order: 1 }),
-          createSlide({ layout: "media-description", content: defaultMediaDescriptionContent(), order: 2 }),
-          createSlide({ layout: "media-3points", content: defaultMedia3PointsContent(), order: 3 }),
-          createSlide({ layout: "metrics-grid", content: defaultMetricsGridContent(), order: 4 }),
-          createSlide({ layout: "team-grid", content: defaultTeamGridContent(), order: 5 }),
-          createSlide({ layout: "cta", content: defaultCtaContent(), order: 6 }),
-        ],
-      }),
-    []
-  );
+  const { deckId } = useParams();
+  const { status, deck: loadedDeck, error } = useDeckLoader(deckId);
+  const fallbackDeck = React.useMemo(() => seedDeck(), []);
+
+  if (deckId) {
+    if (status === "loading") {
+      return (
+        <div className="h-screen w-screen flex items-center justify-center bg-[#021e1d] text-white/70">
+          Loading deck...
+        </div>
+      );
+    }
+    if (status === "error") {
+      return (
+        <div className="h-screen w-screen flex flex-col items-center justify-center gap-2 bg-[#021e1d] text-white">
+          <p className="text-red-400">Couldn't load this deck.</p>
+          <p className="text-white/50 text-sm">{error?.message ?? "Unknown error"}</p>
+        </div>
+      );
+    }
+    return (
+      <DeckProvider key={deckId} initialDeck={loadedDeck}>
+        <EditorPageBody deckId={deckId} />
+      </DeckProvider>
+    );
+  }
+
   return (
-    <DeckProvider initialDeck={initialDeck}>
-      <EditorPageBody />
+    <DeckProvider initialDeck={fallbackDeck}>
+      <EditorPageBody deckId={null} />
     </DeckProvider>
   );
 }
 
-function EditorPageBody() {
+function EditorPageBody({ deckId = null }) {
   const { deck, dispatch } = useDeck();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
+  const [insertAfterSlideId, setInsertAfterSlideId] = useState(null);
+  const [selectedElementId, setSelectedElementId] = useState(null);
+  const [editingElementId, setEditingElementId] = useState(null);
   // NOTE: building a richer background/theme *picker UI* is out of scope (see the
   // plan's "Explicitly out of scope"). The existing background swatches, however,
   // write through to the deck model: per-slide background lives on
@@ -3806,13 +3844,35 @@ function EditorPageBody() {
   const isAnimatingRef = useRef(false);
 
   const currentSlide = deck.slides[currentSlideIndex];
+  const saveStatus = useAutosave(deckId, deck);
+
+  // A free element's selection/editing state is scoped to whichever slide is
+  // on screen (architecture doc §1: "selection state does not belong in the
+  // Deck") - clear it whenever the visible slide changes, whatever caused
+  // the change (wheel nav, nav dot, sidebar).
+  useEffect(() => {
+    setSelectedElementId(null);
+    setEditingElementId(null);
+  }, [currentSlideIndex]);
 
   const handleAddSlide = (layoutId) => {
     const entry = getRegistryEntry(layoutId);
     if (!entry) return;
-    const newIndex = deck.slides.length;
-    dispatch({ type: "ADD_SLIDE", layout: layoutId, content: entry.defaultContent() });
-    setCurrentSlideIndex(newIndex);
+    if (insertAfterSlideId) {
+      const newIndex = indexAfterInsert(deck.slides, insertAfterSlideId);
+      dispatch({
+        type: "ADD_SLIDE",
+        layout: layoutId,
+        content: entry.defaultContent(),
+        afterSlideId: insertAfterSlideId,
+      });
+      setCurrentSlideIndex(newIndex);
+      setInsertAfterSlideId(null);
+    } else {
+      const newIndex = deck.slides.length;
+      dispatch({ type: "ADD_SLIDE", layout: layoutId, content: entry.defaultContent() });
+      setCurrentSlideIndex(newIndex);
+    }
     setShowLayoutPicker(false);
   };
 
@@ -3830,6 +3890,58 @@ function EditorPageBody() {
       });
     }
     setshowBackgroundModal(false);
+  };
+
+  // --- SlideSidebar wiring -------------------------------------------------
+  // Slide selection lives on `currentSlideIndex` (a position, not an id) for
+  // the pre-existing wheel-nav/nav-dot code below. Every sidebar action that
+  // mutates `deck.slides` computes, from the *pre-dispatch* slide list still
+  // in scope, the index the slide-of-interest will land at, and sets
+  // `currentSlideIndex` to it in the same tick as the dispatch - so the next
+  // render shows the right slide instead of a stale index.
+  const handleSidebarSelect = (slideId) => {
+    const index = deck.slides.findIndex((s) => s.id === slideId);
+    if (index !== -1) setCurrentSlideIndex(index);
+  };
+
+  const handleSidebarInsertAfter = (slideId) => {
+    setInsertAfterSlideId(slideId);
+    setShowLayoutPicker(true);
+  };
+
+  const handleSidebarDuplicate = (slideId) => {
+    const index = deck.slides.findIndex((s) => s.id === slideId);
+    if (index === -1) return;
+    dispatch({ type: "DUPLICATE_SLIDE", slideId });
+    setCurrentSlideIndex(index + 1);
+  };
+
+  const handleSidebarDelete = (slideId) => {
+    const index = deck.slides.findIndex((s) => s.id === slideId);
+    if (index === -1 || deck.slides.length <= 1) return;
+    const nextIndex = indexAfterDelete(index, currentSlideIndex, deck.slides.length);
+    dispatch({ type: "DELETE_SLIDE", slideId });
+    setCurrentSlideIndex(nextIndex);
+  };
+
+  const handleSidebarReorder = (slideId, toIndex) => {
+    const fromIndex = deck.slides.findIndex((s) => s.id === slideId);
+    if (fromIndex === -1) return;
+    const clampedTo = Math.max(0, Math.min(toIndex, deck.slides.length - 1));
+    if (clampedTo === fromIndex) return;
+    const currentId = currentSlide?.id;
+    dispatch({ type: "REORDER_SLIDES", slideId, toIndex: clampedTo });
+    if (currentId) {
+      setCurrentSlideIndex(reorderedIndexOf(deck.slides, fromIndex, clampedTo, currentId));
+    }
+  };
+
+  const handleSidebarMove = (slideId, direction) => {
+    const fromIndex = deck.slides.findIndex((s) => s.id === slideId);
+    if (fromIndex === -1) return;
+    const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= deck.slides.length) return;
+    handleSidebarReorder(slideId, toIndex);
   };
 
   // `deck.theme` is a full structured theme today only because the seed
@@ -3866,9 +3978,36 @@ function EditorPageBody() {
   }, [currentSlideIndex, deck.slides.length]);
 
   return (
-    <div className="App font-sans antialiased h-screen w-screen relative overflow-hidden" style={themeToRootStyle(deckTheme)}>
+    <div className="App font-sans antialiased h-screen w-screen flex overflow-hidden" style={themeToRootStyle(deckTheme)}>
+      <SlideSidebar
+        slides={deck.slides}
+        currentSlideId={currentSlide?.id}
+        onSelectSlide={handleSidebarSelect}
+        onAddSlide={() => setShowLayoutPicker(true)}
+        onInsertAfter={handleSidebarInsertAfter}
+        onDuplicateSlide={handleSidebarDuplicate}
+        onDeleteSlide={handleSidebarDelete}
+        onReorderSlide={handleSidebarReorder}
+        onMoveSlide={handleSidebarMove}
+      />
+      <div className="relative flex-1 h-screen overflow-hidden">
+      {deckId && (
+        <div className="absolute top-3 right-4 z-50 text-xs text-white/50">
+          {saveStatus === "saving" && "Saving..."}
+          {saveStatus === "saved" && "Saved"}
+          {saveStatus === "error" && <span className="text-red-400">Save failed</span>}
+        </div>
+      )}
       <div className="h-screen w-screen overflow-y-auto">
-        {currentSlide ? <SlideCanvas slide={currentSlide} /> : null}
+        {currentSlide ? (
+          <SlideCanvas
+            slide={currentSlide}
+            selectedElementId={selectedElementId}
+            editingElementId={editingElementId}
+            onSelectElement={setSelectedElementId}
+            onStartEditing={setEditingElementId}
+          />
+        ) : null}
       </div>
 
       {/* Slide Navigation Bars */}
@@ -3917,7 +4056,15 @@ function EditorPageBody() {
         </div>
       )}
 
-      {showLayoutPicker && <LayoutPicker onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
+      {showLayoutPicker && (
+        <LayoutPicker
+          onSelect={handleAddSlide}
+          onClose={() => {
+            setShowLayoutPicker(false);
+            setInsertAfterSlideId(null);
+          }}
+        />
+      )}
 
       {/* Theme Selection Modal */}
       {showThemeModal && (
@@ -4011,6 +4158,7 @@ function EditorPageBody() {
     </div>
   </div>
 )}
+      </div>
     </div>
   );
 }

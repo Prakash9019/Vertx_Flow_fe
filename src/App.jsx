@@ -58,6 +58,7 @@ import ReachLinkPreview from "./components/Fundraising/Reach_link/ReachLinkPrevi
 import ReachRedirect from "./components/ReachRedirect.jsx";
 import Flash from "./components/Flash/Flash.jsx";
 import EditorPage from "./components/new/EditorPage.jsx";
+import DeckListPage from "./components/new/DeckListPage.jsx";
 import UserBGselect from "./components/new/UserBGselect.jsx";
 import Editor1_Page from "./components/new/NewEditor.jsx";
 import ReviewP from "./components/Flash/ReviewP.jsx";
@@ -123,6 +124,8 @@ function App() {
           {/* Public sample/editor pages (no login required) */}
           <Route path="/sample" element={<Editor1_Page />} />
           <Route path="/editorPage" element={<EditorPage />} />
+          <Route path="/decks" element={<DeckListPage />} />
+          <Route path="/editor/:deckId" element={<EditorPage />} />
 
           {/* Auth routes */}
           <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
