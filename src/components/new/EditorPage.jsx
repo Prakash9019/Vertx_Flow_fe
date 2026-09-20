@@ -46,6 +46,7 @@ import { useParams } from "react-router-dom";
 import { DeckProvider, useDeck } from "./deck/DeckContext";
 import { SlideCanvas } from "./deck/SlideCanvas";
 import { SlideSidebar } from "./deck/SlideSidebar";
+import { BackgroundPicker } from "./deck/BackgroundPicker";
 import { useDeckLoader } from "./deck/useDeckLoader";
 import { useAutosave } from "./deck/useAutosave";
 import { reorderedIndexOf, indexAfterDelete, indexAfterInsert } from "./deck/slideSidebarLogic";
@@ -3881,15 +3882,21 @@ function EditorPageBody({ deckId = null }) {
     setShowThemeModal(false);
   };
 
-  const handleBGChange = (newBG) => {
+  // BackgroundPicker edits `SlideBackground` objects directly (architecture
+  // doc §6) - `background` here is always a complete, valid SlideBackground,
+  // never a swatch key needing translation.
+  const handleBackgroundChange = (background) => {
     if (currentSlide) {
-      dispatch({
-        type: "SET_SLIDE_BACKGROUND",
-        slideId: currentSlide.id,
-        background: backgroundPresetToSlideBackground(newBG),
-      });
+      dispatch({ type: "SET_SLIDE_BACKGROUND", slideId: currentSlide.id, background });
     }
-    setshowBackgroundModal(false);
+  };
+
+  // Clears the slide-level override so it falls back to the deck theme's
+  // default background (architecture doc §6's two-tier model).
+  const handleUseDefaultBackground = () => {
+    if (currentSlide) {
+      dispatch({ type: "SET_SLIDE_BACKGROUND", slideId: currentSlide.id, background: null });
+    }
   };
 
   // --- SlideSidebar wiring -------------------------------------------------
@@ -4100,64 +4107,27 @@ function EditorPageBody({ deckId = null }) {
           </div>
         </div>
       )}
-      {showBackgroundModal && (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
-    <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center max-w-160 w-full mx-4">
-      <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Background</h2>
+      {showBackgroundModal && currentSlide && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
+          <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center max-w-160 w-full mx-4">
+            <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Background</h2>
 
-      {/* Normal Backgrounds Section */}
-      <h2 className="text-sm font-semibold uppercase tracking-wide mt-4 mb-3 text-white/50">Normal</h2>
-      <div className="flex flex-wrap justify-center gap-2 max-w-130">
-        {Object.entries(backgrounds)
-          // Select the first 21 backgrounds for the "Normal" section
-          .slice(0, 20)
-          .map(([key, value], index) => (
+            <BackgroundPicker
+              value={currentSlide.background}
+              deckDefault={deckTheme.defaultBackground}
+              onChange={handleBackgroundChange}
+              onUseDefault={handleUseDefaultBackground}
+            />
+
             <button
-              key={key}
-              onClick={() => handleBGChange(key)}
-              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-teal-400 rounded-lg"
+              onClick={() => setshowBackgroundModal(false)}
+              className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
             >
-              <div
-                title={key.replace(/([A-Z])/g, ' $1').trim()}
-                className={`w-8 h-8 rounded-full ${value.card} shadow-inner border border-white/20`}
-              >
-              </div>
+              Close
             </button>
-          ))}
-      </div>
-
-      {/* Gradient Backgrounds Section */}
-      <h2 className="text-sm font-semibold uppercase tracking-wide mt-6 mb-3 text-white/50">Gradient</h2>
-      <div className="flex flex-wrap justify-center gap-2 max-w-130">
-        {Object.entries(backgrounds)
-          // Select the remaining backgrounds for the "Gradient" section
-          .slice(20, 42)
-          .map(([key, value], index) => (
-            <button
-              key={key}
-              onClick={() => handleBGChange(key)}
-              // Rectangular button class for gradients
-              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-teal-400 rounded-lg"
-            >
-              <div
-                title={key.replace(/([A-Z])/g, ' $1').trim()} // Better title formatting
-                // Rectangular swatch
-                className={`w-14 h-8 rounded-md ${value.card} shadow-inner border border-white/20`}
-              >
-              </div>
-            </button>
-          ))}
-      </div>
-
-      <button
-        onClick={() => setshowBackgroundModal(false)}
-        className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
