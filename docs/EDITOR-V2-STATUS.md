@@ -306,6 +306,68 @@ Backend: **20/20** (up from 14).
 (via the mocked client) but the actual model's adherence to "one slide per
 beat, in order" is unverified until a manual pass with a real API key.
 
+## 1e-7. Inline text editing audit/fixes — Implemented
+
+Roadmap #13. This was an audit (no pre-existing bug list to work from), so
+the work was: find the real bugs, fix them, prove it with tests.
+
+**Bug found**: `RichText.jsx` and `TextWidget.jsx` (free-element text) both
+seed their DOM/contentEditable node from `value`/`element.props.html`
+exactly once on mount, and were deliberately never re-synced afterward -
+`RichText.test.jsx` even had an explicit passing test asserting this
+("does not re-write the live editor DOM when the value prop changes"). That
+tradeoff is correct for its original purpose (a naive full re-sync on every
+render would blow away Froala's DOM state and reset the caret mid-keystroke -
+the original "stale-closure/DOM-fight" bug, §1). But `SlideCanvas` keys its
+rendered layout on `slide.id` only and `FreeElementLayer` keys each widget on
+`element.id` - **neither id changes on undo/redo** - so a slide/element that
+stays mounted across an undo genuinely reverts its content in `deck.present`
+while the visible rich-text/contentEditable DOM keeps showing whatever was
+last typed. The next keystroke would then commit that stale on-screen text
+right back over the just-restored state, silently corrupting the undo.
+
+**Fix (`RichText.jsx`)**: a new `lastKnownValueRef` tracks the html this
+component itself last put into the DOM (seeded value, or whatever its own
+`contentChanged` handler last emitted - set *before* calling `onChange`, so
+the parent's inevitable echo of that same value back in as a prop is
+indistinguishable from "nothing happened"). A new effect fires only when an
+incoming `value` prop diverges from that ref - i.e. a genuinely external
+change - and re-applies it via Froala's own `editorRef.current.html.set()`
+API when available (keeps Froala's internal state consistent), falling back
+to a raw `innerHTML` write only if the editor hasn't initialized yet. Typing
+is completely unaffected: the parent's echoed value always matches
+`lastKnownValueRef`, so the resync effect is a no-op on every normal
+keystroke - no caret disruption, no regression of the original bug this
+design prevented.
+
+**Fix (`widgets/TextWidget.jsx`)**: identical shape - `lastKnownHtmlRef`,
+updated both by the mount-seed and by `onBlur`'s commit (this widget commits
+on blur, not per-keystroke, so `element.props.html` only actually changes
+after a commit or an external action like undo). The resync effect
+additionally checks `!editing`, so it can never stomp on an active edit
+session even in the (currently impossible, but cheap to guard) case of an
+external change arriving mid-edit.
+
+**Tests**: `RichText.test.jsx` gained 3 tests - no-resync-on-echo, the actual
+undo-resync fix, and the `html.set`-unavailable fallback path. New
+`widgets/TextWidget.test.jsx` (5 tests) covers the equivalent behavior for
+the free-element widget, including the `editing`-guard case. New
+`UndoRedoTextEditing.integration.test.jsx` proves the fix through the real
+stack - `DeckProvider` → `useDeckHistory`/`deckReducer` → `ProblemLayout` →
+`RichText`, with a real `UPDATE_SLIDE_CONTENT` dispatch and a real `undo()`
+call - asserting the previously-typed heading actually disappears from the
+DOM and the original heading reappears, not just that internal refs compare
+correctly. **218/218 tests passing** (up from 209), build clean.
+
+**Not otherwise expanded**: this was scoped as "find and fix the real bugs,"
+not a general feature pass - toolbar/paste/keyboard-shortcut behavior was
+audited (no other component in `src/components/new/deck` uses the seed-once
+contentEditable pattern - grep confirms only these two) but not touched
+beyond the undo/redo defect above. **Not verified in a real browser** - same
+caveat as everything else in this document; the jsdom-level fix and its
+tests are believed correct but a manual undo/redo click-through against real
+Froala has not been done.
+
 ## 2. Not started at all
 - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
 - **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
@@ -325,7 +387,7 @@ beat, in order" is unverified until a manual pass with a real API key.
 
 ## 5. Test status
 
-**209/209 tests passing** across 32 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here).
+**218/218 tests passing** across 34 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here) → 218 (Inline text editing audit/fixes: `RichText.test.jsx` +3, new `TextWidget.test.jsx` (5) and `UndoRedoTextEditing.integration.test.jsx` (1), §1e-7).
 
 Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted** (the ~26 pre-deck-model hardcoded slide components, `themes`/`themes2`/`backgrounds`/`BACKGROUND_PRESET_MODELS`, the per-file Froala loader they used, and every import only they needed) — 4,133 → 421 lines, none of it reachable from the live app. No behavior change; covered by the existing/added test suite and a clean build.
 
@@ -357,12 +419,12 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | **Implemented** (see §1e-5) |
 | 11 | AI 10+ slide generation | #10 | **Implemented** (see §1e-6) |
 | 12 | Content intelligence | overlaps #10/#11, may co-design | **Implemented** (see §1e-6) |
-| 13 | Inline text editing audit/fixes | — | Not started |
+| 13 | Inline text editing audit/fixes | — | **Implemented** (see §1e-7) |
 | 14 | Change Case tool | — | Not started |
 | 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Not started |
 | 16 | Performance optimization | most other items | Not started |
 | 17 | Full regression testing | everything | Not started (149/149 automated; real-browser pass still outstanding, see §4) |
 
-Every item through #12 is now implemented and wired into the live
+Every item through #13 is now implemented and wired into the live
 `EditorPage.jsx`/`DeckListPage.jsx` (or, for #1, #10, #11, and #12, into a real backend
-too). Remaining work (#13 onward) is inline-editing/polish/performance, not requested yet.
+too). Remaining work (#14 onward) is polish/animations/performance, not requested yet.

@@ -15,7 +15,12 @@ function installFroalaStub() {
   function FakeFroalaEditor(el, options) {
     this.el = el;
     this.options = options;
-    this.html = { get: () => el.innerHTML };
+    this.html = {
+      get: () => el.innerHTML,
+      set: (html) => {
+        el.innerHTML = html;
+      },
+    };
     this.destroy = () => {};
     instances.push(this);
   }
@@ -89,6 +94,55 @@ describe("RichText with Froala present", () => {
     rerender(<RichText value="<p>A</p>" onChange={() => {}} />);
 
     expect(node.innerHTML).toBe("<p>user typing</p>");
+  });
+
+  it("does not re-sync the DOM when value changes only because the parent echoed our own edit back", async () => {
+    function Harness() {
+      const [value, setValue] = React.useState("<p>A</p>");
+      return <RichText value={value} onChange={setValue} />;
+    }
+    render(<Harness />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+
+    const node = instances[0].el;
+    typeInto(instances[0], "<p>B</p>");
+    // The parent's state now equals "<p>B</p>" too, so React re-renders this
+    // component with value="<p>B</p>" - the same string this component itself
+    // just emitted. That must NOT trigger a resync (it would fight the live
+    // caret on every keystroke, the exact bug the seed-once design avoided).
+    await waitFor(() => expect(node.innerHTML).toBe("<p>B</p>"));
+  });
+
+  it("resyncs the DOM when value reverts externally while mounted (undo/redo regression, roadmap #13)", async () => {
+    const { rerender } = render(<RichText value="<p>A</p>" onChange={() => {}} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+
+    // User types "B" - the live DOM (and Froala's internal state) now says B,
+    // and the parent's state (dispatch -> deckReducer) catches up to match,
+    // which is what actually feeds a new `value` prop back in here.
+    typeInto(instances[0], "<p>B</p>");
+    rerender(<RichText value="<p>B</p>" onChange={() => {}} />);
+    expect(instances[0].el.innerHTML).toBe("<p>B</p>");
+
+    // Undo reverts the deck's `present` state without remounting this field
+    // (SlideCanvas keys on `slide.id`, which doesn't change on undo) - the
+    // parent re-renders with the OLD value, which must now win visibly.
+    rerender(<RichText value="<p>A</p>" onChange={() => {}} />);
+
+    await waitFor(() => expect(instances[0].el.innerHTML).toBe("<p>A</p>"));
+  });
+
+  it("falls back to a raw innerHTML write on resync when html.set is unavailable", async () => {
+    const { rerender } = render(<RichText value="<p>A</p>" onChange={() => {}} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+    typeInto(instances[0], "<p>B</p>");
+    rerender(<RichText value="<p>B</p>" onChange={() => {}} />);
+    // Simulate an editor instance whose html.set API isn't available.
+    delete instances[0].html.set;
+
+    rerender(<RichText value="<p>A</p>" onChange={() => {}} />);
+
+    await waitFor(() => expect(instances[0].el.innerHTML).toBe("<p>A</p>"));
   });
 });
 
