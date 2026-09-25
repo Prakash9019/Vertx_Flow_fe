@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import deckApi from "../../utils/deckApi";
 import { getTheme, DEFAULT_THEME_ID } from "./deck/theme/themeTokens";
 import AIStorylineModal from "./deck/AIStorylineModal";
+import TemplateGalleryModal from "./deck/TemplateGalleryModal";
 
 export default function DeckListPage() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function DeckListPage() {
   const [status, setStatus] = useState("loading"); // loading | ready | error
   const [creating, setCreating] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +72,13 @@ export default function DeckListPage() {
             >
               Generate with AI
             </button>
+            <button
+              onClick={() => setShowTemplateModal(true)}
+              disabled={creating}
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 font-medium"
+            >
+              Start from Template
+            </button>
           </div>
         </div>
 
@@ -78,6 +87,16 @@ export default function DeckListPage() {
             onClose={() => setShowAIModal(false)}
             onDeckCreated={(deckId) => {
               setShowAIModal(false);
+              navigate(`/editor/${deckId}`);
+            }}
+          />
+        )}
+
+        {showTemplateModal && (
+          <TemplateGalleryModal
+            onClose={() => setShowTemplateModal(false)}
+            onDeckCreated={(deckId) => {
+              setShowTemplateModal(false);
               navigate(`/editor/${deckId}`);
             }}
           />
