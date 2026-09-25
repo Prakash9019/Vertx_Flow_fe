@@ -34,7 +34,7 @@ export function slideBackgroundStyle(background) {
       if (!background.url) return {};
       if (background.kind === "media" && background.type === "video") return {};
       return {
-        backgroundImage: `url(${background.url})`,
+        backgroundImage: `url("${background.url.replace(/"/g, '\\"')}")`,
         backgroundSize: background.fit === "contain" ? "contain" : "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

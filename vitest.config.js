@@ -8,8 +8,11 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test/setup.js",
-    // Scratch/debugging files are never part of the suite.
-    exclude: ["**/node_modules/**", "**/dist/**", "**/scratch/**"],
+    // Scratch/debugging files are never part of the suite. `.worktrees` holds
+    // other branches checked out side-by-side - each has its own
+    // node_modules/React copy, so picking up its tests here causes duplicate-
+    // React "invalid hook call" failures.
+    exclude: ["**/node_modules/**", "**/dist/**", "**/scratch/**", "**/.worktrees/**"],
   },
   resolve: {
     alias: {

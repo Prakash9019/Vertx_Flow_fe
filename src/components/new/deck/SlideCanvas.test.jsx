@@ -160,10 +160,16 @@ describe("slideBackgroundStyle", () => {
       backgroundImage: "linear-gradient(90deg, #000, #fff)",
     });
     expect(slideBackgroundStyle({ kind: "image", url: "a.png", fit: "contain" })).toMatchObject({
-      backgroundImage: "url(a.png)",
+      backgroundImage: 'url("a.png")',
       backgroundSize: "contain",
     });
     expect(slideBackgroundStyle(undefined)).toEqual({});
     expect(slideBackgroundStyle({ kind: "nope" })).toEqual({});
+  });
+
+  it("escapes a double quote in the url so it can't break out of the CSS string", () => {
+    expect(slideBackgroundStyle({ kind: "image", url: 'a".png' })).toMatchObject({
+      backgroundImage: 'url("a\\".png")',
+    });
   });
 });
