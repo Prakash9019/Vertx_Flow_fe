@@ -11,6 +11,33 @@ const WIDGET_DEFAULTS = {
   shape: { w: 18, h: 18, props: { shape: "rectangle" } },
   divider: { w: 40, h: 1.5, props: {} },
   icon: { w: 8, h: 8, props: { icon: "Star" } },
+  chart: {
+    w: 32,
+    h: 24,
+    props: {
+      data: [
+        { label: "A", value: 40 },
+        { label: "B", value: 70 },
+        { label: "C", value: 55 },
+      ],
+    },
+  },
+  timeline: {
+    w: 50,
+    h: 14,
+    props: {
+      items: [
+        { label: "Step 1", date: "", description: "" },
+        { label: "Step 2", date: "", description: "" },
+        { label: "Step 3", date: "", description: "" },
+      ],
+    },
+  },
+  quote: { w: 34, h: 18, props: { text: "A short, memorable quote.", author: "Author Name", role: "" } },
+  // `src`, not `url` - lets this reuse the same generic
+  // onReplaceSrc(elementId, url) wiring FreeElementLayer already has for
+  // image/video, with no change to that file.
+  embed: { w: 40, h: 24, props: { src: "" } },
 };
 
 export const WIDGET_TYPES = Object.keys(WIDGET_DEFAULTS);

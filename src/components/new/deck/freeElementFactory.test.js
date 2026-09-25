@@ -5,9 +5,20 @@ describe("freeElementFactory", () => {
   describe("WIDGET_TYPES", () => {
     it("lists every widget type with defaults", () => {
       expect(WIDGET_TYPES).toEqual(
-        expect.arrayContaining(["text", "image", "video", "shape", "divider", "icon"])
+        expect.arrayContaining([
+          "text",
+          "image",
+          "video",
+          "shape",
+          "divider",
+          "icon",
+          "chart",
+          "timeline",
+          "quote",
+          "embed",
+        ])
       );
-      expect(WIDGET_TYPES.length).toBe(6);
+      expect(WIDGET_TYPES.length).toBe(10);
     });
   });
 
@@ -47,6 +58,30 @@ describe("freeElementFactory", () => {
 
     it("throws for an unknown widget type", () => {
       expect(() => createWidget("not-a-real-type")).toThrow(/unknown widget type/);
+    });
+
+    it("creates a chart widget with default bar data", () => {
+      const el = createWidget("chart");
+      expect(el.type).toBe("chart");
+      expect(Array.isArray(el.props.data)).toBe(true);
+      expect(el.props.data.length).toBeGreaterThan(0);
+    });
+
+    it("creates a timeline widget with default milestone items", () => {
+      const el = createWidget("timeline");
+      expect(Array.isArray(el.props.items)).toBe(true);
+      expect(el.props.items.length).toBeGreaterThan(0);
+    });
+
+    it("creates a quote widget with default text and author", () => {
+      const el = createWidget("quote");
+      expect(el.props.text).toBeTruthy();
+      expect(el.props.author).toBeTruthy();
+    });
+
+    it("creates an embed widget with an empty src placeholder", () => {
+      const el = createWidget("embed");
+      expect(el.props.src).toBe("");
     });
 
     it("copies props (not the same defaults object) across calls", () => {

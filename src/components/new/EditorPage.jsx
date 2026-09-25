@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Palette, Plus, Check, Shuffle } from 'lucide-react';
+import { Palette, Plus, Check, Shuffle, LayoutGrid, Shapes, Undo2, Redo2 } from 'lucide-react';
+import { InsertWidgetMenu } from "./deck/InsertWidgetMenu";
+import { createWidget, maxZIndex } from "./deck/freeElementFactory";
 import { PiSelectionBackground } from "react-icons/pi";
 
 import { useParams } from "react-router-dom";
@@ -22,7 +24,7 @@ import { defaultTeamGridContent } from "./deck/layouts/TeamGridLayout";
 import { defaultCtaContent } from "./deck/layouts/CtaLayout";
 import { THEME_REGISTRY, getTheme, DEFAULT_THEME_ID, themeToRootStyle, normalizeTheme } from "./deck/theme/themeTokens";
 
-const LayoutPicker = ({ onSelect, onClose }) => {
+const LayoutPicker = ({ onSelect, onClose, activeLayoutId = null, title = "Choose a Layout" }) => {
     // Only layouts registered in the new deck model's LAYOUT_IDS (Task 2/7) are offered here.
     // Legacy layout-picker options with no equivalent in LAYOUT_IDS (Title Only, Comparison,
     // Quote, etc.) have been removed rather than wired to a nonexistent layout id.
@@ -39,14 +41,19 @@ const LayoutPicker = ({ onSelect, onClose }) => {
     return (
         <div className="fixed inset-0 bg-transparent backdrop-blur-xl bg-opacity-70 flex items-center justify-center z-[100]">
             <div className="bg-[#0b2d2b] border border-white/10 rounded-lg p-8 shadow-xl">
-                <h2 className="text-xl font-semibold text-white mb-6">Choose a Layout</h2>
+                <h2 className="text-xl font-semibold text-white mb-6">{title}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
                     {layouts.map(layout => (
                         <button
                             key={layout.id}
                             onClick={() => onSelect(layout.id)}
-                            className="p-4 border rounded-lg text-white hover:text-black hover:bg-gray-200 hover:transition-all"
+                            className={`relative p-4 border rounded-lg text-white hover:text-black hover:bg-gray-200 hover:transition-all ${
+                                layout.id === activeLayoutId ? "border-teal-400 border-2" : ""
+                            }`}
                         >
+                            {layout.id === activeLayoutId && (
+                                <Check size={16} className="absolute top-1.5 right-1.5 text-teal-400" />
+                            )}
                             {layout.name}
                         </button>
                     ))}
@@ -119,14 +126,31 @@ export default function EditorPage() {
 }
 
 function EditorPageBody({ deckId = null }) {
-  const { deck, dispatch } = useDeck();
+  const { deck, dispatch, undo, redo, canUndo, canRedo } = useDeck();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
+  const [showChangeLayoutPicker, setShowChangeLayoutPicker] = useState(false);
+  const [showInsertWidgetMenu, setShowInsertWidgetMenu] = useState(false);
   const [insertAfterSlideId, setInsertAfterSlideId] = useState(null);
   const [selectedElementId, setSelectedElementId] = useState(null);
   const [editingElementId, setEditingElementId] = useState(null);
+  // TextWidget (free-element text) only persists its typed content on blur,
+  // not per-keystroke like RichText/Froala fields do - so anything that
+  // changes `editingElementId` out from under an in-progress edit (slide
+  // navigation, double-clicking a different element) without a real blur
+  // event first would silently discard whatever the user just typed.
+  // Blurring the live DOM's focused node ourselves, synchronously, before
+  // the state change takes effect forces TextWidget's own onBlur (which
+  // calls onCommit) to run first - so this doesn't depend on the browser
+  // firing blur on its own when contentEditable flips to false.
+  const setEditingElementIdCommitFirst = (nextId) => {
+    if (typeof document !== "undefined" && document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+    setEditingElementId(nextId);
+  };
   // NOTE: building a richer background/theme *picker UI* is out of scope (see the
   // plan's "Explicitly out of scope"). The existing background swatches, however,
   // write through to the deck model: per-slide background lives on
@@ -142,8 +166,36 @@ function EditorPageBody({ deckId = null }) {
   // the change (wheel nav, nav dot, sidebar).
   useEffect(() => {
     setSelectedElementId(null);
-    setEditingElementId(null);
+    setEditingElementIdCommitFirst(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlideIndex]);
+
+  // Ctrl/Cmd+Z (undo) and Ctrl/Cmd+Shift+Z (redo) - the deck-level history
+  // exposed by useDeck(), previously only reachable through the toolbar
+  // buttons below. Skipped while the focused element is content-editable
+  // (a Froala field or a free-text widget mid-edit, same "don't steal
+  // keyboard behavior from an active field" guard FreeElementLayer's
+  // Delete-key handler already applies) so this never fights the field's
+  // own native/Froala undo while someone is typing.
+  useEffect(() => {
+    function handleKeyDown(event) {
+      const key = event.key.toLowerCase();
+      if (key !== "z" || !(event.ctrlKey || event.metaKey)) return;
+      // `Element.isContentEditable` isn't implemented by jsdom (returns
+      // false regardless of the attribute), so this checks the attribute
+      // directly - correct in both jsdom and real browsers, since React
+      // renders `contentEditable={true}` as `contenteditable="true"`.
+      if (document.activeElement?.getAttribute("contenteditable") === "true") return;
+      event.preventDefault();
+      if (event.shiftKey) {
+        redo();
+      } else {
+        undo();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [undo, redo]);
 
   const handleAddSlide = (layoutId) => {
     const entry = getRegistryEntry(layoutId);
@@ -200,6 +252,33 @@ function EditorPageBody({ deckId = null }) {
     const history = remixHistoryRef.current[currentSlide.id] ?? [];
     dispatch({ type: "REMIX_SLIDE", slideId: currentSlide.id, excludeLayouts: history });
     remixHistoryRef.current[currentSlide.id] = [...history, currentSlide.layout];
+  };
+
+  // Unlike Remix (which picks a layout automatically), this is the user
+  // explicitly choosing the target layout for the current slide. Reuses the
+  // exact same `SET_SLIDE_LAYOUT` action/semantic-transform pipeline Remix
+  // dispatches under the hood - no separate content-mapping logic needed.
+  const handleChangeSlideLayout = (layoutId) => {
+    if (currentSlide && layoutId !== currentSlide.layout) {
+      dispatch({ type: "SET_SLIDE_LAYOUT", slideId: currentSlide.id, layout: layoutId });
+    }
+    setShowChangeLayoutPicker(false);
+  };
+
+  // Places a new free element (text/image/.../chart/timeline/quote/embed -
+  // see freeElementFactory.WIDGET_TYPES) onto the current slide, staggered
+  // against however many elements are already there so repeated inserts
+  // don't land in an exact stack, and selects it immediately so its
+  // selection handles/toolbar are visible without an extra click.
+  const handleInsertWidget = (type) => {
+    if (!currentSlide) return;
+    const element = createWidget(type, {
+      existingCount: currentSlide.freeElements.length,
+      existingMaxZIndex: maxZIndex(currentSlide.freeElements),
+    });
+    dispatch({ type: "ADD_FREE_ELEMENT", slideId: currentSlide.id, element });
+    setSelectedElementId(element.id);
+    setShowInsertWidgetMenu(false);
   };
 
   // --- SlideSidebar wiring -------------------------------------------------
@@ -323,7 +402,7 @@ function EditorPageBody({ deckId = null }) {
                 selectedElementId={slide.id === currentSlide.id ? selectedElementId : null}
                 editingElementId={slide.id === currentSlide.id ? editingElementId : null}
                 onSelectElement={setSelectedElementId}
-                onStartEditing={setEditingElementId}
+                onStartEditing={setEditingElementIdCommitFirst}
               />
             )}
           />
@@ -356,6 +435,20 @@ function EditorPageBody({ deckId = null }) {
 
           <div className="w-px h-6 bg-white/10" />
 
+          <div className="relative">
+            <button
+              onClick={() => setShowInsertWidgetMenu((prev) => !prev)}
+              title="Add a text/image/video/shape/divider/icon/chart/timeline/quote/embed element to this slide"
+              className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
+            >
+              <Shapes size={18} className="mr-2" />
+              <span>Elements</span>
+            </button>
+            {showInsertWidgetMenu && <InsertWidgetMenu onInsert={handleInsertWidget} />}
+          </div>
+
+          <div className="w-px h-6 bg-white/10" />
+
           <button
             onClick={() => setShowThemeModal(true)}
             className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
@@ -377,12 +470,45 @@ function EditorPageBody({ deckId = null }) {
           <div className="w-px h-6 bg-white/10" />
 
           <button
+            onClick={() => setShowChangeLayoutPicker(true)}
+            title="Change this slide's layout, keeping its content"
+            className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
+          >
+            <LayoutGrid size={18} className="mr-2" />
+            <span>Layout</span>
+          </button>
+
+          <div className="w-px h-6 bg-white/10" />
+
+          <button
             onClick={handleRemixSlide}
             title="Pick a different layout for this slide, keeping its meaning"
             className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
           >
             <Shuffle size={18} className="mr-2" />
             <span>Remix</span>
+          </button>
+
+          <div className="w-px h-6 bg-white/10" />
+
+          <button
+            onClick={undo}
+            disabled={!canUndo}
+            aria-label="Undo"
+            title="Undo (Ctrl+Z)"
+            className="px-3 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center rounded-xl"
+          >
+            <Undo2 size={18} />
+          </button>
+
+          <button
+            onClick={redo}
+            disabled={!canRedo}
+            aria-label="Redo"
+            title="Redo (Ctrl+Shift+Z)"
+            className="px-3 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center rounded-xl"
+          >
+            <Redo2 size={18} />
           </button>
         </div>
       )}
@@ -394,6 +520,15 @@ function EditorPageBody({ deckId = null }) {
             setShowLayoutPicker(false);
             setInsertAfterSlideId(null);
           }}
+        />
+      )}
+
+      {showChangeLayoutPicker && currentSlide && (
+        <LayoutPicker
+          title="Change Layout"
+          activeLayoutId={currentSlide.layout}
+          onSelect={handleChangeSlideLayout}
+          onClose={() => setShowChangeLayoutPicker(false)}
         />
       )}
 

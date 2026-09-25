@@ -5,6 +5,10 @@ import { VideoWidget } from "./widgets/VideoWidget";
 import { ShapeWidget } from "./widgets/ShapeWidget";
 import { DividerWidget } from "./widgets/DividerWidget";
 import { IconWidget } from "./widgets/IconWidget";
+import { ChartWidget } from "./widgets/ChartWidget";
+import { TimelineWidget } from "./widgets/TimelineWidget";
+import { QuoteWidget } from "./widgets/QuoteWidget";
+import { EmbedWidget } from "./widgets/EmbedWidget";
 
 // Adding a new widget type only requires a case here plus an entry in
 // `freeElementFactory.WIDGET_DEFAULTS` - the interaction engine
@@ -23,6 +27,14 @@ export function FreeElementRenderer({ element, editing, onCommitText, onReplaceS
       return <DividerWidget element={element} />;
     case "icon":
       return <IconWidget element={element} />;
+    case "chart":
+      return <ChartWidget element={element} />;
+    case "timeline":
+      return <TimelineWidget element={element} />;
+    case "quote":
+      return <QuoteWidget element={element} />;
+    case "embed":
+      return <EmbedWidget element={element} onReplaceSrc={onReplaceSrc} />;
     default:
       return <div className="w-full h-full border-2 border-dashed border-white/40" />;
   }

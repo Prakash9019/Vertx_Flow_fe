@@ -45,6 +45,34 @@ describe("FreeElementRenderer", () => {
     expect(container.firstChild).toBeTruthy();
   });
 
+  it("renders a ChartWidget for type chart", () => {
+    const { container } = render(
+      <FreeElementRenderer element={{ type: "chart", props: { data: [{ label: "A", value: 1 }] } }} editing={false} onCommitText={() => {}} onReplaceSrc={() => {}} />
+    );
+    expect(container.querySelector("[data-chart-bar]")).toBeTruthy();
+  });
+
+  it("renders a TimelineWidget for type timeline", () => {
+    const { container } = render(
+      <FreeElementRenderer element={{ type: "timeline", props: { items: [{ label: "A", date: "", description: "" }] } }} editing={false} onCommitText={() => {}} onReplaceSrc={() => {}} />
+    );
+    expect(container.querySelector("[data-timeline-item]")).toBeTruthy();
+  });
+
+  it("renders a QuoteWidget for type quote", () => {
+    const { container } = render(
+      <FreeElementRenderer element={{ type: "quote", props: { text: "Hi", author: "", role: "" } }} editing={false} onCommitText={() => {}} onReplaceSrc={() => {}} />
+    );
+    expect(container.querySelector("blockquote")).toBeTruthy();
+  });
+
+  it("renders an EmbedWidget for type embed", () => {
+    const { container } = render(
+      <FreeElementRenderer element={{ type: "embed", props: { src: "" } }} editing={false} onCommitText={() => {}} onReplaceSrc={() => {}} />
+    );
+    expect(container.firstChild).toBeTruthy();
+  });
+
   it("renders a dashed placeholder for an unknown/unrecognized element type", () => {
     const { container } = render(
       <FreeElementRenderer element={{ type: "not-a-real-type", props: {} }} editing={false} onCommitText={() => {}} onReplaceSrc={() => {}} />
