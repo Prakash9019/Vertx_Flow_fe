@@ -628,8 +628,388 @@ never loaded in this environment (same caveat noted for the Change Case tool,
 §1e-8) so its real-world DOM/editor-instance cost during that window has not
 been observed.
 
+## 1e-12. Layout-change UI — Implemented
+
+A follow-up gap found during an external audit of this document: `SET_SLIDE_LAYOUT`
+(§1e-2) and its semantic normalize/denormalize pipeline were fully implemented and
+already used by Remix (§1e-4) and AI storyline generation (§1e-5), but nothing in
+`EditorPage.jsx` let the user pick a layout for an *existing* slide themselves —
+only Remix (system picks) and "Insert new slide" (picks a layout for a slide that
+doesn't exist yet) dispatched it.
+
+**UI**: the existing `LayoutPicker` modal component (previously only used for
+"Insert new slide") gained two optional props — `activeLayoutId` (highlights the
+slide's current layout with a checkmark/border) and `title` (so it can read
+"Change Layout" instead of "Choose a Layout") — so one component now serves both
+flows instead of duplicating the modal. A new "Layout" button (`LayoutGrid` icon)
+sits in the bottom toolbar next to Remix, same visibility condition (slide index
+> 0). Selecting a layout calls `handleChangeSlideLayout`, which no-ops if the
+user re-picks the slide's current layout (avoids a pointless dispatch) and
+otherwise dispatches the exact same `SET_SLIDE_LAYOUT` action Remix already uses
+— no reducer change, no new content-transform logic.
+
+**Tests**: `EditorPage.test.jsx` +1 — opens the picker from slide 2 ("problem"),
+asserts the "Change Layout" title, selects "Call To Action", and asserts (scoped
+to the active slide's canvas, not the sidebar thumbnail preview which shows the
+same text) that the heading carried over from the semantic model ("The Problem")
+while the button label fell back to `cta`'s own default ("Get in touch") — proof
+the layout genuinely switched rather than the picker being a no-op. **375/375
+tests passing** (up from 374), build clean.
+
+**Not verified in a real browser** — same caveat as everywhere else in this
+document.
+
+## 1e-13. Real media upload — Implemented
+
+Roadmap gap found by the 2026-09-25 audit (§1e-12's note): `ImageWidget.jsx`/
+`VideoWidget.jsx` used `URL.createObjectURL(file)`, a blob URL scoped to the
+browser tab that stops resolving after a refresh - so an uploaded image/video
+looked fine until the deck was reloaded from its autosaved JSON.
+
+**Backend (`Vertx_flow_Server`, separate repo)**: new `POST /api/files/deck-asset`
+in the existing `uploadRoutes.js`, behind `authMiddleware`, reusing the same
+GCS bucket (`config/gcs.js`) and temp-file-then-upload pattern the existing
+`/upload` (PDF/PPT) route already uses - but deliberately *not* the `Upload`
+mongoose model that route writes to, since that model is one record per user
+(wrong shape for arbitrary per-slide images/videos). This route is stateless:
+validates the file's mimetype is `image/*` or `video/*`, uploads it to
+`deck-assets/<timestamp>-<random><ext>` in the bucket, and returns
+`{ success: true, url }` - the deck document (already persisted via the `Deck`
+model/autosave) is the only place that URL needs to live.
+
+**Frontend**: `uploadAsset(file)` (new, `src/utils/deckApi.js`) posts the file
+as `FormData` to `/files/deck-asset`. It deliberately bypasses the shared `api`
+axios instance, which forces `Content-Type: application/json` on every
+request - that would strip FormData's own multipart boundary and break the
+backend's `express-fileupload` parsing; a raw `axios.post` with no manual
+Content-Type lets the browser set the correct multipart header itself.
+`ImageWidget.jsx`/`VideoWidget.jsx` now call `uploadAsset(file)` instead of
+`URL.createObjectURL`, with a small `idle | uploading | error` status shown on
+the placeholder (so an upload in flight or a failed upload is visible, not
+silent) - `onReplaceSrc` only fires on a real, persistent URL from the backend.
+
+**Tests**: backend `routes/uploadRoutes.deckAsset.test.js` (new, 3 tests via
+`supertest` against the real router with `authMiddleware`/the GCS `bucket`
+mocked - missing file, disallowed mimetype, success-returns-URL). Backend
+suite: **23/23 passing** (up from 20). Frontend: `deckApi.test.js` (new, 2
+tests - posts multipart form data with the auth header and no forced
+Content-Type, and propagates a failure), `ImageWidget.test.jsx` and
+`VideoWidget.test.jsx` (new, 3 and 2 tests respectively - renders once a src
+exists, uploads-then-calls-`onReplaceSrc` with the real URL not a blob URL,
+and the error/retry-placeholder path). **382/382 tests passing** (up from
+375), both builds clean.
+
+**Not verified against a real GCS bucket or in a real browser** - same caveat
+as everywhere else in this document; the backend test mocks the `@google-cloud/
+storage` bucket rather than hitting a real one, and no manual upload-then-
+refresh click-through has been done.
+
+**Out of scope, deliberately deferred**: `BackgroundPicker`'s image/video URL
+fields are still plain text inputs with no file picker at all - a smaller,
+separate follow-up if wanted.
+
+## 1e-14. Element-to-element snapping — Implemented
+
+`useFreeElementInteraction.js`'s drag snapping previously only snapped to the
+slide's own center/edges (0/50/100). Generalized `applyDragSnap`'s anchor list
+to also include, per axis, every sibling free element's start/center/end
+(left/center-x/right for x, top/center-y/bottom for y) - same 1.5pt threshold,
+same center-then-start-then-end priority order the slide-only version already
+used, so existing slide-edge-snap behavior is unchanged when there are no
+siblings (or none are close enough).
+
+**Wiring**: `FreeElementLayer.jsx` already keeps a stable `elementsRef` (for
+the bring-forward/send-backward/duplicate toolbar handlers, so `elements`
+changing every dispatch doesn't defeat `FreeElement`'s `React.memo`). A new
+`getSiblingsOf(id)` reads that same ref - stable identity via `useCallback`
+with no deps - and is passed to every `FreeElement` as a prop; each one calls
+`useFreeElementInteraction({ ..., getSiblings: () => getSiblingsOf(element.id) })`.
+The hook snapshots `getSiblings()` once at `beginDrag` (siblings aren't
+expected to move mid-drag) rather than calling it every pointermove.
+
+**Tests**: `useFreeElementInteraction.test.js` +2 (snaps to a sibling's edge
+within threshold; does not snap when outside it).
+`FreeElementInteraction.integration.test.jsx` +1 (through the real
+`SlideCanvas`/`FreeElementLayer`/reducer stack - two real elements, drag one
+near the other's edge, assert the reducer-committed position). **385/385
+tests passing** at this point in the session (before §1e-15 below), build
+clean.
+
+**Not verified in a real browser** - same caveat as everywhere else in this
+document.
+
+## 1e-15. Typography scale tokens — Implemented
+
+`theme.typography.headingScale`/`bodyScale` (§1e's known limitation) are now
+wired into every layout's rendered font size instead of only affecting font
+family/color.
+
+**`themeToCssVars`** (`themeTokens.js`) now emits `--theme-heading-scale`/
+`--theme-body-scale` alongside the existing `--theme-heading-font`/
+`--theme-body-font` vars. New `theme/typographyScale.js` exports
+`headingFontSize(baseRem)`/`bodyFontSize(baseRem)` → `calc(<base>rem *
+var(--theme-heading-scale, 1))` (the `, 1` fallback keeps a layout readable
+if rendered outside the themed root wrapper).
+
+**All 7 layouts** now pass an explicit `fontSize` in the same `style` object
+that already carries `fontFamily: var(--theme-heading-font|body-font)` -
+mechanical, one-for-one with the existing font-family wiring from the theme
+sub-project (§1e) - converting each layout's previously-fixed Tailwind
+text-size class (`text-7xl`, `text-5xl`, `text-4xl`, `text-xl`, plain
+`text-base` default, etc.) into its rem-equivalent base passed to
+`headingFontSize`/`bodyFontSize`. The Tailwind size class itself is left in
+place (inline style wins for the same CSS property, and removing the class
+would be a no-op change with more diff) - only the computed value now differs
+per theme.
+
+**Tests**: `themeTokens.test.js` +1 (new CSS vars present), new
+`typographyScale.test.js` (2 tests - both helpers produce the right `calc()`
+string). One targeted test added to each of the 7 layout test files, asserting
+the rendered heading/body element's `style.fontSize` is the expected
+`calc()` string (not empty/a fixed value) - `ProblemLayout.test.jsx`'s body
+assertion has to walk up from the RichText field's inner `<p>` to the styled
+wrapping `<div>` via `.closest("div")`, since `getByText` resolves to the
+innermost element containing the matched text. **395/395 tests passing** (up
+from 385), build clean.
+
+**Not done**: letter-spacing (also named in the original known-limitation
+note) - no layout sets `letter-spacing` today, hardcoded or otherwise, so
+there's no existing per-layout value to convert the way font-size classes
+were; adding it would mean inventing values with no precedent, deferred as a
+separate, smaller follow-up if wanted. **Not verified in a real browser** -
+same caveat as everywhere else in this document.
+
+## 1e-16. Template library — Implemented
+
+A Chronicle-style "start from a template" gallery, on top of the 7 existing
+structural layouts - not a replacement for them, a curated set of full
+multi-slide decks built from them.
+
+**`templateLibrary.js`** (new): `TEMPLATE_LIBRARY`, 3 curated templates
+("Startup Pitch," "Product Launch," "Company Overview"), each an ordered list
+of `{layout, content}` pairs using the 7 existing layouts. `content` is
+authored directly against its own layout's shape - unlike Remix/AI storyline,
+there's no semantic mapping step, since this content was never in any other
+layout's shape to begin with. `buildDeckFromTemplate(template)` merges each
+slide's `content` over that layout's `defaultContent()` (same defensive-merge
+guard `SET_SLIDE_LAYOUT`'s reducer branch already applies, so a template can
+omit a field) and calls `createSlide`/`createDeck` - mirrors
+`storylineToDeck.js`'s tail exactly, minus the AI/semantic-mapping step.
+
+**`TemplateGalleryModal.jsx`** (new): a grid of template cards (category,
+name, description, slide count); picking one calls `buildDeckFromTemplate` →
+`deckApi.createDeck` → `onDeckCreated(deckId)` - the same shape
+`AIStorylineModal`'s tail already has, so `DeckListPage.jsx` wires it in
+identically: a third "Start from Template" button next to "Blank Deck"/
+"Generate with AI," opening the gallery.
+
+**Tests**: `templateLibrary.test.js` (new, 6 tests - every template has an
+id/name/category/slides, only uses registered `LAYOUT_IDS`, unique ids,
+`buildDeckFromTemplate` produces the right slide count/order/layout, merges
+over `defaultContent()`, uses the template name as the deck title).
+`TemplateGalleryModal.test.jsx` (new, 3 tests - renders a card per template,
+picking one creates the deck and calls back with its id, Cancel calls
+`onClose`). `DeckListPage.test.jsx` (new - this page had no test file before;
+covers only the new button/gallery/create flow, not the pre-existing
+list/delete behavior). **405/405 tests passing** (up from 395), build clean.
+
+**Not done**: no thumbnail/preview images per template card (text-only
+cards); no way to add/curate templates from the UI (editing
+`TEMPLATE_LIBRARY` is a code change). **Not verified in a real browser** -
+same caveat as everywhere else in this document.
+
+## 1e-17. Expanded widget types + Insert Widget UI — Implemented
+
+Scoping this (EDITOR-V2-STATUS.md's last remaining gap from the 2026-09-25
+audit) surfaced a more fundamental gap than "add 4 more widget types": **there
+was no UI to insert *any* free element at all.** `createWidget()`/
+`ADD_FREE_ELEMENT` existed and the drag/resize/select/delete engine was fully
+wired for elements already on a slide, but nothing in `EditorPage.jsx` ever
+called `createWidget`/dispatched `ADD_FREE_ELEMENT` - the toolbar's "Insert"
+button only inserts a new *slide*. So this sub-project necessarily includes
+building that menu, not just the 4 new types.
+
+**Insert Widget menu**: new `InsertWidgetMenu.jsx`, a small dropdown (one
+entry per `freeElementFactory.WIDGET_TYPES`) opened by a new "Elements"
+button in the bottom toolbar, next to "Insert." Picking an entry calls
+`EditorPage.jsx`'s new `handleInsertWidget(type)`, which mirrors the existing
+duplicate-widget/remix pattern: `createWidget(type, { existingCount,
+existingMaxZIndex })` (staggers position, stacks above everything already on
+the slide - the same factory function the interaction engine's duplicate
+button already used) → dispatches `ADD_FREE_ELEMENT` → selects the new
+element immediately so its handles/toolbar are visible without an extra
+click.
+
+**4 new widget types**, hand-rolled (no charting/embed library - see the
+brainstorming discussion this session: the data here doesn't need one, and
+every other "should we add a library" decision in this codebase - CSS
+transitions over framer-motion (§1e-11), deterministic Remix/content-
+intelligence over an extra AI call - has gone the same way):
+- **Chart** (`ChartWidget.jsx`): inline-SVG-free CSS bar chart, `props.data =
+  [{label, value}]` - deliberately the same shape as the metrics data
+  content-intelligence (§1e-6) already extracts, so a future "AI-generated
+  chart" wouldn't need a new content shape.
+- **Timeline** (`TimelineWidget.jsx`): a row of connected markers,
+  `props.items = [{label, date, description}]`.
+- **Quote** (`QuoteWidget.jsx`): a styled blockquote + attribution,
+  `props = {text, author, role}`.
+- **Embed** (`EmbedWidget.jsx`): a pasted-URL placeholder (mirrors
+  `ImageWidget`/`VideoWidget`'s upload-placeholder shape) that renders an
+  `<iframe>` once set. Deliberately stores the URL under `props.src`, not
+  `props.url`, so it reuses `FreeElementLayer`'s existing generic
+  `onReplaceSrc(elementId, url)` wiring with zero changes to that file.
+
+Each new type is one entry in `freeElementFactory.WIDGET_DEFAULTS` (default
+geometry/props), one case in `FreeElementRenderer.jsx`, and one entry in
+`InsertWidgetMenu.jsx` - confirms the existing "adding a widget type" doc
+comment on both those files was accurate; nothing about the interaction
+engine (select/drag/resize/rotate/layer/delete/duplicate) needed to change.
+
+**Not done, matching the existing Shape/Divider/Icon precedent**: Chart/
+Timeline/Quote have no in-place content-editing UI - they're visual widgets
+configured only via their factory defaults, the same limitation those three
+pre-existing widget types already have (none of them have live-edit UI
+either). Building a structured-data editor (add/remove chart bars, timeline
+items, etc.) would be a separate, larger "widget property panel" feature.
+Embed is fully interactive (paste a URL) since that fits the existing
+replace-src pattern for free.
+
+**Tests**: `freeElementFactory.test.js` +9 (`WIDGET_TYPES` now lists 10
+types; `createWidget` for each new type). `FreeElementRenderer.test.jsx` +4.
+New `ChartWidget.test.jsx` (3), `TimelineWidget.test.jsx` (2),
+`QuoteWidget.test.jsx` (2), `EmbedWidget.test.jsx` (3) - each covering
+rendering, theme-default-vs-explicit-override color where applicable (Chart/
+Timeline), and Embed's placeholder→iframe flow. New `InsertWidgetMenu.test.jsx`
+(2). `EditorPage.test.jsx` +1 (opens the menu, picks "Chart," asserts a
+`[data-type="chart"]` element lands on the current slide - the first test in
+this codebase proving a free element can be inserted from the live UI at
+all). **426/426 tests passing** (up from 405), build clean.
+
+**Not verified in a real browser** - same caveat as everywhere else in this
+document; additionally, `EmbedWidget`'s `<iframe>` has not been tested
+against a real embeddable URL (X-Frame-Options/CSP restrictions on the target
+site are a real-world concern this environment can't exercise).
+
+## 1e-18. Full text-editing audit — Real bug found and fixed
+
+A follow-up audit (roadmap's original "full text-editor audit" item, never
+completed - §1e-7 fixed one specific undo/redo defect but explicitly scoped
+out the broader toolbar/paste/keyboard-shortcut/selection review). Same
+approach as §1e-7: no pre-existing bug list, so the work was find real bugs
+by reasoning through the actual code, fix them, prove it with tests - not
+invent speculative fixes.
+
+**Real bug found**: `TextWidget.jsx` (free-element text) only persists its
+typed content on blur (`onBlur` → `onCommit`), unlike `RichText.jsx`/Froala
+fields which commit continuously via `contentChanged` on every keystroke.
+`EditorPage.jsx` had two places that changed `editingElementId` - the state
+that flips a `TextWidget` out of edit mode - **without ever blurring the
+live DOM first**: the slide-navigation effect (`setEditingElementId(null)`
+on `currentSlideIndex` change) and `FreeElementLayer`'s double-click-to-edit
+handler (`onStartEditing(element.id)`, wired straight to the raw setter).
+Since React flipping a div's `contentEditable` prop to `false` doesn't
+reliably fire a native blur event on its own, a user could double-click a
+free-text element, type new content, and then navigate to a different slide
+(or double-click a different element) - and that typed content would never
+reach `onCommit`, silently discarded from the deck (and, worse, never
+autosaved).
+
+**Fix**: `setEditingElementIdCommitFirst(nextId)`, a wrapper around
+`setEditingElementId` that calls `document.activeElement.blur()`
+synchronously before changing the state - forcing `TextWidget`'s own
+`onBlur` (which is unconditionally attached, regardless of the widget's
+current editing state) to run and commit first, rather than depending on
+the browser firing blur on its own timing. Both call sites (`EditorPage.jsx`)
+now go through it.
+
+**Confirmed real, not speculative**: the slide-navigation repro (insert a
+text widget, edit it without blurring, navigate away and back) failed
+against the un-fixed code with a concrete assertion failure ("Double-click
+to edit" instead of the typed text) before the fix, and passes after it.
+
+**Scope note on the pre-existing "textColor/backgroundColor bug"** (§1e-8's
+own passing mention: "a previously reported bug there - no detail survived
+into this document"): investigated but could not be reproduced or even
+characterized - Froala's `textColor`/`backgroundColor` are its own built-in
+commands with no custom code in this repo to inspect, and this environment
+has no way to load the real Froala library or a real browser to observe
+color-picker behavior (same limitation as the Change Case tool, §1e-8).
+Deliberately **not** "fixed" with a guess; left open, now with this note
+attached so future work isn't chasing a bug with zero remaining detail.
+
+**Notable adjacent finding, not part of this task's scope**: **undo/redo has
+no UI entry point in the live editor at all** - no button, no Ctrl+Z/Cmd+Z
+keyboard shortcut in `EditorPage.jsx`. The engine (`useDeckHistory`, §1 "Undo/
+redo") is fully implemented and tested, but only exercised in tests through a
+bespoke `Host` harness (`FreeElementInteraction.integration.test.jsx`) - a
+real user of the deployed app cannot undo or redo anything today. Flagged
+here rather than fixed, since it's outside "text editing" and deserves its
+own scoping pass.
+
+**Tests**: `EditorPage.test.jsx` +2 (commits before slide navigation;
+commits before double-clicking a different element to edit it - the second
+test's assertion is proven via a round-trip through a different slide, since
+without a forced remount neither the buggy nor fixed code path changes what
+the live DOM shows, only what's actually in the store). **428/428 tests
+passing** (up from 426), build clean.
+
+**Not verified in a real browser** - same caveat as everywhere else in this
+document. Paste behavior, individual Froala toolbar commands beyond Change
+Case, and cursor/selection edge cases remain genuinely unauditable without a
+real browser + a loaded Froala instance - not skipped out of laziness, this
+environment has no way to exercise them.
+
+## 1e-19. Undo/Redo UI — Implemented
+
+The gap §1e-18 flagged: `useDeckHistory`'s `{undo, redo, canUndo, canRedo}`
+(already exposed by `useDeck()`) had no way for a real user to reach them -
+no button, no keyboard shortcut, anywhere in `EditorPage.jsx`. Pure UI
+wiring; no change to `useDeckHistory`/`deckReducer`.
+
+**Toolbar buttons**: Undo/Redo (`Undo2`/`Redo2` icons) added to the bottom
+toolbar, disabled via `!canUndo`/`!canRedo`.
+
+**Keyboard shortcut**: `Ctrl/Cmd+Z` (undo) / `Ctrl/Cmd+Shift+Z` (redo), a
+global `keydown` listener. Skipped whenever `document.activeElement`'s
+`contenteditable` attribute is `"true"` - a Froala field or a free-text
+widget mid-edit - so it never fights the field's own native/Froala undo
+while someone is actively typing (the same "don't steal keyboard behavior
+from an active field" principle `FreeElementLayer`'s Delete-key handler
+already applies for editingElementId). Checks the `contenteditable`
+*attribute* directly rather than the `isContentEditable` IDL property -
+jsdom doesn't implement the latter (always returns `false`), and the
+attribute check is correct in both jsdom and real browsers since React
+renders `contentEditable={true}` as `contenteditable="true"`.
+
+**Tests**: `EditorPage.test.jsx` +3 - toolbar buttons undo/redo a free-
+element insert and correctly disable at each end of the history; Ctrl+Z
+undoes when nothing is being edited; Ctrl+Z is a no-op while a free-text
+widget is mid-edit. **431/431 tests passing** (up from 428), build clean.
+
+**Not verified in a real browser** - same caveat as everywhere else in this
+document; additionally, the Ctrl+Z-while-editing guard has only been proven
+against the free-text `TextWidget` path (this environment can't load real
+Froala to prove the same guard doesn't fight Froala's own undo).
+
 ## 2. Not started at all
 Nothing left unstarted per the original roadmap — see §4 for remaining known defects.
+
+Since this document was last written as "complete," an external audit against
+this repo (2026-09-25) found the following gaps that are real and still open
+(the audit's other claims — Remix, Change Case, animations, AI storyline, 10+
+slide generation, content intelligence — were already implemented; see above):
+
+- ~~Layout-change UI~~ **Fixed above (§1e-12).**
+- ~~Real media/asset upload~~ **Fixed above (§1e-13).**
+- ~~Element-to-element snapping~~ **Fixed above (§1e-14).**
+- ~~Typography scale tokens~~ **Fixed above (§1e-15)** (letter-spacing still not
+  wired - see that section's "Not done").
+- ~~Template library~~ **Fixed above (§1e-16).**
+- ~~Expanded widget types~~ **Fixed above (§1e-17)**, which also fixed a bigger
+  latent gap it uncovered: there was no UI to insert *any* free element,
+  existing or new, onto a slide before this.
+
+No further gaps remain open from the 2026-09-25 audit as of this entry.
 
 ## 4. Known defects / rough edges (not urgent, but real)
 
