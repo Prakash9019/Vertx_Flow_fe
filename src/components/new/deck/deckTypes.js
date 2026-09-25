@@ -54,3 +54,29 @@ export function createDeck({ title, theme, slides }) {
     slides: slides ?? [],
   };
 }
+
+export function isPlainObject(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+// Structural validation for a FreeElement-shaped payload arriving from
+// outside the reducer's own factories (a dispatch call, or a deserialized/
+// loaded deck) - guards deckReducer's ADD_FREE_ELEMENT against malformed
+// data reaching the deck now that real persistence exists.
+export function isValidFreeElement(element) {
+  if (!isPlainObject(element)) return false;
+  return (
+    typeof element.id === "string" &&
+    element.id.length > 0 &&
+    typeof element.type === "string" &&
+    element.type.length > 0 &&
+    Number.isFinite(element.x) &&
+    Number.isFinite(element.y) &&
+    Number.isFinite(element.w) &&
+    Number.isFinite(element.h) &&
+    Number.isFinite(element.rotation) &&
+    Number.isFinite(element.zIndex) &&
+    typeof element.locked === "boolean" &&
+    isPlainObject(element.props)
+  );
+}

@@ -133,6 +133,20 @@ describe("deckReducer", () => {
     expect(next.slides[0].content).toEqual({ title: "Hi", subtitle: "New" });
   });
 
+  it.each([
+    ["an array", ["not", "an", "object"]],
+    ["a string", "not-an-object"],
+    ["null", null],
+    ["undefined", undefined],
+  ])("UPDATE_SLIDE_CONTENT warns and no-ops when content is %s", (_label, content) => {
+    const { deck, slide } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("SET_SLIDE_BACKGROUND replaces the slide's background", () => {
     const { deck, slide } = deckWithOneSlide();
     const bg = { kind: "gradient", stops: ["#000", "#fff"], angle: 45 };
@@ -145,6 +159,32 @@ describe("deckReducer", () => {
     const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
     const next = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
     expect(next.slides[0].freeElements).toEqual([el]);
+  });
+
+  it("ADD_FREE_ELEMENT warns and no-ops on an unknown widget type", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "not-a-widget", x: 5, y: 5, w: 20, h: 10 });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it.each([
+    ["missing required fields", { id: "x", type: "text" }],
+    ["not an object", "not-an-element"],
+    ["null", null],
+    ["a numeric field as a string", { ...createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 }), x: "5" }],
+    ["locked as a non-boolean", { ...createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 }), locked: "yes" }],
+    ["props as an array", { ...createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 }), props: ["oops"] }],
+  ])("ADD_FREE_ELEMENT warns and no-ops when element is %s", (_label, element) => {
+    const { deck, slide } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it("UPDATE_FREE_ELEMENT patches an existing element by id", () => {

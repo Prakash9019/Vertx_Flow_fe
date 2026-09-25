@@ -1,6 +1,7 @@
-import { LAYOUT_IDS, createSlide } from "./deckTypes";
+import { LAYOUT_IDS, createSlide, isPlainObject, isValidFreeElement } from "./deckTypes";
 import { getMappedContent } from "./contentMappers";
 import { getRegistryEntry } from "./SlideRegistry";
+import { WIDGET_TYPES } from "./freeElementFactory";
 
 function warnInvalid(action, reason) {
   console.warn(`deckReducer: ignoring ${action.type} - ${reason}`);
@@ -122,6 +123,10 @@ export function deckReducer(deck, action) {
     }
 
     case "UPDATE_SLIDE_CONTENT": {
+      if (!isPlainObject(action.content)) {
+        warnInvalid(action, "content must be a plain object");
+        return deck;
+      }
       const index = findSlideIndex(deck, action.slideId);
       if (index === -1) {
         warnInvalid(action, `slideId "${action.slideId}" not found`);
@@ -145,6 +150,10 @@ export function deckReducer(deck, action) {
     }
 
     case "ADD_FREE_ELEMENT": {
+      if (!isValidFreeElement(action.element) || !WIDGET_TYPES.includes(action.element.type)) {
+        warnInvalid(action, "element is missing required fields or has an unknown type");
+        return deck;
+      }
       const index = findSlideIndex(deck, action.slideId);
       if (index === -1) {
         warnInvalid(action, `slideId "${action.slideId}" not found`);
