@@ -1,0 +1,68 @@
+# Review package: cfae58ec5b4f4f36e61449741088b61080dff637..2b7bc218a77692d6ee883588f342e93a590378fd
+
+## Commits
+2b7bc21 feat(deck): port ProblemLayout onto the deck data model
+
+## Files changed
+ src/components/new/deck/layouts/ProblemLayout.jsx  | 26 ++++++++++++++++++++++
+ .../new/deck/layouts/ProblemLayout.test.jsx        | 19 ++++++++++++++++
+ 2 files changed, 45 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/layouts/ProblemLayout.jsx b/src/components/new/deck/layouts/ProblemLayout.jsx
+new file mode 100644
+index 0000000..3bb6a73
+--- /dev/null
++++ b/src/components/new/deck/layouts/ProblemLayout.jsx
+@@ -0,0 +1,26 @@
++import React from "react";
++import { RichText } from "../RichText";
++
++export function defaultProblemContent() {
++  return { heading: "The Problem", body: "<p>Describe the problem your customers face.</p>" };
++}
++
++export function ProblemLayout({ content, onChangeContent }) {
++  return (
++    <div className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-16">
++      <RichText
++        as="h1"
++        className="text-5xl font-bold text-center"
++        value={content.heading}
++        onChange={(html) => onChangeContent({ heading: html })}
++      />
++      <RichText
++        as="div"
++        className="mt-8 text-xl opacity-80 max-w-3xl text-left"
++        toolbarButtons={["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor", "formatUL", "formatOL"]}
++        value={content.body}
++        onChange={(html) => onChangeContent({ body: html })}
++      />
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/layouts/ProblemLayout.test.jsx b/src/components/new/deck/layouts/ProblemLayout.test.jsx
+new file mode 100644
+index 0000000..4beb8a9
+--- /dev/null
++++ b/src/components/new/deck/layouts/ProblemLayout.test.jsx
+@@ -0,0 +1,19 @@
++import { describe, it, expect } from "vitest";
++import { render, screen } from "@testing-library/react";
++import { ProblemLayout, defaultProblemContent } from "./ProblemLayout";
++
++describe("defaultProblemContent", () => {
++  it("returns a heading and placeholder body", () => {
++    const content = defaultProblemContent();
++    expect(content.heading).toBe("The Problem");
++    expect(content.body).toContain("Describe the problem");
++  });
++});
++
++describe("ProblemLayout", () => {
++  it("renders heading and body from content", () => {
++    render(<ProblemLayout content={{ heading: "The Problem", body: "<p>Users churn fast.</p>" }} onChangeContent={() => {}} />);
++    expect(screen.getByText("The Problem")).toBeInTheDocument();
++    expect(screen.getByText("Users churn fast.")).toBeInTheDocument();
++  });
++});

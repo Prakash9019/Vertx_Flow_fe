@@ -1,0 +1,349 @@
+# Review package: 0144ac2..b5932b6
+
+## Commits
+b5932b6 refactor: layouts consume theme tokens via CSS variables instead of hardcoded colors
+
+## Files changed
+ src/components/new/deck/layouts/CtaLayout.jsx              |  5 ++++-
+ src/components/new/deck/layouts/CtaLayout.test.jsx         | 13 +++++++++++++
+ src/components/new/deck/layouts/Media3PointsLayout.jsx     |  5 ++++-
+ src/components/new/deck/layouts/MediaDescriptionLayout.jsx |  9 ++++++++-
+ src/components/new/deck/layouts/MetricsGridLayout.jsx      |  3 +++
+ src/components/new/deck/layouts/ProblemLayout.jsx          |  2 ++
+ src/components/new/deck/layouts/TeamGridLayout.jsx         |  5 ++++-
+ src/components/new/deck/layouts/TitleLayout.jsx            |  2 ++
+ 8 files changed, 40 insertions(+), 4 deletions(-)
+
+## Diff
+diff --git a/src/components/new/deck/layouts/CtaLayout.jsx b/src/components/new/deck/layouts/CtaLayout.jsx
+index 81b4525..e2136e9 100644
+--- a/src/components/new/deck/layouts/CtaLayout.jsx
++++ b/src/components/new/deck/layouts/CtaLayout.jsx
+@@ -4,28 +4,31 @@ import { RichText } from "../RichText";
+ export function defaultCtaContent() {
+   return { heading: "Join Us", body: "<p>Let's build the future together.</p>", buttonLabel: "Get in touch" };
+ }
+ 
+ export function CtaLayout({ content, onChangeContent }) {
+   return (
+     <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
+       <RichText
+         as="h1"
+         className="text-5xl font-bold"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-6 text-xl opacity-80 max-w-2xl"
++        style={{ fontFamily: "var(--theme-body-font)" }}
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+       <RichText
+         as="div"
+-        className="mt-10 inline-block px-8 py-3 rounded-full bg-teal-400 text-black font-semibold"
++        className="mt-10 inline-block px-8 py-3 rounded-full font-semibold"
++        style={{ backgroundColor: "var(--theme-primary)", color: "var(--theme-background)", fontFamily: "var(--theme-body-font)" }}
+         value={content.buttonLabel}
+         onChange={(html) => onChangeContent({ buttonLabel: html })}
+       />
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/CtaLayout.test.jsx b/src/components/new/deck/layouts/CtaLayout.test.jsx
+index ab7b73d..9c22a87 100644
+--- a/src/components/new/deck/layouts/CtaLayout.test.jsx
++++ b/src/components/new/deck/layouts/CtaLayout.test.jsx
+@@ -15,11 +15,24 @@ describe("CtaLayout", () => {
+     render(
+       <CtaLayout
+         content={{ heading: "Join Us", body: "<p>Reach out.</p>", buttonLabel: "Contact us" }}
+         onChangeContent={() => {}}
+       />
+     );
+     expect(screen.getByText("Join Us")).toBeInTheDocument();
+     expect(screen.getByText("Reach out.")).toBeInTheDocument();
+     expect(screen.getByText("Contact us")).toBeInTheDocument();
+   });
++
++  it("styles the button from theme tokens instead of a hardcoded color", () => {
++    render(
++      <CtaLayout
++        content={{ heading: "Join Us", body: "<p>Reach out.</p>", buttonLabel: "Contact us" }}
++        onChangeContent={() => {}}
++      />
++    );
++    const button = screen.getByText("Contact us");
++    expect(button.className).not.toMatch(/bg-teal-400|text-black/);
++    expect(button.style.backgroundColor).toBe("var(--theme-primary)");
++    expect(button.style.color).toBe("var(--theme-background)");
++  });
+ });
+diff --git a/src/components/new/deck/layouts/Media3PointsLayout.jsx b/src/components/new/deck/layouts/Media3PointsLayout.jsx
+index c6dc07d..4cf06eb 100644
+--- a/src/components/new/deck/layouts/Media3PointsLayout.jsx
++++ b/src/components/new/deck/layouts/Media3PointsLayout.jsx
+@@ -19,43 +19,46 @@ export function Media3PointsLayout({ content, onChangeContent }) {
+   function updatePoint(index, patch) {
+     const points = content.points.map((p, i) => (i === index ? { ...p, ...patch } : p));
+     onChangeContent({ points });
+   }
+ 
+   return (
+     <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 flex gap-8">
+         {content.media.url ? (
+           <img src={content.media.url} alt="" className="flex-1 rounded-2xl object-cover" />
+         ) : (
+-          <div className="flex-1 bg-white/10 rounded-2xl min-h-[300px]" />
++          <div className="flex-1 rounded-2xl min-h-[300px]" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
+         )}
+         <div className="flex-1 flex flex-col gap-6">
+           {visiblePoints.map((point, index) => (
+             <div key={index}>
+               {point.title ? (
+                 <RichText
+                   as="h3"
+                   className="text-xl font-semibold"
++                  style={{ fontFamily: "var(--theme-heading-font)" }}
+                   value={point.title}
+                   onChange={(html) => updatePoint(index, { title: html })}
+                 />
+               ) : null}
+               <RichText
+                 as="p"
+                 className="opacity-80"
++                style={{ fontFamily: "var(--theme-body-font)" }}
+                 value={point.body}
+                 onChange={(html) => updatePoint(index, { body: html })}
+               />
+             </div>
+           ))}
+         </div>
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/MediaDescriptionLayout.jsx b/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
+index b29be89..208bad7 100644
+--- a/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
++++ b/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
+@@ -6,21 +6,26 @@ export function defaultMediaDescriptionContent() {
+     heading: "Product Overview",
+     body: "<p>Describe what you've built.</p>",
+     media: { url: "", type: "image" },
+     mediaPosition: "left",
+   };
+ }
+ 
+ function MediaColumn({ media }) {
+   if (!media.url) {
+     return (
+-      <div data-col="media" data-testid="media-placeholder" className="flex-1 bg-white/10 rounded-2xl min-h-[300px]" />
++      <div
++        data-col="media"
++        data-testid="media-placeholder"
++        className="flex-1 rounded-2xl min-h-[300px]"
++        style={{ backgroundColor: "var(--theme-surface-muted)" }}
++      />
+     );
+   }
+   if (media.type === "video") {
+     return (
+       <div data-col="media" className="flex-1">
+         <video src={media.url} controls className="w-full rounded-2xl" />
+       </div>
+     );
+   }
+   return (
+@@ -29,26 +34,28 @@ function MediaColumn({ media }) {
+     </div>
+   );
+ }
+ 
+ export function MediaDescriptionLayout({ content, onChangeContent }) {
+   const textColumn = (
+     <div data-col="text" className="flex-1 flex flex-col justify-center">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-6 text-lg opacity-80"
++        style={{ fontFamily: "var(--theme-body-font)" }}
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+     </div>
+   );
+   const mediaColumn = <MediaColumn media={content.media} />;
+ 
+   return (
+     <div className="grid place-items-center h-full w-full p-8 sm:p-16">
+       <div className="flex gap-10 w-full max-w-6xl items-center">
+diff --git a/src/components/new/deck/layouts/MetricsGridLayout.jsx b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+index 1dbb719..b411ab5 100644
+--- a/src/components/new/deck/layouts/MetricsGridLayout.jsx
++++ b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+@@ -16,34 +16,37 @@ export function MetricsGridLayout({ content, onChangeContent }) {
+   function updateMetric(index, patch) {
+     const metrics = content.metrics.map((m, i) => (i === index ? { ...m, ...patch } : m));
+     onChangeContent({ metrics });
+   }
+ 
+   return (
+     <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+         {content.metrics.map((metric, index) => (
+           <div key={index} className="text-center">
+             <RichText
+               as="div"
+               className="text-5xl font-bold"
++              style={{ fontFamily: "var(--theme-heading-font)", color: "var(--theme-primary)" }}
+               value={metric.value}
+               onChange={(html) => updateMetric(index, { value: html })}
+             />
+             <RichText
+               as="div"
+               className="mt-2 opacity-70"
++              style={{ fontFamily: "var(--theme-body-font)" }}
+               value={metric.label}
+               onChange={(html) => updateMetric(index, { label: html })}
+             />
+           </div>
+         ))}
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/ProblemLayout.jsx b/src/components/new/deck/layouts/ProblemLayout.jsx
+index 83d5bca..45bd337 100644
+--- a/src/components/new/deck/layouts/ProblemLayout.jsx
++++ b/src/components/new/deck/layouts/ProblemLayout.jsx
+@@ -4,23 +4,25 @@ import { RichText } from "../RichText";
+ export function defaultProblemContent() {
+   return { heading: "The Problem", body: "<p>Describe the problem your customers face.</p>" };
+ }
+ 
+ export function ProblemLayout({ content, onChangeContent }) {
+   return (
+     <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h1"
+         className="text-5xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-8 text-xl opacity-80 max-w-3xl text-left"
++        style={{ fontFamily: "var(--theme-body-font)" }}
+         toolbarButtons={["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor", "formatUL", "formatOL"]}
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/TeamGridLayout.jsx b/src/components/new/deck/layouts/TeamGridLayout.jsx
+index c917160..f416f96 100644
+--- a/src/components/new/deck/layouts/TeamGridLayout.jsx
++++ b/src/components/new/deck/layouts/TeamGridLayout.jsx
+@@ -9,39 +9,42 @@ export function TeamGridLayout({ content, onChangeContent }) {
+   function updateMember(index, patch) {
+     const members = content.members.map((m, i) => (i === index ? { ...m, ...patch } : m));
+     onChangeContent({ members });
+   }
+ 
+   return (
+     <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+         {content.members.map((member, index) => (
+           <div key={index} className="text-center">
+             {member.photoUrl ? (
+               <img src={member.photoUrl} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
+             ) : (
+-              <div className="w-24 h-24 rounded-full mx-auto bg-white/10" />
++              <div className="w-24 h-24 rounded-full mx-auto" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
+             )}
+             <RichText
+               as="div"
+               className="mt-4 font-semibold"
++              style={{ fontFamily: "var(--theme-heading-font)" }}
+               value={member.name}
+               onChange={(html) => updateMember(index, { name: html })}
+             />
+             <RichText
+               as="div"
+               className="opacity-70"
++              style={{ fontFamily: "var(--theme-body-font)" }}
+               value={member.role}
+               onChange={(html) => updateMember(index, { role: html })}
+             />
+           </div>
+         ))}
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/TitleLayout.jsx b/src/components/new/deck/layouts/TitleLayout.jsx
+index 1bd92f6..1def1aa 100644
+--- a/src/components/new/deck/layouts/TitleLayout.jsx
++++ b/src/components/new/deck/layouts/TitleLayout.jsx
+@@ -4,26 +4,28 @@ import { RichText } from "../RichText";
+ export function defaultTitleContent() {
+   return { title: "Title Only", subtitle: "" };
+ }
+ 
+ export function TitleLayout({ content, onChangeContent }) {
+   return (
+     <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
+       <RichText
+         as="h1"
+         className="text-7xl font-bold"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.title}
+         onChange={(html) => onChangeContent({ title: html })}
+       />
+       {content.subtitle ? (
+         <div data-field="subtitle" className="mt-4">
+           <RichText
+             as="p"
+             className="text-2xl opacity-60"
++            style={{ fontFamily: "var(--theme-body-font)" }}
+             value={content.subtitle}
+             onChange={(html) => onChangeContent({ subtitle: html })}
+           />
+         </div>
+       ) : null}
+     </div>
+   );
+ }

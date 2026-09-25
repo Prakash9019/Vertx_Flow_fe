@@ -1,0 +1,83 @@
+# Review package: 74e48e0..fdcab67
+
+## Commits
+fdcab67 feat: RichText forwards an optional style prop Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+
+## Files changed
+ src/components/new/deck/RichText.jsx      | 4 ++--
+ src/components/new/deck/RichText.test.jsx | 6 ++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+## Diff
+diff --git a/src/components/new/deck/RichText.jsx b/src/components/new/deck/RichText.jsx
+index 2ca4ee2..34acc3f 100644
+--- a/src/components/new/deck/RichText.jsx
++++ b/src/components/new/deck/RichText.jsx
+@@ -18,21 +18,21 @@ function ensureFroalaAssets() {
+ }
+ 
+ function onFroalaReady(script, callback) {
+   if (typeof window !== "undefined" && window.FroalaEditor) {
+     callback();
+     return;
+   }
+   script.addEventListener("load", callback, { once: true });
+ }
+ 
+-export function RichText({ value, onChange, toolbarButtons, className, as: Tag = "div" }) {
++export function RichText({ value, onChange, toolbarButtons, className, style, as: Tag = "div" }) {
+   const ref = useRef(null);
+   const editorRef = useRef(null);
+   const seededRef = useRef(false);
+ 
+   // Latest props, kept in refs so the imperatively-registered Froala event
+   // handlers below never read a stale first-render closure. No deps array:
+   // this effect runs after EVERY render.
+   const onChangeRef = useRef(onChange);
+   const toolbarButtonsRef = useRef(toolbarButtons);
+   const valueRef = useRef(value);
+@@ -79,12 +79,12 @@ export function RichText({ value, onChange, toolbarButtons, className, as: Tag =
+ 
+     return () => {
+       if (editorRef.current && typeof editorRef.current.destroy === "function") {
+         editorRef.current.destroy();
+       }
+       editorRef.current = null;
+     };
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
+ 
+-  return <Tag ref={ref} className={className} />;
++  return <Tag ref={ref} className={className} style={style} />;
+ }
+diff --git a/src/components/new/deck/RichText.test.jsx b/src/components/new/deck/RichText.test.jsx
+index 89fb9be..3fa8d39 100644
+--- a/src/components/new/deck/RichText.test.jsx
++++ b/src/components/new/deck/RichText.test.jsx
+@@ -37,20 +37,26 @@ describe("RichText", () => {
+     expect(el.tagName).toBe("B");
+     expect(el.closest("h1")).not.toBeNull();
+     expect(el.closest("h1").className).toBe("heading");
+   });
+ 
+   it("does not throw when window.FroalaEditor is unavailable (e.g. in tests)", () => {
+     expect(() =>
+       render(<RichText value="<p>Text</p>" onChange={() => {}} as="div" />)
+     ).not.toThrow();
+   });
++
++  it("forwards a style prop to the underlying element", () => {
++    render(<RichText as="h1" className="text-5xl" style={{ fontFamily: "Georgia, serif" }} value="Hi" onChange={() => {}} />);
++    const heading = screen.getByRole("heading", { level: 1 });
++    expect(heading.style.fontFamily).toBe("Georgia, serif");
++  });
+ });
+ 
+ describe("RichText with Froala present", () => {
+   let instances;
+ 
+   beforeEach(() => {
+     instances = installFroalaStub();
+   });
+ 
+   afterEach(() => {

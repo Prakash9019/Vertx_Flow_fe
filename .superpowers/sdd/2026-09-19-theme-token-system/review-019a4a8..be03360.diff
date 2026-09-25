@@ -1,0 +1,1923 @@
+# Review package: 019a4a8..be03360
+
+## Commits
+be03360 fix: reconcile status doc's stale theme/test-count claims with sub-project #6 section
+b1e6bd1 docs: mark theme token system (sub-project #6) implemented
+92f22d7 feat: free-element widgets default to theme tokens, explicit overrides still win
+b5932b6 refactor: layouts consume theme tokens via CSS variables instead of hardcoded colors
+0144ac2 feat: wire theme registry into EditorPage - live SET_DECK_THEME picker, CSS vars
+fdcab67 feat: RichText forwards an optional style prop Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+74e48e0 feat: migrate deck.theme to structured theme tokens (schema v2)
+01d4d65 feat: add SET_DECK_THEME reducer action
+d899e57 fix: DUPLICATE_SLIDE deep-clones background instead of sharing it by reference
+0bc5084 feat: add theme token schema, 7-theme registry, and CSS var helpers
+
+## Files changed
+ docs/EDITOR-V2-STATUS.md                           | 118 +++++---
+ src/components/new/DeckListPage.jsx                | 106 +++++++
+ src/components/new/EditorPage.jsx                  |  81 ++----
+ src/components/new/deck/RichText.jsx               |   4 +-
+ src/components/new/deck/RichText.test.jsx          |   6 +
+ src/components/new/deck/deckReducer.js             |  21 +-
+ src/components/new/deck/deckReducer.test.js        |  45 +++
+ src/components/new/deck/deckSchema.js              |  57 ++++
+ src/components/new/deck/deckSchema.test.js         |  47 ++++
+ src/components/new/deck/freeElementFactory.js      |  93 +++++++
+ src/components/new/deck/layouts/CtaLayout.jsx      |   5 +-
+ src/components/new/deck/layouts/CtaLayout.test.jsx |  13 +
+ .../new/deck/layouts/Media3PointsLayout.jsx        |   5 +-
+ .../new/deck/layouts/MediaDescriptionLayout.jsx    |   9 +-
+ .../new/deck/layouts/MetricsGridLayout.jsx         |   3 +
+ src/components/new/deck/layouts/ProblemLayout.jsx  |   2 +
+ src/components/new/deck/layouts/TeamGridLayout.jsx |   5 +-
+ src/components/new/deck/layouts/TitleLayout.jsx    |   2 +
+ src/components/new/deck/theme/themeTokens.js       | 304 +++++++++++++++++++++
+ src/components/new/deck/theme/themeTokens.test.js  |  99 +++++++
+ src/components/new/deck/widgets/DividerWidget.jsx  |  10 +
+ src/components/new/deck/widgets/IconWidget.jsx     |  13 +
+ src/components/new/deck/widgets/ShapeWidget.jsx    |  16 ++
+ src/components/new/deck/widgets/TextWidget.jsx     |  47 ++++
+ .../new/deck/widgets/ThemeDefaults.test.jsx        |  55 ++++
+ 25 files changed, 1069 insertions(+), 97 deletions(-)
+
+## Diff
+diff --git a/docs/EDITOR-V2-STATUS.md b/docs/EDITOR-V2-STATUS.md
+index 964d912..6b65878 100644
+--- a/docs/EDITOR-V2-STATUS.md
++++ b/docs/EDITOR-V2-STATUS.md
+@@ -6,83 +6,123 @@
+ **Grading rule for this document:** a feature counts as **Complete** only when
+ the corresponding user-facing interaction works end-to-end. Having the data
+ structure or a reducer action for something is not completion — it's
+ listed separately as "data model ready" so the gap is visible.
+ 
+ ---
+ 
+ ## 1. What's genuinely complete
+ 
+ - **Deck/Slide/FreeElement data model** (`deckTypes.js`) — factories, `LAYOUT_IDS`, immutable-by-construction shapes.
+-- **`deckReducer.js`** — 10 action types, fully immutable, validated at the boundary, tested for every action + every invalid-input branch.
+-- **`DeckContext` (`DeckProvider`/`useDeck`)** — single source of truth; no duplicated slide-shaped state anywhere else in `EditorPage.jsx`.
++- **`deckReducer.js`** — action types for slides, free elements, and theme, fully immutable, validated at the boundary, tested for every action + every invalid-input branch.
++- **`DeckContext` (`DeckProvider`/`useDeck`)** — single source of truth; wraps `deckReducer` in `useDeckHistory` (see Undo/redo below), so `useDeck()` returns `{ deck, dispatch, undo, redo, canUndo, canRedo }`. No duplicated slide-shaped state anywhere else in `EditorPage.jsx`.
+ - **`SlideRegistry.js`** — all 7 layouts correctly registered.
+-- **`SlideCanvas.jsx`** — renders the active layout + free elements, correctly remounts per slide (`key={slide.id}`, fixed after a real bug was caught in final review).
++- **`SlideCanvas.jsx`** — renders the active layout + free elements, correctly remounts per slide (`key={slide.id}`), and now forwards element selection/editing state into `FreeElementLayer` (see Insert/free-element engine below).
+ - **`RichText.jsx`** — shared Froala field; the stale-closure/DOM-fight bug that caused silent edit loss is fixed and regression-tested.
+ - **7 layout components** — Title, Problem, MediaDescription, Media3Points, MetricsGrid, TeamGrid, Cta — each editable end-to-end via `RichText`, each fills its 16:9 container correctly.
+ - **Adding a slide** — `handleAddSlide` → `ADD_SLIDE` → renders correctly. End-to-end working.
+ - **Per-slide background** — toolbar → `SET_SLIDE_BACKGROUND` → `SlideCanvas` renders it. End-to-end working for `solid`/`gradient`/`image` kinds (not `video`, see below).
+-- **64 tests / 15 files**, all passing; suite has grown, not shrunk, across every task and fix round.
++- **Undo/redo** — `useDeckHistory.js` wraps `deckReducer` in a past/present/future history shape, supports coalescing a burst of dispatches (e.g. every pointermove frame of a drag) sharing a `coalesceId` into a single undo step, and is wired into `DeckContext` so every dispatch in the app is undoable. Unit-tested in isolation (`useDeckHistory.test.js`) and exercised end-to-end by the free-element interaction tests (drag/delete produce exactly one undo step).
++- **Insert/free-element interaction engine** — `useFreeElementInteraction.js` (pointer-driven drag/resize/rotate with center/edge snapping), `FreeElementSelection.jsx` (bounding box, resize handles, rotate handle, snap guides), and `FreeElementToolbar.jsx` (bring forward/send backward/duplicate/delete) are now wired together in `FreeElementLayer.jsx`, which previously only rendered static elements with no selection or interaction at all. End-to-end working: select, drag, resize, rotate, delete (Delete key), duplicate, and reorder z-index via the toolbar, all through `SlideCanvas`/`DeckContext` so every change is a single undoable step.
++- **Layer/element controls** — bring-forward/send-backward (`reorderZIndex` in `freeElementFactory.js`) and duplicate (`duplicateWidget`) are implemented as part of the Insert engine above and exposed through `FreeElementToolbar`.
++- **Slide sidebar component** — `SlideSidebar.jsx`/`SlideThumbnail.jsx`/`SlideThumbnailContent.jsx` render thumbnails with active-slide highlighting; unit-tested (`SlideThumbnail.test.jsx`). Not yet imported into `EditorPage.jsx` — see limitations below.
++- **Schema versioning + persistence plumbing** — `deckSchema.js` (`migrateDeck`/`serializeDeck`, `CURRENT_SCHEMA_VERSION`) and `src/utils/deckApi.js` exist as the migration/save-load contract. Not yet imported into `EditorPage.jsx` or exercised against a real backend/DB — see limitations below.
++- **109 tests / 21 files**, all passing; suite has grown, not shrunk, across every task and fix round, including this one (see §5 below).
+ 
+-## 2. Data model ready, but the user-facing feature does not exist
++## 1e. Sub-project #6: Theme Token System — Implemented
+ 
+-These have the reducer action and/or data shape in place, but **no UI** —
+-do not read this section as "half done," read it as "the cheap half is
+-done, the actual feature is not started":
++`deck.theme` is now a structured, persisted design-token object — the global visual foundation for the editor, not a color switcher.
+ 
+-- **Deleting/duplicating/reordering slides** — `DELETE_SLIDE`, `DUPLICATE_SLIDE`, `REORDER_SLIDES` all exist and are tested at the reducer level. No sidebar, no button, no drag handle calls them from the UI.
+-- **Free-element placement** — `ADD_FREE_ELEMENT`/`UPDATE_FREE_ELEMENT`/`REMOVE_FREE_ELEMENT` exist; `FreeElementLayer` renders whatever's in `freeElements[]` at the right position/z-order. Nothing lets a user create, select, drag, resize, rotate, or delete one. This is the Insert Widget gap.
+-- **Layout switching** — `SET_SLIDE_LAYOUT` exists and (as of the final-review fix) never crashes, because it merges onto the target's `defaultContent()`. But only one content pair (`problem→media-3points`) actually preserves meaningful content — every other switch effectively **resets to placeholder content**, which is exactly the failure mode the new architecture principles doc says must not happen. This needs the semantic normalize/denormalize layer (architecture doc §3) before it's a real feature.
++**Theme schema** (`src/components/new/deck/theme/themeTokens.js`): `{ id, name, colors: { background, surface, surfaceMuted, primary, secondary, accent, text, textMuted, border }, typography: { headingFont, bodyFont, headingWeight, bodyWeight, headingScale, bodyScale, lineHeight }, spacing: { xs, sm, md, lg, xl }, radius: { sm, md, lg }, shadows: { sm, md, lg }, borders: { width, style }, defaultBackground }`. `defaultBackground` is populated (`{ kind: "solid", color: colors.background }`) to prepare the future Background system's two-tier hierarchy (brief §11) but nothing reads it yet — the per-slide background system (`SlideCanvas`'s `slideBackgroundStyle`) is unchanged.
++
++**Theme registry**: 7 themes (`default`, `dark`, `light`, `minimal`, `modern`, `bold`, `professional`), each a full token object. `getTheme(id)` returns a defensive deep copy; `normalizeTheme(value)` accepts a legacy bare string, a partial object, or an already-current object and always returns the full current shape (idempotent).
++
++**Token architecture — CSS custom properties, not a new React context**: `themeToRootStyle(theme)`/`themeToCssVars(theme)` turn a theme into `--theme-*` CSS custom properties (plus a directly-applied `backgroundColor`/`color`/`fontFamily` for the one root element). `EditorPage.jsx` applies `themeToRootStyle(deck.theme)` to its outermost wrapper (a shared ancestor of both `SlideSidebar` and the slide canvas), so every layout, `RichText` field, and free-element widget reads the live theme via plain `var(--theme-*)` in an inline `style` — no theme context/hook, no prop drilling, per the brief's "don't introduce a complicated styling framework" instruction.
++
++**Layouts migrated**: all 7 (`Title`, `Problem`, `MediaDescription`, `Media3Points`, `MetricsGrid`, `TeamGrid`, `Cta`) — heading/body `RichText` fields set `style={{ fontFamily: "var(--theme-heading-font)" | "var(--theme-body-font)" }}` (required teaching `RichText` to forward an optional `style` prop, alongside its existing `className`). Text color needed no per-layout change: none of the 7 hardcoded a color class, so they already inherited `--theme-text`'s directly-applied `color` from the new root wrapper. Two hardcoded-color spots were replaced with tokens: `CtaLayout`'s button (`bg-teal-400 text-black` → `var(--theme-primary)`/`var(--theme-background)`) and the empty-media placeholders in `MediaDescriptionLayout`/`Media3PointsLayout`/`TeamGridLayout` (`bg-white/10` → `var(--theme-surface-muted)`).
++
++**Free elements**: `TextWidget`/`ShapeWidget`/`DividerWidget`/`IconWidget` fall back to `var(--theme-text)`/`var(--theme-accent)`/`var(--theme-border)` only when the element has no explicit `props.color`/`props.fill` — an explicit value (however it got set) always wins, per the brief's theme-derived-vs-explicit-override distinction. `freeElementFactory.js`'s `WIDGET_DEFAULTS` no longer bakes a hardcoded hex color into newly-created shape/divider/icon elements, so new free elements pick up the live theme by default.
++
++**Known limitation**: `typography.headingScale`/`typography.bodyScale` and letter-spacing are defined in the token schema (brief §7) but are not yet multiplied into rendered font sizes — each layout still sets its own fixed Tailwind text-size class (e.g. `text-5xl`). Wiring scale into rendered size would mean converting every layout's font-size classes to CSS-variable-driven values, a larger structural change deferred to keep this pass focused on making layouts consume tokens rather than redesigning their typography structure. Heading/body *font family* and *color* are fully live per-theme today; scale/letter-spacing are not yet.
++
++**Persistence & live update**: `EditorPage.jsx`'s Theme Picker dispatches `{ type: "SET_DECK_THEME", theme: getTheme(id) }` (new `deckReducer.js` action - replaces `deck.theme` only, never touches `deck.slides`/content/positions). This goes through the same `dispatch` → `deck` (`present`) state `DeckProvider`'s existing autosave effect already watches, so a theme change autosaves exactly like any other edit - no new persistence path. The old local-only `uiTheme` state and its `themes[uiTheme]`-driven Tailwind classes on the `.App` wrapper are removed; `deck.theme` (via `useDeck()`) is the only theme source now.
++
++**Backward migration**: `deckSchema.js` bumped to `CURRENT_SCHEMA_VERSION = 2`. The new v1→v2 migration runs every deck's `theme` field through `normalizeTheme()`, so an old deck with a bare-string `theme` (e.g. `"dark"`) or a hand-crafted legacy string (`"warm"`/`"DeepPurple"`/`"DarkBlue"`/`"EarthStone"`, mapped onto the closest new registry theme) loads correctly with no data loss and no thrown error.
++
++**Explicitly not done, per the brief's own "do not implement yet" list**: full Background system (overlay/opacity/video, deck-level default actually rendering), semantic layout transformation, Remix, AI features, Change Case, animations, performance optimization, full regression testing. Also not done: deleting the pre-existing `themes`/`themes2`/`backgrounds` legacy objects and the ~3,700 lines of dead legacy layout components in `EditorPage.jsx` that reference them - still explicitly deferred (§4), and this sub-project's changes only touch the live `EditorPageBody` theme code path, not that dead code.
++
++**Tests**: `themeTokens.test.js` (registry shape, `getTheme`, `normalizeTheme` including idempotency and partial-object fill-in, `themeToCssVars`/`themeToRootStyle`), `deckSchema.test.js` (new - migration from bare-string/partial/already-current theme), `deckReducer.test.js` additions (`SET_DECK_THEME`), `RichText.test.jsx` addition (`style` passthrough), `CtaLayout.test.jsx` addition (button no longer hardcodes a color), `ThemeDefaults.test.jsx` (new - widget theme-var fallback vs. explicit-override behavior). Full suite: 109 tests / 21 files passing (up from the 94/19 baseline). `npm run build` succeeds (only pre-existing "chunk larger than 500 kB" warnings for image assets, unrelated to this work — not an error).
++
++**Not verified**: an actual browser click-through of the brief's §21 sanity flow (open deck → choose Theme A → all slides update → edit content → content intact → choose Theme B → all slides update again → insert free element → theme doesn't break its position → save/autosave → refresh → theme persists; plus: existing slide-specific background + theme change → slide-specific background remains intact). No headless/interactive browser tool was available in this session, the same limitation noted for sub-projects #3 and #5.
++
++## 2. Data model ready, but the user-facing feature is not wired into `EditorPage.jsx` yet
++
++These have working, unit-tested implementations as standalone modules, but
++**`EditorPage.jsx` does not import or render them yet** — do not read this
++section as "half done," read it as "the component/module is done and
++tested in isolation, the integration into the live editor page is not
++started":
++
++- **Deleting/duplicating/reordering slides** — `DELETE_SLIDE`, `DUPLICATE_SLIDE`, `REORDER_SLIDES` all exist and are tested at the reducer level. `SlideSidebar.jsx` renders thumbnails but nothing in `EditorPage.jsx` calls these actions from a button/drag handle yet.
++- **Persistence / real backend save-load** — `deckSchema.js`/`deckApi.js` give a migration chain and a client for the save/load contract, but nothing in `EditorPage.jsx` calls them, and neither has been verified against the actual backend/DB (no integration test hits a real API).
++- **Layout switching** — `SET_SLIDE_LAYOUT` exists and never crashes, because it merges onto the target's `defaultContent()`. But only one content pair (`problem→media-3points`) actually preserves meaningful content — every other switch effectively **resets to placeholder content**, which is exactly the failure mode the new architecture principles doc says must not happen. This needs the semantic normalize/denormalize layer (architecture doc §3) before it's a real feature.
+ 
+ ## 3. Not started at all
+ 
+-- **Undo/redo.** No history wrapper exists around `deckReducer`. No keyboard bindings.
+-- **Schema versioning.** `Deck` objects have no `schemaVersion` field and there is no migration function. This matters before any real persistence/save-load exists.
+-- **Theme system.** `deck.theme` is a bare string set once at deck creation; nothing ever dispatches a change to it. `EditorPage.jsx`'s `uiTheme` is local-only cosmetic state, never persisted, never actually re-themes the layouts (which still hardcode their own Tailwind classes rather than consuming tokens).
+-- **Layer/element controls** (bring forward/back, bounding boxes, duplicate/delete a specific free element) — depends on the Insert Widget engine existing first.
+-- **Slide sidebar UI** (thumbnails, active highlight, drag-reorder, insert-between) — the reducer actions it needs already exist (`ADD_SLIDE` even supports an `afterSlideId` for "insert between").
+ - **Remix system** — no design or implementation yet, and per the architecture doc it's explicitly a different operation from Layout Change (§4 of the architecture doc), not a variant of it.
+ - **AI storyline / 10+ slide generation, content intelligence** (detect numbers→metrics, lists→bullets, image prompts→media).
+ - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
+ - **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
+ - **Background overlay/opacity, deck-level default background, video-background rendering** — the `SlideBackground` union doesn't yet have overlay fields, there's no deck-level background tier, and `{kind:"media", type:"video"}` renders nothing.
++- **Widget renderers** — `widgets/` (`TextWidget.jsx`, `ShapeWidget.jsx`, `ImageWidget.jsx`, `VideoWidget.jsx`, `DividerWidget.jsx`, `IconWidget.jsx`) exist but are not yet referenced anywhere; `FreeElementLayer`'s own inline `ElementContent` switch (text/image/video/default) is still what actually renders elements today.
+ 
+ ## 4. Known defects / rough edges (not urgent, but real)
+ 
+ - `DUPLICATE_SLIDE` copies `background` by reference, not cloned (harmless while every write path replaces it wholesale).
+ - `UPDATE_SLIDE_CONTENT`/`ADD_FREE_ELEMENT` don't validate payload shape before merging (fine until untrusted/deserialized data enters the picture — relevant once persistence/schema versioning lands).
+ - `MetricsGridLayout`/`TeamGridLayout` use array-index React keys (fine for today's fixed-size lists; would need real ids once those lists become reorderable via the Insert Widget engine).
+ - `slideBackgroundStyle`'s `url(${...})` isn't quote-escaped (latent — nothing produces an unsafe URL today).
+ - `BACKGROUND_PRESET_MODELS` in `EditorPage.jsx` is a hand-mapped approximation of legacy Tailwind swatches to hex/gradient values — a swatch preview can cosmetically differ from the applied result. Gets fixed as a side effect of building a real background picker (§6 of the architecture doc).
+ - ~3,700 lines of the old hardcoded slide components (`TheChallangePage`, `OurSolutionPage`, `TitleOnlyPage`, and ~18 others) still exist in `EditorPage.jsx`, unreferenced. Deletion is still explicitly deferred, not scheduled in the dependency order below — revisit once the theme-token refactor touches every layout anyway (natural point to also delete the dead legacy layouts that duplicate them).
++- **Real-browser verification gap.** Everything in §1 is verified by jsdom/Vitest (including the free-element drag/resize/rotate math, which relies on a test-only `getBoundingClientRect` mock — see `FreeElementInteraction.integration.test.jsx`). None of it — insert engine, undo/redo, persistence plumbing — has been clicked through in an actual browser against the real `EditorPage.jsx` yet. Treat "tests pass" and "works in the app" as separate claims until that manual pass happens, especially for anything not yet imported into `EditorPage.jsx` (see §2).
+ 
+ ---
+ 
+-## 5. Recommended implementation order
++## 5. Test status
++
++**109/109 tests passing** across 21 files (`npm run test`), `npm run build` passing. This includes the Theme Token System sub-project's additions (see §1e) on top of the previous 94/19 baseline.
++
++This count includes a fix round on `FreeElementInteraction.integration.test.jsx` (5 tests that were failing after an untracked-file recovery). Root cause was not a test or environment bug: `FreeElementLayer.jsx` was a stale stub that rendered `freeElements[]` statically and never wired in the already-implemented `useFreeElementInteraction.js`/`FreeElementSelection.jsx`/`FreeElementToolbar.jsx`, and `DeckContext.jsx` never wired in the already-implemented `useDeckHistory.js` (so `useDeck()` had no `undo`/`redo`/`canUndo`/`canRedo` at all). Fixed by wiring both together; no test assertions were weakened and no reducer/hook logic changed.
++
++## 6. Recommended implementation order
+ 
+ Per the architecture review, this supersedes the ordering in the previous
+ version of this document. Full rationale for each item and its
+ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-principles.md`.
+ 
+-| Order | Sub-project | Depends on | Why here |
++Items 1–5 below now have working, tested implementations (§1); what remains
++for each is wiring into `EditorPage.jsx` (§2) or, for #6/#7, has not been
++started.
++
++| Order | Sub-project | Depends on | Status |
+ |---|---|---|---|
+-| 1 | Editor persistence + schema versioning | — | Cheapest before any real save/load exists; expensive to retrofit onto already-saved decks |
+-| 2 | Undo/redo | — (wraps `deckReducer` without changing it) | Cheaper before more action types/UI exist to retrofit history into |
+-| 3 | Insert/free-element interaction engine | — | Unblocks #4; most-referenced missing piece in the original brief |
+-| 4 | Layer/element controls | #3 | Needs selectable, draggable elements to have layers to control |
+-| 5 | Slide sidebar | — (reducer actions already exist) | Cheap win, no new reducer work needed |
+-| 6 | Theme token system | — | Needed before background's deck-level default (§7) can hang off it cleanly |
+-| 7 | Background system (overlay, deck-level default, video, real picker UI) | #6 | Deck-level default background is naturally part of theme |
+-| 8 | Semantic layout transformation/reflow | — | Needed before Remix; also fixes the "layout switch resets content" gap in §2 above |
+-| 9 | Remix | #8 | Explicitly built on the same semantic content model, not the layout picker |
+-| 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | High user-visible value |
+-| 11 | AI 10+ slide generation | #10 | |
+-| 12 | Content intelligence | overlaps #10/#11, may co-design | |
+-| 13 | Inline text editing audit/fixes | — | Base Froala behavior inherited as-is; needs a dedicated audit against the original complaint (double-click, focus bugs) |
+-| 14 | Change Case tool | — | Isolated, no dependencies |
+-| 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Needs a new approach since the old one is architecturally incompatible with per-slide rendering |
+-| 16 | Performance optimization | most other items | Can't meaningfully assess drag/resize perf before #3 exists |
+-| 17 | Full regression testing | everything | |
+-
+-Do not implement the full list in one pass. The next step is to
+-brainstorm sub-project #1 (editor persistence + schema versioning) through
+-the normal brainstorm → spec → plan → implementation cycle.
++| 1 | Editor persistence + schema versioning | — | `deckSchema.js`/`deckApi.js` implemented, not wired into `EditorPage.jsx`, not verified against a real backend |
++| 2 | Undo/redo | — (wraps `deckReducer` without changing it) | Implemented and wired into `DeckContext` |
++| 3 | Insert/free-element interaction engine | — | Implemented and wired into `SlideCanvas`/`FreeElementLayer` |
++| 4 | Layer/element controls | #3 | Implemented as part of #3 (toolbar bring-forward/send-backward/duplicate/delete) |
++| 5 | Slide sidebar | — (reducer actions already exist) | Component implemented and unit-tested, not wired into `EditorPage.jsx` |
++| 6 | Theme token system | — | **Implemented** (see §1e) — needed before background's deck-level default (§7) can hang off it cleanly |
++| 7 | Background system (overlay, deck-level default, video, real picker UI) | #6 | Not started |
++| 8 | Semantic layout transformation/reflow | — | Not started |
++| 9 | Remix | #8 | Not started |
++| 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | Not started |
++| 11 | AI 10+ slide generation | #10 | Not started |
++| 12 | Content intelligence | overlaps #10/#11, may co-design | Not started |
++| 13 | Inline text editing audit/fixes | — | Not started |
++| 14 | Change Case tool | — | Not started |
++| 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Not started |
++| 16 | Performance optimization | most other items | Not started |
++| 17 | Full regression testing | everything | Not started (109/109 automated; real-browser pass still outstanding, see §4) |
++
++Do not implement the full list in one pass. Sub-project #6 (Theme Token System) has been
++implemented (see §1e). Next up is the Background system (#7) — awaiting explicit go-ahead
++before starting it.
+diff --git a/src/components/new/DeckListPage.jsx b/src/components/new/DeckListPage.jsx
+new file mode 100644
+index 0000000..7f1b58a
+--- /dev/null
++++ b/src/components/new/DeckListPage.jsx
+@@ -0,0 +1,106 @@
++import React, { useEffect, useState } from "react";
++import { useNavigate } from "react-router-dom";
++import deckApi from "../../utils/deckApi";
++import { getTheme, DEFAULT_THEME_ID } from "./deck/theme/themeTokens";
++
++export default function DeckListPage() {
++  const navigate = useNavigate();
++  const [decks, setDecks] = useState([]);
++  const [status, setStatus] = useState("loading"); // loading | ready | error
++  const [creating, setCreating] = useState(false);
++
++  useEffect(() => {
++    let cancelled = false;
++    deckApi
++      .getDecks()
++      .then((res) => {
++        if (cancelled) return;
++        setDecks(res.data?.data ?? []);
++        setStatus("ready");
++      })
++      .catch(() => {
++        if (cancelled) return;
++        setStatus("error");
++      });
++    return () => {
++      cancelled = true;
++    };
++  }, []);
++
++  const handleCreate = async () => {
++    setCreating(true);
++    try {
++      const res = await deckApi.createDeck({ title: "Untitled Deck", theme: getTheme(DEFAULT_THEME_ID), slides: [] });
++      const deckId = res.data?.data?._id;
++      navigate(`/editor/${deckId}`);
++    } catch (error) {
++      console.error("Failed to create deck:", error);
++      setCreating(false);
++    }
++  };
++
++  const handleDelete = async (deckId) => {
++    try {
++      await deckApi.deleteDeck(deckId);
++      setDecks((prev) => prev.filter((d) => d._id !== deckId));
++    } catch (error) {
++      console.error("Failed to delete deck:", error);
++    }
++  };
++
++  return (
++    <div className="min-h-screen w-full bg-[#021e1d] text-white p-8">
++      <div className="max-w-3xl mx-auto">
++        <div className="flex items-center justify-between mb-8">
++          <h1 className="text-2xl font-semibold">My Decks</h1>
++          <button
++            onClick={handleCreate}
++            disabled={creating}
++            className="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 disabled:opacity-50 font-medium"
++          >
++            {creating ? "Creating..." : "Create New Deck"}
++          </button>
++        </div>
++
++        {status === "loading" && <p className="text-white/60">Loading decks...</p>}
++        {status === "error" && <p className="text-red-400">Failed to load decks.</p>}
++
++        {status === "ready" && decks.length === 0 && (
++          <p className="text-white/60">No decks yet. Create your first one.</p>
++        )}
++
++        <div className="space-y-3">
++          {decks.map((deck) => (
++            <div
++              key={deck._id}
++              className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10"
++            >
++              <div>
++                <div className="font-medium">{deck.title || "Untitled Deck"}</div>
++                {deck.updatedAt && (
++                  <div className="text-xs text-white/40">
++                    Updated {new Date(deck.updatedAt).toLocaleString()}
++                  </div>
++                )}
++              </div>
++              <div className="flex gap-2">
++                <button
++                  onClick={() => navigate(`/editor/${deck._id}`)}
++                  className="px-3 py-1.5 text-sm rounded-lg bg-white/10 hover:bg-white/20"
++                >
++                  Open
++                </button>
++                <button
++                  onClick={() => handleDelete(deck._id)}
++                  className="px-3 py-1.5 text-sm rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30"
++                >
++                  Delete
++                </button>
++              </div>
++            </div>
++          ))}
++        </div>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/new/EditorPage.jsx b/src/components/new/EditorPage.jsx
+index 4225eac..5c8ec95 100644
+--- a/src/components/new/EditorPage.jsx
++++ b/src/components/new/EditorPage.jsx
+@@ -46,20 +46,21 @@ import { DeckProvider, useDeck } from "./deck/DeckContext";
+ import { SlideCanvas } from "./deck/SlideCanvas";
+ import { createDeck, createSlide } from "./deck/deckTypes";
+ import { getRegistryEntry } from "./deck/SlideRegistry";
+ import { defaultTitleContent } from "./deck/layouts/TitleLayout";
+ import { defaultProblemContent } from "./deck/layouts/ProblemLayout";
+ import { defaultMediaDescriptionContent } from "./deck/layouts/MediaDescriptionLayout";
+ import { defaultMedia3PointsContent } from "./deck/layouts/Media3PointsLayout";
+ import { defaultMetricsGridContent } from "./deck/layouts/MetricsGridLayout";
+ import { defaultTeamGridContent } from "./deck/layouts/TeamGridLayout";
+ import { defaultCtaContent } from "./deck/layouts/CtaLayout";
++import { THEME_REGISTRY, getTheme, DEFAULT_THEME_ID, themeToRootStyle } from "./deck/theme/themeTokens";
+ 
+ // --- Shared Froala Editor CDN loader ---------------------------------------
+ // Every slide below used to inject its own <link>/<script> pair for Froala,
+ // which meant the same CDN assets were fetched and parsed dozens of times.
+ // These helpers load the assets exactly once and let every slide share them.
+ let froalaLinkEl = null;
+ let froalaScriptEl = null;
+ function ensureFroalaAssets() {
+   if (!froalaLinkEl) {
+     froalaLinkEl = document.createElement('link');
+@@ -3765,21 +3766,21 @@ const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
+         </div>
+     );
+ }
+ 
+ 
+ export default function EditorPage() {
+   const initialDeck = React.useMemo(
+     () =>
+       createDeck({
+         title: "Untitled Deck",
+-        theme: "dark",
++        theme: getTheme(DEFAULT_THEME_ID),
+         slides: [
+           createSlide({ layout: "title", content: defaultTitleContent(), order: 0 }),
+           createSlide({ layout: "problem", content: defaultProblemContent(), order: 1 }),
+           createSlide({ layout: "media-description", content: defaultMediaDescriptionContent(), order: 2 }),
+           createSlide({ layout: "media-3points", content: defaultMedia3PointsContent(), order: 3 }),
+           createSlide({ layout: "metrics-grid", content: defaultMetricsGridContent(), order: 4 }),
+           createSlide({ layout: "team-grid", content: defaultTeamGridContent(), order: 5 }),
+           createSlide({ layout: "cta", content: defaultCtaContent(), order: 6 }),
+         ],
+       }),
+@@ -3795,52 +3796,54 @@ export default function EditorPage() {
+ function EditorPageBody() {
+   const { deck, dispatch } = useDeck();
+   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+   const [showThemeModal, setShowThemeModal] = useState(false);
+   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
+   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
+   // NOTE: building a richer background/theme *picker UI* is out of scope (see the
+   // plan's "Explicitly out of scope"). The existing background swatches, however,
+   // write through to the deck model: per-slide background lives on
+   // `currentSlide.background` and is applied by `SlideCanvas`.
+-  // `uiTheme` is still local - no reducer action exists for deck theme yet.
+-  const [uiTheme, setUiTheme] = useState(deck.theme || 'dark');
+   const isAnimatingRef = useRef(false);
+ 
+   const currentSlide = deck.slides[currentSlideIndex];
+ 
+   const handleAddSlide = (layoutId) => {
+     const entry = getRegistryEntry(layoutId);
+     if (!entry) return;
+     const newIndex = deck.slides.length;
+     dispatch({ type: "ADD_SLIDE", layout: layoutId, content: entry.defaultContent() });
+     setCurrentSlideIndex(newIndex);
+     setShowLayoutPicker(false);
+   };
+ 
+-  const handleThemeChange = (newTheme) => {
+-    setUiTheme(newTheme);
++  const handleThemeChange = (themeId) => {
++    dispatch({ type: "SET_DECK_THEME", theme: getTheme(themeId) });
+     setShowThemeModal(false);
+   };
+ 
+   const handleBGChange = (newBG) => {
+     if (currentSlide) {
+       dispatch({
+         type: "SET_SLIDE_BACKGROUND",
+         slideId: currentSlide.id,
+         background: backgroundPresetToSlideBackground(newBG),
+       });
+     }
+     setshowBackgroundModal(false);
+   };
+ 
+-  const currentTheme = themes[uiTheme] || themes.dark;
++  // `deck.theme` is always a full structured theme by the time it reaches
++  // this component - either from the initial seed deck (new/local deck) or
++  // `migrateDeck` (loaded from the backend) - so no normalization happens
++  // here; this component only ever reads/dispatches it.
++  const deckTheme = deck.theme;
+ 
+   useEffect(() => {
+     const handleWheel = (event) => {
+       if (isAnimatingRef.current) return;
+ 
+       const deltaY = event.deltaY;
+       let newIndex = currentSlideIndex;
+ 
+       if (deltaY > 0 && currentSlideIndex < deck.slides.length - 1) {
+         newIndex = currentSlideIndex + 1;
+@@ -3853,21 +3856,21 @@ function EditorPageBody() {
+         setCurrentSlideIndex(newIndex);
+         setTimeout(() => { isAnimatingRef.current = false; }, 600);
+       }
+     };
+ 
+     window.addEventListener('wheel', handleWheel, { passive: false });
+     return () => window.removeEventListener('wheel', handleWheel);
+   }, [currentSlideIndex, deck.slides.length]);
+ 
+   return (
+-    <div className={`App font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
++    <div className="App font-sans antialiased h-screen w-screen relative overflow-hidden" style={themeToRootStyle(deckTheme)}>
+       <div className="h-screen w-screen overflow-y-auto">
+         {currentSlide ? <SlideCanvas slide={currentSlide} /> : null}
+       </div>
+ 
+       {/* Slide Navigation Bars */}
+       <div className="absolute top-1/2 left-8 -translate-y-1/2 flex flex-col space-y-3 z-50">
+         {deck.slides.map((_, index) => (
+           <div
+             key={index}
+             title={`Slide ${index + 1}`}
+@@ -3904,70 +3907,46 @@ function EditorPageBody() {
+           <button
+             onClick={() => setshowBackgroundModal(true)}
+             className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
+           >
+             <PiSelectionBackground size={18} className='mr-2'/>
+             <span>Background</span>
+           </button>
+         </div>
+       )}
+ 
+-      {showLayoutPicker && <LayoutPicker theme={currentTheme} onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
++      {showLayoutPicker && <LayoutPicker onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
+ 
+       {/* Theme Selection Modal */}
+       {showThemeModal && (
+         <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
+           <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+             <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Theme</h2>
+-            <div className="flex gap-4">
+-              <button
+-                onClick={() => handleThemeChange('dark')}
+-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-[#021e1d] border-2 border-transparent hover:border-teal-400 transition-colors"
+-              >
+-                <div className="w-10 h-10 rounded-full bg-gray-600 mb-2"></div>
+-                <span className="text-white text-sm font-medium">Dark</span>
+-              </button>
+-              <button
+-                onClick={() => handleThemeChange('light')}
+-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-gray-100 border-2 border-transparent hover:border-teal-400 transition-colors"
+-              >
+-                <div className="w-10 h-10 rounded-full bg-gray-400 mb-2"></div>
+-                <span className="text-gray-900 text-sm font-medium">Light</span>
+-              </button>
+-              <button
+-                onClick={() => handleThemeChange('warm')}
+-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-orange-100 border-2 border-transparent hover:border-teal-400 transition-colors"
+-              >
+-                <div className="w-10 h-10 rounded-full bg-orange-300 mb-2"></div>
+-                <span className="text-gray-900 text-sm font-medium">Warm</span>
+-              </button>
+-              <button
+-                onClick={() => handleThemeChange('DeepPurple')}
+-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-purple-300 border-2 border-transparent hover:border-teal-400 transition-colors"
+-              >
+-                <div className="w-10 h-10 rounded-full bg-purple-400 mb-2"></div>
+-                <span className="text-gray-900 text-sm font-medium">Deep Purple</span>
+-              </button>
+-              <button
+-                onClick={() => handleThemeChange('DarkBlue')}
+-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-blue-400 border-2 border-transparent hover:border-teal-400 transition-colors"
+-              >
+-                <div className="w-10 h-10 rounded-full bg-blue-900 mb-2"></div>
+-                <span className="text-gray-900 text-sm font-medium">Dark Blue</span>
+-              </button>
+-              <button
+-                onClick={() => handleThemeChange('EarthStone')}
+-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-stone-400 border-2 border-transparent hover:border-teal-400 transition-colors"
+-              >
+-                <div className="w-10 h-10 rounded-full bg-stone-600 mb-2"></div>
+-                <span className="text-gray-900 text-sm font-medium">Earth Stone</span>
+-              </button>
++            <div className="flex gap-4 flex-wrap justify-center max-w-2xl">
++              {THEME_REGISTRY.map((themeOption) => (
++                <button
++                  key={themeOption.id}
++                  onClick={() => handleThemeChange(themeOption.id)}
++                  className={`relative flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 border-2 transition-colors ${
++                    deckTheme.id === themeOption.id ? "border-teal-400" : "border-transparent hover:border-teal-400/50"
++                  }`}
++                  style={{ backgroundColor: themeOption.colors.background }}
++                >
++                  {deckTheme.id === themeOption.id && (
++                    <Check size={16} className="absolute top-2 right-2" style={{ color: themeOption.colors.primary }} />
++                  )}
++                  <div className="w-10 h-10 rounded-full mb-2" style={{ backgroundColor: themeOption.colors.primary }} />
++                  <span className="text-sm font-medium" style={{ color: themeOption.colors.text }}>
++                    {themeOption.name}
++                  </span>
++                </button>
++              ))}
+             </div>
+             <button
+               onClick={() => setShowThemeModal(false)}
+               className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
+             >
+               Close
+             </button>
+           </div>
+         </div>
+       )}
+diff --git a/src/components/new/deck/RichText.jsx b/src/components/new/deck/RichText.jsx
+index 2ca4ee2..34acc3f 100644
+--- a/src/components/new/deck/RichText.jsx
++++ b/src/components/new/deck/RichText.jsx
+@@ -18,21 +18,21 @@ function ensureFroalaAssets() {
+ }
+ 
+ function onFroalaReady(script, callback) {
+   if (typeof window !== "undefined" && window.FroalaEditor) {
+     callback();
+     return;
+   }
+   script.addEventListener("load", callback, { once: true });
+ }
+ 
+-export function RichText({ value, onChange, toolbarButtons, className, as: Tag = "div" }) {
++export function RichText({ value, onChange, toolbarButtons, className, style, as: Tag = "div" }) {
+   const ref = useRef(null);
+   const editorRef = useRef(null);
+   const seededRef = useRef(false);
+ 
+   // Latest props, kept in refs so the imperatively-registered Froala event
+   // handlers below never read a stale first-render closure. No deps array:
+   // this effect runs after EVERY render.
+   const onChangeRef = useRef(onChange);
+   const toolbarButtonsRef = useRef(toolbarButtons);
+   const valueRef = useRef(value);
+@@ -79,12 +79,12 @@ export function RichText({ value, onChange, toolbarButtons, className, as: Tag =
+ 
+     return () => {
+       if (editorRef.current && typeof editorRef.current.destroy === "function") {
+         editorRef.current.destroy();
+       }
+       editorRef.current = null;
+     };
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
+ 
+-  return <Tag ref={ref} className={className} />;
++  return <Tag ref={ref} className={className} style={style} />;
+ }
+diff --git a/src/components/new/deck/RichText.test.jsx b/src/components/new/deck/RichText.test.jsx
+index 89fb9be..3fa8d39 100644
+--- a/src/components/new/deck/RichText.test.jsx
++++ b/src/components/new/deck/RichText.test.jsx
+@@ -37,20 +37,26 @@ describe("RichText", () => {
+     expect(el.tagName).toBe("B");
+     expect(el.closest("h1")).not.toBeNull();
+     expect(el.closest("h1").className).toBe("heading");
+   });
+ 
+   it("does not throw when window.FroalaEditor is unavailable (e.g. in tests)", () => {
+     expect(() =>
+       render(<RichText value="<p>Text</p>" onChange={() => {}} as="div" />)
+     ).not.toThrow();
+   });
++
++  it("forwards a style prop to the underlying element", () => {
++    render(<RichText as="h1" className="text-5xl" style={{ fontFamily: "Georgia, serif" }} value="Hi" onChange={() => {}} />);
++    const heading = screen.getByRole("heading", { level: 1 });
++    expect(heading.style.fontFamily).toBe("Georgia, serif");
++  });
+ });
+ 
+ describe("RichText with Froala present", () => {
+   let instances;
+ 
+   beforeEach(() => {
+     instances = installFroalaStub();
+   });
+ 
+   afterEach(() => {
+diff --git a/src/components/new/deck/deckReducer.js b/src/components/new/deck/deckReducer.js
+index aa0b9c7..09136f3 100644
+--- a/src/components/new/deck/deckReducer.js
++++ b/src/components/new/deck/deckReducer.js
+@@ -7,20 +7,31 @@ function warnInvalid(action, reason) {
+ }
+ 
+ function findSlideIndex(deck, slideId) {
+   return deck.slides.findIndex((s) => s.id === slideId);
+ }
+ 
+ function renumber(slides) {
+   return slides.map((s, index) => ({ ...s, order: index }));
+ }
+ 
++// `background` is a discriminated union that (for `gradient`) holds a nested
++// `stops` array - a shallow `{ ...background }` would still share that array
++// by reference between the original slide and the duplicate.
++function cloneBackground(background) {
++  if (!background || typeof background !== "object") return background;
++  if (background.kind === "gradient" && Array.isArray(background.stops)) {
++    return { ...background, stops: [...background.stops] };
++  }
++  return { ...background };
++}
++
+ export function deckReducer(deck, action) {
+   switch (action.type) {
+     case "ADD_SLIDE": {
+       if (!LAYOUT_IDS.includes(action.layout)) {
+         warnInvalid(action, `unknown layout "${action.layout}"`);
+         return deck;
+       }
+       const newSlide = createSlide({
+         layout: action.layout,
+         content: action.content ?? {},
+@@ -53,21 +64,21 @@ export function deckReducer(deck, action) {
+     case "DUPLICATE_SLIDE": {
+       const index = findSlideIndex(deck, action.slideId);
+       if (index === -1) {
+         warnInvalid(action, `slideId "${action.slideId}" not found`);
+         return deck;
+       }
+       const original = deck.slides[index];
+       const copy = createSlide({
+         layout: original.layout,
+         content: { ...original.content },
+-        background: original.background,
++        background: cloneBackground(original.background),
+         freeElements: original.freeElements.map((el) => ({ ...el })),
+         order: index + 1,
+       });
+       const slides = [...deck.slides.slice(0, index + 1), copy, ...deck.slides.slice(index + 1)];
+       return { ...deck, slides: renumber(slides) };
+     }
+ 
+     case "REORDER_SLIDES": {
+       const fromIndex = findSlideIndex(deck, action.slideId);
+       if (fromIndex === -1) {
+@@ -169,15 +180,23 @@ export function deckReducer(deck, action) {
+       if (index === -1) {
+         warnInvalid(action, `slideId "${action.slideId}" not found`);
+         return deck;
+       }
+       const slide = deck.slides[index];
+       const slides = [...deck.slides];
+       slides[index] = { ...slide, freeElements: slide.freeElements.filter((el) => el.id !== action.elementId) };
+       return { ...deck, slides };
+     }
+ 
++    case "SET_DECK_THEME": {
++      if (!action.theme || typeof action.theme !== "object" || !action.theme.colors) {
++        warnInvalid(action, "theme is missing or has no colors");
++        return deck;
++      }
++      return { ...deck, theme: action.theme };
++    }
++
+     default:
+       warnInvalid(action, "unknown action type");
+       return deck;
+   }
+ }
+diff --git a/src/components/new/deck/deckReducer.test.js b/src/components/new/deck/deckReducer.test.js
+index bdd6da4..4801721 100644
+--- a/src/components/new/deck/deckReducer.test.js
++++ b/src/components/new/deck/deckReducer.test.js
+@@ -46,20 +46,40 @@ describe("deckReducer", () => {
+ 
+   it("DUPLICATE_SLIDE inserts a copy with a new id right after the original", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: slide.id });
+     expect(next.slides).toHaveLength(2);
+     expect(next.slides[1].id).not.toBe(slide.id);
+     expect(next.slides[1].content).toEqual(slide.content);
+     expect(next.slides[1].layout).toBe(slide.layout);
+   });
+ 
++  it("DUPLICATE_SLIDE clones the background instead of sharing it by reference", () => {
++    const original = createSlide({
++      layout: "title",
++      content: { title: "Hi" },
++      background: { kind: "gradient", angle: 90, stops: ["#000", "#fff"] },
++      order: 0,
++    });
++    const deck = createDeck({ title: "Deck", theme: "dark", slides: [original] });
++    const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: original.id });
++    const duplicate = next.slides[1];
++
++    expect(duplicate.background).toEqual(original.background);
++    expect(duplicate.background).not.toBe(original.background);
++    expect(duplicate.background.stops).not.toBe(original.background.stops);
++
++    // Mutating the duplicate's background must never affect the original.
++    duplicate.background.stops.push("#f00");
++    expect(original.background.stops).toEqual(["#000", "#fff"]);
++  });
++
+   it("REORDER_SLIDES moves a slide to the target index and renumbers order", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const withSecond = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: {} });
+     const second = withSecond.slides[1];
+     const reordered = deckReducer(withSecond, { type: "REORDER_SLIDES", slideId: second.id, toIndex: 0 });
+     expect(reordered.slides.map((s) => s.id)).toEqual([second.id, slide.id]);
+     expect(reordered.slides[0].order).toBe(0);
+     expect(reordered.slides[1].order).toBe(1);
+   });
+ 
+@@ -134,19 +154,44 @@ describe("deckReducer", () => {
+   });
+ 
+   it("REMOVE_FREE_ELEMENT removes an element by id", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+     const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+     const next = deckReducer(withEl, { type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId: el.id });
+     expect(next.slides[0].freeElements).toEqual([]);
+   });
+ 
++  it("SET_DECK_THEME replaces deck.theme", () => {
++    const { deck } = deckWithOneSlide();
++    const newTheme = { id: "dark", colors: { background: "#000000" } };
++    const next = deckReducer(deck, { type: "SET_DECK_THEME", theme: newTheme });
++    expect(next.theme).toBe(newTheme);
++    expect(next.slides).toBe(deck.slides); // slides/content are untouched
++  });
++
++  it("SET_DECK_THEME warns and no-ops when theme is missing colors", () => {
++    const { deck } = deckWithOneSlide();
++    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
++    const next = deckReducer(deck, { type: "SET_DECK_THEME", theme: { id: "dark" } });
++    expect(next).toBe(deck);
++    expect(warn).toHaveBeenCalled();
++    warn.mockRestore();
++  });
++
++  it("SET_DECK_THEME warns and no-ops when theme is missing entirely", () => {
++    const { deck } = deckWithOneSlide();
++    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
++    const next = deckReducer(deck, { type: "SET_DECK_THEME" });
++    expect(next).toBe(deck);
++    warn.mockRestore();
++  });
++
+   it("returns the same deck and warns for an unknown action type", () => {
+     const { deck } = deckWithOneSlide();
+     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+     const next = deckReducer(deck, { type: "NOT_A_REAL_ACTION" });
+     expect(next).toBe(deck);
+     expect(warn).toHaveBeenCalled();
+     warn.mockRestore();
+   });
+ });
+diff --git a/src/components/new/deck/deckSchema.js b/src/components/new/deck/deckSchema.js
+new file mode 100644
+index 0000000..77d5662
+--- /dev/null
++++ b/src/components/new/deck/deckSchema.js
+@@ -0,0 +1,57 @@
++// Owns the persisted deck shape and its migration chain. The backend stores
++// `theme`/`slides` as opaque (Mixed) data precisely so this file - not a
++// backend migration - is what evolves the deck shape over time.
++import { normalizeTheme, DEFAULT_THEME_ID } from "./theme/themeTokens";
++
++export const CURRENT_SCHEMA_VERSION = 2;
++
++// Each entry migrates a raw deck FROM its key version TO key+1. Add v3 here
++// (and bump CURRENT_SCHEMA_VERSION) rather than editing v1/v2 in place.
++const MIGRATIONS = {
++  1: (raw) => ({
++    id: raw._id ?? raw.id,
++    title: raw.title ?? 'Untitled Deck',
++    theme: raw.theme ?? DEFAULT_THEME_ID,
++    slides: raw.slides ?? [],
++  }),
++  // v1 decks had `theme` as a bare string (e.g. "dark"); this normalizes any
++  // shape `theme` might already be in (bare string, partial object, or an
++  // already-current object) into the full structured token shape.
++  2: (deck) => ({
++    ...deck,
++    theme: normalizeTheme(deck.theme),
++  }),
++};
++
++// Runs whenever a deck is loaded from the backend, before it reaches
++// DeckProvider, so DeckProvider/deckReducer only ever see the current shape.
++export function migrateDeck(rawDeck) {
++  if (!rawDeck) return rawDeck;
++
++  let version = rawDeck.schemaVersion ?? 1;
++  let deck = rawDeck;
++
++  while (version < CURRENT_SCHEMA_VERSION) {
++    const migrate = MIGRATIONS[version];
++    if (!migrate) {
++      throw new Error(`deckSchema: no migration registered from version ${version}`);
++    }
++    deck = migrate(deck);
++    version += 1;
++  }
++
++  const finalMigrate = MIGRATIONS[CURRENT_SCHEMA_VERSION];
++  const migrated = finalMigrate ? finalMigrate(deck) : deck;
++
++  return { ...migrated, schemaVersion: CURRENT_SCHEMA_VERSION };
++}
++
++// Inverse of migrateDeck: the in-app deck shape -> what the backend accepts.
++export function serializeDeck(deck) {
++  return {
++    schemaVersion: deck.schemaVersion ?? CURRENT_SCHEMA_VERSION,
++    title: deck.title,
++    theme: deck.theme,
++    slides: deck.slides,
++  };
++}
+diff --git a/src/components/new/deck/deckSchema.test.js b/src/components/new/deck/deckSchema.test.js
+new file mode 100644
+index 0000000..1a6ae8f
+--- /dev/null
++++ b/src/components/new/deck/deckSchema.test.js
+@@ -0,0 +1,47 @@
++import { describe, it, expect } from "vitest";
++import { migrateDeck, serializeDeck, CURRENT_SCHEMA_VERSION } from "./deckSchema";
++import { getTheme, DEFAULT_THEME_ID } from "./theme/themeTokens";
++
++describe("migrateDeck", () => {
++  it("normalizes a v1 deck with a bare-string theme into a structured theme", () => {
++    const raw = { _id: "d1", title: "My Deck", theme: "dark", slides: [] };
++    const migrated = migrateDeck(raw);
++    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
++    expect(migrated.theme.id).toBe("dark");
++    expect(migrated.theme.colors.background).toBe(getTheme("dark").colors.background);
++  });
++
++  it("defaults a deck with no theme at all to the default theme", () => {
++    const raw = { _id: "d2", title: "No Theme", slides: [] };
++    const migrated = migrateDeck(raw);
++    expect(migrated.theme.id).toBe(DEFAULT_THEME_ID);
++  });
++
++  it("passes an already-current structured theme through unchanged", () => {
++    const currentTheme = getTheme("modern");
++    const raw = { id: "d3", schemaVersion: CURRENT_SCHEMA_VERSION, title: "Current", theme: currentTheme, slides: [] };
++    const migrated = migrateDeck(raw);
++    expect(migrated.theme).toEqual(currentTheme);
++  });
++
++  it("fills in missing token groups on a partially-structured theme", () => {
++    const raw = { id: "d4", title: "Partial", theme: { id: "bold", colors: { primary: "#custom" } }, slides: [] };
++    const migrated = migrateDeck(raw);
++    expect(migrated.theme.colors.primary).toBe("#custom");
++    expect(migrated.theme.colors.background).toBe(getTheme("bold").colors.background);
++    expect(migrated.theme.typography.headingFont).toBeTruthy();
++  });
++
++  it("returns null/undefined unchanged", () => {
++    expect(migrateDeck(null)).toBe(null);
++    expect(migrateDeck(undefined)).toBe(undefined);
++  });
++});
++
++describe("serializeDeck", () => {
++  it("round-trips the structured theme unchanged", () => {
++    const theme = getTheme("light");
++    const deck = { schemaVersion: CURRENT_SCHEMA_VERSION, title: "T", theme, slides: [] };
++    expect(serializeDeck(deck).theme).toBe(theme);
++  });
++});
+diff --git a/src/components/new/deck/freeElementFactory.js b/src/components/new/deck/freeElementFactory.js
+new file mode 100644
+index 0000000..1ebaa0d
+--- /dev/null
++++ b/src/components/new/deck/freeElementFactory.js
+@@ -0,0 +1,93 @@
++import { createFreeElement } from "./deckTypes";
++
++// Default geometry/props for each insertable widget type. New widget types
++// only need an entry here plus a renderer in `widgets/` - nothing about the
++// interaction engine (select/drag/resize/rotate/layer/delete/duplicate)
++// needs to change.
++const WIDGET_DEFAULTS = {
++  text: { w: 28, h: 10, props: { html: "Double-click to edit" } },
++  image: { w: 30, h: 30, props: { src: "", alt: "" } },
++  video: { w: 40, h: 24, props: { src: "" } },
++  shape: { w: 18, h: 18, props: { shape: "rectangle" } },
++  divider: { w: 40, h: 1.5, props: {} },
++  icon: { w: 8, h: 8, props: { icon: "Star" } },
++};
++
++export const WIDGET_TYPES = Object.keys(WIDGET_DEFAULTS);
++
++function clamp(value, min, max) {
++  return Math.min(Math.max(value, min), max);
++}
++
++// `existingCount`/`existingMaxZIndex` let the caller stagger inserted
++// elements slightly (so they don't land in a perfect stack) and keep new
++// elements above everything already on the slide.
++export function createWidget(type, { existingCount = 0, existingMaxZIndex = 0 } = {}) {
++  const base = WIDGET_DEFAULTS[type];
++  if (!base) throw new Error(`freeElementFactory: unknown widget type "${type}"`);
++
++  const stagger = (existingCount % 5) * 3;
++  const x = clamp(50 - base.w / 2 + stagger, 0, Math.max(0, 100 - base.w));
++  const y = clamp(50 - base.h / 2 + stagger, 0, Math.max(0, 100 - base.h));
++
++  return createFreeElement({
++    type,
++    x,
++    y,
++    w: base.w,
++    h: base.h,
++    rotation: 0,
++    zIndex: existingMaxZIndex + 1,
++    props: { ...base.props },
++  });
++}
++
++export function duplicateWidget(element, { existingMaxZIndex = 0 } = {}) {
++  const offset = 4;
++  return createFreeElement({
++    type: element.type,
++    x: clamp(element.x + offset, 0, Math.max(0, 100 - element.w)),
++    y: clamp(element.y + offset, 0, Math.max(0, 100 - element.h)),
++    w: element.w,
++    h: element.h,
++    rotation: element.rotation,
++    zIndex: existingMaxZIndex + 1,
++    props: { ...element.props },
++  });
++}
++
++// Returns `[{ id, zIndex }]` for every element whose zIndex must change to
++// realize the requested layer move, renumbered as a contiguous 0..n-1 stack
++// order. Returns `null` when the move is a no-op (already at that end/edge).
++export function reorderZIndex(elements, elementId, direction) {
++  const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
++  const index = sorted.findIndex((el) => el.id === elementId);
++  if (index === -1) return null;
++
++  let targetIndex;
++  switch (direction) {
++    case "forward":
++      targetIndex = Math.min(index + 1, sorted.length - 1);
++      break;
++    case "backward":
++      targetIndex = Math.max(index - 1, 0);
++      break;
++    case "front":
++      targetIndex = sorted.length - 1;
++      break;
++    case "back":
++      targetIndex = 0;
++      break;
++    default:
++      return null;
++  }
++  if (targetIndex === index) return null;
++
++  const [moved] = sorted.splice(index, 1);
++  sorted.splice(targetIndex, 0, moved);
++  return sorted.map((el, i) => ({ id: el.id, zIndex: i }));
++}
++
++export function maxZIndex(elements) {
++  return elements.reduce((max, el) => Math.max(max, el.zIndex), -1);
++}
+diff --git a/src/components/new/deck/layouts/CtaLayout.jsx b/src/components/new/deck/layouts/CtaLayout.jsx
+index 81b4525..e2136e9 100644
+--- a/src/components/new/deck/layouts/CtaLayout.jsx
++++ b/src/components/new/deck/layouts/CtaLayout.jsx
+@@ -4,28 +4,31 @@ import { RichText } from "../RichText";
+ export function defaultCtaContent() {
+   return { heading: "Join Us", body: "<p>Let's build the future together.</p>", buttonLabel: "Get in touch" };
+ }
+ 
+ export function CtaLayout({ content, onChangeContent }) {
+   return (
+     <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
+       <RichText
+         as="h1"
+         className="text-5xl font-bold"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-6 text-xl opacity-80 max-w-2xl"
++        style={{ fontFamily: "var(--theme-body-font)" }}
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+       <RichText
+         as="div"
+-        className="mt-10 inline-block px-8 py-3 rounded-full bg-teal-400 text-black font-semibold"
++        className="mt-10 inline-block px-8 py-3 rounded-full font-semibold"
++        style={{ backgroundColor: "var(--theme-primary)", color: "var(--theme-background)", fontFamily: "var(--theme-body-font)" }}
+         value={content.buttonLabel}
+         onChange={(html) => onChangeContent({ buttonLabel: html })}
+       />
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/CtaLayout.test.jsx b/src/components/new/deck/layouts/CtaLayout.test.jsx
+index ab7b73d..9c22a87 100644
+--- a/src/components/new/deck/layouts/CtaLayout.test.jsx
++++ b/src/components/new/deck/layouts/CtaLayout.test.jsx
+@@ -15,11 +15,24 @@ describe("CtaLayout", () => {
+     render(
+       <CtaLayout
+         content={{ heading: "Join Us", body: "<p>Reach out.</p>", buttonLabel: "Contact us" }}
+         onChangeContent={() => {}}
+       />
+     );
+     expect(screen.getByText("Join Us")).toBeInTheDocument();
+     expect(screen.getByText("Reach out.")).toBeInTheDocument();
+     expect(screen.getByText("Contact us")).toBeInTheDocument();
+   });
++
++  it("styles the button from theme tokens instead of a hardcoded color", () => {
++    render(
++      <CtaLayout
++        content={{ heading: "Join Us", body: "<p>Reach out.</p>", buttonLabel: "Contact us" }}
++        onChangeContent={() => {}}
++      />
++    );
++    const button = screen.getByText("Contact us");
++    expect(button.className).not.toMatch(/bg-teal-400|text-black/);
++    expect(button.style.backgroundColor).toBe("var(--theme-primary)");
++    expect(button.style.color).toBe("var(--theme-background)");
++  });
+ });
+diff --git a/src/components/new/deck/layouts/Media3PointsLayout.jsx b/src/components/new/deck/layouts/Media3PointsLayout.jsx
+index c6dc07d..4cf06eb 100644
+--- a/src/components/new/deck/layouts/Media3PointsLayout.jsx
++++ b/src/components/new/deck/layouts/Media3PointsLayout.jsx
+@@ -19,43 +19,46 @@ export function Media3PointsLayout({ content, onChangeContent }) {
+   function updatePoint(index, patch) {
+     const points = content.points.map((p, i) => (i === index ? { ...p, ...patch } : p));
+     onChangeContent({ points });
+   }
+ 
+   return (
+     <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 flex gap-8">
+         {content.media.url ? (
+           <img src={content.media.url} alt="" className="flex-1 rounded-2xl object-cover" />
+         ) : (
+-          <div className="flex-1 bg-white/10 rounded-2xl min-h-[300px]" />
++          <div className="flex-1 rounded-2xl min-h-[300px]" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
+         )}
+         <div className="flex-1 flex flex-col gap-6">
+           {visiblePoints.map((point, index) => (
+             <div key={index}>
+               {point.title ? (
+                 <RichText
+                   as="h3"
+                   className="text-xl font-semibold"
++                  style={{ fontFamily: "var(--theme-heading-font)" }}
+                   value={point.title}
+                   onChange={(html) => updatePoint(index, { title: html })}
+                 />
+               ) : null}
+               <RichText
+                 as="p"
+                 className="opacity-80"
++                style={{ fontFamily: "var(--theme-body-font)" }}
+                 value={point.body}
+                 onChange={(html) => updatePoint(index, { body: html })}
+               />
+             </div>
+           ))}
+         </div>
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/MediaDescriptionLayout.jsx b/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
+index b29be89..208bad7 100644
+--- a/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
++++ b/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
+@@ -6,21 +6,26 @@ export function defaultMediaDescriptionContent() {
+     heading: "Product Overview",
+     body: "<p>Describe what you've built.</p>",
+     media: { url: "", type: "image" },
+     mediaPosition: "left",
+   };
+ }
+ 
+ function MediaColumn({ media }) {
+   if (!media.url) {
+     return (
+-      <div data-col="media" data-testid="media-placeholder" className="flex-1 bg-white/10 rounded-2xl min-h-[300px]" />
++      <div
++        data-col="media"
++        data-testid="media-placeholder"
++        className="flex-1 rounded-2xl min-h-[300px]"
++        style={{ backgroundColor: "var(--theme-surface-muted)" }}
++      />
+     );
+   }
+   if (media.type === "video") {
+     return (
+       <div data-col="media" className="flex-1">
+         <video src={media.url} controls className="w-full rounded-2xl" />
+       </div>
+     );
+   }
+   return (
+@@ -29,26 +34,28 @@ function MediaColumn({ media }) {
+     </div>
+   );
+ }
+ 
+ export function MediaDescriptionLayout({ content, onChangeContent }) {
+   const textColumn = (
+     <div data-col="text" className="flex-1 flex flex-col justify-center">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-6 text-lg opacity-80"
++        style={{ fontFamily: "var(--theme-body-font)" }}
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+     </div>
+   );
+   const mediaColumn = <MediaColumn media={content.media} />;
+ 
+   return (
+     <div className="grid place-items-center h-full w-full p-8 sm:p-16">
+       <div className="flex gap-10 w-full max-w-6xl items-center">
+diff --git a/src/components/new/deck/layouts/MetricsGridLayout.jsx b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+index 1dbb719..b411ab5 100644
+--- a/src/components/new/deck/layouts/MetricsGridLayout.jsx
++++ b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+@@ -16,34 +16,37 @@ export function MetricsGridLayout({ content, onChangeContent }) {
+   function updateMetric(index, patch) {
+     const metrics = content.metrics.map((m, i) => (i === index ? { ...m, ...patch } : m));
+     onChangeContent({ metrics });
+   }
+ 
+   return (
+     <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+         {content.metrics.map((metric, index) => (
+           <div key={index} className="text-center">
+             <RichText
+               as="div"
+               className="text-5xl font-bold"
++              style={{ fontFamily: "var(--theme-heading-font)", color: "var(--theme-primary)" }}
+               value={metric.value}
+               onChange={(html) => updateMetric(index, { value: html })}
+             />
+             <RichText
+               as="div"
+               className="mt-2 opacity-70"
++              style={{ fontFamily: "var(--theme-body-font)" }}
+               value={metric.label}
+               onChange={(html) => updateMetric(index, { label: html })}
+             />
+           </div>
+         ))}
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/ProblemLayout.jsx b/src/components/new/deck/layouts/ProblemLayout.jsx
+index 83d5bca..45bd337 100644
+--- a/src/components/new/deck/layouts/ProblemLayout.jsx
++++ b/src/components/new/deck/layouts/ProblemLayout.jsx
+@@ -4,23 +4,25 @@ import { RichText } from "../RichText";
+ export function defaultProblemContent() {
+   return { heading: "The Problem", body: "<p>Describe the problem your customers face.</p>" };
+ }
+ 
+ export function ProblemLayout({ content, onChangeContent }) {
+   return (
+     <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h1"
+         className="text-5xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-8 text-xl opacity-80 max-w-3xl text-left"
++        style={{ fontFamily: "var(--theme-body-font)" }}
+         toolbarButtons={["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor", "formatUL", "formatOL"]}
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/TeamGridLayout.jsx b/src/components/new/deck/layouts/TeamGridLayout.jsx
+index c917160..f416f96 100644
+--- a/src/components/new/deck/layouts/TeamGridLayout.jsx
++++ b/src/components/new/deck/layouts/TeamGridLayout.jsx
+@@ -9,39 +9,42 @@ export function TeamGridLayout({ content, onChangeContent }) {
+   function updateMember(index, patch) {
+     const members = content.members.map((m, i) => (i === index ? { ...m, ...patch } : m));
+     onChangeContent({ members });
+   }
+ 
+   return (
+     <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+         {content.members.map((member, index) => (
+           <div key={index} className="text-center">
+             {member.photoUrl ? (
+               <img src={member.photoUrl} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
+             ) : (
+-              <div className="w-24 h-24 rounded-full mx-auto bg-white/10" />
++              <div className="w-24 h-24 rounded-full mx-auto" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
+             )}
+             <RichText
+               as="div"
+               className="mt-4 font-semibold"
++              style={{ fontFamily: "var(--theme-heading-font)" }}
+               value={member.name}
+               onChange={(html) => updateMember(index, { name: html })}
+             />
+             <RichText
+               as="div"
+               className="opacity-70"
++              style={{ fontFamily: "var(--theme-body-font)" }}
+               value={member.role}
+               onChange={(html) => updateMember(index, { role: html })}
+             />
+           </div>
+         ))}
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/TitleLayout.jsx b/src/components/new/deck/layouts/TitleLayout.jsx
+index 1bd92f6..1def1aa 100644
+--- a/src/components/new/deck/layouts/TitleLayout.jsx
++++ b/src/components/new/deck/layouts/TitleLayout.jsx
+@@ -4,26 +4,28 @@ import { RichText } from "../RichText";
+ export function defaultTitleContent() {
+   return { title: "Title Only", subtitle: "" };
+ }
+ 
+ export function TitleLayout({ content, onChangeContent }) {
+   return (
+     <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
+       <RichText
+         as="h1"
+         className="text-7xl font-bold"
++        style={{ fontFamily: "var(--theme-heading-font)" }}
+         value={content.title}
+         onChange={(html) => onChangeContent({ title: html })}
+       />
+       {content.subtitle ? (
+         <div data-field="subtitle" className="mt-4">
+           <RichText
+             as="p"
+             className="text-2xl opacity-60"
++            style={{ fontFamily: "var(--theme-body-font)" }}
+             value={content.subtitle}
+             onChange={(html) => onChangeContent({ subtitle: html })}
+           />
+         </div>
+       ) : null}
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/theme/themeTokens.js b/src/components/new/deck/theme/themeTokens.js
+new file mode 100644
+index 0000000..b9bf78f
+--- /dev/null
++++ b/src/components/new/deck/theme/themeTokens.js
+@@ -0,0 +1,304 @@
++// Global design-token foundation for the editor. Every layout and
++// free-element widget reads these values through CSS custom properties
++// (see themeToCssVars/themeToRootStyle) rather than hardcoding Tailwind
++// color/font classes, per the theme sub-project brief.
++
++export const DEFAULT_THEME_ID = "default";
++
++function theme({
++  id,
++  name,
++  colors,
++  typography,
++  spacing = { xs: "0.5rem", sm: "1rem", md: "1.5rem", lg: "2.5rem", xl: "4rem" },
++  radius = { sm: "0.375rem", md: "0.75rem", lg: "1.5rem" },
++  shadows = {
++    sm: "0 1px 2px rgba(0,0,0,0.08)",
++    md: "0 4px 12px rgba(0,0,0,0.16)",
++    lg: "0 12px 32px rgba(0,0,0,0.24)",
++  },
++  borders = { width: "1px", style: "solid" },
++}) {
++  return {
++    id,
++    name,
++    colors,
++    typography,
++    spacing,
++    radius,
++    shadows,
++    borders,
++    // Prepares the future Background system's two-tier hierarchy (deck
++    // default vs. slide override) without implementing it yet - nothing
++    // reads this field this sub-project.
++    defaultBackground: { kind: "solid", color: colors.background },
++  };
++}
++
++export const THEME_REGISTRY = [
++  theme({
++    id: "default",
++    name: "Default",
++    colors: {
++      background: "#0b2d2b",
++      surface: "#123c39",
++      surfaceMuted: "rgba(255,255,255,0.08)",
++      primary: "#2dd4bf",
++      secondary: "#14b8a6",
++      accent: "#5eead4",
++      text: "#ffffff",
++      textMuted: "rgba(255,255,255,0.7)",
++      border: "rgba(255,255,255,0.14)",
++    },
++    typography: {
++      headingFont: "Inter, system-ui, sans-serif",
++      bodyFont: "Inter, system-ui, sans-serif",
++      headingWeight: 700,
++      bodyWeight: 400,
++      headingScale: 1,
++      bodyScale: 1,
++      lineHeight: 1.5,
++    },
++  }),
++  theme({
++    id: "dark",
++    name: "Dark",
++    colors: {
++      background: "#0f1115",
++      surface: "#1a1d24",
++      surfaceMuted: "rgba(255,255,255,0.06)",
++      primary: "#6366f1",
++      secondary: "#818cf8",
++      accent: "#a5b4fc",
++      text: "#f5f5f7",
++      textMuted: "rgba(245,245,247,0.65)",
++      border: "rgba(255,255,255,0.12)",
++    },
++    typography: {
++      headingFont: "Inter, system-ui, sans-serif",
++      bodyFont: "Inter, system-ui, sans-serif",
++      headingWeight: 700,
++      bodyWeight: 400,
++      headingScale: 1,
++      bodyScale: 1,
++      lineHeight: 1.5,
++    },
++  }),
++  theme({
++    id: "light",
++    name: "Light",
++    colors: {
++      background: "#ffffff",
++      surface: "#f4f4f5",
++      surfaceMuted: "rgba(0,0,0,0.04)",
++      primary: "#2563eb",
++      secondary: "#1d4ed8",
++      accent: "#60a5fa",
++      text: "#111827",
++      textMuted: "rgba(17,24,39,0.6)",
++      border: "rgba(0,0,0,0.1)",
++    },
++    typography: {
++      headingFont: "Inter, system-ui, sans-serif",
++      bodyFont: "Inter, system-ui, sans-serif",
++      headingWeight: 700,
++      bodyWeight: 400,
++      headingScale: 1,
++      bodyScale: 1,
++      lineHeight: 1.5,
++    },
++  }),
++  theme({
++    id: "minimal",
++    name: "Minimal",
++    colors: {
++      background: "#fafaf9",
++      surface: "#f0efec",
++      surfaceMuted: "rgba(0,0,0,0.03)",
++      primary: "#18181b",
++      secondary: "#3f3f46",
++      accent: "#71717a",
++      text: "#18181b",
++      textMuted: "rgba(24,24,27,0.55)",
++      border: "rgba(0,0,0,0.08)",
++    },
++    typography: {
++      headingFont: "'Helvetica Neue', Arial, sans-serif",
++      bodyFont: "'Helvetica Neue', Arial, sans-serif",
++      headingWeight: 600,
++      bodyWeight: 400,
++      headingScale: 0.95,
++      bodyScale: 1,
++      lineHeight: 1.6,
++    },
++    radius: { sm: "0.125rem", md: "0.25rem", lg: "0.5rem" },
++  }),
++  theme({
++    id: "modern",
++    name: "Modern",
++    colors: {
++      background: "#0b1120",
++      surface: "#111827",
++      surfaceMuted: "rgba(255,255,255,0.05)",
++      primary: "#f97316",
++      secondary: "#fb923c",
++      accent: "#fbbf24",
++      text: "#f8fafc",
++      textMuted: "rgba(248,250,252,0.65)",
++      border: "rgba(255,255,255,0.1)",
++    },
++    typography: {
++      headingFont: "Poppins, system-ui, sans-serif",
++      bodyFont: "Inter, system-ui, sans-serif",
++      headingWeight: 700,
++      bodyWeight: 400,
++      headingScale: 1.05,
++      bodyScale: 1,
++      lineHeight: 1.5,
++    },
++    radius: { sm: "0.5rem", md: "1rem", lg: "2rem" },
++  }),
++  theme({
++    id: "bold",
++    name: "Bold",
++    colors: {
++      background: "#18181b",
++      surface: "#27272a",
++      surfaceMuted: "rgba(255,255,255,0.07)",
++      primary: "#ef4444",
++      secondary: "#dc2626",
++      accent: "#f87171",
++      text: "#ffffff",
++      textMuted: "rgba(255,255,255,0.7)",
++      border: "rgba(255,255,255,0.15)",
++    },
++    typography: {
++      headingFont: "'Archivo Black', Inter, system-ui, sans-serif",
++      bodyFont: "Inter, system-ui, sans-serif",
++      headingWeight: 800,
++      bodyWeight: 500,
++      headingScale: 1.1,
++      bodyScale: 1,
++      lineHeight: 1.4,
++    },
++    radius: { sm: "0rem", md: "0.25rem", lg: "0.5rem" },
++    borders: { width: "2px", style: "solid" },
++  }),
++  theme({
++    id: "professional",
++    name: "Professional",
++    colors: {
++      background: "#0a1a2f",
++      surface: "#10233d",
++      surfaceMuted: "rgba(255,255,255,0.05)",
++      primary: "#c9a24b",
++      secondary: "#b8933d",
++      accent: "#e2c275",
++      text: "#f1f5f9",
++      textMuted: "rgba(241,245,249,0.65)",
++      border: "rgba(255,255,255,0.12)",
++    },
++    typography: {
++      headingFont: "Georgia, 'Times New Roman', serif",
++      bodyFont: "Inter, system-ui, sans-serif",
++      headingWeight: 700,
++      bodyWeight: 400,
++      headingScale: 1,
++      bodyScale: 1,
++      lineHeight: 1.6,
++    },
++    radius: { sm: "0.25rem", md: "0.5rem", lg: "1rem" },
++  }),
++];
++
++const THEME_BY_ID = new Map(THEME_REGISTRY.map((t) => [t.id, t]));
++
++// Legacy bare-string theme values (the only shape `deck.theme` could hold
++// before this sub-project) mapped onto the closest new registry theme.
++const LEGACY_STRING_THEME_MAP = {
++  dark: "dark",
++  light: "light",
++  warm: "modern",
++  DeepPurple: "bold",
++  DarkBlue: "professional",
++  EarthStone: "minimal",
++};
++
++function deepClone(value) {
++  return JSON.parse(JSON.stringify(value));
++}
++
++export function getTheme(id) {
++  const found = THEME_BY_ID.get(id);
++  return deepClone(found ?? THEME_BY_ID.get(DEFAULT_THEME_ID));
++}
++
++function mergeGroup(base, override) {
++  if (!override || typeof override !== "object") return { ...base };
++  return { ...base, ...override };
++}
++
++// Accepts whatever `deck.theme` might currently hold - a legacy bare
++// string, a partial/future-shaped object, or an already-current full
++// theme object - and always returns a complete, current-shape theme.
++// Must be idempotent: running it twice in a row is a no-op the second time.
++export function normalizeTheme(value) {
++  if (typeof value === "string") {
++    return getTheme(LEGACY_STRING_THEME_MAP[value] ?? DEFAULT_THEME_ID);
++  }
++  if (!value || typeof value !== "object") {
++    return getTheme(DEFAULT_THEME_ID);
++  }
++
++  const base = getTheme(THEME_BY_ID.has(value.id) ? value.id : DEFAULT_THEME_ID);
++
++  return {
++    id: value.id ?? base.id,
++    name: value.name ?? base.name,
++    colors: mergeGroup(base.colors, value.colors),
++    typography: mergeGroup(base.typography, value.typography),
++    spacing: mergeGroup(base.spacing, value.spacing),
++    radius: mergeGroup(base.radius, value.radius),
++    shadows: mergeGroup(base.shadows, value.shadows),
++    borders: mergeGroup(base.borders, value.borders),
++    defaultBackground: value.defaultBackground ?? base.defaultBackground,
++  };
++}
++
++// Vars every layout/widget can reference via var(--theme-*) regardless of
++// where in the tree they're rendered, as long as they're a descendant of
++// whatever element themeToRootStyle/themeToCssVars was applied to.
++export function themeToCssVars(theme) {
++  return {
++    "--theme-background": theme.colors.background,
++    "--theme-surface": theme.colors.surface,
++    "--theme-surface-muted": theme.colors.surfaceMuted,
++    "--theme-primary": theme.colors.primary,
++    "--theme-secondary": theme.colors.secondary,
++    "--theme-accent": theme.colors.accent,
++    "--theme-text": theme.colors.text,
++    "--theme-text-muted": theme.colors.textMuted,
++    "--theme-border": theme.colors.border,
++    "--theme-heading-font": theme.typography.headingFont,
++    "--theme-body-font": theme.typography.bodyFont,
++    "--theme-heading-weight": theme.typography.headingWeight,
++    "--theme-body-weight": theme.typography.bodyWeight,
++    "--theme-line-height": theme.typography.lineHeight,
++    "--theme-radius-sm": theme.radius.sm,
++    "--theme-radius-md": theme.radius.md,
++    "--theme-radius-lg": theme.radius.lg,
++  };
++}
++
++// For the single root element that should visibly repaint on theme change
++// (the editor's outermost wrapper) - the CSS vars plus a directly-applied
++// background/text/font so the change is visible even before any descendant
++// references a var(--theme-*).
++export function themeToRootStyle(theme) {
++  return {
++    ...themeToCssVars(theme),
++    backgroundColor: theme.colors.background,
++    color: theme.colors.text,
++    fontFamily: theme.typography.bodyFont,
++  };
++}
+diff --git a/src/components/new/deck/theme/themeTokens.test.js b/src/components/new/deck/theme/themeTokens.test.js
+new file mode 100644
+index 0000000..008a090
+--- /dev/null
++++ b/src/components/new/deck/theme/themeTokens.test.js
+@@ -0,0 +1,99 @@
++import { describe, it, expect } from "vitest";
++import { THEME_REGISTRY, DEFAULT_THEME_ID, getTheme, normalizeTheme, themeToCssVars, themeToRootStyle } from "./themeTokens";
++
++const REQUIRED_COLOR_KEYS = ["background", "surface", "surfaceMuted", "primary", "secondary", "accent", "text", "textMuted", "border"];
++const REQUIRED_TYPOGRAPHY_KEYS = ["headingFont", "bodyFont", "headingWeight", "bodyWeight", "headingScale", "bodyScale", "lineHeight"];
++
++describe("THEME_REGISTRY", () => {
++  it("has exactly the 7 expected themes, each with a complete token shape", () => {
++    const ids = THEME_REGISTRY.map((t) => t.id);
++    expect(ids).toEqual(["default", "dark", "light", "minimal", "modern", "bold", "professional"]);
++
++    for (const theme of THEME_REGISTRY) {
++      expect(typeof theme.name).toBe("string");
++      REQUIRED_COLOR_KEYS.forEach((key) => expect(theme.colors[key]).toBeTruthy());
++      REQUIRED_TYPOGRAPHY_KEYS.forEach((key) => expect(theme.typography[key]).toBeDefined());
++      expect(theme.spacing).toMatchObject({ xs: expect.any(String), sm: expect.any(String), md: expect.any(String), lg: expect.any(String), xl: expect.any(String) });
++      expect(theme.radius).toMatchObject({ sm: expect.any(String), md: expect.any(String), lg: expect.any(String) });
++      expect(theme.shadows).toMatchObject({ sm: expect.any(String), md: expect.any(String), lg: expect.any(String) });
++      expect(theme.borders).toMatchObject({ width: expect.any(String), style: expect.any(String) });
++      expect(theme.defaultBackground).toMatchObject({ kind: "solid", color: theme.colors.background });
++    }
++  });
++
++  it("has a default theme matching DEFAULT_THEME_ID", () => {
++    expect(THEME_REGISTRY.some((t) => t.id === DEFAULT_THEME_ID)).toBe(true);
++  });
++});
++
++describe("getTheme", () => {
++  it("returns the matching registry theme by id", () => {
++    expect(getTheme("dark").id).toBe("dark");
++  });
++
++  it("falls back to the default theme for an unknown id", () => {
++    expect(getTheme("not-a-real-theme").id).toBe(DEFAULT_THEME_ID);
++  });
++
++  it("returns an independent copy each call (mutating one does not affect the registry)", () => {
++    const a = getTheme("dark");
++    a.colors.primary = "#000000";
++    const b = getTheme("dark");
++    expect(b.colors.primary).not.toBe("#000000");
++  });
++});
++
++describe("normalizeTheme", () => {
++  it("maps a legacy bare-string theme to a full structured theme", () => {
++    const result = normalizeTheme("dark");
++    expect(result.id).toBeTruthy();
++    REQUIRED_COLOR_KEYS.forEach((key) => expect(result.colors[key]).toBeTruthy());
++  });
++
++  it("falls back to the default theme for an unrecognized legacy string", () => {
++    expect(normalizeTheme("some-unknown-legacy-value").id).toBe(DEFAULT_THEME_ID);
++  });
++
++  it("returns the default theme for null/undefined", () => {
++    expect(normalizeTheme(null).id).toBe(DEFAULT_THEME_ID);
++    expect(normalizeTheme(undefined).id).toBe(DEFAULT_THEME_ID);
++  });
++
++  it("fills in missing groups on a partial structured theme without discarding provided values", () => {
++    const partial = { id: "dark", colors: { primary: "#custom-primary" } };
++    const result = normalizeTheme(partial);
++    expect(result.colors.primary).toBe("#custom-primary");
++    // Every other color key still gets filled in from the "dark" base theme.
++    expect(result.colors.background).toBe(getTheme("dark").colors.background);
++    expect(result.typography.headingFont).toBeTruthy();
++  });
++
++  it("is idempotent on an already-current full theme object", () => {
++    const full = getTheme("modern");
++    const result = normalizeTheme(full);
++    expect(result).toEqual(full);
++  });
++});
++
++describe("themeToCssVars", () => {
++  it("produces --theme-* custom properties for colors and typography", () => {
++    const vars = themeToCssVars(getTheme("light"));
++    expect(vars["--theme-background"]).toBe(getTheme("light").colors.background);
++    expect(vars["--theme-text"]).toBe(getTheme("light").colors.text);
++    expect(vars["--theme-primary"]).toBe(getTheme("light").colors.primary);
++    expect(vars["--theme-heading-font"]).toBe(getTheme("light").typography.headingFont);
++    expect(vars["--theme-body-font"]).toBe(getTheme("light").typography.bodyFont);
++    expect(vars["--theme-radius-md"]).toBe(getTheme("light").radius.md);
++  });
++});
++
++describe("themeToRootStyle", () => {
++  it("includes the CSS vars plus a directly-applied background/text color", () => {
++    const theme = getTheme("bold");
++    const style = themeToRootStyle(theme);
++    expect(style["--theme-primary"]).toBe(theme.colors.primary);
++    expect(style.backgroundColor).toBe(theme.colors.background);
++    expect(style.color).toBe(theme.colors.text);
++    expect(style.fontFamily).toBe(theme.typography.bodyFont);
++  });
++});
+diff --git a/src/components/new/deck/widgets/DividerWidget.jsx b/src/components/new/deck/widgets/DividerWidget.jsx
+new file mode 100644
+index 0000000..b5cd6b1
+--- /dev/null
++++ b/src/components/new/deck/widgets/DividerWidget.jsx
+@@ -0,0 +1,10 @@
++import React from "react";
++
++export function DividerWidget({ element }) {
++  const color = element.props.color ?? "var(--theme-border)";
++  return (
++    <div className="w-full h-full flex items-center">
++      <div className="w-full" style={{ height: 2, backgroundColor: color }} />
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/widgets/IconWidget.jsx b/src/components/new/deck/widgets/IconWidget.jsx
+new file mode 100644
+index 0000000..27c482d
+--- /dev/null
++++ b/src/components/new/deck/widgets/IconWidget.jsx
+@@ -0,0 +1,13 @@
++import React from "react";
++import { Star, Heart, Check, ArrowRight, Circle, Square } from "lucide-react";
++
++const ICONS = { Star, Heart, Check, ArrowRight, Circle, Square };
++
++export function IconWidget({ element }) {
++  const Icon = ICONS[element.props.icon] ?? Star;
++  return (
++    <div className="w-full h-full flex items-center justify-center" style={{ color: element.props.color ?? "var(--theme-accent)" }}>
++      <Icon className="w-full h-full" />
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/widgets/ShapeWidget.jsx b/src/components/new/deck/widgets/ShapeWidget.jsx
+new file mode 100644
+index 0000000..364cbda
+--- /dev/null
++++ b/src/components/new/deck/widgets/ShapeWidget.jsx
+@@ -0,0 +1,16 @@
++import React from "react";
++
++export function ShapeWidget({ element }) {
++  const fill = element.props.fill ?? "var(--theme-accent)";
++  const shape = element.props.shape ?? "rectangle";
++
++  return (
++    <div
++      className="w-full h-full"
++      style={{
++        backgroundColor: fill,
++        borderRadius: shape === "circle" ? "50%" : shape === "rounded" ? "12%" : 0,
++      }}
++    />
++  );
++}
+diff --git a/src/components/new/deck/widgets/TextWidget.jsx b/src/components/new/deck/widgets/TextWidget.jsx
+new file mode 100644
+index 0000000..eccd76b
+--- /dev/null
++++ b/src/components/new/deck/widgets/TextWidget.jsx
+@@ -0,0 +1,47 @@
++import React, { useEffect, useRef } from "react";
++
++// Deliberately not RichText/Froala: a free text widget is a simple
++// contentEditable box so it can never fight with the semantic slide fields'
++// Froala instances. It supports click-to-select/double-click-to-edit/type/delete
++// like any other free element, per the brief.
++export function TextWidget({ element, editing, onCommit }) {
++  const ref = useRef(null);
++  const seededRef = useRef(false);
++
++  useEffect(() => {
++    if (ref.current && !seededRef.current) {
++      seededRef.current = true;
++      ref.current.innerHTML = element.props.html ?? "";
++    }
++  }, [element.props.html]);
++
++  useEffect(() => {
++    if (editing && ref.current) {
++      ref.current.focus();
++      const range = document.createRange();
++      range.selectNodeContents(ref.current);
++      range.collapse(false);
++      const selection = window.getSelection();
++      selection?.removeAllRanges();
++      selection?.addRange(range);
++    }
++  }, [editing]);
++
++  return (
++    <div
++      ref={ref}
++      contentEditable={editing}
++      suppressContentEditableWarning
++      className="w-full h-full outline-none text-base leading-snug"
++      style={{
++        cursor: editing ? "text" : "inherit",
++        color: element.props.color || "var(--theme-text)",
++        fontFamily: element.props.fontFamily || "var(--theme-body-font)",
++      }}
++      onBlur={() => onCommit?.(ref.current?.innerHTML ?? "")}
++      onPointerDown={(event) => {
++        if (editing) event.stopPropagation();
++      }}
++    />
++  );
++}
+diff --git a/src/components/new/deck/widgets/ThemeDefaults.test.jsx b/src/components/new/deck/widgets/ThemeDefaults.test.jsx
+new file mode 100644
+index 0000000..2e76879
+--- /dev/null
++++ b/src/components/new/deck/widgets/ThemeDefaults.test.jsx
+@@ -0,0 +1,55 @@
++import { describe, it, expect } from "vitest";
++import { render } from "@testing-library/react";
++import { TextWidget } from "./TextWidget";
++import { ShapeWidget } from "./ShapeWidget";
++import { DividerWidget } from "./DividerWidget";
++import { IconWidget } from "./IconWidget";
++import { createWidget } from "../freeElementFactory";
++
++describe("widgets default to theme CSS variables when no explicit style is set", () => {
++  it("TextWidget defaults color/font to theme vars", () => {
++    const element = { props: { html: "hi" } };
++    const { container } = render(<TextWidget element={element} editing={false} onCommit={() => {}} />);
++    const div = container.firstChild;
++    expect(div.style.color).toBe("var(--theme-text)");
++    expect(div.style.fontFamily).toBe("var(--theme-body-font)");
++  });
++
++  it("TextWidget keeps an explicit color/font override", () => {
++    const element = { props: { html: "hi", color: "#ff0000", fontFamily: "Comic Sans MS" } };
++    const { container } = render(<TextWidget element={element} editing={false} onCommit={() => {}} />);
++    const div = container.firstChild;
++    expect(getComputedStyle(div).color).toBe("rgb(255, 0, 0)");
++    expect(getComputedStyle(div).fontFamily).toContain("Comic Sans MS");
++  });
++
++  it("ShapeWidget defaults fill to the theme accent var", () => {
++    const element = { props: { shape: "rectangle" } };
++    const { container } = render(<ShapeWidget element={element} />);
++    expect(container.firstChild.style.backgroundColor).toBe("var(--theme-accent)");
++  });
++
++  it("ShapeWidget keeps an explicit fill override", () => {
++    const element = { props: { shape: "rectangle", fill: "#123456" } };
++    const { container } = render(<ShapeWidget element={element} />);
++    expect(getComputedStyle(container.firstChild).backgroundColor).toBe("rgb(18, 52, 86)");
++  });
++
++  it("DividerWidget defaults color to the theme border var", () => {
++    const element = { props: {} };
++    const { container } = render(<DividerWidget element={element} />);
++    expect(container.firstChild.firstChild.style.backgroundColor).toBe("var(--theme-border)");
++  });
++
++  it("IconWidget defaults color to the theme accent var", () => {
++    const element = { props: { icon: "Star" } };
++    const { container } = render(<IconWidget element={element} />);
++    expect(container.firstChild.style.color).toBe("var(--theme-accent)");
++  });
++
++  it("createWidget no longer bakes a hardcoded color/fill into new shape/divider/icon elements", () => {
++    expect(createWidget("shape").props.fill).toBeUndefined();
++    expect(createWidget("divider").props.color).toBeUndefined();
++    expect(createWidget("icon").props.color).toBeUndefined();
++  });
++});

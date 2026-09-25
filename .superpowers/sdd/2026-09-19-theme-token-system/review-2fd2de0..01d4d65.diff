@@ -1,0 +1,9 @@
+# Review package: 2fd2de0..01d4d65
+
+## Commits
+01d4d65 feat: add SET_DECK_THEME reducer action
+d899e57 fix: DUPLICATE_SLIDE deep-clones background instead of sharing it by reference
+
+## Files changed
+
+## Diff

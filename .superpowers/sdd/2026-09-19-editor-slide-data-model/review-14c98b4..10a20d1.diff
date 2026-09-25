@@ -1,0 +1,203 @@
+# Review package: 14c98b4222b1304a1209603bd1e396978ffb7768..10a20d1d977928eabd89be3ec46965e6be3663b5
+
+## Commits
+10a20d1 feat(deck): add SlideCanvas rendering layout + free elements
+39a6b44 feat(deck): add FreeElementLayer for absolutely-positioned inserts
+
+## Files changed
+ src/components/new/deck/FreeElementLayer.jsx      | 48 ++++++++++++++++++++++
+ src/components/new/deck/FreeElementLayer.test.jsx | 38 +++++++++++++++++
+ src/components/new/deck/SlideCanvas.jsx           | 29 +++++++++++++
+ src/components/new/deck/SlideCanvas.test.jsx      | 50 +++++++++++++++++++++++
+ 4 files changed, 165 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/FreeElementLayer.jsx b/src/components/new/deck/FreeElementLayer.jsx
+new file mode 100644
+index 0000000..e5e80d5
+--- /dev/null
++++ b/src/components/new/deck/FreeElementLayer.jsx
+@@ -0,0 +1,48 @@
++import React from "react";
++
++function ElementContent({ element }) {
++  switch (element.type) {
++    case "text":
++      return <div dangerouslySetInnerHTML={{ __html: element.props.html ?? "" }} />;
++    case "image":
++      return (
++        <img
++          src={element.props.src ?? ""}
++          alt={element.props.alt ?? ""}
++          role="img"
++          className="w-full h-full object-cover"
++        />
++      );
++    case "video":
++      return <video src={element.props.src ?? ""} className="w-full h-full object-cover" controls={false} />;
++    default:
++      return <div className="w-full h-full border-2 border-dashed border-white/40" />;
++  }
++}
++
++export function FreeElementLayer({ elements, onUpdateElement }) {
++  const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
++  return (
++    <div className="absolute inset-0 pointer-events-none">
++      {sorted.map((element) => (
++        <div
++          key={element.id}
++          data-element-id={element.id}
++          data-type={element.type}
++          className="absolute pointer-events-auto"
++          style={{
++            left: `${element.x}%`,
++            top: `${element.y}%`,
++            width: `${element.w}%`,
++            height: `${element.h}%`,
++            transform: `rotate(${element.rotation}deg)`,
++            zIndex: element.zIndex,
++          }}
++          onClick={() => onUpdateElement?.(element.id, {})}
++        >
++          <ElementContent element={element} />
++        </div>
++      ))}
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/FreeElementLayer.test.jsx b/src/components/new/deck/FreeElementLayer.test.jsx
+new file mode 100644
+index 0000000..5419e7b
+--- /dev/null
++++ b/src/components/new/deck/FreeElementLayer.test.jsx
+@@ -0,0 +1,38 @@
++import { describe, it, expect } from "vitest";
++import { render } from "@testing-library/react";
++import { FreeElementLayer } from "./FreeElementLayer";
++
++describe("FreeElementLayer", () => {
++  it("positions each element by percentage and stacks by zIndex", () => {
++    const elements = [
++      { id: "b", type: "text", x: 10, y: 20, w: 30, h: 5, rotation: 0, zIndex: 2, locked: false, props: { html: "Back" } },
++      { id: "a", type: "text", x: 0, y: 0, w: 10, h: 5, rotation: 0, zIndex: 1, locked: false, props: { html: "Front" } },
++    ];
++    const { container } = render(<FreeElementLayer elements={elements} onUpdateElement={() => {}} />);
++    const nodes = container.querySelectorAll("[data-element-id]");
++    expect(nodes).toHaveLength(2);
++    expect(nodes[0].dataset.elementId).toBe("a");
++    expect(nodes[0].style.left).toBe("0%");
++    expect(nodes[0].style.top).toBe("0%");
++    expect(nodes[0].style.width).toBe("10%");
++    expect(nodes[0].style.zIndex).toBe("1");
++    expect(nodes[1].dataset.elementId).toBe("b");
++    expect(nodes[1].style.zIndex).toBe("2");
++  });
++
++  it("renders an image element's src from props", () => {
++    const elements = [
++      { id: "img1", type: "image", x: 0, y: 0, w: 20, h: 20, rotation: 0, zIndex: 0, locked: false, props: { src: "https://example.com/x.png" } },
++    ];
++    const { getByRole } = render(<FreeElementLayer elements={elements} onUpdateElement={() => {}} />);
++    expect(getByRole("img")).toHaveAttribute("src", "https://example.com/x.png");
++  });
++
++  it("renders a placeholder with data-type for shape/divider/icon elements", () => {
++    const elements = [
++      { id: "s1", type: "shape", x: 0, y: 0, w: 10, h: 10, rotation: 0, zIndex: 0, locked: false, props: {} },
++    ];
++    const { container } = render(<FreeElementLayer elements={elements} onUpdateElement={() => {}} />);
++    expect(container.querySelector('[data-element-id="s1"]').dataset.type).toBe("shape");
++  });
++});
+diff --git a/src/components/new/deck/SlideCanvas.jsx b/src/components/new/deck/SlideCanvas.jsx
+new file mode 100644
+index 0000000..9ac1ab2
+--- /dev/null
++++ b/src/components/new/deck/SlideCanvas.jsx
+@@ -0,0 +1,29 @@
++import React from "react";
++import { getRegistryEntry } from "./SlideRegistry";
++import { FreeElementLayer } from "./FreeElementLayer";
++import { useDeck } from "./DeckContext";
++
++export function SlideCanvas({ slide }) {
++  const { dispatch } = useDeck();
++  const entry = getRegistryEntry(slide.layout);
++
++  if (!entry) {
++    console.warn(`SlideCanvas: no registry entry for layout "${slide.layout}"`);
++    return null;
++  }
++
++  const LayoutComponent = entry.component;
++
++  return (
++    <div className="relative w-full aspect-video">
++      <LayoutComponent
++        content={slide.content}
++        onChangeContent={(patch) => dispatch({ type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: patch })}
++      />
++      <FreeElementLayer
++        elements={slide.freeElements}
++        onUpdateElement={(elementId, patch) => dispatch({ type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId, patch })}
++      />
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/SlideCanvas.test.jsx b/src/components/new/deck/SlideCanvas.test.jsx
+new file mode 100644
+index 0000000..2990622
+--- /dev/null
++++ b/src/components/new/deck/SlideCanvas.test.jsx
+@@ -0,0 +1,50 @@
++import { describe, it, expect } from "vitest";
++import { render, screen } from "@testing-library/react";
++import { SlideCanvas } from "./SlideCanvas";
++import { DeckProvider, useDeck } from "./DeckContext";
++import { createDeck, createSlide, createFreeElement } from "./deckTypes";
++
++function Host() {
++  const { deck } = useDeck();
++  return <SlideCanvas slide={deck.slides[0]} />;
++}
++
++function renderSlide(slide) {
++  const deck = createDeck({ title: "Deck", theme: "dark", slides: [slide] });
++  return render(
++    <DeckProvider initialDeck={deck}>
++      <Host />
++    </DeckProvider>
++  );
++}
++
++describe("SlideCanvas", () => {
++  it("renders the registered layout component for the slide's layout", () => {
++    const slide = createSlide({ layout: "title", content: { title: "Hello Deck", subtitle: "" }, order: 0 });
++    renderSlide(slide);
++    expect(screen.getByText("Hello Deck")).toBeInTheDocument();
++  });
++
++  it("renders freeElements on top of the layout", () => {
++    const element = createFreeElement({ type: "text", x: 0, y: 0, w: 10, h: 10, props: { html: "Overlay" } });
++    const slide = createSlide({
++      layout: "title",
++      content: { title: "Hello Deck", subtitle: "" },
++      freeElements: [element],
++      order: 0,
++    });
++    renderSlide(slide);
++    expect(screen.getByText("Overlay")).toBeInTheDocument();
++  });
++
++  it("warns and renders nothing for an unknown layout instead of throwing", () => {
++    const slide = createSlide({ layout: "not-a-layout", content: {}, order: 0 });
++    const warn = vi.fn();
++    const originalWarn = console.warn;
++    console.warn = warn;
++    const { container } = renderSlide(slide);
++    console.warn = originalWarn;
++    expect(warn).toHaveBeenCalled();
++    expect(container.querySelector("[data-element-id]")).toBeNull();
++  });
++});

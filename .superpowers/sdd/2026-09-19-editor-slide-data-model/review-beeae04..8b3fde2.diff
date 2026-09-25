@@ -1,0 +1,100 @@
+# Review package: beeae040794c2f8aff17f6c40d8e34b5fbf08a3e..8b3fde2760da093e497386baebf37875aa3da918
+
+## Commits
+8b3fde2 feat(deck): port MetricsGridLayout onto the deck data model Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+
+## Files changed
+ .../new/deck/layouts/MetricsGridLayout.jsx         | 49 ++++++++++++++++++++++
+ .../new/deck/layouts/MetricsGridLayout.test.jsx    | 28 +++++++++++++
+ 2 files changed, 77 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/layouts/MetricsGridLayout.jsx b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+new file mode 100644
+index 0000000..6c25df5
+--- /dev/null
++++ b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+@@ -0,0 +1,49 @@
++import React from "react";
++import { RichText } from "../RichText";
++
++export function defaultMetricsGridContent() {
++  return {
++    heading: "Metrics & Traction",
++    metrics: [
++      { value: "0", label: "Metric 1" },
++      { value: "0", label: "Metric 2" },
++      { value: "0", label: "Metric 3" },
++    ],
++  };
++}
++
++export function MetricsGridLayout({ content, onChangeContent }) {
++  function updateMetric(index, patch) {
++    const metrics = content.metrics.map((m, i) => (i === index ? { ...m, ...patch } : m));
++    onChangeContent({ metrics });
++  }
++
++  return (
++    <div className="flex flex-col min-h-screen p-8 sm:p-16">
++      <RichText
++        as="h2"
++        className="text-4xl font-bold text-center"
++        value={content.heading}
++        onChange={(html) => onChangeContent({ heading: html })}
++      />
++      <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
++        {content.metrics.map((metric, index) => (
++          <div key={index} className="text-center">
++            <RichText
++              as="div"
++              className="text-5xl font-bold"
++              value={metric.value}
++              onChange={(html) => updateMetric(index, { value: html })}
++            />
++            <RichText
++              as="div"
++              className="mt-2 opacity-70"
++              value={metric.label}
++              onChange={(html) => updateMetric(index, { label: html })}
++            />
++          </div>
++        ))}
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/layouts/MetricsGridLayout.test.jsx b/src/components/new/deck/layouts/MetricsGridLayout.test.jsx
+new file mode 100644
+index 0000000..5471bf4
+--- /dev/null
++++ b/src/components/new/deck/layouts/MetricsGridLayout.test.jsx
+@@ -0,0 +1,28 @@
++import { describe, it, expect } from "vitest";
++import { render, screen } from "@testing-library/react";
++import { MetricsGridLayout, defaultMetricsGridContent } from "./MetricsGridLayout";
++
++describe("defaultMetricsGridContent", () => {
++  it("returns a heading and 3 zeroed metrics", () => {
++    const content = defaultMetricsGridContent();
++    expect(content.heading).toBe("Metrics & Traction");
++    expect(content.metrics).toHaveLength(3);
++  });
++});
++
++describe("MetricsGridLayout", () => {
++  it("renders every metric's value and label", () => {
++    const content = {
++      heading: "Metrics & Traction",
++      metrics: [
++        { value: "120%", label: "YoY growth" },
++        { value: "40k", label: "Active users" },
++      ],
++    };
++    render(<MetricsGridLayout content={content} onChangeContent={() => {}} />);
++    expect(screen.getByText("120%")).toBeInTheDocument();
++    expect(screen.getByText("YoY growth")).toBeInTheDocument();
++    expect(screen.getByText("40k")).toBeInTheDocument();
++    expect(screen.getByText("Active users")).toBeInTheDocument();
++  });
++});

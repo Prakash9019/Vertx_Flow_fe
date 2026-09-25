@@ -1,0 +1,36 @@
+# Review package: c3d127db6bce4d48a1676fbfd44d320cb4a3cd2d..a42ba08fe36bedce7df5dad2083e1f9b7df61d45
+
+## Commits
+a42ba08 fix(test): add media field assertion to main paragraphToBulletsMapper test
+
+## Files changed
+ src/components/new/deck/contentMappers.test.js | 1 +
+ 1 file changed, 1 insertion(+)
+
+## Diff
+diff --git a/src/components/new/deck/contentMappers.test.js b/src/components/new/deck/contentMappers.test.js
+index a33d167..2fc5db2 100644
+--- a/src/components/new/deck/contentMappers.test.js
++++ b/src/components/new/deck/contentMappers.test.js
+@@ -13,20 +13,21 @@ describe("paragraphToBulletsMapper", () => {
+     const result = paragraphToBulletsMapper({
+       heading: "The Problem",
+       body: "<p>Teams lose context switching tools. Onboarding takes weeks. Support tickets pile up.</p>",
+     });
+     expect(result.heading).toBe("The Problem");
+     expect(result.points).toEqual([
+       { title: "", body: "Teams lose context switching tools" },
+       { title: "", body: "Onboarding takes weeks" },
+       { title: "", body: "Support tickets pile up." },
+     ]);
++    expect(result.media).toEqual({ url: "", type: "image" });
+   });
+ 
+   it("returns an empty points array and a default media when body is missing", () => {
+     const result = paragraphToBulletsMapper({ heading: "The Problem" });
+     expect(result).toEqual({ heading: "The Problem", points: [], media: { url: "", type: "image" } });
+   });
+ 
+   it("returns an empty points array and a default media when body is an empty string", () => {
+     const result = paragraphToBulletsMapper({ heading: "The Problem", body: "" });
+     expect(result).toEqual({ heading: "The Problem", points: [], media: { url: "", type: "image" } });

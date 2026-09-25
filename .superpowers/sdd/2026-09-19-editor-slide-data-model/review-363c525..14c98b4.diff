@@ -1,0 +1,67 @@
+# Review package: 363c5257df8d7d849c087da550b6fc41152a6506..14c98b4222b1304a1209603bd1e396978ffb7768
+
+## Commits
+14c98b4 Implement SlideRegistry for layout component registration
+
+## Files changed
+ src/components/new/deck/SlideRegistry.js      | 21 +++++++++++++++++++++
+ src/components/new/deck/SlideRegistry.test.js | 23 +++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/SlideRegistry.js b/src/components/new/deck/SlideRegistry.js
+new file mode 100644
+index 0000000..04cb928
+--- /dev/null
++++ b/src/components/new/deck/SlideRegistry.js
+@@ -0,0 +1,21 @@
++import { TitleLayout, defaultTitleContent } from "./layouts/TitleLayout";
++import { ProblemLayout, defaultProblemContent } from "./layouts/ProblemLayout";
++import { MediaDescriptionLayout, defaultMediaDescriptionContent } from "./layouts/MediaDescriptionLayout";
++import { Media3PointsLayout, defaultMedia3PointsContent } from "./layouts/Media3PointsLayout";
++import { MetricsGridLayout, defaultMetricsGridContent } from "./layouts/MetricsGridLayout";
++import { TeamGridLayout, defaultTeamGridContent } from "./layouts/TeamGridLayout";
++import { CtaLayout, defaultCtaContent } from "./layouts/CtaLayout";
++
++export const SlideRegistry = {
++  title: { component: TitleLayout, defaultContent: defaultTitleContent },
++  problem: { component: ProblemLayout, defaultContent: defaultProblemContent },
++  "media-description": { component: MediaDescriptionLayout, defaultContent: defaultMediaDescriptionContent },
++  "media-3points": { component: Media3PointsLayout, defaultContent: defaultMedia3PointsContent },
++  "metrics-grid": { component: MetricsGridLayout, defaultContent: defaultMetricsGridContent },
++  "team-grid": { component: TeamGridLayout, defaultContent: defaultTeamGridContent },
++  cta: { component: CtaLayout, defaultContent: defaultCtaContent },
++};
++
++export function getRegistryEntry(layoutId) {
++  return SlideRegistry[layoutId];
++}
+diff --git a/src/components/new/deck/SlideRegistry.test.js b/src/components/new/deck/SlideRegistry.test.js
+new file mode 100644
+index 0000000..adf65c8
+--- /dev/null
++++ b/src/components/new/deck/SlideRegistry.test.js
+@@ -0,0 +1,23 @@
++import { describe, it, expect } from "vitest";
++import { LAYOUT_IDS } from "./deckTypes";
++import { SlideRegistry, getRegistryEntry } from "./SlideRegistry";
++
++describe("SlideRegistry", () => {
++  it("has one entry per LAYOUT_ID with a component and a defaultContent factory", () => {
++    for (const layoutId of LAYOUT_IDS) {
++      const entry = SlideRegistry[layoutId];
++      expect(entry, `missing registry entry for "${layoutId}"`).toBeDefined();
++      expect(typeof entry.component).toBe("function");
++      expect(typeof entry.defaultContent).toBe("function");
++      expect(typeof entry.defaultContent()).toBe("object");
++    }
++  });
++
++  it("getRegistryEntry returns undefined for an unknown layout id", () => {
++    expect(getRegistryEntry("not-a-layout")).toBeUndefined();
++  });
++
++  it("getRegistryEntry returns the entry for a known layout id", () => {
++    expect(getRegistryEntry("title")).toBe(SlideRegistry.title);
++  });
++});
