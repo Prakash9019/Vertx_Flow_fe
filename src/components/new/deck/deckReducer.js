@@ -1,7 +1,8 @@
 import { LAYOUT_IDS, createSlide, isPlainObject, isValidFreeElement } from "./deckTypes";
-import { getMappedContent } from "./contentMappers";
+import { getMappedContent, normalize } from "./contentMappers";
 import { getRegistryEntry } from "./SlideRegistry";
 import { WIDGET_TYPES } from "./freeElementFactory";
+import { pickRemixLayout } from "./remix";
 
 function warnInvalid(action, reason) {
   console.warn(`deckReducer: ignoring ${action.type} - ${reason}`);
@@ -119,6 +120,33 @@ export function deckReducer(deck, action) {
         : mappedContent;
       const slides = [...deck.slides];
       slides[index] = { ...slide, layout: action.layout, content: mergedContent };
+      return { ...deck, slides };
+    }
+
+    // Architecture doc §4: Remix is a decision-plus-placement flow, distinct
+    // from SET_SLIDE_LAYOUT (user picks the exact target layout explicitly).
+    // Here the target layout is *decided* by scoring the slide's semantic
+    // content (remix.js), then placed via the same normalize/denormalize
+    // pipeline SET_SLIDE_LAYOUT uses - Remix never special-cases its own
+    // content transformation.
+    case "REMIX_SLIDE": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slide = deck.slides[index];
+      const semantic = normalize(slide.layout, slide.content);
+      const targetLayout = pickRemixLayout(slide.layout, semantic, action.excludeLayouts);
+      if (!targetLayout) {
+        warnInvalid(action, "no eligible remix layout found");
+        return deck;
+      }
+      const entry = getRegistryEntry(targetLayout);
+      const mappedContent = getMappedContent(slide.layout, targetLayout, slide.content, entry.defaultContent());
+      const mergedContent = { ...entry.defaultContent(), ...mappedContent };
+      const slides = [...deck.slides];
+      slides[index] = { ...slide, layout: targetLayout, content: mergedContent };
       return { ...deck, slides };
     }
 

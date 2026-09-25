@@ -100,9 +100,46 @@ transforms the original brief asked for); `deckReducer.test.js`'s
 `SET_SLIDE_LAYOUT` default-merge test updated to assert the corrected
 clean-shape behavior.
 
-**Not done**: Remix (architecture doc §4) — it's designed to consume this
-same `SemanticContent` model but is a separate, not-yet-started flow (see
-§3 below).
+**Remix (architecture doc §4) — since implemented**, see §1e-4 below.
+
+## 1e-4. Remix — Implemented
+
+Architecture doc §4: Remix is a separate operation from Layout Change
+(`SET_SLIDE_LAYOUT`) — the user doesn't pick the target layout, the system
+decides one. `remix.js` scores every `LAYOUT_IDS` entry against the slide's
+`SemanticContent` (from `normalize()`, the same model §1e-2's Layout Change
+uses) and returns the best-fitting layout other than the slide's current one
+(and any layout the caller wants excluded). No AI call — this is the
+deterministic "scoring/matching step" the architecture doc explicitly leaves
+as an option alongside "AI generation later"; it keeps Remix usable offline
+and its output unit-testable.
+
+**Reducer**: `REMIX_SLIDE` (`deckReducer.js`) normalizes the slide's content,
+calls `pickRemixLayout`, then reuses `getMappedContent` (the exact same
+denormalize/placement path `SET_SLIDE_LAYOUT` uses) to place the content into
+the chosen layout — Remix never special-cases its own content transform, per
+the architecture doc's explicit constraint. Warns and no-ops on a missing
+`slideId` or when every layout is excluded.
+
+**UI**: a "Remix" button (`Shuffle` icon) in `EditorPageBody`'s bottom
+toolbar, next to Theme/Background, dispatches `REMIX_SLIDE`. `EditorPageBody`
+tracks, per slide, every layout that slide has already passed through this
+session (`remixHistoryRef`) and passes it as `excludeLayouts`, so repeated
+clicks on the same slide cycle through fresh options instead of ping-ponging
+between the same two best-fit layouts.
+
+**Tests**: `remix.js` has 9 tests covering the scoring rules (metrics →
+metrics-grid, titled items → team-grid, untitled items → media-3points, media
+→ media-description, plain body → problem, bare heading → title, never
+returns the current layout, `excludeLayouts` cycling, and the all-excluded
+`null` case). `deckReducer.test.js` adds 4 `REMIX_SLIDE` tests (fitting-layout
+pick, `excludeLayouts` cycling through the reducer, missing slideId, and the
+all-excluded no-op).
+
+**Not done**: any UI to show *why* a layout was chosen, and no AI-driven
+alternative to the scoring heuristic — both explicitly out of scope for this
+pass. **Not verified in a real browser** — same caveat as everything else in
+this document (see §4).
 
 ## 1e-3. Background system — Implemented
 
@@ -156,7 +193,6 @@ updated for the new `null` default.
 
 ## 2. Not started at all
 
-- **Remix system** — no design or implementation yet, and per the architecture doc it's explicitly a different operation from Layout Change (§4 of the architecture doc), not a variant of it. Designed to consume the `SemanticContent` model from §1e-2 once started.
 - **AI storyline / 10+ slide generation, content intelligence** (detect numbers→metrics, lists→bullets, image prompts→media).
 - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
 - **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
@@ -176,7 +212,9 @@ updated for the new `null` default.
 
 ## 5. Test status
 
-**163/163 tests passing** across 27 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`).
+**177/177 tests passing** across 29 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests).
+
+Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted** (the ~26 pre-deck-model hardcoded slide components, `themes`/`themes2`/`backgrounds`/`BACKGROUND_PRESET_MODELS`, the per-file Froala loader they used, and every import only they needed) — 4,133 → 421 lines, none of it reachable from the live app. No behavior change; covered by the existing/added test suite and a clean build.
 
 **Repository integrity**: all Editor V2 source files required by committed code are tracked and committed on `editor-deck-model`. A fresh checkout of the branch builds and passes the full test suite with no missing dependencies (verified again this session).
 
@@ -200,7 +238,7 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 6 | Theme token system | — | Implemented (see §1e) |
 | 7 | Background system (overlay, deck-level default, video, real picker UI) | #6 | **Implemented** (see §1e-3) |
 | 8 | Semantic layout transformation/reflow | — | **Implemented** (see §1e-2) |
-| 9 | Remix | #8 | Not started |
+| 9 | Remix | #8 | **Implemented** (see §1e-4) |
 | 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | Not started |
 | 11 | AI 10+ slide generation | #10 | Not started |
 | 12 | Content intelligence | overlaps #10/#11, may co-design | Not started |

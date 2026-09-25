@@ -127,6 +127,51 @@ describe("deckReducer", () => {
     }
   });
 
+  it("REMIX_SLIDE picks a fitting layout for the slide's content and remaps into it", () => {
+    // A problem slide (body only, no items/media/metrics) is excluded from
+    // its own layout, so the next-best fit for body-only content is
+    // media-description (add a visual), scored above the bare-heading layouts.
+    const problemSlide = createSlide({
+      layout: "problem",
+      content: { heading: "The Problem", body: "<p>Onboarding takes weeks. Support tickets pile up.</p>" },
+      order: 0,
+    });
+    const deck = createDeck({ title: "Deck", theme: "dark", slides: [problemSlide] });
+    const next = deckReducer(deck, { type: "REMIX_SLIDE", slideId: problemSlide.id });
+    expect(next.slides[0].layout).toBe("media-description");
+    expect(next.slides[0].layout).not.toBe(problemSlide.layout);
+    expect(next.slides[0].content.heading).toBe("The Problem");
+  });
+
+  it("REMIX_SLIDE respects excludeLayouts so repeated remixes don't loop on the same result", () => {
+    const slide = createSlide({ layout: "title", content: { title: "Team" }, order: 0 });
+    const deck = createDeck({ title: "Deck", theme: "dark", slides: [slide] });
+    const first = deckReducer(deck, { type: "REMIX_SLIDE", slideId: slide.id });
+    const firstLayout = first.slides[0].layout;
+    const second = deckReducer(first, { type: "REMIX_SLIDE", slideId: slide.id, excludeLayouts: [firstLayout] });
+    expect(second.slides[0].layout).not.toBe(firstLayout);
+    expect(second.slides[0].layout).not.toBe(slide.layout);
+  });
+
+  it("REMIX_SLIDE warns and no-ops on a missing slideId", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "REMIX_SLIDE", slideId: "missing" });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("REMIX_SLIDE warns and no-ops when every other layout is excluded", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const others = LAYOUT_IDS.filter((l) => l !== slide.layout);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "REMIX_SLIDE", slideId: slide.id, excludeLayouts: others });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("UPDATE_SLIDE_CONTENT shallow-merges into existing content", () => {
     const { deck, slide } = deckWithOneSlide();
     const next = deckReducer(deck, { type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: { subtitle: "New" } });

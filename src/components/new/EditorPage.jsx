@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Palette, Plus, Check } from 'lucide-react';
+import { Palette, Plus, Check, Shuffle } from 'lucide-react';
 import { PiSelectionBackground } from "react-icons/pi";
 
 import { useParams } from "react-router-dom";
@@ -187,6 +187,20 @@ function EditorPageBody({ deckId = null }) {
     }
   };
 
+  // Remix (architecture doc §4) picks a new layout automatically instead of
+  // the user choosing one - REMIX_SLIDE already excludes the slide's current
+  // layout, but repeated clicks on the same slide would otherwise ping-pong
+  // between the same two best-fit layouts. This tracks, per slide, every
+  // layout that slide has already passed through this session and excludes
+  // all of them, so successive remixes cycle through fresh options.
+  const remixHistoryRef = useRef({});
+  const handleRemixSlide = () => {
+    if (!currentSlide) return;
+    const history = remixHistoryRef.current[currentSlide.id] ?? [];
+    dispatch({ type: "REMIX_SLIDE", slideId: currentSlide.id, excludeLayouts: history });
+    remixHistoryRef.current[currentSlide.id] = [...history, currentSlide.layout];
+  };
+
   // --- SlideSidebar wiring -------------------------------------------------
   // Slide selection lives on `currentSlideIndex` (a position, not an id) for
   // the pre-existing wheel-nav/nav-dot code below. Every sidebar action that
@@ -347,6 +361,17 @@ function EditorPageBody({ deckId = null }) {
           >
             <PiSelectionBackground size={18} className='mr-2'/>
             <span>Background</span>
+          </button>
+
+          <div className="w-px h-6 bg-white/10" />
+
+          <button
+            onClick={handleRemixSlide}
+            title="Pick a different layout for this slide, keeping its meaning"
+            className="px-4 py-2.5 text-sm cursor-pointer font-[inter] font-medium border-none bg-transparent text-white/90 hover:bg-white/10 hover:text-white transition-colors flex items-center rounded-xl"
+          >
+            <Shuffle size={18} className="mr-2" />
+            <span>Remix</span>
           </button>
         </div>
       )}
