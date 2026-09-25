@@ -42,6 +42,25 @@ import { PiDotsThreeBold, PiSelectionBackground } from "react-icons/pi";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
+import { useParams } from "react-router-dom";
+import { DeckProvider, useDeck } from "./deck/DeckContext";
+import { SlideCanvas } from "./deck/SlideCanvas";
+import { SlideSidebar } from "./deck/SlideSidebar";
+import { BackgroundPicker } from "./deck/BackgroundPicker";
+import { useDeckLoader } from "./deck/useDeckLoader";
+import { useAutosave } from "./deck/useAutosave";
+import { reorderedIndexOf, indexAfterDelete, indexAfterInsert } from "./deck/slideSidebarLogic";
+import { createDeck, createSlide } from "./deck/deckTypes";
+import { getRegistryEntry } from "./deck/SlideRegistry";
+import { defaultTitleContent } from "./deck/layouts/TitleLayout";
+import { defaultProblemContent } from "./deck/layouts/ProblemLayout";
+import { defaultMediaDescriptionContent } from "./deck/layouts/MediaDescriptionLayout";
+import { defaultMedia3PointsContent } from "./deck/layouts/Media3PointsLayout";
+import { defaultMetricsGridContent } from "./deck/layouts/MetricsGridLayout";
+import { defaultTeamGridContent } from "./deck/layouts/TeamGridLayout";
+import { defaultCtaContent } from "./deck/layouts/CtaLayout";
+import { THEME_REGISTRY, getTheme, DEFAULT_THEME_ID, themeToRootStyle, normalizeTheme } from "./deck/theme/themeTokens";
+
 // --- Shared Froala Editor CDN loader ---------------------------------------
 // Every slide below used to inject its own <link>/<script> pair for Froala,
 // which meant the same CDN assets were fetched and parsed dozens of times.
@@ -316,6 +335,58 @@ const backgrounds = {
     card: 'bg-gradient-to-b from-pink-400 to-purple-400', // Fun, vibrant pink and purple
   }
 };
+
+// Maps a `backgrounds` preset key to a `SlideBackground` (deckTypes / spec
+// shape) so the existing picker can persist into the deck model rather than
+// into dead local state. Any key not listed here falls back to the deck's
+// default solid colour.
+const BACKGROUND_PRESET_MODELS = {
+  original: { kind: "gradient", stops: ["#000000", "#ffffff", "#000000"], angle: 180 },
+  light: { kind: "gradient", stops: ["#ffffff", "#e5e7eb"], angle: 180 },
+  dark: { kind: "solid", color: "#000000" },
+  red: { kind: "solid", color: "#dc2626" },
+  orange: { kind: "solid", color: "#ea580c" },
+  amber: { kind: "solid", color: "#fbbf24" },
+  yellow: { kind: "solid", color: "#ca8a04" },
+  pink: { kind: "solid", color: "#db2777" },
+  sky: { kind: "solid", color: "#0284c7" },
+  lime: { kind: "solid", color: "#65a30d" },
+  teal: { kind: "solid", color: "#0d9488" },
+  purple: { kind: "solid", color: "#9333ea" },
+  rose: { kind: "solid", color: "#e11d48" },
+  green: { kind: "solid", color: "#22c55e" },
+  cyan: { kind: "solid", color: "#0891b2" },
+  blue: { kind: "solid", color: "#1d4ed8" },
+  indigo: { kind: "solid", color: "#3730a3" },
+  emerald: { kind: "solid", color: "#047857" },
+  violet: { kind: "solid", color: "#7c3aed" },
+  fuchsia: { kind: "solid", color: "#c026d3" },
+  LightPurple: { kind: "gradient", stops: ["#d8b4fe", "#ffedd5"], angle: 180 },
+  SkyBlue: { kind: "gradient", stops: ["#60a5fa", "#dbeafe"], angle: 180 },
+  EarthStone: { kind: "gradient", stops: ["#a8a29e", "#f5f5f4"], angle: 180 },
+  OceanSky: { kind: "gradient", stops: ["#06b6d4", "#1e40af"], angle: 135 },
+  Sunrise: { kind: "gradient", stops: ["#f87171", "#fdba74", "#fef08a"], angle: 90 },
+  ForestMoss: { kind: "gradient", stops: ["#15803d", "#84cc16"], angle: 180 },
+  CrimsonFade: { kind: "gradient", stops: ["#991b1b", "#ec4899"], angle: 0 },
+  Midnight: { kind: "gradient", stops: ["#111827", "#312e81", "#1e3a8a"], angle: 270 },
+  PeachCobbler: { kind: "gradient", stops: ["#fed7aa", "#fce7f3"], angle: 45 },
+  CoolMint: { kind: "gradient", stops: ["#99f6e4", "#dcfce7"], angle: 90 },
+  Cyberpunk: { kind: "gradient", stops: ["#c026d3", "#7e22ce", "#000000"], angle: 225 },
+  GoldenHour: { kind: "gradient", stops: ["#fde047", "#fbbf24", "#f97316"], angle: 180 },
+  LavenderDream: { kind: "gradient", stops: ["#a5b4fc", "#fbcfe8"], angle: 315 },
+  OceanDeep: { kind: "gradient", stops: ["#1e3a8a", "#06b6d4"], angle: 180 },
+  DesertHeat: { kind: "gradient", stops: ["#b91c1c", "#ca8a04", "#78350f"], angle: 90 },
+  AuroraBorealis: { kind: "gradient", stops: ["#34d399", "#84cc16", "#38bdf8"], angle: 135 },
+  PlumBlossom: { kind: "gradient", stops: ["#6b21a8", "#f43f5e"], angle: 90 },
+  StoneWash: { kind: "gradient", stops: ["#d1d5db", "#ffffff"], angle: 0 },
+  NeonPunch: { kind: "gradient", stops: ["#bef264", "#f0abfc"], angle: 270 },
+  SlateOcean: { kind: "gradient", stops: ["#0f172a", "#1d4ed8"], angle: 45 },
+  Bubblegum: { kind: "gradient", stops: ["#f472b6", "#c084fc"], angle: 180 },
+};
+
+export function backgroundPresetToSlideBackground(key) {
+  return BACKGROUND_PRESET_MODELS[key] ?? { kind: "solid", color: "#0b2d2b" };
+}
 
 const themes2 = {
   original: {
@@ -3663,27 +3734,17 @@ const BlankPage = ({ id, theme, background }) => {
 const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
     const currentTheme = themes[theme];
     const currentBG = backgrounds[background]
+    // Only layouts registered in the new deck model's LAYOUT_IDS (Task 2/7) are offered here.
+    // Legacy layout-picker options with no equivalent in LAYOUT_IDS (Title Only, Comparison,
+    // Quote, etc.) have been removed rather than wired to a nonexistent layout id.
     const layouts = [
-        { name: 'Title Only', component: TitleOnlyPage },
-        { name: 'Title & Subtitle', component: TitleAndSubtitlePage },
-        { name: 'Title & Content', component: TitleAndContentPage },
-        { name: 'Section Header', component: SectionHeaderPage },
-        { name: 'Content with Caption', component: ContentWithCaptionPage },
-        { name: 'Two Content', component: TwoContentPage },
-        { name: 'Comparison', component: ComparisonPage },
-        { name: 'Content Over Image', component: ContentOverImagePage },
-        { name: 'Picture with Caption', component: PictureWithCaptionPage },
-        { name: 'Content with Image', component: ContentWithImagePage },
-        { name: 'Image with Content', component: ImageWithContentPage },
-        { name: 'Two Content with Image', component: TwoContentWithImagePage },
-        { name: 'Vertical Text', component: VerticalTextPage },
-        { name: 'Vertical Title & Text', component: VerticalTitleAndTextPage },
-        { name: 'Four Objects', component: FourObjectsPage },
-        { name: 'Title & Four Objects', component: TitleAndFourObjectsPage },
-        { name: 'Title & Text', component: TitleAndTextPage },
-        { name: 'Title & Two Column Text', component: TitleAndTwoColumnTextPage },
-        { name: 'Quote', component: QuotePage },
-        { name: 'Blank', component: BlankPage },
+        { name: 'Title', id: 'title' },
+        { name: 'Problem', id: 'problem' },
+        { name: 'Media & Description', id: 'media-description' },
+        { name: 'Media & 3 Points', id: 'media-3points' },
+        { name: 'Metrics Grid', id: 'metrics-grid' },
+        { name: 'Team Grid', id: 'team-grid' },
+        { name: 'Call To Action', id: 'cta' },
     ];
 
     return (
@@ -3693,8 +3754,8 @@ const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[70vh] overflow-y-auto">
                     {layouts.map(layout => (
                         <button
-                            key={layout.name}
-                            onClick={() => onSelect(layout.component)}
+                            key={layout.id}
+                            onClick={() => onSelect(layout.id)}
                             className="p-4 border rounded-lg text-white hover:text-black hover:bg-gray-200 hover:transition-all"
                         >
                             {layout.name}
@@ -3713,166 +3774,200 @@ const LayoutPicker = ({ onSelect, onClose, theme, background }) => {
 }
 
 
+function seedDeck() {
+  return createDeck({
+    title: "Untitled Deck",
+    theme: getTheme(DEFAULT_THEME_ID),
+    slides: [
+      createSlide({ layout: "title", content: defaultTitleContent(), order: 0 }),
+      createSlide({ layout: "problem", content: defaultProblemContent(), order: 1 }),
+      createSlide({ layout: "media-description", content: defaultMediaDescriptionContent(), order: 2 }),
+      createSlide({ layout: "media-3points", content: defaultMedia3PointsContent(), order: 3 }),
+      createSlide({ layout: "metrics-grid", content: defaultMetricsGridContent(), order: 4 }),
+      createSlide({ layout: "team-grid", content: defaultTeamGridContent(), order: 5 }),
+      createSlide({ layout: "cta", content: defaultCtaContent(), order: 6 }),
+    ],
+  });
+}
+
+// `/editorPage` (no id) keeps the hardcoded seed deck as an unsaved demo -
+// nothing to load, nothing to autosave to. `/editor/:deckId` loads and
+// migrates a real persisted deck (see useDeckLoader/useDeckSchema) and
+// EditorPageBody's `useAutosave` PATCHes it back on every edit.
 export default function EditorPage() {
+  const { deckId } = useParams();
+  const { status, deck: loadedDeck, error } = useDeckLoader(deckId);
+  const fallbackDeck = React.useMemo(() => seedDeck(), []);
+
+  if (deckId) {
+    if (status === "loading") {
+      return (
+        <div className="h-screen w-screen flex items-center justify-center bg-[#021e1d] text-white/70">
+          Loading deck...
+        </div>
+      );
+    }
+    if (status === "error") {
+      return (
+        <div className="h-screen w-screen flex flex-col items-center justify-center gap-2 bg-[#021e1d] text-white">
+          <p className="text-red-400">Couldn't load this deck.</p>
+          <p className="text-white/50 text-sm">{error?.message ?? "Unknown error"}</p>
+        </div>
+      );
+    }
+    return (
+      <DeckProvider key={deckId} initialDeck={loadedDeck}>
+        <EditorPageBody deckId={deckId} />
+      </DeckProvider>
+    );
+  }
+
+  return (
+    <DeckProvider initialDeck={fallbackDeck}>
+      <EditorPageBody deckId={null} />
+    </DeckProvider>
+  );
+}
+
+function EditorPageBody({ deckId = null }) {
+  const { deck, dispatch } = useDeck();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  // const [theme, setTheme] = useState('dark');
-  // const [background, setbackground] = useState('original')
-  // const [slideBackgrounds, setSlideBackgrounds] = useState({});
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
-  // const currentTheme = themes[theme];
-  // const currentBG = backgrounds[background]
-  // console.log(background)
-  const initialSlidesData = [
-    { id: 'user-bg-select', component: UserBGselect},
-    { id: 'the-challenge', component: TheChallangePage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'our-solution', component: OurSolutionPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'market-potential', component: MarketPotentialPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'competitive-edge', component: CompetitiveEdgePAge, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'growth-trajectory', component: GrowthTrajectoryPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'proven-model', component: ProvenModelPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'series-a', component: SeriesAPage, defaultBg: 'original', defaultTheme: 'dark' },
-    { id: 'join-us', component: JoinUsPage, defaultBg: 'original', defaultTheme: 'dark' },
-]
-const initialSlideBGs = initialSlidesData.reduce((acc, slide) => {
-    acc[slide.id] = slide.defaultBg;
-    return acc;
-}, {});
-
-const initialSlideThemes = initialSlidesData.reduce((acc, slide) => {
-    acc[slide.id] = slide.defaultTheme;
-    return acc;
-}, {});
-
-const initialSlides = initialSlidesData.map(data => 
-    <data.component 
-        key={data.id} 
-        id={data.id} // Pass the ID down
-        theme={initialSlideThemes[data.id]} 
-        background={initialSlideBGs[data.id]} // Pass the specific background
-    />
-    
-);
-const [slides, setSlides] = useState(initialSlides);
-const [slideBackgrounds, setSlideBackgrounds] = useState(initialSlideBGs);
-const [slideThemes, setSlideThemes] = useState(initialSlideThemes);
-  // const initialSlides = [
-  //   <UserBGselect key="user-bg-select" />,
-  //   <TheChallangePage key="the-challenge" theme={theme} background={background} />,
-  //   <OurSolutionPage key="our-solution" theme={theme} background={background} />,
-  //   <MarketPotentialPage key="market-potential" theme={theme} background={background} />,
-  //   <CompetitiveEdgePAge key="competitive-edge" theme={theme} background={background} />,
-  //   <GrowthTrajectoryPage key="growth-trajectory" theme={theme} background={background} />,
-  //   <ProvenModelPage key="proven-model" theme={theme} background={background} />,
-  //   <SeriesAPage key="series-a" theme={theme} background={background} />,
-  //   <JoinUsPage key="join-us" theme={theme} background={background} />,
-  // ];
-  // const [slides, setSlides] = useState(initialSlides);
+  const [insertAfterSlideId, setInsertAfterSlideId] = useState(null);
+  const [selectedElementId, setSelectedElementId] = useState(null);
+  const [editingElementId, setEditingElementId] = useState(null);
+  // NOTE: building a richer background/theme *picker UI* is out of scope (see the
+  // plan's "Explicitly out of scope"). The existing background swatches, however,
+  // write through to the deck model: per-slide background lives on
+  // `currentSlide.background` and is applied by `SlideCanvas`.
   const isAnimatingRef = useRef(false);
-  
 
+  const currentSlide = deck.slides[currentSlideIndex];
+  const saveStatus = useAutosave(deckId, deck);
+
+  // A free element's selection/editing state is scoped to whichever slide is
+  // on screen (architecture doc §1: "selection state does not belong in the
+  // Deck") - clear it whenever the visible slide changes, whatever caused
+  // the change (wheel nav, nav dot, sidebar).
   useEffect(() => {
-    setSlides(prevSlides => prevSlides.map(slide => {
-      const currentSlideBG = slideBackgrounds[slide.key];
-      const currentSlideTheme = slideThemes[slide.key];
-      if (slide.type.name === 'UserBGselect') {
-        return slide;
-      }
-      return React.cloneElement(slide, { 
-          theme: currentSlideTheme, 
-          background: currentSlideBG // Passes the individual background key
+    setSelectedElementId(null);
+    setEditingElementId(null);
+  }, [currentSlideIndex]);
+
+  const handleAddSlide = (layoutId) => {
+    const entry = getRegistryEntry(layoutId);
+    if (!entry) return;
+    if (insertAfterSlideId) {
+      const newIndex = indexAfterInsert(deck.slides, insertAfterSlideId);
+      dispatch({
+        type: "ADD_SLIDE",
+        layout: layoutId,
+        content: entry.defaultContent(),
+        afterSlideId: insertAfterSlideId,
       });
-    }));
-}, [slideThemes, slideBackgrounds]);
-
-  // const handleAddSlide = (LayoutComponent) => {
-  //   const newSlide = <LayoutComponent key={Date.now()} id={Date.now()} theme={theme} />;
-  //   setSlides(prevSlides => {
-  //     const newSlides = [...prevSlides, newSlide];
-  //     setCurrentSlideIndex(newSlides.length - 1);
-  //     return newSlides;
-  //   });
-  //   setShowLayoutPicker(false);
-  // };
-
-const handleAddSlide = (LayoutComponent) => {
-    const newId = Date.now().toString(); // Use string ID
-    const defaultNewBG = 'original'; // Set a default for new slides
-    const defaultNewTheme = 'dark';
-    
-    // 1. Update the Background state map
-    setSlideBackgrounds(prevBGs => ({
-        ...prevBGs,
-        [newId]: defaultNewBG,
-    }));
-    
-    // 2. Create the new slide element
-    const newSlide = <LayoutComponent 
-        key={newId} 
-        id={newId} 
-        theme={defaultNewTheme} 
-        background={defaultNewBG} // Pass the initial background
-    />;
-    
-    // 3. Update the slides array
-    setSlides(prevSlides => {
-      const newSlides = [...prevSlides, newSlide];
-      setCurrentSlideIndex(newSlides.length - 1);
-      return newSlides;
-    });
-    
+      setCurrentSlideIndex(newIndex);
+      setInsertAfterSlideId(null);
+    } else {
+      const newIndex = deck.slides.length;
+      dispatch({ type: "ADD_SLIDE", layout: layoutId, content: entry.defaultContent() });
+      setCurrentSlideIndex(newIndex);
+    }
     setShowLayoutPicker(false);
-};
+  };
 
-const handleThemeChange = (newTheme) => {
-    const currentSlideId = slides[currentSlideIndex].key; 
-    
-    setSlideThemes(prevThemes => ({
-        ...prevThemes,
-        [currentSlideId]: newTheme,
-    }));
-    
-    // Close the modal
+  const handleThemeChange = (themeId) => {
+    dispatch({ type: "SET_DECK_THEME", theme: getTheme(themeId) });
     setShowThemeModal(false);
-};
+  };
 
-  // const handleThemeChange = (newTheme) => {
-  //   setTheme(newTheme);
-  //   setShowThemeModal(false);
-  // };
-  // const handleBGChange = (newBG) => {
-  //   setbackground(newBG);
-  //   setshowBackgroundModal(false);
-  // };
+  // BackgroundPicker edits `SlideBackground` objects directly (architecture
+  // doc §6) - `background` here is always a complete, valid SlideBackground,
+  // never a swatch key needing translation.
+  const handleBackgroundChange = (background) => {
+    if (currentSlide) {
+      dispatch({ type: "SET_SLIDE_BACKGROUND", slideId: currentSlide.id, background });
+    }
+  };
 
-  const handleBGChange = (newBG) => {
-    const currentSlideId = slides[currentSlideIndex].key; 
-    
-    setSlideBackgrounds(prevBGs => ({
-        ...prevBGs,
-        [currentSlideId]: newBG,
-    }));
-    
-    // Close the modal
-    setshowBackgroundModal(false);
-};
+  // Clears the slide-level override so it falls back to the deck theme's
+  // default background (architecture doc §6's two-tier model).
+  const handleUseDefaultBackground = () => {
+    if (currentSlide) {
+      dispatch({ type: "SET_SLIDE_BACKGROUND", slideId: currentSlide.id, background: null });
+    }
+  };
 
-const currentSlideKey = slides[currentSlideIndex]?.key;
-const currentThemeKey = slideThemes[currentSlideKey] || 'dark'; // Fallback to 'dark'
-const currentBGKey = slideBackgrounds[currentSlideKey] || 'original'; // Get the current slide's background
+  // --- SlideSidebar wiring -------------------------------------------------
+  // Slide selection lives on `currentSlideIndex` (a position, not an id) for
+  // the pre-existing wheel-nav/nav-dot code below. Every sidebar action that
+  // mutates `deck.slides` computes, from the *pre-dispatch* slide list still
+  // in scope, the index the slide-of-interest will land at, and sets
+  // `currentSlideIndex` to it in the same tick as the dispatch - so the next
+  // render shows the right slide instead of a stale index.
+  const handleSidebarSelect = (slideId) => {
+    const index = deck.slides.findIndex((s) => s.id === slideId);
+    if (index !== -1) setCurrentSlideIndex(index);
+  };
 
-const currentTheme = themes[currentThemeKey];
-const currentBG = backgrounds[currentBGKey]
+  const handleSidebarInsertAfter = (slideId) => {
+    setInsertAfterSlideId(slideId);
+    setShowLayoutPicker(true);
+  };
+
+  const handleSidebarDuplicate = (slideId) => {
+    const index = deck.slides.findIndex((s) => s.id === slideId);
+    if (index === -1) return;
+    dispatch({ type: "DUPLICATE_SLIDE", slideId });
+    setCurrentSlideIndex(index + 1);
+  };
+
+  const handleSidebarDelete = (slideId) => {
+    const index = deck.slides.findIndex((s) => s.id === slideId);
+    if (index === -1 || deck.slides.length <= 1) return;
+    const nextIndex = indexAfterDelete(index, currentSlideIndex, deck.slides.length);
+    dispatch({ type: "DELETE_SLIDE", slideId });
+    setCurrentSlideIndex(nextIndex);
+  };
+
+  const handleSidebarReorder = (slideId, toIndex) => {
+    const fromIndex = deck.slides.findIndex((s) => s.id === slideId);
+    if (fromIndex === -1) return;
+    const clampedTo = Math.max(0, Math.min(toIndex, deck.slides.length - 1));
+    if (clampedTo === fromIndex) return;
+    const currentId = currentSlide?.id;
+    dispatch({ type: "REORDER_SLIDES", slideId, toIndex: clampedTo });
+    if (currentId) {
+      setCurrentSlideIndex(reorderedIndexOf(deck.slides, fromIndex, clampedTo, currentId));
+    }
+  };
+
+  const handleSidebarMove = (slideId, direction) => {
+    const fromIndex = deck.slides.findIndex((s) => s.id === slideId);
+    if (fromIndex === -1) return;
+    const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= deck.slides.length) return;
+    handleSidebarReorder(slideId, toIndex);
+  };
+
+  // `deck.theme` is a full structured theme today only because the seed
+  // deck is hardcoded that way - nothing else constructs a deck yet.
+  // `normalizeTheme` is a defensive no-op on an already-current theme
+  // (idempotent) so this is zero behavior change now, and keeps
+  // `themeToRootStyle` safe once a future deck's `theme` field isn't yet
+  // a full structured object (e.g. an old/partial deck loaded before
+  // migration runs).
+  const deckTheme = normalizeTheme(deck.theme);
 
   useEffect(() => {
     const handleWheel = (event) => {
       if (isAnimatingRef.current) return;
-      
+
       const deltaY = event.deltaY;
       let newIndex = currentSlideIndex;
 
-      if (deltaY > 0 && currentSlideIndex < slides.length - 1) {
+      if (deltaY > 0 && currentSlideIndex < deck.slides.length - 1) {
         newIndex = currentSlideIndex + 1;
       } else if (deltaY < 0 && currentSlideIndex > 0) {
         newIndex = currentSlideIndex - 1;
@@ -3881,42 +3976,50 @@ const currentBG = backgrounds[currentBGKey]
       if (newIndex !== currentSlideIndex) {
         isAnimatingRef.current = true;
         setCurrentSlideIndex(newIndex);
+        setTimeout(() => { isAnimatingRef.current = false; }, 600);
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [currentSlideIndex, slides.length]);
-
-  const transition = {
-    duration: 1,
-    ease: [0.8, 0.08, -0.015, 1.0],
-  };
-
-  const containerVariants = {
-    initial: { y: 0 },
-    animate: { y: `-${currentSlideIndex * 100}vh` },
-  };
+  }, [currentSlideIndex, deck.slides.length]);
 
   return (
-    <div className={`App ${backgrounds[currentBGKey].bg} font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
-      <motion.div
-        variants={containerVariants}
-        initial="initial"
-        animate="animate"
-        transition={transition}
-        onAnimationComplete={() => { isAnimatingRef.current = false; }}
-      >
-        {slides.map((slide, index) => (
-          <div key={slide.key || index} className="h-screen w-screen">
-            {slide}
-          </div>
-        ))}
-      </motion.div>
+    <div className="App font-sans antialiased h-screen w-screen flex overflow-hidden" style={themeToRootStyle(deckTheme)}>
+      <SlideSidebar
+        slides={deck.slides}
+        currentSlideId={currentSlide?.id}
+        onSelectSlide={handleSidebarSelect}
+        onAddSlide={() => setShowLayoutPicker(true)}
+        onInsertAfter={handleSidebarInsertAfter}
+        onDuplicateSlide={handleSidebarDuplicate}
+        onDeleteSlide={handleSidebarDelete}
+        onReorderSlide={handleSidebarReorder}
+        onMoveSlide={handleSidebarMove}
+      />
+      <div className="relative flex-1 h-screen overflow-hidden">
+      {deckId && (
+        <div className="absolute top-3 right-4 z-50 text-xs text-white/50">
+          {saveStatus === "saving" && "Saving..."}
+          {saveStatus === "saved" && "Saved"}
+          {saveStatus === "error" && <span className="text-red-400">Save failed</span>}
+        </div>
+      )}
+      <div className="h-screen w-screen overflow-y-auto">
+        {currentSlide ? (
+          <SlideCanvas
+            slide={currentSlide}
+            selectedElementId={selectedElementId}
+            editingElementId={editingElementId}
+            onSelectElement={setSelectedElementId}
+            onStartEditing={setEditingElementId}
+          />
+        ) : null}
+      </div>
 
       {/* Slide Navigation Bars */}
       <div className="absolute top-1/2 left-8 -translate-y-1/2 flex flex-col space-y-3 z-50">
-        {slides.map((_, index) => (
+        {deck.slides.map((_, index) => (
           <div
             key={index}
             title={`Slide ${index + 1}`}
@@ -3960,56 +4063,40 @@ const currentBG = backgrounds[currentBGKey]
         </div>
       )}
 
-      {showLayoutPicker && <LayoutPicker theme={currentTheme} onSelect={handleAddSlide} onClose={() => setShowLayoutPicker(false)} />}
+      {showLayoutPicker && (
+        <LayoutPicker
+          onSelect={handleAddSlide}
+          onClose={() => {
+            setShowLayoutPicker(false);
+            setInsertAfterSlideId(null);
+          }}
+        />
+      )}
 
       {/* Theme Selection Modal */}
       {showThemeModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
           <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Theme</h2>
-            <div className="flex gap-4">
-              <button
-                onClick={() => handleThemeChange('dark')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-[#021e1d] border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-gray-600 mb-2"></div>
-                <span className="text-white text-sm font-medium">Dark</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('light')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-gray-100 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-gray-400 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Light</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('warm')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-orange-100 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-orange-300 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Warm</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('DeepPurple')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-purple-300 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-purple-400 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Deep Purple</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('DarkBlue')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-blue-400 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-blue-900 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Dark Blue</span>
-              </button>
-              <button
-                onClick={() => handleThemeChange('EarthStone')}
-                className="flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 bg-stone-400 border-2 border-transparent hover:border-teal-400 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-stone-600 mb-2"></div>
-                <span className="text-gray-900 text-sm font-medium">Earth Stone</span>
-              </button>
+            <div className="flex gap-4 flex-wrap justify-center max-w-2xl">
+              {THEME_REGISTRY.map((themeOption) => (
+                <button
+                  key={themeOption.id}
+                  onClick={() => handleThemeChange(themeOption.id)}
+                  className={`relative flex flex-col items-center justify-center p-4 rounded-xl w-28 h-28 border-2 transition-colors ${
+                    deckTheme.id === themeOption.id ? "border-teal-400" : "border-transparent hover:border-teal-400/50"
+                  }`}
+                  style={{ backgroundColor: themeOption.colors.background }}
+                >
+                  {deckTheme.id === themeOption.id && (
+                    <Check size={16} className="absolute top-2 right-2" style={{ color: themeOption.colors.primary }} />
+                  )}
+                  <div className="w-10 h-10 rounded-full mb-2" style={{ backgroundColor: themeOption.colors.primary }} />
+                  <span className="text-sm font-medium" style={{ color: themeOption.colors.text }}>
+                    {themeOption.name}
+                  </span>
+                </button>
+              ))}
             </div>
             <button
               onClick={() => setShowThemeModal(false)}
@@ -4020,64 +4107,28 @@ const currentBG = backgrounds[currentBGKey]
           </div>
         </div>
       )}
-      {showBackgroundModal && (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
-    <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center max-w-160 w-full mx-4">
-      <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Background</h2>
+      {showBackgroundModal && currentSlide && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[100]">
+          <div className="bg-[#0b2d2b] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center max-w-160 w-full mx-4">
+            <h2 className="text-xl font-semibold mb-6 text-white/90">Choose a Background</h2>
 
-      {/* Normal Backgrounds Section */}
-      <h2 className="text-sm font-semibold uppercase tracking-wide mt-4 mb-3 text-white/50">Normal</h2>
-      <div className="flex flex-wrap justify-center gap-2 max-w-130">
-        {Object.entries(backgrounds)
-          // Select the first 21 backgrounds for the "Normal" section
-          .slice(0, 20)
-          .map(([key, value], index) => (
+            <BackgroundPicker
+              value={currentSlide.background}
+              deckDefault={deckTheme.defaultBackground}
+              onChange={handleBackgroundChange}
+              onUseDefault={handleUseDefaultBackground}
+            />
+
             <button
-              key={key}
-              onClick={() => handleBGChange(key)}
-              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-teal-400 rounded-lg"
+              onClick={() => setshowBackgroundModal(false)}
+              className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
             >
-              <div
-                title={key.replace(/([A-Z])/g, ' $1').trim()}
-                className={`w-8 h-8 rounded-full ${value.card} shadow-inner border border-white/20`}
-              >
-              </div>
+              Close
             </button>
-          ))}
+          </div>
+        </div>
+      )}
       </div>
-
-      {/* Gradient Backgrounds Section */}
-      <h2 className="text-sm font-semibold uppercase tracking-wide mt-6 mb-3 text-white/50">Gradient</h2>
-      <div className="flex flex-wrap justify-center gap-2 max-w-130">
-        {Object.entries(backgrounds)
-          // Select the remaining backgrounds for the "Gradient" section
-          .slice(20, 42)
-          .map(([key, value], index) => (
-            <button
-              key={key}
-              onClick={() => handleBGChange(key)}
-              // Rectangular button class for gradients
-              className="flex flex-col items-center hover:cursor-pointer justify-center border-2 border-transparent transition-colors p-1 hover:border-teal-400 rounded-lg"
-            >
-              <div
-                title={key.replace(/([A-Z])/g, ' $1').trim()} // Better title formatting
-                // Rectangular swatch
-                className={`w-14 h-8 rounded-md ${value.card} shadow-inner border border-white/20`}
-              >
-              </div>
-            </button>
-          ))}
-      </div>
-
-      <button
-        onClick={() => setshowBackgroundModal(false)}
-        className="mt-6 px-5 py-2 bg-white/10 text-white/90 rounded-xl hover:bg-white/20 transition-colors text-sm font-medium"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
     </div>
   );
 }

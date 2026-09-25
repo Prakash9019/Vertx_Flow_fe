@@ -1,0 +1,957 @@
+# Review package: 3a487a6e6a70ba62eb6c40d3a9ffae2c4d4d0b28..d65f9a9141a49d2c2e23bfac1924521a7b1c2fbc
+
+## Commits
+d65f9a9 chore(deck): layouts fill the 16:9 slide box; drop scratch test file
+b35e1a2 fix(deck): persist per-slide background through SET_SLIDE_BACKGROUND
+180803d fix(deck): merge SET_SLIDE_LAYOUT mapped content over target defaults
+09de38a fix(deck): stop RichText losing edits via stale closure and DOM overwrite
+
+## Files changed
+ src/components/new/EditorPage.jsx                  |  74 +++++++++++--
+ src/components/new/deck/RichText.jsx               |  31 +++++-
+ src/components/new/deck/RichText.test.jsx          | 122 ++++++++++++++++++++-
+ src/components/new/deck/SlideCanvas.jsx            |  38 ++++++-
+ src/components/new/deck/SlideCanvas.test.jsx       |  28 ++++-
+ src/components/new/deck/deckReducer.js             |  11 +-
+ src/components/new/deck/deckReducer.test.js        |  29 ++++-
+ src/components/new/deck/layouts/CtaLayout.jsx      |   2 +-
+ .../new/deck/layouts/Media3PointsLayout.jsx        |   2 +-
+ .../new/deck/layouts/MediaDescriptionLayout.jsx    |   4 +-
+ .../deck/layouts/MediaDescriptionLayout.test.jsx   |   8 +-
+ .../new/deck/layouts/MetricsGridLayout.jsx         |   2 +-
+ src/components/new/deck/layouts/ProblemLayout.jsx  |   2 +-
+ src/components/new/deck/layouts/TeamGridLayout.jsx |   2 +-
+ src/components/new/deck/layouts/TitleLayout.jsx    |   2 +-
+ .../new/deck/layouts/TitleLayout.test.jsx          |   2 +-
+ vitest.config.js                                   |   2 +
+ 17 files changed, 331 insertions(+), 30 deletions(-)
+
+## Diff
+diff --git a/src/components/new/EditorPage.jsx b/src/components/new/EditorPage.jsx
+index fe15c99..4225eac 100644
+--- a/src/components/new/EditorPage.jsx
++++ b/src/components/new/EditorPage.jsx
+@@ -322,20 +322,72 @@ const backgrounds = {
+   SlateOcean: {
+     text: 'text-white',
+     card: 'bg-gradient-to-tr from-slate-900 to-blue-700', // Dark slate to blue
+   },
+   Bubblegum: {
+     text: 'text-gray-900',
+     card: 'bg-gradient-to-b from-pink-400 to-purple-400', // Fun, vibrant pink and purple
+   }
+ };
+ 
++// Maps a `backgrounds` preset key to a `SlideBackground` (deckTypes / spec
++// shape) so the existing picker can persist into the deck model rather than
++// into dead local state. Any key not listed here falls back to the deck's
++// default solid colour.
++const BACKGROUND_PRESET_MODELS = {
++  original: { kind: "gradient", stops: ["#000000", "#ffffff", "#000000"], angle: 180 },
++  light: { kind: "gradient", stops: ["#ffffff", "#e5e7eb"], angle: 180 },
++  dark: { kind: "solid", color: "#000000" },
++  red: { kind: "solid", color: "#dc2626" },
++  orange: { kind: "solid", color: "#ea580c" },
++  amber: { kind: "solid", color: "#fbbf24" },
++  yellow: { kind: "solid", color: "#ca8a04" },
++  pink: { kind: "solid", color: "#db2777" },
++  sky: { kind: "solid", color: "#0284c7" },
++  lime: { kind: "solid", color: "#65a30d" },
++  teal: { kind: "solid", color: "#0d9488" },
++  purple: { kind: "solid", color: "#9333ea" },
++  rose: { kind: "solid", color: "#e11d48" },
++  green: { kind: "solid", color: "#22c55e" },
++  cyan: { kind: "solid", color: "#0891b2" },
++  blue: { kind: "solid", color: "#1d4ed8" },
++  indigo: { kind: "solid", color: "#3730a3" },
++  emerald: { kind: "solid", color: "#047857" },
++  violet: { kind: "solid", color: "#7c3aed" },
++  fuchsia: { kind: "solid", color: "#c026d3" },
++  LightPurple: { kind: "gradient", stops: ["#d8b4fe", "#ffedd5"], angle: 180 },
++  SkyBlue: { kind: "gradient", stops: ["#60a5fa", "#dbeafe"], angle: 180 },
++  EarthStone: { kind: "gradient", stops: ["#a8a29e", "#f5f5f4"], angle: 180 },
++  OceanSky: { kind: "gradient", stops: ["#06b6d4", "#1e40af"], angle: 135 },
++  Sunrise: { kind: "gradient", stops: ["#f87171", "#fdba74", "#fef08a"], angle: 90 },
++  ForestMoss: { kind: "gradient", stops: ["#15803d", "#84cc16"], angle: 180 },
++  CrimsonFade: { kind: "gradient", stops: ["#991b1b", "#ec4899"], angle: 0 },
++  Midnight: { kind: "gradient", stops: ["#111827", "#312e81", "#1e3a8a"], angle: 270 },
++  PeachCobbler: { kind: "gradient", stops: ["#fed7aa", "#fce7f3"], angle: 45 },
++  CoolMint: { kind: "gradient", stops: ["#99f6e4", "#dcfce7"], angle: 90 },
++  Cyberpunk: { kind: "gradient", stops: ["#c026d3", "#7e22ce", "#000000"], angle: 225 },
++  GoldenHour: { kind: "gradient", stops: ["#fde047", "#fbbf24", "#f97316"], angle: 180 },
++  LavenderDream: { kind: "gradient", stops: ["#a5b4fc", "#fbcfe8"], angle: 315 },
++  OceanDeep: { kind: "gradient", stops: ["#1e3a8a", "#06b6d4"], angle: 180 },
++  DesertHeat: { kind: "gradient", stops: ["#b91c1c", "#ca8a04", "#78350f"], angle: 90 },
++  AuroraBorealis: { kind: "gradient", stops: ["#34d399", "#84cc16", "#38bdf8"], angle: 135 },
++  PlumBlossom: { kind: "gradient", stops: ["#6b21a8", "#f43f5e"], angle: 90 },
++  StoneWash: { kind: "gradient", stops: ["#d1d5db", "#ffffff"], angle: 0 },
++  NeonPunch: { kind: "gradient", stops: ["#bef264", "#f0abfc"], angle: 270 },
++  SlateOcean: { kind: "gradient", stops: ["#0f172a", "#1d4ed8"], angle: 45 },
++  Bubblegum: { kind: "gradient", stops: ["#f472b6", "#c084fc"], angle: 180 },
++};
++
++export function backgroundPresetToSlideBackground(key) {
++  return BACKGROUND_PRESET_MODELS[key] ?? { kind: "solid", color: "#0b2d2b" };
++}
++
+ const themes2 = {
+   original: {
+     name: 'Original',
+     containerClass: 'bg-black',
+     textClass: 'text-white',
+     buttonBg: 'bg-gray-900',
+     buttonText: 'text-white',
+     modalBg: 'bg-gray-900',
+     modalText: 'text-white',
+     iconBorder: 'border-white',
+@@ -3739,52 +3791,56 @@ export default function EditorPage() {
+     </DeckProvider>
+   );
+ }
+ 
+ function EditorPageBody() {
+   const { deck, dispatch } = useDeck();
+   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+   const [showThemeModal, setShowThemeModal] = useState(false);
+   const [showBackgroundModal, setshowBackgroundModal] = useState(false);
+   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
+-  // NOTE: background/theme picker UI is explicitly out of scope for wiring into the deck
+-  // model in this task (see plan's "Explicitly out of scope"). These remain local,
+-  // cosmetic-only state so the existing modals keep rendering/working without errors;
+-  // per-slide background now lives on `currentSlide.background` in the deck model.
+-  const [background, setBackground] = useState('original');
++  // NOTE: building a richer background/theme *picker UI* is out of scope (see the
++  // plan's "Explicitly out of scope"). The existing background swatches, however,
++  // write through to the deck model: per-slide background lives on
++  // `currentSlide.background` and is applied by `SlideCanvas`.
++  // `uiTheme` is still local - no reducer action exists for deck theme yet.
+   const [uiTheme, setUiTheme] = useState(deck.theme || 'dark');
+   const isAnimatingRef = useRef(false);
+ 
+   const currentSlide = deck.slides[currentSlideIndex];
+ 
+   const handleAddSlide = (layoutId) => {
+     const entry = getRegistryEntry(layoutId);
+     if (!entry) return;
+     const newIndex = deck.slides.length;
+     dispatch({ type: "ADD_SLIDE", layout: layoutId, content: entry.defaultContent() });
+     setCurrentSlideIndex(newIndex);
+     setShowLayoutPicker(false);
+   };
+ 
+   const handleThemeChange = (newTheme) => {
+     setUiTheme(newTheme);
+     setShowThemeModal(false);
+   };
+ 
+   const handleBGChange = (newBG) => {
+-    setBackground(newBG);
++    if (currentSlide) {
++      dispatch({
++        type: "SET_SLIDE_BACKGROUND",
++        slideId: currentSlide.id,
++        background: backgroundPresetToSlideBackground(newBG),
++      });
++    }
+     setshowBackgroundModal(false);
+   };
+ 
+   const currentTheme = themes[uiTheme] || themes.dark;
+-  const currentBGKey = background || 'original';
+-  const currentBG = backgrounds[currentBGKey] || backgrounds.original;
+ 
+   useEffect(() => {
+     const handleWheel = (event) => {
+       if (isAnimatingRef.current) return;
+ 
+       const deltaY = event.deltaY;
+       let newIndex = currentSlideIndex;
+ 
+       if (deltaY > 0 && currentSlideIndex < deck.slides.length - 1) {
+         newIndex = currentSlideIndex + 1;
+@@ -3797,21 +3853,21 @@ function EditorPageBody() {
+         setCurrentSlideIndex(newIndex);
+         setTimeout(() => { isAnimatingRef.current = false; }, 600);
+       }
+     };
+ 
+     window.addEventListener('wheel', handleWheel, { passive: false });
+     return () => window.removeEventListener('wheel', handleWheel);
+   }, [currentSlideIndex, deck.slides.length]);
+ 
+   return (
+-    <div className={`App ${currentBG.bg} font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
++    <div className={`App font-sans antialiased h-screen w-screen relative overflow-hidden ${currentTheme.bg} ${currentTheme.text}`}>
+       <div className="h-screen w-screen overflow-y-auto">
+         {currentSlide ? <SlideCanvas slide={currentSlide} /> : null}
+       </div>
+ 
+       {/* Slide Navigation Bars */}
+       <div className="absolute top-1/2 left-8 -translate-y-1/2 flex flex-col space-y-3 z-50">
+         {deck.slides.map((_, index) => (
+           <div
+             key={index}
+             title={`Slide ${index + 1}`}
+diff --git a/src/components/new/deck/RichText.jsx b/src/components/new/deck/RichText.jsx
+index b50f5ae..2ca4ee2 100644
+--- a/src/components/new/deck/RichText.jsx
++++ b/src/components/new/deck/RichText.jsx
+@@ -21,47 +21,70 @@ function onFroalaReady(script, callback) {
+   if (typeof window !== "undefined" && window.FroalaEditor) {
+     callback();
+     return;
+   }
+   script.addEventListener("load", callback, { once: true });
+ }
+ 
+ export function RichText({ value, onChange, toolbarButtons, className, as: Tag = "div" }) {
+   const ref = useRef(null);
+   const editorRef = useRef(null);
++  const seededRef = useRef(false);
++
++  // Latest props, kept in refs so the imperatively-registered Froala event
++  // handlers below never read a stale first-render closure. No deps array:
++  // this effect runs after EVERY render.
++  const onChangeRef = useRef(onChange);
++  const toolbarButtonsRef = useRef(toolbarButtons);
++  const valueRef = useRef(value);
++  useEffect(() => {
++    onChangeRef.current = onChange;
++    toolbarButtonsRef.current = toolbarButtons;
++    valueRef.current = value;
++  });
+ 
+   useEffect(() => {
+     if (typeof window === "undefined" || !window.document.createElement) return;
+ 
++    // Seed the DOM exactly once. Froala owns this node imperatively from here
++    // on, so `value` is deliberately NOT re-synced into the DOM on later
++    // renders - doing so would blow away Froala's internal DOM state and reset
++    // the caret while the user is typing.
++    if (ref.current && !seededRef.current) {
++      seededRef.current = true;
++      ref.current.innerHTML = valueRef.current ?? "";
++    }
++
+     const { script } = ensureFroalaAssets();
+ 
+     const initEditor = () => {
+-      if (!window.FroalaEditor || !ref.current) return;
++      if (!window.FroalaEditor || !ref.current || editorRef.current) return;
+       editorRef.current = new window.FroalaEditor(ref.current, {
+         inline: true,
+         toolbarInline: true,
+         toolbarVisibleWithoutSelection: true,
+         charCounterCount: false,
+         wordCounterCount: false,
+-        toolbarButtons: toolbarButtons ?? ["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor"],
++        toolbarButtons: toolbarButtonsRef.current ?? ["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor"],
+         events: {
+           "contentChanged": function () {
+-            onChange(this.html.get());
++            onChangeRef.current(this.html.get());
+           },
+         },
+       });
+     };
+ 
+     onFroalaReady(script, () => {
+       setTimeout(initEditor, 100);
+     });
+ 
+     return () => {
+       if (editorRef.current && typeof editorRef.current.destroy === "function") {
+         editorRef.current.destroy();
+       }
++      editorRef.current = null;
+     };
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
+ 
+-  return <Tag ref={ref} className={className} dangerouslySetInnerHTML={{ __html: value }} />;
++  return <Tag ref={ref} className={className} />;
+ }
+diff --git a/src/components/new/deck/RichText.test.jsx b/src/components/new/deck/RichText.test.jsx
+index b1aa613..89fb9be 100644
+--- a/src/components/new/deck/RichText.test.jsx
++++ b/src/components/new/deck/RichText.test.jsx
+@@ -1,19 +1,137 @@
+-import { describe, it, expect, vi } from "vitest";
+-import { render, screen } from "@testing-library/react";
++import React, { useState } from "react";
++import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
++import { render, screen, act, waitFor } from "@testing-library/react";
+ import { RichText } from "./RichText";
++import { Media3PointsLayout } from "./layouts/Media3PointsLayout";
++
++/**
++ * Minimal stand-in for Froala's real constructor API:
++ *   new FroalaEditor(el, { events: { contentChanged } })
++ * The instance exposes `html.get()` and we keep the registered event handlers
++ * so a test can invoke `contentChanged` the way a real user edit would.
++ */
++function installFroalaStub() {
++  const instances = [];
++  function FakeFroalaEditor(el, options) {
++    this.el = el;
++    this.options = options;
++    this.html = { get: () => el.innerHTML };
++    this.destroy = () => {};
++    instances.push(this);
++  }
++  window.FroalaEditor = FakeFroalaEditor;
++  return instances;
++}
++
++function typeInto(instance, html) {
++  instance.el.innerHTML = html;
++  act(() => {
++    instance.options.events.contentChanged.call(instance);
++  });
++}
+ 
+ describe("RichText", () => {
+   it("renders the given value as HTML inside the requested element", () => {
+     render(<RichText value="<b>Hello</b>" onChange={() => {}} as="h1" className="heading" />);
+     const el = screen.getByText("Hello");
+     expect(el.tagName).toBe("B");
+     expect(el.closest("h1")).not.toBeNull();
+     expect(el.closest("h1").className).toBe("heading");
+   });
+ 
+   it("does not throw when window.FroalaEditor is unavailable (e.g. in tests)", () => {
+     expect(() =>
+       render(<RichText value="<p>Text</p>" onChange={() => {}} as="div" />)
+     ).not.toThrow();
+   });
+ });
++
++describe("RichText with Froala present", () => {
++  let instances;
++
++  beforeEach(() => {
++    instances = installFroalaStub();
++  });
++
++  afterEach(() => {
++    delete window.FroalaEditor;
++  });
++
++  it("calls the NEWEST onChange prop, not the one captured at mount", async () => {
++    const firstOnChange = vi.fn();
++    const secondOnChange = vi.fn();
++
++    const { rerender } = render(<RichText value="<p>A</p>" onChange={firstOnChange} />);
++    await waitFor(() => expect(instances).toHaveLength(1));
++
++    // Parent re-renders with a brand new callback identity (what happens every
++    // time React state elsewhere changes).
++    rerender(<RichText value="<p>A</p>" onChange={secondOnChange} />);
++
++    typeInto(instances[0], "<p>B</p>");
++
++    expect(secondOnChange).toHaveBeenCalledWith("<p>B</p>");
++    expect(firstOnChange).not.toHaveBeenCalled();
++  });
++
++  it("does not re-write the live editor DOM when the value prop changes", async () => {
++    const { rerender } = render(<RichText value="<p>A</p>" onChange={() => {}} />);
++    await waitFor(() => expect(instances).toHaveLength(1));
++
++    const node = instances[0].el;
++    node.innerHTML = "<p>user typing</p>";
++    rerender(<RichText value="<p>A</p>" onChange={() => {}} />);
++
++    expect(node.innerHTML).toBe("<p>user typing</p>");
++  });
++});
++
++describe("Media3PointsLayout editing through RichText (stale-closure regression)", () => {
++  let instances;
++
++  beforeEach(() => {
++    instances = installFroalaStub();
++  });
++
++  afterEach(() => {
++    delete window.FroalaEditor;
++  });
++
++  function Harness({ onPatch }) {
++    const [content, setContent] = useState({
++      heading: "Key Features",
++      media: { url: "", type: "image" },
++      points: [
++        { title: "", body: "First" },
++        { title: "", body: "Second" },
++      ],
++    });
++    return (
++      <Media3PointsLayout
++        content={content}
++        onChangeContent={(patch) => {
++          onPatch(patch);
++          setContent((prev) => ({ ...prev, ...patch }));
++        }}
++      />
++    );
++  }
++
++  it("keeps edits to point 0 when point 1 is edited afterwards", async () => {
++    const onPatch = vi.fn();
++    render(<Harness onPatch={onPatch} />);
++
++    // heading, point0 body, point1 body (titles are empty so no title editors)
++    await waitFor(() => expect(instances).toHaveLength(3));
++
++    typeInto(instances[1], "First EDITED");
++    typeInto(instances[2], "Second EDITED");
++
++    expect(onPatch).toHaveBeenCalledTimes(2);
++    const lastPatch = onPatch.mock.calls[1][0];
++    expect(lastPatch.points).toEqual([
++      { title: "", body: "First EDITED" },
++      { title: "", body: "Second EDITED" },
++    ]);
++  });
++});
+diff --git a/src/components/new/deck/SlideCanvas.jsx b/src/components/new/deck/SlideCanvas.jsx
+index 9ac1ab2..dfc3886 100644
+--- a/src/components/new/deck/SlideCanvas.jsx
++++ b/src/components/new/deck/SlideCanvas.jsx
+@@ -1,28 +1,64 @@
+ import React from "react";
+ import { getRegistryEntry } from "./SlideRegistry";
+ import { FreeElementLayer } from "./FreeElementLayer";
+ import { useDeck } from "./DeckContext";
+ 
++/**
++ * Turns a `SlideBackground` (see the spec's discriminated union) into an inline
++ * style object for the slide box. Unknown/absent backgrounds render nothing so
++ * the surrounding page background shows through.
++ */
++export function slideBackgroundStyle(background) {
++  if (!background || typeof background !== "object") return {};
++  switch (background.kind) {
++    case "solid":
++      return { backgroundColor: background.color };
++    case "gradient": {
++      const stops = Array.isArray(background.stops) ? background.stops : [];
++      if (stops.length === 0) return {};
++      const angle = typeof background.angle === "number" ? background.angle : 180;
++      return { backgroundImage: `linear-gradient(${angle}deg, ${stops.join(", ")})` };
++    }
++    case "image":
++    case "media": {
++      if (!background.url) return {};
++      if (background.kind === "media" && background.type === "video") return {};
++      return {
++        backgroundImage: `url(${background.url})`,
++        backgroundSize: background.fit === "contain" ? "contain" : "cover",
++        backgroundPosition: "center",
++        backgroundRepeat: "no-repeat",
++      };
++    }
++    default:
++      return {};
++  }
++}
++
+ export function SlideCanvas({ slide }) {
+   const { dispatch } = useDeck();
+   const entry = getRegistryEntry(slide.layout);
+ 
+   if (!entry) {
+     console.warn(`SlideCanvas: no registry entry for layout "${slide.layout}"`);
+     return null;
+   }
+ 
+   const LayoutComponent = entry.component;
+ 
+   return (
+-    <div className="relative w-full aspect-video">
++    <div
++      className="relative w-full aspect-video overflow-hidden"
++      data-testid="slide-canvas"
++      style={slideBackgroundStyle(slide.background)}
++    >
+       <LayoutComponent
+         content={slide.content}
+         onChangeContent={(patch) => dispatch({ type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: patch })}
+       />
+       <FreeElementLayer
+         elements={slide.freeElements}
+         onUpdateElement={(elementId, patch) => dispatch({ type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId, patch })}
+       />
+     </div>
+   );
+diff --git a/src/components/new/deck/SlideCanvas.test.jsx b/src/components/new/deck/SlideCanvas.test.jsx
+index 2990622..76e32f1 100644
+--- a/src/components/new/deck/SlideCanvas.test.jsx
++++ b/src/components/new/deck/SlideCanvas.test.jsx
+@@ -1,13 +1,13 @@
+ import { describe, it, expect } from "vitest";
+ import { render, screen } from "@testing-library/react";
+-import { SlideCanvas } from "./SlideCanvas";
++import { SlideCanvas, slideBackgroundStyle } from "./SlideCanvas";
+ import { DeckProvider, useDeck } from "./DeckContext";
+ import { createDeck, createSlide, createFreeElement } from "./deckTypes";
+ 
+ function Host() {
+   const { deck } = useDeck();
+   return <SlideCanvas slide={deck.slides[0]} />;
+ }
+ 
+ function renderSlide(slide) {
+   const deck = createDeck({ title: "Deck", theme: "dark", slides: [slide] });
+@@ -30,21 +30,47 @@ describe("SlideCanvas", () => {
+     const slide = createSlide({
+       layout: "title",
+       content: { title: "Hello Deck", subtitle: "" },
+       freeElements: [element],
+       order: 0,
+     });
+     renderSlide(slide);
+     expect(screen.getByText("Overlay")).toBeInTheDocument();
+   });
+ 
++  it("applies the slide's own background to the slide box", () => {
++    const slide = createSlide({
++      layout: "title",
++      content: { title: "Hello Deck", subtitle: "" },
++      background: { kind: "solid", color: "#ff0000" },
++      order: 0,
++    });
++    renderSlide(slide);
++    expect(screen.getByTestId("slide-canvas")).toHaveStyle({ backgroundColor: "#ff0000" });
++  });
++
+   it("warns and renders nothing for an unknown layout instead of throwing", () => {
+     const slide = createSlide({ layout: "not-a-layout", content: {}, order: 0 });
+     const warn = vi.fn();
+     const originalWarn = console.warn;
+     console.warn = warn;
+     const { container } = renderSlide(slide);
+     console.warn = originalWarn;
+     expect(warn).toHaveBeenCalled();
+     expect(container.querySelector("[data-element-id]")).toBeNull();
+   });
+ });
++
++describe("slideBackgroundStyle", () => {
++  it("maps each SlideBackground kind to a style, and unknown/absent to nothing", () => {
++    expect(slideBackgroundStyle({ kind: "solid", color: "#123456" })).toEqual({ backgroundColor: "#123456" });
++    expect(slideBackgroundStyle({ kind: "gradient", stops: ["#000", "#fff"], angle: 90 })).toEqual({
++      backgroundImage: "linear-gradient(90deg, #000, #fff)",
++    });
++    expect(slideBackgroundStyle({ kind: "image", url: "a.png", fit: "contain" })).toMatchObject({
++      backgroundImage: "url(a.png)",
++      backgroundSize: "contain",
++    });
++    expect(slideBackgroundStyle(undefined)).toEqual({});
++    expect(slideBackgroundStyle({ kind: "nope" })).toEqual({});
++  });
++});
+diff --git a/src/components/new/deck/deckReducer.js b/src/components/new/deck/deckReducer.js
+index cd431aa..aa0b9c7 100644
+--- a/src/components/new/deck/deckReducer.js
++++ b/src/components/new/deck/deckReducer.js
+@@ -1,12 +1,13 @@
+ import { LAYOUT_IDS, createSlide } from "./deckTypes";
+ import { getContentMapper } from "./contentMappers";
++import { getRegistryEntry } from "./SlideRegistry";
+ 
+ function warnInvalid(action, reason) {
+   console.warn(`deckReducer: ignoring ${action.type} - ${reason}`);
+ }
+ 
+ function findSlideIndex(deck, slideId) {
+   return deck.slides.findIndex((s) => s.id === slideId);
+ }
+ 
+ function renumber(slides) {
+@@ -89,22 +90,30 @@ export function deckReducer(deck, action) {
+         return deck;
+       }
+       const index = findSlideIndex(deck, action.slideId);
+       if (index === -1) {
+         warnInvalid(action, `slideId "${action.slideId}" not found`);
+         return deck;
+       }
+       const slide = deck.slides[index];
+       const mapper = getContentMapper(slide.layout, action.layout);
+       const mappedContent = mapper(slide.content);
++      // Most layout pairs have no bespoke mapper and fall back to
++      // identityMapper, which hands the target layout a foreign content shape.
++      // Merging over the target layout's defaults guarantees every field the
++      // target layout reads exists, while anything the mapper did produce wins.
++      const entry = getRegistryEntry(action.layout);
++      const mergedContent = entry
++        ? { ...entry.defaultContent(), ...mappedContent }
++        : mappedContent;
+       const slides = [...deck.slides];
+-      slides[index] = { ...slide, layout: action.layout, content: mappedContent };
++      slides[index] = { ...slide, layout: action.layout, content: mergedContent };
+       return { ...deck, slides };
+     }
+ 
+     case "UPDATE_SLIDE_CONTENT": {
+       const index = findSlideIndex(deck, action.slideId);
+       if (index === -1) {
+         warnInvalid(action, `slideId "${action.slideId}" not found`);
+         return deck;
+       }
+       const slide = deck.slides[index];
+diff --git a/src/components/new/deck/deckReducer.test.js b/src/components/new/deck/deckReducer.test.js
+index 00f3937..bdd6da4 100644
+--- a/src/components/new/deck/deckReducer.test.js
++++ b/src/components/new/deck/deckReducer.test.js
+@@ -1,13 +1,15 @@
+ import { describe, it, expect, vi } from "vitest";
+ import { deckReducer } from "./deckReducer";
+-import { createDeck, createSlide, createFreeElement } from "./deckTypes";
++import { createDeck, createSlide, createFreeElement, LAYOUT_IDS } from "./deckTypes";
++import { getRegistryEntry } from "./SlideRegistry";
++import { defaultMetricsGridContent } from "./layouts/MetricsGridLayout";
+ 
+ function deckWithOneSlide() {
+   const slide = createSlide({ layout: "title", content: { title: "Hi" }, order: 0 });
+   const deck = createDeck({ title: "Deck", theme: "dark", slides: [slide] });
+   return { deck, slide };
+ }
+ 
+ describe("deckReducer", () => {
+   it("ADD_SLIDE appends a new slide with the given layout and content", () => {
+     const { deck } = deckWithOneSlide();
+@@ -70,20 +72,45 @@ describe("deckReducer", () => {
+     const deck = createDeck({ title: "Deck", theme: "dark", slides: [problemSlide] });
+     const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: problemSlide.id, layout: "media-3points" });
+     expect(next.slides[0].layout).toBe("media-3points");
+     expect(next.slides[0].content.heading).toBe("The Problem");
+     expect(next.slides[0].content.points).toEqual([
+       { title: "", body: "Onboarding takes weeks" },
+       { title: "", body: "Support tickets pile up." },
+     ]);
+   });
+ 
++  it("SET_SLIDE_LAYOUT fills unmapped fields from the target layout's defaults", () => {
++    // title -> metrics-grid has NO bespoke mapper, so identityMapper would
++    // otherwise hand MetricsGridLayout a content object with no `metrics`.
++    const { deck, slide } = deckWithOneSlide();
++    const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: slide.id, layout: "metrics-grid" });
++    expect(next.slides[0].layout).toBe("metrics-grid");
++    expect(Array.isArray(next.slides[0].content.metrics)).toBe(true);
++    expect(next.slides[0].content.metrics.length).toBeGreaterThan(0);
++    expect(next.slides[0].content).toEqual({
++      ...defaultMetricsGridContent(),
++      ...slide.content,
++    });
++  });
++
++  it("SET_SLIDE_LAYOUT never leaves any layout missing its required fields", () => {
++    const { deck, slide } = deckWithOneSlide();
++    for (const layout of LAYOUT_IDS) {
++      const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: slide.id, layout });
++      const defaults = getRegistryEntry(layout).defaultContent();
++      for (const key of Object.keys(defaults)) {
++        expect(next.slides[0].content[key]).toBeDefined();
++      }
++    }
++  });
++
+   it("UPDATE_SLIDE_CONTENT shallow-merges into existing content", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const next = deckReducer(deck, { type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: { subtitle: "New" } });
+     expect(next.slides[0].content).toEqual({ title: "Hi", subtitle: "New" });
+   });
+ 
+   it("SET_SLIDE_BACKGROUND replaces the slide's background", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const bg = { kind: "gradient", stops: ["#000", "#fff"], angle: 45 };
+     const next = deckReducer(deck, { type: "SET_SLIDE_BACKGROUND", slideId: slide.id, background: bg });
+diff --git a/src/components/new/deck/layouts/CtaLayout.jsx b/src/components/new/deck/layouts/CtaLayout.jsx
+index ed137b2..81b4525 100644
+--- a/src/components/new/deck/layouts/CtaLayout.jsx
++++ b/src/components/new/deck/layouts/CtaLayout.jsx
+@@ -1,20 +1,20 @@
+ import React from "react";
+ import { RichText } from "../RichText";
+ 
+ export function defaultCtaContent() {
+   return { heading: "Join Us", body: "<p>Let's build the future together.</p>", buttonLabel: "Get in touch" };
+ }
+ 
+ export function CtaLayout({ content, onChangeContent }) {
+   return (
+-    <div className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 text-center">
++    <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
+       <RichText
+         as="h1"
+         className="text-5xl font-bold"
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-6 text-xl opacity-80 max-w-2xl"
+         value={content.body}
+diff --git a/src/components/new/deck/layouts/Media3PointsLayout.jsx b/src/components/new/deck/layouts/Media3PointsLayout.jsx
+index 9bd7c6f..c6dc07d 100644
+--- a/src/components/new/deck/layouts/Media3PointsLayout.jsx
++++ b/src/components/new/deck/layouts/Media3PointsLayout.jsx
+@@ -15,21 +15,21 @@ export function defaultMedia3PointsContent() {
+ 
+ export function Media3PointsLayout({ content, onChangeContent }) {
+   const visiblePoints = content.points.slice(0, 3);
+ 
+   function updatePoint(index, patch) {
+     const points = content.points.map((p, i) => (i === index ? { ...p, ...patch } : p));
+     onChangeContent({ points });
+   }
+ 
+   return (
+-    <div className="flex flex-col min-h-screen p-8 sm:p-16">
++    <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 flex gap-8">
+         {content.media.url ? (
+           <img src={content.media.url} alt="" className="flex-1 rounded-2xl object-cover" />
+         ) : (
+diff --git a/src/components/new/deck/layouts/MediaDescriptionLayout.jsx b/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
+index 6ae0f47..b29be89 100644
+--- a/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
++++ b/src/components/new/deck/layouts/MediaDescriptionLayout.jsx
+@@ -18,21 +18,21 @@ function MediaColumn({ media }) {
+   }
+   if (media.type === "video") {
+     return (
+       <div data-col="media" className="flex-1">
+         <video src={media.url} controls className="w-full rounded-2xl" />
+       </div>
+     );
+   }
+   return (
+     <div data-col="media" className="flex-1">
+-      <img src={media.url} alt="media" className="w-full rounded-2xl object-cover" />
++      <img src={media.url} alt="" className="w-full rounded-2xl object-cover" />
+     </div>
+   );
+ }
+ 
+ export function MediaDescriptionLayout({ content, onChangeContent }) {
+   const textColumn = (
+     <div data-col="text" className="flex-1 flex flex-col justify-center">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold"
+@@ -43,18 +43,18 @@ export function MediaDescriptionLayout({ content, onChangeContent }) {
+         as="div"
+         className="mt-6 text-lg opacity-80"
+         value={content.body}
+         onChange={(html) => onChangeContent({ body: html })}
+       />
+     </div>
+   );
+   const mediaColumn = <MediaColumn media={content.media} />;
+ 
+   return (
+-    <div className="grid place-items-center min-h-screen p-8 sm:p-16">
++    <div className="grid place-items-center h-full w-full p-8 sm:p-16">
+       <div className="flex gap-10 w-full max-w-6xl items-center">
+         {content.mediaPosition === "left" ? mediaColumn : textColumn}
+         {content.mediaPosition === "left" ? textColumn : mediaColumn}
+       </div>
+     </div>
+   );
+ }
+diff --git a/src/components/new/deck/layouts/MediaDescriptionLayout.test.jsx b/src/components/new/deck/layouts/MediaDescriptionLayout.test.jsx
+index d4bb084..da5825c 100644
+--- a/src/components/new/deck/layouts/MediaDescriptionLayout.test.jsx
++++ b/src/components/new/deck/layouts/MediaDescriptionLayout.test.jsx
+@@ -18,27 +18,31 @@ describe("MediaDescriptionLayout", () => {
+     render(
+       <MediaDescriptionLayout
+         content={{ heading: "H", body: "<p>B</p>", media: { url: "", type: "image" }, mediaPosition: "left" }}
+         onChangeContent={() => {}}
+       />
+     );
+     expect(screen.getByTestId("media-placeholder")).toBeInTheDocument();
+   });
+ 
+   it("renders an img when media.type is image and url is set", () => {
+-    render(
++    // The image is decorative (alt=""), so it has no "img" role - query the element.
++    const { container } = render(
+       <MediaDescriptionLayout
+         content={{ heading: "H", body: "<p>B</p>", media: { url: "https://example.com/a.png", type: "image" }, mediaPosition: "left" }}
+         onChangeContent={() => {}}
+       />
+     );
+-    expect(screen.getByRole("img")).toHaveAttribute("src", "https://example.com/a.png");
++    const img = container.querySelector("img");
++    expect(img).not.toBeNull();
++    expect(img).toHaveAttribute("src", "https://example.com/a.png");
++    expect(img).toHaveAttribute("alt", "");
+   });
+ 
+   it("puts the media column first when mediaPosition is left and last when right", () => {
+     const { container: leftContainer } = render(
+       <MediaDescriptionLayout
+         content={{ heading: "H", body: "<p>B</p>", media: { url: "", type: "image" }, mediaPosition: "left" }}
+         onChangeContent={() => {}}
+       />
+     );
+     expect(leftContainer.querySelector('[data-col="media"]')).toBe(leftContainer.querySelector(".flex > *:first-child"));
+diff --git a/src/components/new/deck/layouts/MetricsGridLayout.jsx b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+index 6c25df5..1dbb719 100644
+--- a/src/components/new/deck/layouts/MetricsGridLayout.jsx
++++ b/src/components/new/deck/layouts/MetricsGridLayout.jsx
+@@ -12,21 +12,21 @@ export function defaultMetricsGridContent() {
+   };
+ }
+ 
+ export function MetricsGridLayout({ content, onChangeContent }) {
+   function updateMetric(index, patch) {
+     const metrics = content.metrics.map((m, i) => (i === index ? { ...m, ...patch } : m));
+     onChangeContent({ metrics });
+   }
+ 
+   return (
+-    <div className="flex flex-col min-h-screen p-8 sm:p-16">
++    <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+         {content.metrics.map((metric, index) => (
+           <div key={index} className="text-center">
+             <RichText
+diff --git a/src/components/new/deck/layouts/ProblemLayout.jsx b/src/components/new/deck/layouts/ProblemLayout.jsx
+index 3bb6a73..83d5bca 100644
+--- a/src/components/new/deck/layouts/ProblemLayout.jsx
++++ b/src/components/new/deck/layouts/ProblemLayout.jsx
+@@ -1,20 +1,20 @@
+ import React from "react";
+ import { RichText } from "../RichText";
+ 
+ export function defaultProblemContent() {
+   return { heading: "The Problem", body: "<p>Describe the problem your customers face.</p>" };
+ }
+ 
+ export function ProblemLayout({ content, onChangeContent }) {
+   return (
+-    <div className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-16">
++    <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h1"
+         className="text-5xl font-bold text-center"
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <RichText
+         as="div"
+         className="mt-8 text-xl opacity-80 max-w-3xl text-left"
+         toolbarButtons={["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor", "formatUL", "formatOL"]}
+diff --git a/src/components/new/deck/layouts/TeamGridLayout.jsx b/src/components/new/deck/layouts/TeamGridLayout.jsx
+index bbadeeb..c917160 100644
+--- a/src/components/new/deck/layouts/TeamGridLayout.jsx
++++ b/src/components/new/deck/layouts/TeamGridLayout.jsx
+@@ -5,21 +5,21 @@ export function defaultTeamGridContent() {
+   return { heading: "Team", members: [{ photoUrl: "", name: "Name", role: "Role" }] };
+ }
+ 
+ export function TeamGridLayout({ content, onChangeContent }) {
+   function updateMember(index, patch) {
+     const members = content.members.map((m, i) => (i === index ? { ...m, ...patch } : m));
+     onChangeContent({ members });
+   }
+ 
+   return (
+-    <div className="flex flex-col min-h-screen p-8 sm:p-16">
++    <div className="flex flex-col h-full w-full p-8 sm:p-16">
+       <RichText
+         as="h2"
+         className="text-4xl font-bold text-center"
+         value={content.heading}
+         onChange={(html) => onChangeContent({ heading: html })}
+       />
+       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+         {content.members.map((member, index) => (
+           <div key={index} className="text-center">
+             {member.photoUrl ? (
+diff --git a/src/components/new/deck/layouts/TitleLayout.jsx b/src/components/new/deck/layouts/TitleLayout.jsx
+index 3a4f90e..1bd92f6 100644
+--- a/src/components/new/deck/layouts/TitleLayout.jsx
++++ b/src/components/new/deck/layouts/TitleLayout.jsx
+@@ -1,20 +1,20 @@
+ import React from "react";
+ import { RichText } from "../RichText";
+ 
+ export function defaultTitleContent() {
+   return { title: "Title Only", subtitle: "" };
+ }
+ 
+ export function TitleLayout({ content, onChangeContent }) {
+   return (
+-    <div className="flex flex-col items-center justify-center min-h-screen p-8 sm:p-16 text-center">
++    <div className="flex flex-col items-center justify-center h-full w-full p-8 sm:p-16 text-center">
+       <RichText
+         as="h1"
+         className="text-7xl font-bold"
+         value={content.title}
+         onChange={(html) => onChangeContent({ title: html })}
+       />
+       {content.subtitle ? (
+         <div data-field="subtitle" className="mt-4">
+           <RichText
+             as="p"
+diff --git a/src/components/new/deck/layouts/TitleLayout.test.jsx b/src/components/new/deck/layouts/TitleLayout.test.jsx
+index 347230f..26aaf94 100644
+--- a/src/components/new/deck/layouts/TitleLayout.test.jsx
++++ b/src/components/new/deck/layouts/TitleLayout.test.jsx
+@@ -1,11 +1,11 @@
+-import { describe, it, expect, vi } from "vitest";
++import { describe, it, expect } from "vitest";
+ import { render, screen } from "@testing-library/react";
+ import { TitleLayout, defaultTitleContent } from "./TitleLayout";
+ 
+ describe("defaultTitleContent", () => {
+   it("returns a title and empty subtitle", () => {
+     expect(defaultTitleContent()).toEqual({ title: "Title Only", subtitle: "" });
+   });
+ });
+ 
+ describe("TitleLayout", () => {
+diff --git a/vitest.config.js b/vitest.config.js
+index ba506f8..b3cdce6 100644
+--- a/vitest.config.js
++++ b/vitest.config.js
+@@ -1,18 +1,20 @@
+ import { defineConfig } from "vitest/config";
+ import react from "@vitejs/plugin-react";
+ import path from "path";
+ 
+ export default defineConfig({
+   plugins: [react()],
+   test: {
+     environment: "jsdom",
+     globals: true,
+     setupFiles: "./src/test/setup.js",
++    // Scratch/debugging files are never part of the suite.
++    exclude: ["**/node_modules/**", "**/dist/**", "**/scratch/**"],
+   },
+   resolve: {
+     alias: {
+       "@": path.resolve(__dirname, "./src"),
+       "@assets": path.resolve(__dirname, "./src/assets"),
+     },
+   },
+ });

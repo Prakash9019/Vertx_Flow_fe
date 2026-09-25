@@ -1,0 +1,98 @@
+# Review package: 8b3fde2760da093e497386baebf37875aa3da918..904934a898e57ecca71c98142efda18b33c1f8bd
+
+## Commits
+904934a feat(deck): port TeamGridLayout onto the deck data model
+
+## Files changed
+ src/components/new/deck/layouts/TeamGridLayout.jsx | 47 ++++++++++++++++++++++
+ .../new/deck/layouts/TeamGridLayout.test.jsx       | 28 +++++++++++++
+ 2 files changed, 75 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/layouts/TeamGridLayout.jsx b/src/components/new/deck/layouts/TeamGridLayout.jsx
+new file mode 100644
+index 0000000..bbadeeb
+--- /dev/null
++++ b/src/components/new/deck/layouts/TeamGridLayout.jsx
+@@ -0,0 +1,47 @@
++import React from "react";
++import { RichText } from "../RichText";
++
++export function defaultTeamGridContent() {
++  return { heading: "Team", members: [{ photoUrl: "", name: "Name", role: "Role" }] };
++}
++
++export function TeamGridLayout({ content, onChangeContent }) {
++  function updateMember(index, patch) {
++    const members = content.members.map((m, i) => (i === index ? { ...m, ...patch } : m));
++    onChangeContent({ members });
++  }
++
++  return (
++    <div className="flex flex-col min-h-screen p-8 sm:p-16">
++      <RichText
++        as="h2"
++        className="text-4xl font-bold text-center"
++        value={content.heading}
++        onChange={(html) => onChangeContent({ heading: html })}
++      />
++      <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
++        {content.members.map((member, index) => (
++          <div key={index} className="text-center">
++            {member.photoUrl ? (
++              <img src={member.photoUrl} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
++            ) : (
++              <div className="w-24 h-24 rounded-full mx-auto bg-white/10" />
++            )}
++            <RichText
++              as="div"
++              className="mt-4 font-semibold"
++              value={member.name}
++              onChange={(html) => updateMember(index, { name: html })}
++            />
++            <RichText
++              as="div"
++              className="opacity-70"
++              value={member.role}
++              onChange={(html) => updateMember(index, { role: html })}
++            />
++          </div>
++        ))}
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/new/deck/layouts/TeamGridLayout.test.jsx b/src/components/new/deck/layouts/TeamGridLayout.test.jsx
+new file mode 100644
+index 0000000..d8724ca
+--- /dev/null
++++ b/src/components/new/deck/layouts/TeamGridLayout.test.jsx
+@@ -0,0 +1,28 @@
++import { describe, it, expect } from "vitest";
++import { render, screen } from "@testing-library/react";
++import { TeamGridLayout, defaultTeamGridContent } from "./TeamGridLayout";
++
++describe("defaultTeamGridContent", () => {
++  it("returns a heading and one placeholder member", () => {
++    const content = defaultTeamGridContent();
++    expect(content.heading).toBe("Team");
++    expect(content.members).toHaveLength(1);
++  });
++});
++
++describe("TeamGridLayout", () => {
++  it("renders each member's name and role", () => {
++    const content = {
++      heading: "Team",
++      members: [
++        { photoUrl: "", name: "Ada Lovelace", role: "CEO" },
++        { photoUrl: "https://example.com/b.png", name: "Alan Turing", role: "CTO" },
++      ],
++    };
++    render(<TeamGridLayout content={content} onChangeContent={() => {}} />);
++    expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
++    expect(screen.getByText("CEO")).toBeInTheDocument();
++    expect(screen.getByText("Alan Turing")).toBeInTheDocument();
++    expect(screen.getByRole("img")).toHaveAttribute("src", "https://example.com/b.png");
++  });
++});

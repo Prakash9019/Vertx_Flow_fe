@@ -1,0 +1,33 @@
+# Review package: 10a20d1d977928eabd89be3ec46965e6be3663b5..dee5c2e06432562bd7180f334849cd836c3d5ba3
+
+## Commits
+dee5c2e fix(deck): remove undisclosed onClick wiring from FreeElementLayer
+
+## Files changed
+ src/components/new/deck/FreeElementLayer.jsx | 1 -
+ 1 file changed, 1 deletion(-)
+
+## Diff
+diff --git a/src/components/new/deck/FreeElementLayer.jsx b/src/components/new/deck/FreeElementLayer.jsx
+index e5e80d5..e538bb4 100644
+--- a/src/components/new/deck/FreeElementLayer.jsx
++++ b/src/components/new/deck/FreeElementLayer.jsx
+@@ -31,18 +31,17 @@ export function FreeElementLayer({ elements, onUpdateElement }) {
+           data-type={element.type}
+           className="absolute pointer-events-auto"
+           style={{
+             left: `${element.x}%`,
+             top: `${element.y}%`,
+             width: `${element.w}%`,
+             height: `${element.h}%`,
+             transform: `rotate(${element.rotation}deg)`,
+             zIndex: element.zIndex,
+           }}
+-          onClick={() => onUpdateElement?.(element.id, {})}
+         >
+           <ElementContent element={element} />
+         </div>
+       ))}
+     </div>
+   );
+ }

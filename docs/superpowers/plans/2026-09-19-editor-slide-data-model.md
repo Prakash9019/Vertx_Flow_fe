@@ -286,7 +286,7 @@ git commit -m "feat(deck): add slide/element/deck data factories"
 - Consumes: nothing from other tasks (pure functions on plain objects).
 - Produces:
   - `identityMapper(content)` → returns `content` unchanged. Used as the default mapper for any `(fromLayout, toLayout)` pair without a specific mapper.
-  - `paragraphToBulletsMapper(content)` → given `{ heading, body }` (a `ProblemContent`-shaped object where `body` is an HTML string, possibly containing `<p>` tags), returns `{ heading, points: [{ title: "", body: sentence }, ...] }` by stripping HTML tags from `body`, splitting on `. ` (period + space) sentence boundaries, trimming, and dropping empty fragments. If `body` is missing or empty, returns `{ heading, points: [] }` (best-effort, never throws — Global Constraints).
+  - `paragraphToBulletsMapper(content)` → given `{ heading, body, media? }` (a `ProblemContent`-shaped object where `body` is an HTML string, possibly containing `<p>` tags), returns `{ heading, points: [{ title: "", body: sentence }, ...], media }` by stripping HTML tags from `body`, splitting on `. ` (period + space) sentence boundaries, trimming, and dropping empty fragments. `media` is carried through from the input if present, otherwise defaulted to `{ url: "", type: "image" }` — required because the target layout (`Media3PointsLayout`, Task 11) always reads `content.media.url` and must never receive a content object missing that field. If `body` is missing or empty, returns `{ heading, points: [], media: <same default/passthrough rule> }` (best-effort, never throws — Global Constraints).
   - `getContentMapper(fromLayout, toLayout)` → looks up a mapper for the ordered pair from an internal registry; falls back to `identityMapper` if none registered. The only pair registered in this task is `("problem", "media-3points") → paragraphToBulletsMapper`.
 
 - [ ] **Step 1: Write the failing test**
@@ -317,14 +317,20 @@ describe("paragraphToBulletsMapper", () => {
     ]);
   });
 
-  it("returns an empty points array when body is missing", () => {
+  it("returns an empty points array and a default media when body is missing", () => {
     const result = paragraphToBulletsMapper({ heading: "The Problem" });
-    expect(result).toEqual({ heading: "The Problem", points: [] });
+    expect(result).toEqual({ heading: "The Problem", points: [], media: { url: "", type: "image" } });
   });
 
-  it("returns an empty points array when body is an empty string", () => {
+  it("returns an empty points array and a default media when body is an empty string", () => {
     const result = paragraphToBulletsMapper({ heading: "The Problem", body: "" });
-    expect(result).toEqual({ heading: "The Problem", points: [] });
+    expect(result).toEqual({ heading: "The Problem", points: [], media: { url: "", type: "image" } });
+  });
+
+  it("carries an existing media field through unchanged", () => {
+    const media = { url: "https://example.com/a.png", type: "image" };
+    const result = paragraphToBulletsMapper({ heading: "The Problem", body: "<p>Users churn.</p>", media });
+    expect(result.media).toEqual(media);
   });
 });
 
@@ -353,9 +359,10 @@ export function identityMapper(content) {
 }
 
 export function paragraphToBulletsMapper(content) {
-  const { heading, body } = content;
+  const { heading, body, media } = content;
+  const resolvedMedia = media ?? { url: "", type: "image" };
   if (!body) {
-    return { heading, points: [] };
+    return { heading, points: [], media: resolvedMedia };
   }
   const text = body.replace(/<[^>]+>/g, "");
   const points = text
@@ -363,7 +370,7 @@ export function paragraphToBulletsMapper(content) {
     .map((fragment) => fragment.trim())
     .filter((fragment) => fragment.length > 0)
     .map((fragment) => ({ title: "", body: fragment }));
-  return { heading, points };
+  return { heading, points, media: resolvedMedia };
 }
 
 const MAPPER_REGISTRY = {
@@ -1235,7 +1242,7 @@ git commit -m "feat(deck): port ProblemLayout onto the deck data model"
 ```jsx
 // src/components/new/deck/layouts/MediaDescriptionLayout.test.jsx
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import { MediaDescriptionLayout, defaultMediaDescriptionContent } from "./MediaDescriptionLayout";
 
 describe("defaultMediaDescriptionContent", () => {
@@ -1278,6 +1285,7 @@ describe("MediaDescriptionLayout", () => {
       />
     );
     expect(leftContainer.querySelector('[data-col="media"]')).toBe(leftContainer.querySelector(".flex > *:first-child"));
+    cleanup();
 
     const { container: rightContainer } = render(
       <MediaDescriptionLayout

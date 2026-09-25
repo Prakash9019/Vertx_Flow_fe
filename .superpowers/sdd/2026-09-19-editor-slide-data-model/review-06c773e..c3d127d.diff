@@ -1,0 +1,99 @@
+# Review package: 06c773e39500af0d33651b6623825d7788893756..c3d127db6bce4d48a1676fbfd44d320cb4a3cd2d
+
+## Commits
+c3d127d feat(deck): add content mappers for layout switching
+
+## Files changed
+ src/components/new/deck/contentMappers.js      | 26 ++++++++++++++
+ src/components/new/deck/contentMappers.test.js | 50 ++++++++++++++++++++++++++
+ 2 files changed, 76 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/contentMappers.js b/src/components/new/deck/contentMappers.js
+new file mode 100644
+index 0000000..8ed56f4
+--- /dev/null
++++ b/src/components/new/deck/contentMappers.js
+@@ -0,0 +1,26 @@
++export function identityMapper(content) {
++  return content;
++}
++
++export function paragraphToBulletsMapper(content) {
++  const { heading, body, media } = content;
++  const resolvedMedia = media ?? { url: "", type: "image" };
++  if (!body) {
++    return { heading, points: [], media: resolvedMedia };
++  }
++  const text = body.replace(/<[^>]+>/g, "");
++  const points = text
++    .split(". ")
++    .map((fragment) => fragment.trim())
++    .filter((fragment) => fragment.length > 0)
++    .map((fragment) => ({ title: "", body: fragment }));
++  return { heading, points, media: resolvedMedia };
++}
++
++const MAPPER_REGISTRY = {
++  "problem->media-3points": paragraphToBulletsMapper,
++};
++
++export function getContentMapper(fromLayout, toLayout) {
++  return MAPPER_REGISTRY[`${fromLayout}->${toLayout}`] ?? identityMapper;
++}
+diff --git a/src/components/new/deck/contentMappers.test.js b/src/components/new/deck/contentMappers.test.js
+new file mode 100644
+index 0000000..a33d167
+--- /dev/null
++++ b/src/components/new/deck/contentMappers.test.js
+@@ -0,0 +1,50 @@
++import { describe, it, expect } from "vitest";
++import { identityMapper, paragraphToBulletsMapper, getContentMapper } from "./contentMappers";
++
++describe("identityMapper", () => {
++  it("returns the same content unchanged", () => {
++    const content = { title: "Hello" };
++    expect(identityMapper(content)).toBe(content);
++  });
++});
++
++describe("paragraphToBulletsMapper", () => {
++  it("splits an HTML paragraph body into bullet points", () => {
++    const result = paragraphToBulletsMapper({
++      heading: "The Problem",
++      body: "<p>Teams lose context switching tools. Onboarding takes weeks. Support tickets pile up.</p>",
++    });
++    expect(result.heading).toBe("The Problem");
++    expect(result.points).toEqual([
++      { title: "", body: "Teams lose context switching tools" },
++      { title: "", body: "Onboarding takes weeks" },
++      { title: "", body: "Support tickets pile up." },
++    ]);
++  });
++
++  it("returns an empty points array and a default media when body is missing", () => {
++    const result = paragraphToBulletsMapper({ heading: "The Problem" });
++    expect(result).toEqual({ heading: "The Problem", points: [], media: { url: "", type: "image" } });
++  });
++
++  it("returns an empty points array and a default media when body is an empty string", () => {
++    const result = paragraphToBulletsMapper({ heading: "The Problem", body: "" });
++    expect(result).toEqual({ heading: "The Problem", points: [], media: { url: "", type: "image" } });
++  });
++
++  it("carries an existing media field through unchanged", () => {
++    const media = { url: "https://example.com/a.png", type: "image" };
++    const result = paragraphToBulletsMapper({ heading: "The Problem", body: "<p>Users churn.</p>", media });
++    expect(result.media).toEqual(media);
++  });
++});
++
++describe("getContentMapper", () => {
++  it("returns the registered mapper for problem -> media-3points", () => {
++    expect(getContentMapper("problem", "media-3points")).toBe(paragraphToBulletsMapper);
++  });
++
++  it("falls back to identityMapper for an unregistered pair", () => {
++    expect(getContentMapper("title", "cta")).toBe(identityMapper);
++  });
++});

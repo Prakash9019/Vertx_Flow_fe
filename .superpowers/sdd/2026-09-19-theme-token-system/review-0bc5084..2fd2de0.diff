@@ -1,0 +1,184 @@
+# Review package: 0bc5084539e13b959a20f1cec4db37fa063d595c..HEAD
+
+## Commits
+2fd2de0 feat: add SET_DECK_THEME reducer action
+
+## Files changed
+ src/components/new/deck/deckReducer.js      | 21 +++++++++++++-
+ src/components/new/deck/deckReducer.test.js | 45 +++++++++++++++++++++++++++++
+ 2 files changed, 65 insertions(+), 1 deletion(-)
+
+## Diff
+diff --git a/src/components/new/deck/deckReducer.js b/src/components/new/deck/deckReducer.js
+index aa0b9c7..09136f3 100644
+--- a/src/components/new/deck/deckReducer.js
++++ b/src/components/new/deck/deckReducer.js
+@@ -7,20 +7,31 @@ function warnInvalid(action, reason) {
+ }
+ 
+ function findSlideIndex(deck, slideId) {
+   return deck.slides.findIndex((s) => s.id === slideId);
+ }
+ 
+ function renumber(slides) {
+   return slides.map((s, index) => ({ ...s, order: index }));
+ }
+ 
++// `background` is a discriminated union that (for `gradient`) holds a nested
++// `stops` array - a shallow `{ ...background }` would still share that array
++// by reference between the original slide and the duplicate.
++function cloneBackground(background) {
++  if (!background || typeof background !== "object") return background;
++  if (background.kind === "gradient" && Array.isArray(background.stops)) {
++    return { ...background, stops: [...background.stops] };
++  }
++  return { ...background };
++}
++
+ export function deckReducer(deck, action) {
+   switch (action.type) {
+     case "ADD_SLIDE": {
+       if (!LAYOUT_IDS.includes(action.layout)) {
+         warnInvalid(action, `unknown layout "${action.layout}"`);
+         return deck;
+       }
+       const newSlide = createSlide({
+         layout: action.layout,
+         content: action.content ?? {},
+@@ -53,21 +64,21 @@ export function deckReducer(deck, action) {
+     case "DUPLICATE_SLIDE": {
+       const index = findSlideIndex(deck, action.slideId);
+       if (index === -1) {
+         warnInvalid(action, `slideId "${action.slideId}" not found`);
+         return deck;
+       }
+       const original = deck.slides[index];
+       const copy = createSlide({
+         layout: original.layout,
+         content: { ...original.content },
+-        background: original.background,
++        background: cloneBackground(original.background),
+         freeElements: original.freeElements.map((el) => ({ ...el })),
+         order: index + 1,
+       });
+       const slides = [...deck.slides.slice(0, index + 1), copy, ...deck.slides.slice(index + 1)];
+       return { ...deck, slides: renumber(slides) };
+     }
+ 
+     case "REORDER_SLIDES": {
+       const fromIndex = findSlideIndex(deck, action.slideId);
+       if (fromIndex === -1) {
+@@ -169,15 +180,23 @@ export function deckReducer(deck, action) {
+       if (index === -1) {
+         warnInvalid(action, `slideId "${action.slideId}" not found`);
+         return deck;
+       }
+       const slide = deck.slides[index];
+       const slides = [...deck.slides];
+       slides[index] = { ...slide, freeElements: slide.freeElements.filter((el) => el.id !== action.elementId) };
+       return { ...deck, slides };
+     }
+ 
++    case "SET_DECK_THEME": {
++      if (!action.theme || typeof action.theme !== "object" || !action.theme.colors) {
++        warnInvalid(action, "theme is missing or has no colors");
++        return deck;
++      }
++      return { ...deck, theme: action.theme };
++    }
++
+     default:
+       warnInvalid(action, "unknown action type");
+       return deck;
+   }
+ }
+diff --git a/src/components/new/deck/deckReducer.test.js b/src/components/new/deck/deckReducer.test.js
+index bdd6da4..4801721 100644
+--- a/src/components/new/deck/deckReducer.test.js
++++ b/src/components/new/deck/deckReducer.test.js
+@@ -46,20 +46,40 @@ describe("deckReducer", () => {
+ 
+   it("DUPLICATE_SLIDE inserts a copy with a new id right after the original", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: slide.id });
+     expect(next.slides).toHaveLength(2);
+     expect(next.slides[1].id).not.toBe(slide.id);
+     expect(next.slides[1].content).toEqual(slide.content);
+     expect(next.slides[1].layout).toBe(slide.layout);
+   });
+ 
++  it("DUPLICATE_SLIDE clones the background instead of sharing it by reference", () => {
++    const original = createSlide({
++      layout: "title",
++      content: { title: "Hi" },
++      background: { kind: "gradient", angle: 90, stops: ["#000", "#fff"] },
++      order: 0,
++    });
++    const deck = createDeck({ title: "Deck", theme: "dark", slides: [original] });
++    const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: original.id });
++    const duplicate = next.slides[1];
++
++    expect(duplicate.background).toEqual(original.background);
++    expect(duplicate.background).not.toBe(original.background);
++    expect(duplicate.background.stops).not.toBe(original.background.stops);
++
++    // Mutating the duplicate's background must never affect the original.
++    duplicate.background.stops.push("#f00");
++    expect(original.background.stops).toEqual(["#000", "#fff"]);
++  });
++
+   it("REORDER_SLIDES moves a slide to the target index and renumbers order", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const withSecond = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: {} });
+     const second = withSecond.slides[1];
+     const reordered = deckReducer(withSecond, { type: "REORDER_SLIDES", slideId: second.id, toIndex: 0 });
+     expect(reordered.slides.map((s) => s.id)).toEqual([second.id, slide.id]);
+     expect(reordered.slides[0].order).toBe(0);
+     expect(reordered.slides[1].order).toBe(1);
+   });
+ 
+@@ -134,19 +154,44 @@ describe("deckReducer", () => {
+   });
+ 
+   it("REMOVE_FREE_ELEMENT removes an element by id", () => {
+     const { deck, slide } = deckWithOneSlide();
+     const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+     const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+     const next = deckReducer(withEl, { type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId: el.id });
+     expect(next.slides[0].freeElements).toEqual([]);
+   });
+ 
++  it("SET_DECK_THEME replaces deck.theme", () => {
++    const { deck } = deckWithOneSlide();
++    const newTheme = { id: "dark", colors: { background: "#000000" } };
++    const next = deckReducer(deck, { type: "SET_DECK_THEME", theme: newTheme });
++    expect(next.theme).toBe(newTheme);
++    expect(next.slides).toBe(deck.slides); // slides/content are untouched
++  });
++
++  it("SET_DECK_THEME warns and no-ops when theme is missing colors", () => {
++    const { deck } = deckWithOneSlide();
++    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
++    const next = deckReducer(deck, { type: "SET_DECK_THEME", theme: { id: "dark" } });
++    expect(next).toBe(deck);
++    expect(warn).toHaveBeenCalled();
++    warn.mockRestore();
++  });
++
++  it("SET_DECK_THEME warns and no-ops when theme is missing entirely", () => {
++    const { deck } = deckWithOneSlide();
++    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
++    const next = deckReducer(deck, { type: "SET_DECK_THEME" });
++    expect(next).toBe(deck);
++    warn.mockRestore();
++  });
++
+   it("returns the same deck and warns for an unknown action type", () => {
+     const { deck } = deckWithOneSlide();
+     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+     const next = deckReducer(deck, { type: "NOT_A_REAL_ACTION" });
+     expect(next).toBe(deck);
+     expect(warn).toHaveBeenCalled();
+     warn.mockRestore();
+   });
+ });

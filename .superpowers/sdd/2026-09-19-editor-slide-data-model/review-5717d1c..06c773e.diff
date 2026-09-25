@@ -1,0 +1,151 @@
+# Review package: 5717d1c912247a85a0ad6b1783f84cd12b3706c6..06c773e39500af0d33651b6623825d7788893756
+
+## Commits
+06c773e feat(deck): add slide/element/deck data factories
+
+## Files changed
+ src/components/new/deck/deckTypes.js      | 51 ++++++++++++++++++++
+ src/components/new/deck/deckTypes.test.js | 77 +++++++++++++++++++++++++++++++
+ 2 files changed, 128 insertions(+)
+
+## Diff
+diff --git a/src/components/new/deck/deckTypes.js b/src/components/new/deck/deckTypes.js
+new file mode 100644
+index 0000000..c959cdb
+--- /dev/null
++++ b/src/components/new/deck/deckTypes.js
+@@ -0,0 +1,51 @@
++export const LAYOUT_IDS = [
++  "title",
++  "problem",
++  "media-description",
++  "media-3points",
++  "metrics-grid",
++  "team-grid",
++  "cta",
++];
++
++let counter = 0;
++
++export function generateId(prefix) {
++  counter += 1;
++  return `${prefix}-${Date.now().toString(36)}-${counter}`;
++}
++
++export function createSlide({ layout, content, background, freeElements, order }) {
++  return {
++    id: generateId("slide"),
++    layout,
++    content,
++    background: background ?? { kind: "solid", color: "#0b2d2b" },
++    freeElements: freeElements ?? [],
++    order,
++  };
++}
++
++export function createFreeElement({ type, x, y, w, h, rotation, zIndex, locked, props }) {
++  return {
++    id: generateId("element"),
++    type,
++    x,
++    y,
++    w,
++    h,
++    rotation: rotation ?? 0,
++    zIndex: zIndex ?? 0,
++    locked: locked ?? false,
++    props: props ?? {},
++  };
++}
++
++export function createDeck({ title, theme, slides }) {
++  return {
++    id: generateId("deck"),
++    title,
++    theme,
++    slides: slides ?? [],
++  };
++}
+diff --git a/src/components/new/deck/deckTypes.test.js b/src/components/new/deck/deckTypes.test.js
+new file mode 100644
+index 0000000..6812a20
+--- /dev/null
++++ b/src/components/new/deck/deckTypes.test.js
+@@ -0,0 +1,77 @@
++import { describe, it, expect } from "vitest";
++import {
++  LAYOUT_IDS,
++  createSlide,
++  createFreeElement,
++  createDeck,
++  generateId,
++} from "./deckTypes";
++
++describe("generateId", () => {
++  it("produces unique, prefixed ids", () => {
++    const a = generateId("slide");
++    const b = generateId("slide");
++    expect(a).not.toBe(b);
++    expect(a.startsWith("slide-")).toBe(true);
++  });
++});
++
++describe("LAYOUT_IDS", () => {
++  it("lists the 7 supported layouts", () => {
++    expect(LAYOUT_IDS).toEqual([
++      "title",
++      "problem",
++      "media-description",
++      "media-3points",
++      "metrics-grid",
++      "team-grid",
++      "cta",
++    ]);
++  });
++});
++
++describe("createSlide", () => {
++  it("defaults background, freeElements, and generates an id", () => {
++    const slide = createSlide({ layout: "title", content: { title: "Hi" }, order: 0 });
++    expect(slide.id).toMatch(/^slide-/);
++    expect(slide.layout).toBe("title");
++    expect(slide.content).toEqual({ title: "Hi" });
++    expect(slide.background).toEqual({ kind: "solid", color: "#0b2d2b" });
++    expect(slide.freeElements).toEqual([]);
++    expect(slide.order).toBe(0);
++  });
++
++  it("accepts explicit background and freeElements", () => {
++    const bg = { kind: "solid", color: "#ffffff" };
++    const els = [createFreeElement({ type: "text", x: 0, y: 0, w: 10, h: 10 })];
++    const slide = createSlide({ layout: "title", content: {}, background: bg, freeElements: els, order: 1 });
++    expect(slide.background).toBe(bg);
++    expect(slide.freeElements).toBe(els);
++  });
++});
++
++describe("createFreeElement", () => {
++  it("defaults rotation, zIndex, locked, props, and generates an id", () => {
++    const el = createFreeElement({ type: "image", x: 10, y: 20, w: 30, h: 40 });
++    expect(el.id).toMatch(/^element-/);
++    expect(el.type).toBe("image");
++    expect(el.x).toBe(10);
++    expect(el.y).toBe(20);
++    expect(el.w).toBe(30);
++    expect(el.h).toBe(40);
++    expect(el.rotation).toBe(0);
++    expect(el.zIndex).toBe(0);
++    expect(el.locked).toBe(false);
++    expect(el.props).toEqual({});
++  });
++});
++
++describe("createDeck", () => {
++  it("defaults slides to an empty array and generates an id", () => {
++    const deck = createDeck({ title: "My Deck", theme: "dark" });
++    expect(deck.id).toMatch(/^deck-/);
++    expect(deck.title).toBe("My Deck");
++    expect(deck.theme).toBe("dark");
++    expect(deck.slides).toEqual([]);
++  });
++});

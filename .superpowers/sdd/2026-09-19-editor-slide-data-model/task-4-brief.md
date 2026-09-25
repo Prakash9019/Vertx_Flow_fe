@@ -1,0 +1,342 @@
+## Task 4: Deck reducer
+
+**Files:**
+- Create: `src/components/new/deck/deckReducer.js`
+- Test: `src/components/new/deck/deckReducer.test.js`
+
+**Interfaces:**
+- Consumes: `createSlide`, `createFreeElement`, `generateId` from `./deckTypes` (Task 2); `LAYOUT_IDS` from `./deckTypes` (Task 2); `getContentMapper` from `./contentMappers` (Task 3).
+- Produces:
+  - `deckReducer(deck, action)` → new `Deck`. Handles action types: `ADD_SLIDE { layout, content, afterSlideId? }`, `DELETE_SLIDE { slideId }`, `DUPLICATE_SLIDE { slideId }`, `REORDER_SLIDES { slideId, toIndex }`, `SET_SLIDE_LAYOUT { slideId, layout }`, `UPDATE_SLIDE_CONTENT { slideId, content }` (shallow-merges into existing content), `SET_SLIDE_BACKGROUND { slideId, background }`, `ADD_FREE_ELEMENT { slideId, element }`, `UPDATE_FREE_ELEMENT { slideId, elementId, patch }`, `REMOVE_FREE_ELEMENT { slideId, elementId }`. Unknown action types or actions referencing a missing `slideId`/`elementId`/invalid `layout` are no-ops that `console.warn` and return `deck` unchanged (Global Constraints).
+  - Every task after this one that needs to mutate a deck does so exclusively through `deckReducer` — no task introduces a second way to mutate `Deck` state.
+
+- [ ] **Step 1: Write the failing test**
+
+```js
+// src/components/new/deck/deckReducer.test.js
+import { describe, it, expect, vi } from "vitest";
+import { deckReducer } from "./deckReducer";
+import { createDeck, createSlide, createFreeElement } from "./deckTypes";
+
+function deckWithOneSlide() {
+  const slide = createSlide({ layout: "title", content: { title: "Hi" }, order: 0 });
+  const deck = createDeck({ title: "Deck", theme: "dark", slides: [slide] });
+  return { deck, slide };
+}
+
+describe("deckReducer", () => {
+  it("ADD_SLIDE appends a new slide with the given layout and content", () => {
+    const { deck } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: { heading: "Problem" } });
+    expect(next.slides).toHaveLength(2);
+    expect(next.slides[1].layout).toBe("problem");
+    expect(next.slides[1].content).toEqual({ heading: "Problem" });
+    expect(next.slides[1].order).toBe(1);
+  });
+
+  it("ADD_SLIDE warns and no-ops on an unknown layout", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "ADD_SLIDE", layout: "not-a-layout", content: {} });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("DELETE_SLIDE removes the slide by id", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "DELETE_SLIDE", slideId: slide.id });
+    expect(next.slides).toHaveLength(0);
+  });
+
+  it("DELETE_SLIDE warns and no-ops on a missing slideId", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "DELETE_SLIDE", slideId: "missing" });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("DUPLICATE_SLIDE inserts a copy with a new id right after the original", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "DUPLICATE_SLIDE", slideId: slide.id });
+    expect(next.slides).toHaveLength(2);
+    expect(next.slides[1].id).not.toBe(slide.id);
+    expect(next.slides[1].content).toEqual(slide.content);
+    expect(next.slides[1].layout).toBe(slide.layout);
+  });
+
+  it("REORDER_SLIDES moves a slide to the target index and renumbers order", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const withSecond = deckReducer(deck, { type: "ADD_SLIDE", layout: "problem", content: {} });
+    const second = withSecond.slides[1];
+    const reordered = deckReducer(withSecond, { type: "REORDER_SLIDES", slideId: second.id, toIndex: 0 });
+    expect(reordered.slides.map((s) => s.id)).toEqual([second.id, slide.id]);
+    expect(reordered.slides[0].order).toBe(0);
+    expect(reordered.slides[1].order).toBe(1);
+  });
+
+  it("SET_SLIDE_LAYOUT changes layout and remaps content via the registered mapper", () => {
+    const problemSlide = createSlide({
+      layout: "problem",
+      content: { heading: "The Problem", body: "<p>Onboarding takes weeks. Support tickets pile up.</p>" },
+      order: 0,
+    });
+    const deck = createDeck({ title: "Deck", theme: "dark", slides: [problemSlide] });
+    const next = deckReducer(deck, { type: "SET_SLIDE_LAYOUT", slideId: problemSlide.id, layout: "media-3points" });
+    expect(next.slides[0].layout).toBe("media-3points");
+    expect(next.slides[0].content.heading).toBe("The Problem");
+    expect(next.slides[0].content.points).toEqual([
+      { title: "", body: "Onboarding takes weeks" },
+      { title: "", body: "Support tickets pile up." },
+    ]);
+  });
+
+  it("UPDATE_SLIDE_CONTENT shallow-merges into existing content", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const next = deckReducer(deck, { type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: { subtitle: "New" } });
+    expect(next.slides[0].content).toEqual({ title: "Hi", subtitle: "New" });
+  });
+
+  it("SET_SLIDE_BACKGROUND replaces the slide's background", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const bg = { kind: "gradient", stops: ["#000", "#fff"], angle: 45 };
+    const next = deckReducer(deck, { type: "SET_SLIDE_BACKGROUND", slideId: slide.id, background: bg });
+    expect(next.slides[0].background).toEqual(bg);
+  });
+
+  it("ADD_FREE_ELEMENT appends an element to the slide's freeElements", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const next = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    expect(next.slides[0].freeElements).toEqual([el]);
+  });
+
+  it("UPDATE_FREE_ELEMENT patches an existing element by id", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    const next = deckReducer(withEl, { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId: el.id, patch: { x: 50 } });
+    expect(next.slides[0].freeElements[0].x).toBe(50);
+    expect(next.slides[0].freeElements[0].y).toBe(5);
+  });
+
+  it("REMOVE_FREE_ELEMENT removes an element by id", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    const next = deckReducer(withEl, { type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId: el.id });
+    expect(next.slides[0].freeElements).toEqual([]);
+  });
+
+  it("returns the same deck and warns for an unknown action type", () => {
+    const { deck } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const next = deckReducer(deck, { type: "NOT_A_REAL_ACTION" });
+    expect(next).toBe(deck);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `npm test -- deckReducer`
+Expected: FAIL — module does not exist.
+
+- [ ] **Step 3: Write the implementation**
+
+```js
+// src/components/new/deck/deckReducer.js
+import { LAYOUT_IDS, createSlide } from "./deckTypes";
+import { getContentMapper } from "./contentMappers";
+
+function warnInvalid(action, reason) {
+  console.warn(`deckReducer: ignoring ${action.type} - ${reason}`);
+}
+
+function findSlideIndex(deck, slideId) {
+  return deck.slides.findIndex((s) => s.id === slideId);
+}
+
+function renumber(slides) {
+  return slides.map((s, index) => ({ ...s, order: index }));
+}
+
+export function deckReducer(deck, action) {
+  switch (action.type) {
+    case "ADD_SLIDE": {
+      if (!LAYOUT_IDS.includes(action.layout)) {
+        warnInvalid(action, `unknown layout "${action.layout}"`);
+        return deck;
+      }
+      const newSlide = createSlide({
+        layout: action.layout,
+        content: action.content ?? {},
+        order: deck.slides.length,
+      });
+      let slides;
+      if (action.afterSlideId) {
+        const index = findSlideIndex(deck, action.afterSlideId);
+        if (index === -1) {
+          warnInvalid(action, `afterSlideId "${action.afterSlideId}" not found`);
+          return deck;
+        }
+        slides = [...deck.slides.slice(0, index + 1), newSlide, ...deck.slides.slice(index + 1)];
+      } else {
+        slides = [...deck.slides, newSlide];
+      }
+      return { ...deck, slides: renumber(slides) };
+    }
+
+    case "DELETE_SLIDE": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slides = deck.slides.filter((_, i) => i !== index);
+      return { ...deck, slides: renumber(slides) };
+    }
+
+    case "DUPLICATE_SLIDE": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const original = deck.slides[index];
+      const copy = createSlide({
+        layout: original.layout,
+        content: { ...original.content },
+        background: original.background,
+        freeElements: original.freeElements.map((el) => ({ ...el })),
+        order: index + 1,
+      });
+      const slides = [...deck.slides.slice(0, index + 1), copy, ...deck.slides.slice(index + 1)];
+      return { ...deck, slides: renumber(slides) };
+    }
+
+    case "REORDER_SLIDES": {
+      const fromIndex = findSlideIndex(deck, action.slideId);
+      if (fromIndex === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      if (action.toIndex < 0 || action.toIndex >= deck.slides.length) {
+        warnInvalid(action, `toIndex ${action.toIndex} out of range`);
+        return deck;
+      }
+      const slides = [...deck.slides];
+      const [moved] = slides.splice(fromIndex, 1);
+      slides.splice(action.toIndex, 0, moved);
+      return { ...deck, slides: renumber(slides) };
+    }
+
+    case "SET_SLIDE_LAYOUT": {
+      if (!LAYOUT_IDS.includes(action.layout)) {
+        warnInvalid(action, `unknown layout "${action.layout}"`);
+        return deck;
+      }
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slide = deck.slides[index];
+      const mapper = getContentMapper(slide.layout, action.layout);
+      const mappedContent = mapper(slide.content);
+      const slides = [...deck.slides];
+      slides[index] = { ...slide, layout: action.layout, content: mappedContent };
+      return { ...deck, slides };
+    }
+
+    case "UPDATE_SLIDE_CONTENT": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slide = deck.slides[index];
+      const slides = [...deck.slides];
+      slides[index] = { ...slide, content: { ...slide.content, ...action.content } };
+      return { ...deck, slides };
+    }
+
+    case "SET_SLIDE_BACKGROUND": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slides = [...deck.slides];
+      slides[index] = { ...slides[index], background: action.background };
+      return { ...deck, slides };
+    }
+
+    case "ADD_FREE_ELEMENT": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slide = deck.slides[index];
+      const slides = [...deck.slides];
+      slides[index] = { ...slide, freeElements: [...slide.freeElements, action.element] };
+      return { ...deck, slides };
+    }
+
+    case "UPDATE_FREE_ELEMENT": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slide = deck.slides[index];
+      const elIndex = slide.freeElements.findIndex((el) => el.id === action.elementId);
+      if (elIndex === -1) {
+        warnInvalid(action, `elementId "${action.elementId}" not found`);
+        return deck;
+      }
+      const freeElements = [...slide.freeElements];
+      freeElements[elIndex] = { ...freeElements[elIndex], ...action.patch };
+      const slides = [...deck.slides];
+      slides[index] = { ...slide, freeElements };
+      return { ...deck, slides };
+    }
+
+    case "REMOVE_FREE_ELEMENT": {
+      const index = findSlideIndex(deck, action.slideId);
+      if (index === -1) {
+        warnInvalid(action, `slideId "${action.slideId}" not found`);
+        return deck;
+      }
+      const slide = deck.slides[index];
+      const slides = [...deck.slides];
+      slides[index] = { ...slide, freeElements: slide.freeElements.filter((el) => el.id !== action.elementId) };
+      return { ...deck, slides };
+    }
+
+    default:
+      warnInvalid(action, "unknown action type");
+      return deck;
+  }
+}
+```
+
+- [ ] **Step 4: Run test to verify it passes**
+
+Run: `npm test -- deckReducer`
+Expected: PASS, all 13 tests green.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/components/new/deck/deckReducer.js src/components/new/deck/deckReducer.test.js
+git commit -m "feat(deck): add deck reducer for slide/element mutations"
+```
+
+---
+
