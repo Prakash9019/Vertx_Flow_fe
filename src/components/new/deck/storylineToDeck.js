@@ -3,6 +3,7 @@ import { denormalize } from "./contentMappers";
 import { getRegistryEntry } from "./SlideRegistry";
 import { createDeck, createSlide } from "./deckTypes";
 import { getTheme, DEFAULT_THEME_ID } from "./theme/themeTokens";
+import { enrichSemanticContent } from "./contentIntelligence";
 
 // Turns the backend's AI-generated storyline (an array of SemanticContent-
 // shaped slides, see services/geminiService.js on the server) into a real
@@ -11,7 +12,12 @@ import { getTheme, DEFAULT_THEME_ID } from "./theme/themeTokens";
 // the architecture doc's reuse constraint (docs/superpowers/specs/
 // 2026-09-19-editor-v2-architecture-principles.md).
 export function buildDeckFromStoryline({ title, slides }) {
-  const builtSlides = (slides ?? []).map((semantic, index) => {
+  const builtSlides = (slides ?? []).map((rawSemantic, index) => {
+    // Content intelligence (roadmap #12): a deterministic safety net that
+    // pulls items/metrics/media out of plain body text when the model put a
+    // list/stat/image cue in prose instead of the matching structured field,
+    // so pickBestLayout sees the real shape of the content.
+    const semantic = enrichSemanticContent(rawSemantic);
     const layout = pickBestLayout(semantic) ?? "title";
     const entry = getRegistryEntry(layout);
     const mappedContent = denormalize(semantic, layout, entry.defaultContent());

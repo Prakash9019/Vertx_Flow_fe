@@ -34,7 +34,17 @@ export function Media3PointsLayout({ content, onChangeContent }) {
         {content.media.url ? (
           <img src={content.media.url} alt="" className="flex-1 rounded-2xl object-cover" />
         ) : (
-          <div className="flex-1 rounded-2xl min-h-[300px]" style={{ backgroundColor: "var(--theme-surface-muted)" }} />
+          <div
+            data-testid="media-placeholder"
+            className="flex-1 rounded-2xl min-h-[300px] flex items-center justify-center p-6 text-center"
+            style={{ backgroundColor: "var(--theme-surface-muted)" }}
+          >
+            {content.media.prompt ? (
+              <p data-testid="media-prompt-caption" className="text-sm italic opacity-70">
+                Suggested image: {content.media.prompt}
+              </p>
+            ) : null}
+          </div>
         )}
         <div className="flex-1 flex flex-col gap-6">
           {visiblePoints.map((point, index) => (

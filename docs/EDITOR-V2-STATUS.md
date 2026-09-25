@@ -224,19 +224,89 @@ history/`origin/main` - a live, public secret, though nothing in `src/`
 currently reads it. Flagged to the user; they chose to defer rotating it.
 
 **Tests**: `remix.test.js` (+4 for `pickBestLayout`), `storylineToDeck.test.js`
-(new, 5 tests), backend `geminiService.test.js` (new, 11 tests covering
-clean/fenced/malformed JSON, retry-then-succeed, retry-exhausted, and
-missing-API-key paths - all mock `@google/generative-ai`, none call the real
-API). Frontend: **186/186** (up from 177), build clean. Backend: **14/14**.
+(new, 5 tests at the time), backend `geminiService.test.js` (new, 11 tests
+covering clean/fenced/malformed JSON, retry-then-succeed, retry-exhausted,
+and missing-API-key paths - all mock `@google/generative-ai`, none call the
+real API).
 
 **Not verified in a real browser** (same caveat as everything else in this
 document) - and additionally, no test here calls the live Gemini API, so
 actual model output quality/shape-conformance against the real service is
 unverified until a manual pass.
 
-## 2. Not started at all
+## 1e-6. AI 10+ slide generation & content intelligence — Implemented
 
-- **AI 10+ slide generation nuances, content intelligence** (detect numbers→metrics, lists→bullets, image prompts→media) - roadmap #11/#12, separate from the #10 work above.
+Roadmap #11 and #12, built directly on top of §1e-5 above (same
+prompt→outline→deck pipeline, extended rather than replaced).
+
+**#11 - narrative beat scaffold (`Vertx_flow_Server/services/narrativeBeats.js`,
+new)**: a plain "generate N slides" prompt degrades into repetitive filler
+once N gets into double digits, because nothing tells the model what the 9th
+slide is supposed to be about versus the 4th. `CANONICAL_BEATS` is a
+13-entry canonical pitch-deck arc (hook → problem → solution → product →
+market → business-model → traction → competition → team → roadmap →
+financials → vision → ask). `pickNarrativeBeats(slideCount)` deterministically
+and evenly samples that arc down to the requested slide count - always
+keeping the first (hook) and last (ask), collision-resolved by scanning
+forward so beat order is always preserved - so a 4-slide deck gets a
+condensed arc and a 12+-slide deck gets the (near-)full arc instead of both
+getting generic content. `geminiService.buildPrompt` now lists the picked
+beats (id, label, one-line hint) and requires each returned slide to be
+substantively about its own beat, in order; each slide also carries an
+optional `role` field echoing the beat id (best-effort, not enforced by
+validation - kept permissive against model quirks). `MAX_SLIDES` was already
+15 (§1e-5), so no limit change was needed for "10+".
+
+**#12 - content intelligence (`Vertx_Flow_fe/src/components/new/deck/
+contentIntelligence.js`, new)**: a deterministic (no extra AI call - same
+philosophy as `remix.js`'s scoring) text-analysis safety net, run on every
+AI-generated slide's raw text before layout-picking:
+- `extractMetrics(text)` - finds percentage/currency/multiplier stats
+  (`45%`, `$2.4M`, `10x`) sentence-by-sentence, turns each into `{label,
+  value}`, capped at 6.
+- `extractListItems(text)` - finds `-`/`*`/`•`/numbered marker lines (≥2 of
+  them, so a single stray dash in prose isn't misread), turns them into
+  `items`.
+- `extractImagePrompt(text)` - finds a `[image: ...]`/`[photo: ...]`-style
+  cue and returns its description.
+- `enrichSemanticContent(semantic)` - the entry point: fills `items`/
+  `metrics`/`media` from `body` text only when the caller left those fields
+  empty (never overwrites already-structured content), and strips the
+  consumed list lines/image cue out of the leftover `body` text so they
+  don't also show up as garbled prose. Pure, returns a new object.
+
+`storylineToDeck.js`'s `buildDeckFromStoryline()` now runs every slide
+through `enrichSemanticContent()` before `pickBestLayout()`, so a slide whose
+body prose contains an embedded stat, list, or image cue gets the right
+layout (`metrics-grid`/`media-3points`/`media-description`) even when Gemini
+put everything in `body` instead of the matching structured field - a
+robustness net, not a dependency on the model always following the schema
+correctly.
+
+An extracted image prompt needs a visible place to land since there's no
+real image URL to show: `MediaDescriptionLayout`'s and `Media3PointsLayout`'s
+empty-media placeholder boxes now render `media.prompt` as an italic caption
+("Suggested image: …") when present, instead of showing a silently blank
+box. `media = {url: "", type: "image", prompt: "..."}` is backward
+compatible - anything reading `media.url` behaves exactly as before.
+
+**Tests**: `narrativeBeats.test.js` (new, 6 tests - includes a property test
+asserting every count from 1 to the full arc length returns exactly that
+many distinct beats in canonical order, always hook-first/ask-last).
+`contentIntelligence.test.js` (new, 22 tests covering each extractor plus
+`enrichSemanticContent`'s no-mutation/no-overwrite/strip-on-extract
+behavior). `storylineToDeck.test.js` (+1 integration test proving the full
+chain: a slide with `"We grew 45% this quarter."` as plain body ends up as
+`metrics-grid` with a real `{label, value}` metric, not `problem` with an
+unparsed paragraph). Frontend: **209/209** (up from 186), build clean.
+Backend: **20/20** (up from 14).
+
+**Not verified against the real Gemini API** - same caveat as §1e-5:
+`buildPrompt`'s new beat-scaffolded instructions are unit-tested for shape
+(via the mocked client) but the actual model's adherence to "one slide per
+beat, in order" is unverified until a manual pass with a real API key.
+
+## 2. Not started at all
 - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
 - **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
 - **Inline text editing audit/fixes**, **performance optimization**, **full regression testing** — see the recommended order table (§6) for where these sit.
@@ -255,7 +325,7 @@ unverified until a manual pass.
 
 ## 5. Test status
 
-**186/186 tests passing** across 30 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5).
+**209/209 tests passing** across 32 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here).
 
 Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted** (the ~26 pre-deck-model hardcoded slide components, `themes`/`themes2`/`backgrounds`/`BACKGROUND_PRESET_MODELS`, the per-file Froala loader they used, and every import only they needed) — 4,133 → 421 lines, none of it reachable from the live app. No behavior change; covered by the existing/added test suite and a clean build.
 
@@ -263,7 +333,7 @@ Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted**
 
 **Backend**: the separate `Vertx_flow_Server` repo (main branch, not a worktree) got its own commit this session (`feat: add Deck persistence API`) adding the `Deck` model/controller/routes the frontend's `deckApi.js` was already written against but had nothing to call. Its own test suite (Jest) passes (3/3). That commit was made directly to `main` in that repo, not pushed - flagging this explicitly since it's a different repository than the one this document tracks.
 
-**Backend, AI storyline session**: same `Vertx_flow_Server` repo gained `services/geminiService.js`, `controllers/aiStorylineController.js`, `routes/aiStorylineRoutes.js`, mounted at `POST /api/ai/storyline` in `api/index.js`, plus `services/geminiService.test.js` (11 tests, all mocking `@google/generative-ai` - none call the real Gemini API). Full backend suite: **14/14 passing**. Not yet committed in that repo, and requires a real `GEMINI_API_KEY` filled into that repo's local `.env` (a placeholder was written, gitignored) before the feature works end-to-end.
+**Backend, AI storyline session**: same `Vertx_flow_Server` repo gained `services/geminiService.js`, `services/narrativeBeats.js`, `controllers/aiStorylineController.js`, `routes/aiStorylineRoutes.js`, mounted at `POST /api/ai/storyline` in `api/index.js`, plus `services/geminiService.test.js` (11 tests) and `services/narrativeBeats.test.js` (6 tests) - all mocking `@google/generative-ai` or pure-function, none call the real Gemini API. Full backend suite: **20/20 passing**. Requires a real `GEMINI_API_KEY` filled into that repo's local `.env` (a placeholder was written, gitignored) before the feature works end-to-end.
 
 **Browser verification**: unchanged — no real-browser click-through has been performed for any of this; everything above is verified by jsdom/Vitest only.
 
@@ -285,14 +355,14 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 8 | Semantic layout transformation/reflow | — | **Implemented** (see §1e-2) |
 | 9 | Remix | #8 | **Implemented** (see §1e-4) |
 | 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | **Implemented** (see §1e-5) |
-| 11 | AI 10+ slide generation | #10 | Not started |
-| 12 | Content intelligence | overlaps #10/#11, may co-design | Not started |
+| 11 | AI 10+ slide generation | #10 | **Implemented** (see §1e-6) |
+| 12 | Content intelligence | overlaps #10/#11, may co-design | **Implemented** (see §1e-6) |
 | 13 | Inline text editing audit/fixes | — | Not started |
 | 14 | Change Case tool | — | Not started |
 | 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Not started |
 | 16 | Performance optimization | most other items | Not started |
 | 17 | Full regression testing | everything | Not started (149/149 automated; real-browser pass still outstanding, see §4) |
 
-Every item through #10 is now implemented and wired into the live
-`EditorPage.jsx`/`DeckListPage.jsx` (or, for #1 and #10, into a real backend
-too). Remaining work (#11 onward) is AI/polish, not requested yet.
+Every item through #12 is now implemented and wired into the live
+`EditorPage.jsx`/`DeckListPage.jsx` (or, for #1, #10, #11, and #12, into a real backend
+too). Remaining work (#13 onward) is inline-editing/polish/performance, not requested yet.

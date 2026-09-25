@@ -52,4 +52,32 @@ describe("buildDeckFromStoryline", () => {
     const deck = buildDeckFromStoryline({ title: "Empty", slides: [] });
     expect(deck.slides).toEqual([]);
   });
+
+  it("applies content intelligence when the model puts structured content in plain body text (roadmap #12)", () => {
+    const deck = buildDeckFromStoryline({
+      title: "Content Intelligence Deck",
+      slides: [
+        { heading: "Traction", body: "We grew 45% this quarter.", items: null, metrics: null },
+        { heading: "Features", body: "- Fast onboarding\n- Real-time sync\n- Team analytics", items: null, metrics: null },
+        { heading: "Product", body: "Loved by users. [image: a customer using the app on their phone]", items: null, metrics: null },
+      ],
+    });
+
+    expect(deck.slides[0].layout).toBe("metrics-grid");
+    expect(deck.slides[0].content.metrics).toEqual([{ label: "We grew this quarter.", value: "45%" }]);
+
+    expect(deck.slides[1].layout).toBe("media-3points");
+    expect(deck.slides[1].content.points.map((p) => p.body)).toEqual([
+      "Fast onboarding",
+      "Real-time sync",
+      "Team analytics",
+    ]);
+
+    expect(deck.slides[2].layout).toBe("media-description");
+    expect(deck.slides[2].content.media).toEqual({
+      url: "",
+      type: "image",
+      prompt: "a customer using the app on their phone",
+    });
+  });
 });

@@ -16,9 +16,15 @@ function MediaColumn({ media }) {
       <div
         data-col="media"
         data-testid="media-placeholder"
-        className="flex-1 rounded-2xl min-h-[300px]"
+        className="flex-1 rounded-2xl min-h-[300px] flex items-center justify-center p-6 text-center"
         style={{ backgroundColor: "var(--theme-surface-muted)" }}
-      />
+      >
+        {media.prompt ? (
+          <p data-testid="media-prompt-caption" className="text-sm italic opacity-70">
+            Suggested image: {media.prompt}
+          </p>
+        ) : null}
+      </div>
     );
   }
   if (media.type === "video") {
