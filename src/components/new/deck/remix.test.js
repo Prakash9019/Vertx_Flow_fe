@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { pickRemixLayout } from "./remix";
+import { pickRemixLayout, pickBestLayout } from "./remix";
 import { LAYOUT_IDS } from "./deckTypes";
 
 function semantic(overrides = {}) {
@@ -55,5 +55,25 @@ describe("pickRemixLayout", () => {
     const s = semantic();
     const others = LAYOUT_IDS.filter((l) => l !== "title");
     expect(pickRemixLayout("title", s, others)).toBeNull();
+  });
+});
+
+describe("pickBestLayout", () => {
+  it("picks the best-fit layout with no current layout to exclude", () => {
+    const s = semantic({ metrics: [{ value: "10x", label: "Growth" }] });
+    expect(pickBestLayout(s)).toBe("metrics-grid");
+  });
+
+  it("picks title for a bare heading with nothing excluded", () => {
+    expect(pickBestLayout(semantic())).toBe("title");
+  });
+
+  it("respects excludeLayouts", () => {
+    const s = semantic();
+    expect(pickBestLayout(s, ["title"])).not.toBe("title");
+  });
+
+  it("returns null when every layout is excluded", () => {
+    expect(pickBestLayout(semantic(), LAYOUT_IDS)).toBeNull();
   });
 });

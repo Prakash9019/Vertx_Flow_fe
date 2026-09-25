@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import deckApi from "../../utils/deckApi";
 import { getTheme, DEFAULT_THEME_ID } from "./deck/theme/themeTokens";
+import AIStorylineModal from "./deck/AIStorylineModal";
 
 export default function DeckListPage() {
   const navigate = useNavigate();
   const [decks, setDecks] = useState([]);
   const [status, setStatus] = useState("loading"); // loading | ready | error
   const [creating, setCreating] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,14 +55,33 @@ export default function DeckListPage() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold">My Decks</h1>
-          <button
-            onClick={handleCreate}
-            disabled={creating}
-            className="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 disabled:opacity-50 font-medium"
-          >
-            {creating ? "Creating..." : "Create New Deck"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCreate}
+              disabled={creating}
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 font-medium"
+            >
+              {creating ? "Creating..." : "Blank Deck"}
+            </button>
+            <button
+              onClick={() => setShowAIModal(true)}
+              disabled={creating}
+              className="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 disabled:opacity-50 font-medium"
+            >
+              Generate with AI
+            </button>
+          </div>
         </div>
+
+        {showAIModal && (
+          <AIStorylineModal
+            onClose={() => setShowAIModal(false)}
+            onDeckCreated={(deckId) => {
+              setShowAIModal(false);
+              navigate(`/editor/${deckId}`);
+            }}
+          />
+        )}
 
         {status === "loading" && <p className="text-white/60">Loading decks...</p>}
         {status === "error" && <p className="text-red-400">Failed to load decks.</p>}

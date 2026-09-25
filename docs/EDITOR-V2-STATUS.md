@@ -191,9 +191,52 @@ explicit-override-wins, video element rendering, overlay presence/absence);
 video preview, "Theme default" clears the override); `deckTypes.test.js`
 updated for the new `null` default.
 
+## 1e-5. AI storyline generation — Implemented
+
+Roadmap #10: on `DeckListPage`, "Create New Deck" is now two buttons — "Blank
+Deck" (unchanged) and "Generate with AI", which opens `AIStorylineModal`
+(prompt + slide-count input, 3–15 slides, default 8).
+
+**Backend (`Vertx_flow_Server`, separate repo)**: `POST /api/ai/storyline`
+(`aiStorylineRoutes.js`/`aiStorylineController.js`, behind the existing
+`authMiddleware`) calls `services/geminiService.js`, which wraps
+`@google/generative-ai` (a dependency that was installed but unused until
+now) with a `gemini-1.5-flash` prompt instructing strict-JSON output shaped
+like the frontend's `SemanticContent` (`heading`/`body`/`items`/`metrics`,
+no `media` - Gemini has no real image URLs to offer). Defensively strips
+markdown code fences, parses, structurally validates, and retries once on
+malformed JSON before returning a 502. `GEMINI_API_KEY` lives only in the
+server's `.env` (gitignored there) - never sent to the browser.
+
+**Frontend**: `storylineToDeck.js`'s `buildDeckFromStoryline()` turns the
+returned `{title, slides}` into a real `Deck` by reusing the *exact* same
+pipeline Remix and Layout Change use - `pickBestLayout` (new export from
+`remix.js`, extracted from `pickRemixLayout`'s scoring loop so a brand-new
+slide with no "current layout" to exclude can use it too) → `denormalize` →
+`createSlide`/`createDeck` - no new content-shape logic. `aiApi.js` calls
+the backend; `AIStorylineModal` wires prompt → generate → build →
+`deckApi.createDeck` → navigate to `/editor/:deckId`, the same tail as the
+existing blank-create path.
+
+**Known issue, deliberately not fixed here (user's call)**: this repo's
+`.env` has a `VITE_GEMINI_API_KEY` already committed to git
+history/`origin/main` - a live, public secret, though nothing in `src/`
+currently reads it. Flagged to the user; they chose to defer rotating it.
+
+**Tests**: `remix.test.js` (+4 for `pickBestLayout`), `storylineToDeck.test.js`
+(new, 5 tests), backend `geminiService.test.js` (new, 11 tests covering
+clean/fenced/malformed JSON, retry-then-succeed, retry-exhausted, and
+missing-API-key paths - all mock `@google/generative-ai`, none call the real
+API). Frontend: **186/186** (up from 177), build clean. Backend: **14/14**.
+
+**Not verified in a real browser** (same caveat as everything else in this
+document) - and additionally, no test here calls the live Gemini API, so
+actual model output quality/shape-conformance against the real service is
+unverified until a manual pass.
+
 ## 2. Not started at all
 
-- **AI storyline / 10+ slide generation, content intelligence** (detect numbers→metrics, lists→bullets, image prompts→media).
+- **AI 10+ slide generation nuances, content intelligence** (detect numbers→metrics, lists→bullets, image prompts→media) - roadmap #11/#12, separate from the #10 work above.
 - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
 - **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
 - **Inline text editing audit/fixes**, **performance optimization**, **full regression testing** — see the recommended order table (§6) for where these sit.
@@ -212,13 +255,15 @@ updated for the new `null` default.
 
 ## 5. Test status
 
-**177/177 tests passing** across 29 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests).
+**186/186 tests passing** across 30 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5).
 
 Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted** (the ~26 pre-deck-model hardcoded slide components, `themes`/`themes2`/`backgrounds`/`BACKGROUND_PRESET_MODELS`, the per-file Froala loader they used, and every import only they needed) — 4,133 → 421 lines, none of it reachable from the live app. No behavior change; covered by the existing/added test suite and a clean build.
 
 **Repository integrity**: all Editor V2 source files required by committed code are tracked and committed on `editor-deck-model`. A fresh checkout of the branch builds and passes the full test suite with no missing dependencies (verified again this session).
 
 **Backend**: the separate `Vertx_flow_Server` repo (main branch, not a worktree) got its own commit this session (`feat: add Deck persistence API`) adding the `Deck` model/controller/routes the frontend's `deckApi.js` was already written against but had nothing to call. Its own test suite (Jest) passes (3/3). That commit was made directly to `main` in that repo, not pushed - flagging this explicitly since it's a different repository than the one this document tracks.
+
+**Backend, AI storyline session**: same `Vertx_flow_Server` repo gained `services/geminiService.js`, `controllers/aiStorylineController.js`, `routes/aiStorylineRoutes.js`, mounted at `POST /api/ai/storyline` in `api/index.js`, plus `services/geminiService.test.js` (11 tests, all mocking `@google/generative-ai` - none call the real Gemini API). Full backend suite: **14/14 passing**. Not yet committed in that repo, and requires a real `GEMINI_API_KEY` filled into that repo's local `.env` (a placeholder was written, gitignored) before the feature works end-to-end.
 
 **Browser verification**: unchanged — no real-browser click-through has been performed for any of this; everything above is verified by jsdom/Vitest only.
 
@@ -239,7 +284,7 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 7 | Background system (overlay, deck-level default, video, real picker UI) | #6 | **Implemented** (see §1e-3) |
 | 8 | Semantic layout transformation/reflow | — | **Implemented** (see §1e-2) |
 | 9 | Remix | #8 | **Implemented** (see §1e-4) |
-| 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | Not started |
+| 10 | AI storyline generation | benefits from #8/#12 but not blocked by them | **Implemented** (see §1e-5) |
 | 11 | AI 10+ slide generation | #10 | Not started |
 | 12 | Content intelligence | overlaps #10/#11, may co-design | Not started |
 | 13 | Inline text editing audit/fixes | — | Not started |
@@ -248,7 +293,6 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 16 | Performance optimization | most other items | Not started |
 | 17 | Full regression testing | everything | Not started (149/149 automated; real-browser pass still outstanding, see §4) |
 
-Every item through #8 is now implemented and wired into the live `EditorPage.jsx`
-(or, for #1, into a real backend too). Remaining work (#9 onward) is AI/Remix/
-polish, none of which was requested for this session. Awaiting explicit
-go-ahead before starting Remix (#9) or anything past it.
+Every item through #10 is now implemented and wired into the live
+`EditorPage.jsx`/`DeckListPage.jsx` (or, for #1 and #10, into a real backend
+too). Remaining work (#11 onward) is AI/polish, not requested yet.

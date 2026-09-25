@@ -47,13 +47,14 @@ function scoreLayoutForSemantic(layout, semantic) {
   }
 }
 
-// Picks the best-fit layout for `semantic` other than `currentLayout` (and
-// anything in `excludeLayouts`, e.g. layouts already tried in the same
-// remix session). Deterministic: ties break in `LAYOUT_IDS` order, so this
-// is unit-testable without mocking randomness. Returns `null` only when
-// every layout is excluded.
-export function pickRemixLayout(currentLayout, semantic, excludeLayouts = []) {
-  const excluded = new Set([currentLayout, ...excludeLayouts]);
+// Picks the best-fit layout for `semantic` other than anything in
+// `excludeLayouts` (e.g. layouts already tried in the same remix session, or
+// nothing at all for a brand-new slide with no current layout to avoid).
+// Deterministic: ties break in `LAYOUT_IDS` order, so this is unit-testable
+// without mocking randomness. Returns `null` only when every layout is
+// excluded.
+export function pickBestLayout(semantic, excludeLayouts = []) {
+  const excluded = new Set(excludeLayouts);
   let best = null;
   let bestScore = -Infinity;
   for (const layout of LAYOUT_IDS) {
@@ -65,4 +66,11 @@ export function pickRemixLayout(currentLayout, semantic, excludeLayouts = []) {
     }
   }
   return best;
+}
+
+// Picks the best-fit layout for `semantic` other than `currentLayout` (and
+// anything in `excludeLayouts`) - the Remix-specific case of `pickBestLayout`
+// where the current layout must always be excluded.
+export function pickRemixLayout(currentLayout, semantic, excludeLayouts = []) {
+  return pickBestLayout(semantic, [currentLayout, ...excludeLayouts]);
 }
