@@ -282,4 +282,52 @@ describe("deckReducer", () => {
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
   });
+
+  // Every slide-scoped action shares the same "missing/invalid slideId (or
+  // elementId) warns and no-ops" contract - each of these was previously
+  // only exercised for a subset of actions (DELETE_SLIDE, UPDATE_SLIDE_CONTENT
+  // content-shape validation, ADD_FREE_ELEMENT element-shape validation), not
+  // this boundary check on every action that takes a slideId.
+  describe("missing/invalid slideId or elementId - every action warns and no-ops", () => {
+    const cases = [
+      ["ADD_SLIDE with a missing afterSlideId", () => ({ type: "ADD_SLIDE", layout: "title", content: {}, afterSlideId: "missing" })],
+      ["DUPLICATE_SLIDE", () => ({ type: "DUPLICATE_SLIDE", slideId: "missing" })],
+      ["REORDER_SLIDES with a missing slideId", () => ({ type: "REORDER_SLIDES", slideId: "missing", toIndex: 0 })],
+      ["SET_SLIDE_LAYOUT with a missing slideId", () => ({ type: "SET_SLIDE_LAYOUT", slideId: "missing", layout: "problem" })],
+      ["SET_SLIDE_LAYOUT with an unknown layout", (slideId) => ({ type: "SET_SLIDE_LAYOUT", slideId, layout: "not-a-layout" })],
+      ["UPDATE_SLIDE_CONTENT with a missing slideId", () => ({ type: "UPDATE_SLIDE_CONTENT", slideId: "missing", content: {} })],
+      ["SET_SLIDE_BACKGROUND with a missing slideId", () => ({ type: "SET_SLIDE_BACKGROUND", slideId: "missing", background: null })],
+      ["ADD_FREE_ELEMENT with a missing slideId", (_slideId, el) => ({ type: "ADD_FREE_ELEMENT", slideId: "missing", element: el })],
+      ["UPDATE_FREE_ELEMENT with a missing slideId", () => ({ type: "UPDATE_FREE_ELEMENT", slideId: "missing", elementId: "x", patch: {} })],
+      ["UPDATE_FREE_ELEMENT with a missing elementId", (slideId) => ({ type: "UPDATE_FREE_ELEMENT", slideId, elementId: "missing", patch: {} })],
+      ["REMOVE_FREE_ELEMENT with a missing slideId", () => ({ type: "REMOVE_FREE_ELEMENT", slideId: "missing", elementId: "x" })],
+    ];
+
+    it.each(cases)("%s", (_label, buildAction) => {
+      const { deck, slide } = deckWithOneSlide();
+      const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const next = deckReducer(deck, buildAction(slide.id, el));
+      expect(next).toBe(deck);
+      expect(warn).toHaveBeenCalled();
+      warn.mockRestore();
+    });
+  });
+
+  it("REORDER_SLIDES warns and no-ops when toIndex is out of range (negative or >= length)", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(deckReducer(deck, { type: "REORDER_SLIDES", slideId: slide.id, toIndex: -1 })).toBe(deck);
+    expect(deckReducer(deck, { type: "REORDER_SLIDES", slideId: slide.id, toIndex: 5 })).toBe(deck);
+    expect(warn).toHaveBeenCalledTimes(2);
+    warn.mockRestore();
+  });
+
+  it("REMOVE_FREE_ELEMENT for a non-existent elementId is a safe no-op-shaped filter (still updates freeElements reference, but content is unchanged)", () => {
+    const { deck, slide } = deckWithOneSlide();
+    const el = createFreeElement({ type: "text", x: 5, y: 5, w: 20, h: 10 });
+    const withEl = deckReducer(deck, { type: "ADD_FREE_ELEMENT", slideId: slide.id, element: el });
+    const next = deckReducer(withEl, { type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId: "not-present" });
+    expect(next.slides[0].freeElements).toEqual([el]);
+  });
 });

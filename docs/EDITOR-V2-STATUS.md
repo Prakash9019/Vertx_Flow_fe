@@ -419,10 +419,217 @@ long-documented, stable v2-v4 API, but this environment has no way to load
 the real library and click through it, so the command's wiring is verified
 against a test stub that models that API, not the genuine one.
 
+## 1e-9. Performance optimization — Implemented
+
+Roadmap #16, scoped narrowly per the recommended-order table: route-level
+code splitting plus stopping unnecessary free-element re-renders during
+drag/resize/rotate. Not a general perf audit.
+
+**Route-level code splitting (`App.jsx`)**: `EditorPage.jsx`, `DeckListPage.jsx`
+and `NewEditor.jsx` (the `/sample` route) are now loaded via `React.lazy()`
+instead of static imports, with a single `<Suspense>` boundary wrapping
+`<Routes>` and a plain loading fallback. Before this, all three pulled
+framer-motion, aos, `EditorPage.jsx`'s remaining hardcoded slide-component
+imports and a large icon set into the single eagerly-loaded main JS chunk,
+regardless of route — including for a user who only ever visits `/login`.
+Confirmed by the build output: `EditorPage`, `DeckListPage` and `NewEditor`
+now emit as their own separate chunks (`EditorPage-*.js`, `DeckListPage-*.js`,
+`NewEditor-*.js`) rather than being inlined into `index-*.js`.
+
+**Free-element re-render reduction (`FreeElementLayer.jsx`, `SlideCanvas.jsx`)**:
+`SlideCanvas` and both the outer `FreeElementLayer` and inner per-element
+`FreeElement` component are now wrapped in `React.memo`. This only pays off if
+the props each element receives are actually referentially stable across a
+drag/resize/rotate pointermove (which dispatches on every frame via
+`useFreeElementInteraction`), so three things had to change together:
+`elements` is already immutably updated by `deckReducer` (only the touched
+element's object reference changes), `SlideCanvas` now wraps its
+`onChangeContent`/`onUpdateElement`/`onDeleteElement`/`onDuplicateElement`/
+`onReorderElements` callbacks it hands to `FreeElementLayer` in `useCallback`
+(keyed on `slide.id`, not recreated per render), and `FreeElementLayer`'s own
+toolbar handlers (bring-forward/send-backward/duplicate/delete) read the
+current `elements`/`selectedElementId` off a ref rather than closing over them
+directly, so their own identity stays stable too. Net effect: a pointermove
+during a drag now only re-renders the one `FreeElement` actually being
+manipulated, not every element on the slide.
+
+**Tests**: `FreeElementLayer.renderOptimization.test.jsx` (new) asserts the
+render-count behavior directly — an unrelated element's render count does not
+increase while a different element is being dragged. No existing test's
+assertions changed; this is a render-count optimization, not a behavior
+change, and the entire pre-existing free-element interaction/selection test
+suite (`FreeElementInteraction.integration.test.jsx`,
+`FreeElementLayer.test.jsx`, `FreeElementLayer.themeRendering.test.jsx`)
+continues to pass unmodified.
+
+**Not measured**: no Lighthouse/bundle-size-before-vs-after numbers were
+captured; the win is architectural (fewer/smaller eagerly-loaded chunks,
+fewer re-renders per frame during drag) and verified by the build output
+chunk list and the render-count test, not by a benchmark run.
+
+## 1e-10. Full regression testing — Implemented
+
+Roadmap #17. Added test coverage across the free-element interaction stack,
+undo/redo, autosave, and deck-reducer/content-mapper edge cases that
+previously had thinner or no dedicated coverage. This does **not** include
+the roadmap #13 inline-text-editing undo/redo DOM-resync fix — that is
+pre-existing work (§1e-7), already implemented and already documented there;
+it is not re-claimed as new here.
+
+**Real bug fix found and fixed**: `useFreeElementInteraction.js`'s
+`beginDrag`/`beginResize`/`beginRotate` and the shared `handlePointerMove`/
+`endGesture` did not check which pointer a gesture belonged to. A second
+pointer (e.g. a second touch) landing on the same element mid-gesture would
+silently steal/overwrite the active gesture's `gestureRef`, corrupting the
+math for both pointers (the first pointer's subsequent moves would then be
+interpreted against the second pointer's start position). Fixed by filtering
+every gesture entry point and the shared move/end handlers on
+`gesture.pointerId === event.pointerId` — a gesture already in progress from
+a different pointer is now ignored rather than stolen. New tests in
+`useFreeElementInteraction.test.js` cover the fix directly (a second
+pointer's `beginDrag`/`beginResize`/`beginRotate` is ignored while a gesture
+from a different pointer is active; `handlePointerMove`/`handlePointerUp`
+from a non-owning pointer are no-ops).
+
+**New test files** (net-new coverage; `RichText.test.jsx`,
+`widgets/TextWidget.test.jsx` and `UndoRedoTextEditing.integration.test.jsx`
+already existed from §1e-7 and only got a handful of additional cases each,
+noted separately below):
+- `useFreeElementInteraction.test.js` — the pointerId gesture-corruption fix above, plus drag/resize/rotate math coverage for the hook in isolation.
+- `FreeElementLayer.renderOptimization.test.jsx` — the render-count assertions backing §1e-9.
+- `FreeElementRenderer.test.jsx`, `FreeElementSelection.test.jsx`, `FreeElementToolbar.test.jsx` — previously untested in isolation (only exercised indirectly through `FreeElementLayer.test.jsx`/the integration tests).
+- `domUtils.test.js`, `freeElementFactory.test.js` — previously untested in isolation.
+- `SlideSidebar.test.jsx`, `SlideThumbnailContent.test.jsx` — previously untested in isolation (only exercised indirectly through `EditorPage.test.jsx`).
+- `AutosaveUndo.integration.test.jsx` — autosave (`useAutosave`) interacting with undo/redo (`useDeckHistory`) through the real `DeckContext` stack.
+- `UndoRedoCrossFeature.integration.test.jsx` — undo/redo interacting with other reducer-driven features (Remix, background changes, free-element ops) in combination, rather than each in isolation.
+
+**Additional cases added to existing files**:
+- `UndoRedoTextEditing.integration.test.jsx` +4 (redo re-applies to the visible DOM; a normal render that merely echoes the widget's own just-emitted value doesn't disturb the DOM; undoing one field doesn't affect a sibling field; a free-element `TextWidget`'s edit reverts through the real `SlideCanvas`/`FreeElementLayer` stack, not just `ProblemLayout`/Froala).
+- `widgets/TextWidget.test.jsx` +1 (`contentEditable` reflects the `editing` prop).
+- `contentMappers.test.js` +4 (`normalize`/`denormalize` don't throw on an unknown layout or a fully-empty content object; `denormalize` returns `targetDefaultContent` unchanged for an unknown target layout).
+- `deckReducer.test.js` +13 (`it.each` table covering the shared "missing/invalid slideId or elementId warns and no-ops" contract across every slide-scoped action — `ADD_SLIDE`, `DUPLICATE_SLIDE`, `REORDER_SLIDES`, `SET_SLIDE_LAYOUT` (including an unknown layout id), `UPDATE_SLIDE_CONTENT`, `SET_SLIDE_BACKGROUND`, `ADD_FREE_ELEMENT`, `UPDATE_FREE_ELEMENT`, `REMOVE_FREE_ELEMENT` — plus `REORDER_SLIDES` out-of-range `toIndex` and `REMOVE_FREE_ELEMENT` for a non-existent `elementId`).
+
+**365/365 tests passing** (up from 237), build clean.
+
+**Not covered**: no real-browser/E2E pass — same caveat as everywhere else in
+this document; all of the above is jsdom/Vitest-level. No visual regression
+tooling was introduced.
+
+## 1e-11. Slide/element animations — Implemented
+
+Roadmap #15. The user's own decision (relayed into this task) was: a simple
+CSS-transition-based fade/slide crossfade between slides on navigation, not a
+recreation of the old scroll-stack effect — that effect mounted every slide
+as a sibling, which is structurally incompatible with the current
+architecture (`SlideCanvas` renders one slide at a time via `key={slide.id}`
+remount, and other features — free-element selection clearing, `RichText`
+re-seeding — depend on that remount, see §1e-7). So this is new orchestration
+around the existing remount behavior, not a change to it.
+
+**`SlideTransition.jsx`** (new): a small wrapper component,
+`<SlideTransition slide={currentSlide} render={(slide) => <SlideCanvas ... />} />`,
+now used in `EditorPage.jsx` in place of the bare `<SlideCanvas .../>` that
+used to sit directly under the canvas container. It tracks `current`/
+`previous` slide objects in local state. On a real navigation (`slide.id`
+changes), it keeps the outgoing slide's `previous` around for
+`TRANSITION_MS` (300ms) alongside the new `current`, rendering both through
+the caller's `render(slide)` — i.e. two real `<SlideCanvas>` instances,
+briefly, each still keying its own `LayoutComponent` on `slide.id` exactly as
+before — inside two absolutely-positioned layers (`EnterLayer`/`ExitLayer`)
+whose `opacity`/`transform` are toggled via plain inline `style.transition`
+(CSS transition, not a library) after a `requestAnimationFrame`, so the
+browser actually animates the change instead of jumping straight to the end
+state. After the timeout, `previous` is dropped and only the new slide stays
+mounted — an abrupt swap never happens, but neither does anything stay
+double-mounted longer than the transition window.
+
+**Why CSS transitions, not `framer-motion`/`aos`**: both already exist as
+deps (per §1e-9) but only for other, unrelated legacy screens (`App.jsx`,
+`screens/matchflow`, `Fundraising/*`, `NewEditor.jsx`) — nothing in
+`src/components/new/deck` uses either today, and this effect (opacity + a
+10px translate on two `position:absolute` layers) doesn't need a library.
+Pulling one in here would add a second animation mechanism to this component
+tree and extra weight to `EditorPage.jsx`'s own lazy-loaded chunk (§1e-9) for
+no real gain.
+
+**Not a true content-level double-render risk**: `ExitLayer` sets
+`pointerEvents: "none"` unconditionally, so the outgoing slide's
+free elements can never intercept a click/drag while fading out and can never
+be confused for the active slide. `SlideTransition` only ever treats a
+`slide.id` *change* as a navigation — an in-place content edit (a new slide
+object with the same `id`, which is what every `UPDATE_SLIDE_CONTENT`/
+`UPDATE_FREE_ELEMENT` dispatch produces) swaps `current` in place with no
+crossfade at all, so typing, dragging, resizing, and rotating never race
+against an animation; those gestures also can't start mid-crossfade in
+practice because navigating already clears `selectedElementId`/
+`editingElementId` in `EditorPageBody` (pre-existing behavior, §1) before any
+transition begins.
+
+**`prefers-reduced-motion`**: a small `usePrefersReducedMotion()` hook
+(`window.matchMedia("(prefers-reduced-motion: reduce)")`, the JS
+equivalent the brief allowed as an alternative to a plain CSS media query —
+chosen because the same boolean also has to suppress the two-layer crossfade
+*logic* in `SlideTransition`, not just the CSS, so a data-only media query
+wouldn't have been enough on its own) subscribes to OS-level changes and, when
+true, skips the whole `previous`-layer dance: navigation swaps `current`
+directly with `transition: "none"` on the entering layer — instant, no
+animation, same as an abrupt swap used to be. The hook defensively no-ops
+(returns `false`) when `window.matchMedia` doesn't exist (`jsdom` doesn't
+implement it by default — confirmed while writing this).
+
+**Element-level animation** (brief's secondary/optional ask): not built as a
+separate mechanism. Free elements render through `FreeElementLayer` inside
+`SlideCanvas`, and `SlideCanvas` itself is what gets wrapped by
+`EnterLayer`/`ExitLayer` — so every free element on the incoming slide
+already fades/slides in together with the rest of the slide as part of the
+same crossfade, at no extra cost and with no additional risk to the
+interaction engine. A separate per-element stagger/animation was deliberately
+not added on top of that: the brief was explicit not to over-invest here once
+the slide-level transition is the priority, and per-element timing would mean
+either delaying `FreeElementLayer`'s mount (risking interaction-engine
+timing) or animating individual `FreeElement` nodes independently of the
+slide crossfade (two overlapping animation systems for one visual effect).
+Because the crossfade only ever triggers on a real slide-id change - never
+during a drag/resize/rotate gesture on the same slide (see above) - nothing
+animates while a free element is being manipulated.
+
+**Files touched**: new `src/components/new/deck/SlideTransition.jsx`;
+`src/components/new/EditorPage.jsx` (import + the one render-site change
+described above — `SlideCanvas`/`FreeElementLayer` themselves are
+unmodified).
+
+**Tests**: new `SlideTransition.test.jsx` (6 tests, isolated component-level —
+first-mount has no exit layer; navigating keeps both slides mounted then
+drops the outgoing one after the transition window; an in-place content
+edit on the same id never creates an exit layer; enter/exit layers carry a
+real CSS `transition` style and the exit layer is `pointerEvents: none`;
+`prefers-reduced-motion` skips the crossfade and exit layer entirely and sets
+`transition: none`; a null `slide` renders nothing). New
+`EditorPageSlideTransition.integration.test.jsx` (3 tests, through the real
+`EditorPage.jsx` nav-dot flow — initial render wraps the active slide with no
+exit layer yet; clicking a nav dot produces two real `SlideCanvas` instances
+mid-crossfade (`slide-transition-exit` present, two `slide-canvas` nodes)
+and settles back down to one after the transition window; no crossfade
+fires for an in-place edit). **374/374 tests passing** (up from 365), build
+clean.
+
+**Not verified**: no real browser was available in this session, so the
+actual visual result — smoothness of the opacity/transform transition, real
+`requestAnimationFrame` timing, whether 300ms/10px "feels" right, whether the
+mouse-wheel nav's existing `isAnimatingRef`/600ms debounce (`EditorPage.jsx`,
+unrelated pre-existing code that throttles repeated wheel events) interacts
+visually with this transition's own 300ms window — is unverified, same
+caveat as everywhere else in this document. Also unverified: real Froala
+editor behavior when two `SlideCanvas` instances (and therefore two sets of
+Froala editors, one per rich-text field on each of the two briefly-mounted
+slides) exist simultaneously for ~300ms during a crossfade — the jsdom-level
+tests exercise this through the real component tree, but Froala itself is
+never loaded in this environment (same caveat noted for the Change Case tool,
+§1e-8) so its real-world DOM/editor-instance cost during that window has not
+been observed.
+
 ## 2. Not started at all
-- **Change Case tool** (separate from the color tool — the original reported bug is untouched).
-- **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
-- **Inline text editing audit/fixes**, **performance optimization**, **full regression testing** — see the recommended order table (§6) for where these sit.
+Nothing left unstarted per the original roadmap — see §4 for remaining known defects.
 
 ## 4. Known defects / rough edges (not urgent, but real)
 
@@ -438,7 +645,7 @@ against a test stub that models that API, not the genuine one.
 
 ## 5. Test status
 
-**237/237 tests passing** across 35 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here) → 218 (Inline text editing audit/fixes: `RichText.test.jsx` +3, new `TextWidget.test.jsx` (5) and `UndoRedoTextEditing.integration.test.jsx` (1), §1e-7) → 237 (Change Case tool: new `caseTransforms.test.js` (13) + `RichText.test.jsx` +6, §1e-8).
+**374/374 tests passing** across 46 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here) → 218 (Inline text editing audit/fixes: `RichText.test.jsx` +3, new `TextWidget.test.jsx` (5) and `UndoRedoTextEditing.integration.test.jsx` (1), §1e-7) → 237 (Change Case tool: new `caseTransforms.test.js` (13) + `RichText.test.jsx` +6, §1e-8) → 365 (performance optimization + full regression testing, §1e-9/§1e-10: 11 new test files — `useFreeElementInteraction.test.js`, `FreeElementLayer.renderOptimization.test.jsx`, `FreeElementRenderer.test.jsx`, `FreeElementSelection.test.jsx`, `FreeElementToolbar.test.jsx`, `domUtils.test.js`, `freeElementFactory.test.js`, `SlideSidebar.test.jsx`, `SlideThumbnailContent.test.jsx`, `AutosaveUndo.integration.test.jsx`, `UndoRedoCrossFeature.integration.test.jsx` (106 tests total), plus targeted additions to `UndoRedoTextEditing.integration.test.jsx` (+4), `widgets/TextWidget.test.jsx` (+1), `contentMappers.test.js` (+4) and `deckReducer.test.js` (+13)) → 374 (slide/element animations, §1e-11: new `SlideTransition.test.jsx` (6) + `EditorPageSlideTransition.integration.test.jsx` (3)).
 
 Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted** (the ~26 pre-deck-model hardcoded slide components, `themes`/`themes2`/`backgrounds`/`BACKGROUND_PRESET_MODELS`, the per-file Froala loader they used, and every import only they needed) — 4,133 → 421 lines, none of it reachable from the live app. No behavior change; covered by the existing/added test suite and a clean build.
 
@@ -472,10 +679,10 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 12 | Content intelligence | overlaps #10/#11, may co-design | **Implemented** (see §1e-6) |
 | 13 | Inline text editing audit/fixes | — | **Implemented** (see §1e-7) |
 | 14 | Change Case tool | — | **Implemented** (see §1e-8) |
-| 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Not started |
-| 16 | Performance optimization | most other items | Not started |
-| 17 | Full regression testing | everything | Not started (149/149 automated; real-browser pass still outstanding, see §4) |
+| 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | **Implemented** (see §1e-11) |
+| 16 | Performance optimization | most other items | **Implemented** (see §1e-9) |
+| 17 | Full regression testing | everything | **Implemented** (see §1e-10; 365/365 automated; real-browser pass still outstanding, see §4) |
 
-Every item through #14 is now implemented and wired into the live
+Every item through #17 is now implemented and wired into the live
 `EditorPage.jsx`/`DeckListPage.jsx` (or, for #1, #10, #11, and #12, into a real backend
-too). Remaining work (#15 onward) is animations/performance/full regression testing, not requested yet.
+too). No roadmap item remains unstarted; see §4 for remaining known defects/rough edges.

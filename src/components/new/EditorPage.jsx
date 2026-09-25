@@ -5,6 +5,7 @@ import { PiSelectionBackground } from "react-icons/pi";
 import { useParams } from "react-router-dom";
 import { DeckProvider, useDeck } from "./deck/DeckContext";
 import { SlideCanvas } from "./deck/SlideCanvas";
+import { SlideTransition } from "./deck/SlideTransition";
 import { SlideSidebar } from "./deck/SlideSidebar";
 import { BackgroundPicker } from "./deck/BackgroundPicker";
 import { useDeckLoader } from "./deck/useDeckLoader";
@@ -309,12 +310,22 @@ function EditorPageBody({ deckId = null }) {
       )}
       <div className="h-screen w-screen overflow-y-auto">
         {currentSlide ? (
-          <SlideCanvas
+          <SlideTransition
             slide={currentSlide}
-            selectedElementId={selectedElementId}
-            editingElementId={editingElementId}
-            onSelectElement={setSelectedElementId}
-            onStartEditing={setEditingElementId}
+            render={(slide) => (
+              <SlideCanvas
+                slide={slide}
+                // Selection/editing state is scoped to whichever slide is
+                // actually on screen (see the effect above that clears it on
+                // navigation) - the outgoing slide mid-crossfade never gets
+                // it, both because it's about to unmount and because its
+                // element ids belong to a different slide anyway.
+                selectedElementId={slide.id === currentSlide.id ? selectedElementId : null}
+                editingElementId={slide.id === currentSlide.id ? editingElementId : null}
+                onSelectElement={setSelectedElementId}
+                onStartEditing={setEditingElementId}
+              />
+            )}
           />
         ) : null}
       </div>

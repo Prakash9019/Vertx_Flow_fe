@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { getRegistryEntry } from "./SlideRegistry";
 import { FreeElementLayer } from "./FreeElementLayer";
 import { useDeck } from "./DeckContext";
@@ -45,7 +45,7 @@ export function slideBackgroundStyle(background) {
   }
 }
 
-export function SlideCanvas({
+export const SlideCanvas = React.memo(function SlideCanvas({
   slide,
   selectedElementId = null,
   editingElementId = null,
@@ -54,6 +54,45 @@ export function SlideCanvas({
 }) {
   const { deck, dispatch } = useDeck();
   const entry = getRegistryEntry(slide.layout);
+
+  // Stable callback identities (per slide.id, not recreated every render) so
+  // that React.memo on FreeElementLayer/FreeElement further down the tree
+  // actually skips re-rendering elements that didn't change - a pointermove
+  // during drag/resize/rotate dispatches on every frame, and an inline arrow
+  // recreated here on every SlideCanvas render would otherwise defeat that
+  // memoization for every element, not just the one being dragged.
+  const handleChangeContent = useCallback(
+    (patch) => dispatch({ type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: patch }),
+    [dispatch, slide.id]
+  );
+  const handleUpdateElement = useCallback(
+    (elementId, patch, coalesceId) =>
+      dispatch(
+        { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId, patch },
+        coalesceId ? { coalesce: true, coalesceId } : undefined
+      ),
+    [dispatch, slide.id]
+  );
+  const handleDeleteElement = useCallback(
+    (elementId) => dispatch({ type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId }),
+    [dispatch, slide.id]
+  );
+  const handleDuplicateElement = useCallback(
+    (element) => dispatch({ type: "ADD_FREE_ELEMENT", slideId: slide.id, element }),
+    [dispatch, slide.id]
+  );
+  const handleReorderElements = useCallback(
+    (updates) => {
+      const coalesceId = `reorder-${slide.id}-${Date.now()}`;
+      updates.forEach(({ id, zIndex }) =>
+        dispatch(
+          { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId: id, patch: { zIndex } },
+          { coalesce: true, coalesceId }
+        )
+      );
+    },
+    [dispatch, slide.id]
+  );
 
   if (!entry) {
     console.warn(`SlideCanvas: no registry entry for layout "${slide.layout}"`);
@@ -88,35 +127,18 @@ export function SlideCanvas({
           style={{ backgroundColor: background.overlay.color, opacity: background.overlay.opacity }}
         />
       )}
-      <LayoutComponent
-        key={slide.id}
-        content={slide.content}
-        onChangeContent={(patch) => dispatch({ type: "UPDATE_SLIDE_CONTENT", slideId: slide.id, content: patch })}
-      />
+      <LayoutComponent key={slide.id} content={slide.content} onChangeContent={handleChangeContent} />
       <FreeElementLayer
         elements={slide.freeElements}
         selectedElementId={selectedElementId}
         editingElementId={editingElementId}
         onSelectElement={onSelectElement}
         onStartEditing={onStartEditing}
-        onUpdateElement={(elementId, patch, coalesceId) =>
-          dispatch(
-            { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId, patch },
-            coalesceId ? { coalesce: true, coalesceId } : undefined
-          )
-        }
-        onDeleteElement={(elementId) => dispatch({ type: "REMOVE_FREE_ELEMENT", slideId: slide.id, elementId })}
-        onDuplicateElement={(element) => dispatch({ type: "ADD_FREE_ELEMENT", slideId: slide.id, element })}
-        onReorderElements={(updates) => {
-          const coalesceId = `reorder-${slide.id}-${Date.now()}`;
-          updates.forEach(({ id, zIndex }) =>
-            dispatch(
-              { type: "UPDATE_FREE_ELEMENT", slideId: slide.id, elementId: id, patch: { zIndex } },
-              { coalesce: true, coalesceId }
-            )
-          );
-        }}
+        onUpdateElement={handleUpdateElement}
+        onDeleteElement={handleDeleteElement}
+        onDuplicateElement={handleDuplicateElement}
+        onReorderElements={handleReorderElements}
       />
     </div>
   );
-}
+});

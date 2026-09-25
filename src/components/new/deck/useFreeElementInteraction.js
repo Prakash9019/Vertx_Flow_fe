@@ -114,6 +114,12 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
   const beginDrag = useCallback(
     (event) => {
       if (event.button !== undefined && event.button !== 0) return;
+      // A gesture is already in progress from a different pointer (e.g. a
+      // second touch landing on this element mid-drag) - ignore it rather
+      // than stealing/overwriting the active gesture, which would corrupt
+      // both pointers' math (the first pointer's subsequent moves would be
+      // interpreted against the second pointer's start position).
+      if (gestureRef.current && gestureRef.current.pointerId !== event.pointerId) return;
       event.stopPropagation();
       onSelect(element.id);
       const rect = getRect();
@@ -138,6 +144,7 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
 
   const beginResize = useCallback(
     (event, handle) => {
+      if (gestureRef.current && gestureRef.current.pointerId !== event.pointerId) return;
       event.stopPropagation();
       onSelect(element.id);
       const rect = getRect();
@@ -164,6 +171,7 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
 
   const beginRotate = useCallback(
     (event) => {
+      if (gestureRef.current && gestureRef.current.pointerId !== event.pointerId) return;
       event.stopPropagation();
       onSelect(element.id);
       const rect = getRect();
@@ -188,7 +196,7 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
   const handlePointerMove = useCallback(
     (event) => {
       const gesture = gestureRef.current;
-      if (!gesture) return;
+      if (!gesture || gesture.pointerId !== event.pointerId) return;
 
       if (gesture.type === "drag") {
         const dxPct = ((event.clientX - gesture.startClientX) / gesture.rectWidth) * 100;
@@ -217,7 +225,7 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
   const endGesture = useCallback(
     (event) => {
       const gesture = gestureRef.current;
-      if (!gesture) return;
+      if (!gesture || gesture.pointerId !== event.pointerId) return;
       event.currentTarget?.releasePointerCapture?.(gesture.pointerId);
       gestureRef.current = null;
       onGestureEnd?.();

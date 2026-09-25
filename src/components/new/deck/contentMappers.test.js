@@ -53,6 +53,34 @@ describe("normalize", () => {
     const metrics = [{ value: "10", label: "Users" }];
     expect(normalize("metrics-grid", { heading: "M", metrics }).metrics).toEqual(metrics);
   });
+
+  it("falls back to a generic best-effort read for an unknown layout instead of throwing", () => {
+    expect(normalize("not-a-real-layout", { heading: "H", body: "B" })).toEqual({
+      heading: "H",
+      body: "B",
+      items: null,
+      media: null,
+      metrics: null,
+    });
+    // also tries `title` as a heading fallback for unknown layouts that use that shape
+    expect(normalize("not-a-real-layout", { title: "T" })).toEqual({
+      heading: "T",
+      body: null,
+      items: null,
+      media: null,
+      metrics: null,
+    });
+  });
+
+  it("handles a completely empty content object for every known layout without throwing", () => {
+    const layouts = ["title", "problem", "media-description", "media-3points", "metrics-grid", "team-grid", "cta"];
+    for (const layout of layouts) {
+      expect(() => normalize(layout, {})).not.toThrow();
+      const result = normalize(layout, {});
+      expect(result.heading).toBe("");
+      expect(result.items).toBeNull();
+    }
+  });
 });
 
 describe("denormalize", () => {
@@ -67,6 +95,20 @@ describe("denormalize", () => {
     const semantic = { heading: "H", body: "<p>Just a sentence.</p>", items: null, media: null, metrics: null };
     const result = denormalize(semantic, "team-grid", defaultTeamGridContent());
     expect(result.members).toEqual(defaultTeamGridContent().members);
+  });
+
+  it("returns targetDefaultContent unchanged for an unknown target layout instead of throwing", () => {
+    const semantic = { heading: "H", body: "B", items: null, media: null, metrics: null };
+    const fallback = { some: "shape" };
+    expect(denormalize(semantic, "not-a-real-layout", fallback)).toBe(fallback);
+  });
+
+  it("handles fully-empty semantic content (all null/empty) by falling back to defaultContent everywhere", () => {
+    const emptySemantic = { heading: "", body: null, items: null, media: null, metrics: null };
+    const result = denormalize(emptySemantic, "media-3points", defaultMedia3PointsContent());
+    expect(result.heading).toBe("");
+    expect(result.points).toEqual(defaultMedia3PointsContent().points);
+    expect(result.media).toEqual(defaultMedia3PointsContent().media);
   });
 });
 

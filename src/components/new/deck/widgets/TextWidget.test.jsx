@@ -69,4 +69,14 @@ describe("TextWidget", () => {
     rerender(<TextWidget element={{ props: { html: "<p>A</p>" } }} editing onCommit={() => {}} />);
     expect(div.innerHTML).toBe("<p>user is mid-keystroke</p>");
   });
+
+  it("sets contentEditable based on the editing prop", () => {
+    const editing = render(<TextWidget element={{ props: { html: "<p>A</p>" } }} editing onCommit={() => {}} />);
+    expect(editing.container.firstChild.getAttribute("contenteditable")).toBe("true");
+
+    const notEditing = render(
+      <TextWidget element={{ props: { html: "<p>A</p>" } }} editing={false} onCommit={() => {}} />
+    );
+    expect(notEditing.container.firstChild.getAttribute("contenteditable")).toBe("false");
+  });
 });

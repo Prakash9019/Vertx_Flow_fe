@@ -2,6 +2,7 @@
 // Ensure all imported components are correctly named (PascalCase)
 
 import "./App.css";
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -57,10 +58,16 @@ import CompaniesReachLink from "./components/Fundraising/CompaniesReachLink.jsx"
 import ReachLinkPreview from "./components/Fundraising/Reach_link/ReachLinkPreview.jsx";
 import ReachRedirect from "./components/ReachRedirect.jsx";
 import Flash from "./components/Flash/Flash.jsx";
-import EditorPage from "./components/new/EditorPage.jsx";
-import DeckListPage from "./components/new/DeckListPage.jsx";
+// The deck editor (EditorPage.jsx) and its sibling editor pages pull in
+// framer-motion, aos, static image imports and a large icon set. Loaded
+// eagerly, all of that ends up in the single main JS chunk regardless of
+// route - including for a user who only ever visits /login. React.lazy
+// code-splits them into their own chunk(s), fetched only when one of these
+// routes is actually visited.
+const EditorPage = lazy(() => import("./components/new/EditorPage.jsx"));
+const DeckListPage = lazy(() => import("./components/new/DeckListPage.jsx"));
+const Editor1_Page = lazy(() => import("./components/new/NewEditor.jsx"));
 import UserBGselect from "./components/new/UserBGselect.jsx";
-import Editor1_Page from "./components/new/NewEditor.jsx";
 import ReviewP from "./components/Flash/ReviewP.jsx";
 import BasicForm2 from "./components/Fundraising/Reach_link/BasicForm2.jsx";
 
@@ -111,34 +118,42 @@ function App() {
       <div className="relative h-screen overflow-hidden">
         <ToastContainer position="top-right" autoClose={5000} />
         {/* Consider CSS for global scroll if needed */}
-        <Routes>
-          <Route path="/" element={<Login_Page />} />
-          <Route path="/login" element={<Login_Page />} />
-          
-          {/* Public reach redirect route */}
-          <Route path="/reach/:slug" element={<ReachRedirect />} />
-          
-          {/* Public preview route */}
-          <Route path="/fundraising/preview" element={<ReachLinkPreview />} />
+        <Suspense
+          fallback={
+            <div className="h-screen w-screen flex items-center justify-center bg-[#021e1d] text-white/70">
+              Loading...
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<Login_Page />} />
+            <Route path="/login" element={<Login_Page />} />
 
-          {/* Public sample/editor pages (no login required) */}
-          <Route path="/sample" element={<Editor1_Page />} />
-          <Route path="/editorPage" element={<EditorPage />} />
-          <Route path="/decks" element={<DeckListPage />} />
-          <Route path="/editor/:deckId" element={<EditorPage />} />
+            {/* Public reach redirect route */}
+            <Route path="/reach/:slug" element={<ReachRedirect />} />
 
-          {/* Auth routes */}
-          <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
-          <Route path="/auth-error" element={<AuthError />} />
-          
-          {protectedRoutes.map(({ path, element }) => (
-            <Route
-              key={path}
-              path={path}
-              element={<PrivateRoute>{element}</PrivateRoute>}
-            />
-          ))}
-        </Routes>
+            {/* Public preview route */}
+            <Route path="/fundraising/preview" element={<ReachLinkPreview />} />
+
+            {/* Public sample/editor pages (no login required) */}
+            <Route path="/sample" element={<Editor1_Page />} />
+            <Route path="/editorPage" element={<EditorPage />} />
+            <Route path="/decks" element={<DeckListPage />} />
+            <Route path="/editor/:deckId" element={<EditorPage />} />
+
+            {/* Auth routes */}
+            <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
+            <Route path="/auth-error" element={<AuthError />} />
+
+            {protectedRoutes.map(({ path, element }) => (
+              <Route
+                key={path}
+                path={path}
+                element={<PrivateRoute>{element}</PrivateRoute>}
+              />
+            ))}
+          </Routes>
+        </Suspense>
       </div>
     </PermissionNotificationProvider>
   );
