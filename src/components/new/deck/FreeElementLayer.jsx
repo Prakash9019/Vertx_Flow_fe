@@ -24,6 +24,7 @@ const FreeElement = React.memo(function FreeElement({
   onDuplicate,
   onBringForward,
   onSendBackward,
+  getSiblingsOf,
 }) {
   const [guides, setGuides] = useState(null);
 
@@ -37,6 +38,7 @@ const FreeElement = React.memo(function FreeElement({
         if (nextGuides !== undefined) setGuides(nextGuides);
       },
       onGestureEnd: () => setGuides(null),
+      getSiblings: () => getSiblingsOf(element.id),
     });
 
   return (
@@ -157,6 +159,16 @@ export const FreeElementLayer = React.memo(function FreeElementLayer({
     onDeleteElement(id);
   }, [onDeleteElement]);
 
+  // Stable identity (reads `elementsRef`, not `elements`, directly) so
+  // passing it to every `FreeElement` doesn't defeat the memoization this
+  // component relies on (see the comment on `elementsRef` above) - a fresh
+  // arrow function here every render would make every element's props
+  // "change" every render, even the ones not being dragged.
+  const getSiblingsOf = useCallback(
+    (id) => elementsRef.current.filter((el) => el.id !== id).map(({ x, y, w, h }) => ({ x, y, w, h })),
+    []
+  );
+
   return (
     <div ref={containerRef} className="absolute inset-0 pointer-events-none">
       {sorted.map((element) => (
@@ -173,6 +185,7 @@ export const FreeElementLayer = React.memo(function FreeElementLayer({
           onDuplicate={handleDuplicate}
           onBringForward={handleBringForward}
           onSendBackward={handleSendBackward}
+          getSiblingsOf={getSiblingsOf}
         />
       ))}
     </div>

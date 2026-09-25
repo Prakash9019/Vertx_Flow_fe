@@ -36,20 +36,49 @@ function fakePointerEvent({ clientX = 0, clientY = 0, pointerId = 1, button = 0,
   };
 }
 
-function setup(elementOverrides = {}) {
+function setup(elementOverrides = {}, hookOverrides = {}) {
   const element = makeElement(elementOverrides);
   const containerRef = makeContainerRef();
   const onSelect = vi.fn();
   const onChange = vi.fn();
   const onGestureEnd = vi.fn();
   const { result, rerender } = renderHook(
-    ({ el }) => useFreeElementInteraction({ element: el, containerRef, onSelect, onChange, onGestureEnd }),
+    ({ el }) => useFreeElementInteraction({ element: el, containerRef, onSelect, onChange, onGestureEnd, ...hookOverrides }),
     { initialProps: { el: element } }
   );
   return { result, rerender, element, onSelect, onChange, onGestureEnd };
 }
 
 describe("useFreeElementInteraction", () => {
+  describe("element-to-element snapping", () => {
+    it("snaps a dragged element's right edge to another element's left edge when within threshold", () => {
+      // Own element starts at x=40,w=20 (right edge 60). Sibling sits at
+      // x=65 (left edge 65) - a 5pt gap. Dragging 4.5pt right brings the
+      // own right edge to 64.5, within the 1.5pt snap threshold of 65.
+      const sibling = { id: "el-2", x: 65, y: 40, w: 20, h: 10 };
+      const { result, onChange } = setup({ x: 40, y: 40, w: 20, h: 10 }, { getSiblings: () => [sibling] });
+
+      act(() => result.current.beginDrag(fakePointerEvent({ clientX: 0, clientY: 0, pointerId: 1 })));
+      act(() => result.current.handlePointerMove(fakePointerEvent({ clientX: 45, clientY: 0, pointerId: 1 })));
+
+      const [patch, , guides] = onChange.mock.calls.at(-1);
+      expect(patch.x).toBe(45); // 65 - w(20)
+      expect(guides.x).toBe(65);
+    });
+
+    it("does not snap to a sibling outside the threshold", () => {
+      const sibling = { id: "el-2", x: 90, y: 40, w: 20, h: 10 };
+      const { result, onChange } = setup({ x: 40, y: 40, w: 20, h: 10 }, { getSiblings: () => [sibling] });
+
+      act(() => result.current.beginDrag(fakePointerEvent({ clientX: 0, clientY: 0, pointerId: 1 })));
+      act(() => result.current.handlePointerMove(fakePointerEvent({ clientX: 45, clientY: 3, pointerId: 1 })));
+
+      const [patch, , guides] = onChange.mock.calls.at(-1);
+      expect(patch.x).toBe(44.5);
+      expect(guides.x).toBeNull();
+    });
+  });
+
   describe("drag outside canvas bounds", () => {
     it("clamps position so the element cannot be dragged entirely off the top/left edge", () => {
       const { result, onChange } = setup({ x: 5, y: 5, w: 10, h: 10 });

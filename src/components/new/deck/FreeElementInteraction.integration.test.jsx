@@ -94,6 +94,22 @@ describe("Free-element interaction engine (integration)", () => {
     expect(screen.getByTestId("first-x").textContent).toBe("20");
   });
 
+  it("snaps a dragged element to a sibling element's edge", () => {
+    renderWithElement(
+      { id: "el-1", type: "text", x: 10, y: 10, w: 20, h: 10, rotation: 0, zIndex: 0, locked: false, props: { html: "Hi" } },
+      [{ id: "el-2", type: "text", x: 35, y: 10, w: 20, h: 10, rotation: 0, zIndex: 1, locked: false, props: { html: "Sibling" } }]
+    );
+
+    const wrapper = document.querySelector('[data-element-id="el-1"]');
+    // el-1's right edge (10+20=30) is 5pt from el-2's left edge (35); a 4.5pt
+    // drag brings it to 34.5, within the 1.5pt snap threshold of 35.
+    fireEvent.pointerDown(wrapper, { clientX: 100, clientY: 100, pointerId: 1, button: 0 });
+    fireEvent.pointerMove(wrapper, { clientX: 145, clientY: 100, pointerId: 1 });
+    fireEvent.pointerUp(wrapper, { clientX: 145, clientY: 100, pointerId: 1 });
+
+    expect(screen.getByTestId("first-x").textContent).toBe("15"); // 35 - w(20)
+  });
+
   it("resizes from a corner handle", () => {
     renderWithElement({
       id: "el-2",

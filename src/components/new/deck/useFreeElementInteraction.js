@@ -13,50 +13,46 @@ function snap(value, target, threshold) {
   return Math.abs(value - target) <= threshold ? target : null;
 }
 
+// Finds the first anchor (in priority order: own center, then own start
+// edge, then own end edge - matching the pre-existing slide-only behavior's
+// priority) that the dragged element's own center/start/end lands within
+// `threshold` of, and returns the snapped start position plus which anchor
+// fired (for the alignment-guide line).
+function findAxisSnap(start, size, anchors, threshold) {
+  const center = start + size / 2;
+  const end = start + size;
+  for (const anchor of anchors) {
+    const snapped = snap(center, anchor, threshold);
+    if (snapped !== null) return { start: snapped - size / 2, guide: anchor };
+  }
+  for (const anchor of anchors) {
+    const snapped = snap(start, anchor, threshold);
+    if (snapped !== null) return { start: snapped, guide: anchor };
+  }
+  for (const anchor of anchors) {
+    const snapped = snap(end, anchor, threshold);
+    if (snapped !== null) return { start: snapped - size, guide: anchor };
+  }
+  return null;
+}
+
 // Applies center/edge snapping to a drag position and reports which guides
 // (if any) fired, so the caller can render lightweight alignment lines.
-// Deliberately only snaps to the slide's own center/edges (not other
-// elements) to stay a "basic" system per the brief.
-function applyDragSnap(x, y, w, h) {
-  const guides = { x: null, y: null };
-  let snappedX = x;
-  let snappedY = y;
+// Snaps to the slide's own center/edges (0/50/100) and, when `siblings` is
+// given, to every other free element's left/center/right (x) and
+// top/center/bottom (y) edges too - element-to-element snapping.
+function applyDragSnap(x, y, w, h, siblings = []) {
+  const xAnchors = [0, 50, 100, ...siblings.flatMap((s) => [s.x, s.x + s.w / 2, s.x + s.w])];
+  const yAnchors = [0, 50, 100, ...siblings.flatMap((s) => [s.y, s.y + s.h / 2, s.y + s.h])];
 
-  const centerX = x + w / 2;
-  const snappedCenterX = snap(centerX, 50, SNAP_THRESHOLD_PCT);
-  if (snappedCenterX !== null) {
-    snappedX = snappedCenterX - w / 2;
-    guides.x = 50;
-  } else {
-    const left = snap(x, 0, SNAP_THRESHOLD_PCT);
-    const right = snap(x + w, 100, SNAP_THRESHOLD_PCT);
-    if (left !== null) {
-      snappedX = 0;
-      guides.x = 0;
-    } else if (right !== null) {
-      snappedX = 100 - w;
-      guides.x = 100;
-    }
-  }
+  const snappedX = findAxisSnap(x, w, xAnchors, SNAP_THRESHOLD_PCT);
+  const snappedY = findAxisSnap(y, h, yAnchors, SNAP_THRESHOLD_PCT);
 
-  const centerY = y + h / 2;
-  const snappedCenterY = snap(centerY, 50, SNAP_THRESHOLD_PCT);
-  if (snappedCenterY !== null) {
-    snappedY = snappedCenterY - h / 2;
-    guides.y = 50;
-  } else {
-    const top = snap(y, 0, SNAP_THRESHOLD_PCT);
-    const bottom = snap(y + h, 100, SNAP_THRESHOLD_PCT);
-    if (top !== null) {
-      snappedY = 0;
-      guides.y = 0;
-    } else if (bottom !== null) {
-      snappedY = 100 - h;
-      guides.y = 100;
-    }
-  }
-
-  return { x: snappedX, y: snappedY, guides };
+  return {
+    x: snappedX ? snappedX.start : x,
+    y: snappedY ? snappedY.start : y,
+    guides: { x: snappedX ? snappedX.guide : null, y: snappedY ? snappedY.guide : null },
+  };
 }
 
 function computeResize(gesture, dxPct, dyPct, lockAspect) {
@@ -106,7 +102,7 @@ function computeResize(gesture, dxPct, dyPct, lockAspect) {
 // dispatches through `onChange(patch, coalesceId)` - the caller (FreeElementLayer)
 // is responsible for turning that into `dispatch(UPDATE_FREE_ELEMENT, { coalesce: true, coalesceId })`,
 // which is what collapses an entire drag/resize/rotate into one undo step.
-export function useFreeElementInteraction({ element, containerRef, onSelect, onChange, onGestureEnd }) {
+export function useFreeElementInteraction({ element, containerRef, onSelect, onChange, onGestureEnd, getSiblings }) {
   const gestureRef = useRef(null);
 
   const getRect = useCallback(() => containerRef.current?.getBoundingClientRect(), [containerRef]);
@@ -136,10 +132,14 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
         h: element.h,
         rectWidth: rect.width,
         rectHeight: rect.height,
+        // Snapshotted once at drag start, not re-read every pointermove:
+        // siblings aren't expected to move while this element is being
+        // dragged, so this avoids calling `getSiblings` on every frame.
+        siblings: typeof getSiblings === "function" ? getSiblings() : [],
         coalesceId: `drag-${element.id}-${Date.now()}`,
       };
     },
-    [element, getRect, onSelect]
+    [element, getRect, onSelect, getSiblings]
   );
 
   const beginResize = useCallback(
@@ -204,7 +204,7 @@ export function useFreeElementInteraction({ element, containerRef, onSelect, onC
         const minVisible = Math.min(MIN_VISIBLE_PCT, gesture.w, gesture.h);
         const rawX = clamp(gesture.startX + dxPct, -(gesture.w - minVisible), 100 - minVisible);
         const rawY = clamp(gesture.startY + dyPct, -(gesture.h - minVisible), 100 - minVisible);
-        const { x, y, guides } = applyDragSnap(rawX, rawY, gesture.w, gesture.h);
+        const { x, y, guides } = applyDragSnap(rawX, rawY, gesture.w, gesture.h, gesture.siblings);
         onChange({ x, y }, gesture.coalesceId, guides);
       } else if (gesture.type === "resize") {
         const dxPct = ((event.clientX - gesture.startClientX) / gesture.rectWidth) * 100;
