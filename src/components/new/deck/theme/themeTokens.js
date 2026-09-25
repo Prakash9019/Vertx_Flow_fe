@@ -283,6 +283,8 @@ export function themeToCssVars(theme) {
     "--theme-body-font": theme.typography.bodyFont,
     "--theme-heading-weight": theme.typography.headingWeight,
     "--theme-body-weight": theme.typography.bodyWeight,
+    "--theme-heading-scale": theme.typography.headingScale,
+    "--theme-body-scale": theme.typography.bodyScale,
     "--theme-line-height": theme.typography.lineHeight,
     "--theme-radius-sm": theme.radius.sm,
     "--theme-radius-md": theme.radius.md,

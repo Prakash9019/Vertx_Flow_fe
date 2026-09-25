@@ -85,6 +85,12 @@ describe("themeToCssVars", () => {
     expect(vars["--theme-body-font"]).toBe(getTheme("light").typography.bodyFont);
     expect(vars["--theme-radius-md"]).toBe(getTheme("light").radius.md);
   });
+
+  it("includes heading/body scale so layouts can size fonts off the theme instead of a fixed class", () => {
+    const vars = themeToCssVars(getTheme("light"));
+    expect(vars["--theme-heading-scale"]).toBe(getTheme("light").typography.headingScale);
+    expect(vars["--theme-body-scale"]).toBe(getTheme("light").typography.bodyScale);
+  });
 });
 
 describe("themeToRootStyle", () => {
