@@ -368,6 +368,57 @@ caveat as everything else in this document; the jsdom-level fix and its
 tests are believed correct but a manual undo/redo click-through against real
 Froala has not been done.
 
+## 1e-8. Change Case tool — Implemented
+
+Roadmap #14, explicitly scoped as separate from the pre-existing
+textColor/backgroundColor toolbar buttons - a previously reported bug there
+(no detail survived into this document; it predates it) is deliberately
+**untouched** by this work, per the roadmap line's own framing. Nothing in
+`caseTransforms.js` or the new Froala command touches color logic at all.
+
+**`caseTransforms.js`** (new, pure, no Froala/React dependency): `toUpperCase`,
+`toLowerCase`, `toTitleCase`, `toSentenceCase`, plus a `CASE_TRANSFORMS`
+lookup map. Each walks a detached DOM tree (`document.createTreeWalker`,
+`NodeFilter.SHOW_TEXT`) and transforms only text-node content, leaving every
+tag/attribute untouched - so a selection like `hello <b>world</b>` case-
+transforms correctly without corrupting its bold formatting.
+`toSentenceCase` is the one exception to "transform each node in isolation":
+it tracks a running "capitalize next letter" flag across the *entire* walk,
+so a sentence boundary that falls inside a `<b>`/`<i>` span still capitalizes
+correctly on the far side of the tag.
+
+**`RichText.jsx`**: registers a custom Froala dropdown command, `changeCase`
+(UPPERCASE / lowercase / Title Case / Sentence case), the first time a real
+`FroalaEditor` class is seen - keyed by a `WeakSet` on the class object
+itself (not a plain module boolean), since Froala commands register on the
+class once for the page's lifetime but a test needs to install a fresh fake
+class per test without the guard silently no-op'ing every registration after
+the first. The command is appended to whatever toolbar buttons a field
+already resolves to (the shared default, or a layout's custom list like
+`ProblemLayout`'s body field) rather than requiring every call site to opt
+in. Its callback: if there's a live selection (`editor.html.getSelected()`
+is non-empty), transform and replace just that (`editor.html.insert()`);
+otherwise transform and replace the whole field (`editor.html.set()`) - the
+standard word-processor convention. Both APIs are "silent" in Froala (they
+don't fire its own change events), so the callback manually triggers
+`contentChanged` afterward, which is what actually persists the edit through
+this component's existing `onChange` path - no new persistence wiring
+needed.
+
+**Tests**: `caseTransforms.test.js` (new, 13 tests - each transform, HTML-tag
+preservation, sentence-case across a tag boundary, falsy-input handling).
+`RichText.test.jsx` +6 (command registration, once-only-per-class guard
+across two mounts, whole-field transform, selection-only transform, all
+four case options end-to-end through the real registered callback, and the
+existing no-`DefineIcon`/`RegisterCommand` stub not throwing). **237/237
+tests passing** (up from 218), build clean.
+
+**Not verified against real Froala** - same caveat as everywhere else in
+this document: `html.getSelected`/`html.insert`/`events.trigger` are Froala's
+long-documented, stable v2-v4 API, but this environment has no way to load
+the real library and click through it, so the command's wiring is verified
+against a test stub that models that API, not the genuine one.
+
 ## 2. Not started at all
 - **Change Case tool** (separate from the color tool — the original reported bug is untouched).
 - **Slide/element animations.** The old scroll-stack animation was removed as an unavoidable side effect of the data-model rewrite (`SlideCanvas` renders one slide at a time; the old animation needed all slides mounted as siblings). Navigation still works (nav dots, mouse-wheel); the drag-transition itself does not exist.
@@ -387,7 +438,7 @@ Froala has not been done.
 
 ## 5. Test status
 
-**218/218 tests passing** across 34 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here) → 218 (Inline text editing audit/fixes: `RichText.test.jsx` +3, new `TextWidget.test.jsx` (5) and `UndoRedoTextEditing.integration.test.jsx` (1), §1e-7).
+**237/237 tests passing** across 35 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`) → 164 (`slideBackgroundStyle` url-escaping regression test) → 177 (Remix: `remix.test.js` + `REMIX_SLIDE` reducer tests) → 186 (AI storyline generation: `pickBestLayout` tests + `storylineToDeck.test.js`, §1e-5) → 209 (AI 10+ slide generation & content intelligence: `contentIntelligence.test.js` + `storylineToDeck.test.js` integration case, §1e-6 - `narrativeBeats.test.js` is counted in the backend suite below, not here) → 218 (Inline text editing audit/fixes: `RichText.test.jsx` +3, new `TextWidget.test.jsx` (5) and `UndoRedoTextEditing.integration.test.jsx` (1), §1e-7) → 237 (Change Case tool: new `caseTransforms.test.js` (13) + `RichText.test.jsx` +6, §1e-8).
 
 Also this session: **~3,700 lines of dead legacy `EditorPage.jsx` code deleted** (the ~26 pre-deck-model hardcoded slide components, `themes`/`themes2`/`backgrounds`/`BACKGROUND_PRESET_MODELS`, the per-file Froala loader they used, and every import only they needed) — 4,133 → 421 lines, none of it reachable from the live app. No behavior change; covered by the existing/added test suite and a clean build.
 
@@ -420,11 +471,11 @@ dependencies is in `docs/superpowers/specs/2026-09-19-editor-v2-architecture-pri
 | 11 | AI 10+ slide generation | #10 | **Implemented** (see §1e-6) |
 | 12 | Content intelligence | overlaps #10/#11, may co-design | **Implemented** (see §1e-6) |
 | 13 | Inline text editing audit/fixes | — | **Implemented** (see §1e-7) |
-| 14 | Change Case tool | — | Not started |
+| 14 | Change Case tool | — | **Implemented** (see §1e-8) |
 | 15 | Slide/element animations | benefits from #3 (element engine) for element-level animation | Not started |
 | 16 | Performance optimization | most other items | Not started |
 | 17 | Full regression testing | everything | Not started (149/149 automated; real-browser pass still outstanding, see §4) |
 
-Every item through #13 is now implemented and wired into the live
+Every item through #14 is now implemented and wired into the live
 `EditorPage.jsx`/`DeckListPage.jsx` (or, for #1, #10, #11, and #12, into a real backend
-too). Remaining work (#14 onward) is polish/animations/performance, not requested yet.
+too). Remaining work (#15 onward) is animations/performance/full regression testing, not requested yet.

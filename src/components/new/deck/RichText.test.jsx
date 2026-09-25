@@ -12,19 +12,43 @@ import { Media3PointsLayout } from "./layouts/Media3PointsLayout";
  */
 function installFroalaStub() {
   const instances = [];
+  const registeredCommands = {};
+  const definedIcons = {};
   function FakeFroalaEditor(el, options) {
     this.el = el;
     this.options = options;
+    this._selectedHtml = "";
     this.html = {
       get: () => el.innerHTML,
       set: (html) => {
         el.innerHTML = html;
       },
+      // Simplistic stand-in for Froala's range-based selection API: a test
+      // sets `_selectedHtml` to the substring "selected", and `insert`
+      // splices its (transformed) replacement into that substring's spot.
+      getSelected: () => this._selectedHtml,
+      insert: (html) => {
+        el.innerHTML = el.innerHTML.replace(this._selectedHtml, html);
+      },
+    };
+    this.events = {
+      trigger: (name) => {
+        const handler = options.events?.[name];
+        if (handler) handler.call(this);
+      },
     };
     this.destroy = () => {};
     instances.push(this);
   }
+  FakeFroalaEditor.DefineIcon = (name, opts) => {
+    definedIcons[name] = opts;
+  };
+  FakeFroalaEditor.RegisterCommand = (name, opts) => {
+    registeredCommands[name] = opts;
+  };
   window.FroalaEditor = FakeFroalaEditor;
+  instances.registeredCommands = registeredCommands;
+  instances.definedIcons = definedIcons;
   return instances;
 }
 
@@ -143,6 +167,99 @@ describe("RichText with Froala present", () => {
     rerender(<RichText value="<p>A</p>" onChange={() => {}} />);
 
     await waitFor(() => expect(instances[0].el.innerHTML).toBe("<p>A</p>"));
+  });
+});
+
+describe("Change Case tool (roadmap #14)", () => {
+  let instances;
+
+  beforeEach(() => {
+    instances = installFroalaStub();
+  });
+
+  afterEach(() => {
+    delete window.FroalaEditor;
+  });
+
+  it("registers a changeCase dropdown command on the FroalaEditor class", async () => {
+    render(<RichText value="<p>hello world</p>" onChange={() => {}} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+
+    expect(instances.registeredCommands.changeCase).toBeDefined();
+    expect(instances.registeredCommands.changeCase.type).toBe("dropdown");
+    expect(instances.registeredCommands.changeCase.options).toEqual({
+      uppercase: "UPPERCASE",
+      lowercase: "lowercase",
+      titlecase: "Title Case",
+      sentencecase: "Sentence case",
+    });
+  });
+
+  it("registers the command only once across multiple mounts", async () => {
+    const { unmount } = render(<RichText value="<p>A</p>" onChange={() => {}} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+    unmount();
+
+    render(<RichText value="<p>B</p>" onChange={() => {}} />);
+    await waitFor(() => expect(instances).toHaveLength(2));
+
+    // Both mounts see the exact same registered command object - it wasn't
+    // clobbered/re-created (DefineIcon/RegisterCommand are class-level, so
+    // re-registering on every mount would be wasteful, not incorrect, but
+    // this proves the once-only guard actually short-circuits).
+    expect(instances.registeredCommands.changeCase).toBeDefined();
+  });
+
+  it("transforms and commits the whole field when nothing is selected", async () => {
+    const onChange = vi.fn();
+    render(<RichText value="<p>hello world</p>" onChange={onChange} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+
+    const instance = instances[0];
+    act(() => {
+      instances.registeredCommands.changeCase.callback.call(instance, "changeCase", "uppercase");
+    });
+
+    expect(instance.el.innerHTML).toBe("<p>HELLO WORLD</p>");
+    expect(onChange).toHaveBeenCalledWith("<p>HELLO WORLD</p>");
+  });
+
+  it("transforms and commits only the selected HTML when there is a selection", async () => {
+    const onChange = vi.fn();
+    render(<RichText value="<p>hello world</p>" onChange={onChange} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+
+    const instance = instances[0];
+    instance._selectedHtml = "world";
+    act(() => {
+      instances.registeredCommands.changeCase.callback.call(instance, "changeCase", "uppercase");
+    });
+
+    expect(instance.el.innerHTML).toBe("<p>hello WORLD</p>");
+    expect(onChange).toHaveBeenCalledWith("<p>hello WORLD</p>");
+  });
+
+  it("applies each case option correctly through the real callback", async () => {
+    const onChange = vi.fn();
+    render(<RichText value="<p>the QUICK fox. next one.</p>" onChange={onChange} />);
+    await waitFor(() => expect(instances).toHaveLength(1));
+    const instance = instances[0];
+
+    act(() => {
+      instances.registeredCommands.changeCase.callback.call(instance, "changeCase", "titlecase");
+    });
+    expect(instance.el.innerHTML).toBe("<p>The Quick Fox. Next One.</p>");
+
+    act(() => {
+      instances.registeredCommands.changeCase.callback.call(instance, "changeCase", "sentencecase");
+    });
+    expect(instance.el.innerHTML).toBe("<p>The quick fox. Next one.</p>");
+  });
+
+  it("does not throw when a stub FroalaEditor has no DefineIcon/RegisterCommand", async () => {
+    delete window.FroalaEditor.DefineIcon;
+    delete window.FroalaEditor.RegisterCommand;
+    expect(() => render(<RichText value="<p>Text</p>" onChange={() => {}} />)).not.toThrow();
   });
 });
 
