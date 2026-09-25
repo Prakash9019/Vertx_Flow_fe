@@ -164,19 +164,19 @@ updated for the new `null` default.
 
 ## 4. Known defects / rough edges (not urgent, but real)
 
-- `UPDATE_SLIDE_CONTENT`/`ADD_FREE_ELEMENT` don't validate payload shape before merging (fine until untrusted/deserialized data enters the picture — relevant now that real persistence exists, since a malformed saved deck could reach this path on load).
+- ~~`UPDATE_SLIDE_CONTENT`/`ADD_FREE_ELEMENT` don't validate payload shape before merging~~ **Fixed.** `UPDATE_SLIDE_CONTENT` now rejects a non-plain-object `content` payload; `ADD_FREE_ELEMENT` now rejects a structurally-invalid `element` (via `isValidFreeElement` in `deckTypes.js`) or one whose `type` isn't a known widget type (`WIDGET_TYPES` in `freeElementFactory.js`) — both warn-and-no-op like every other invalid-action branch, rather than merging malformed data into the deck. 11 new tests in `deckReducer.test.js`.
 - `MetricsGridLayout`/`TeamGridLayout` use array-index React keys (fine for today's fixed-size lists; would need real ids once those lists become reorderable via the Insert Widget engine).
 - `slideBackgroundStyle`'s `url(${...})` isn't quote-escaped (latent — nothing produces an unsafe URL today; `BackgroundPicker`'s image/video URL fields are plain text inputs with no validation either).
 - `backgroundPresetToSlideBackground`/`BACKGROUND_PRESET_MODELS`/`backgrounds` in `EditorPage.jsx` are now dead code on the live path (superseded by `BackgroundPicker`, §1e-3) but still referenced by the ~3,700 lines of dead legacy slide components below, so they weren't deleted.
 - ~3,700 lines of the old hardcoded slide components (`TheChallangePage`, `OurSolutionPage`, `TitleOnlyPage`, and ~18 others) still exist in `EditorPage.jsx`, unreferenced. Deletion is still explicitly deferred, not scheduled in the dependency order below.
-- **`EditorPage.jsx` has no dedicated test.** Every sub-project wired into it this session (selection state, persistence, SlideSidebar, the Background modal) is verified by build success and by unit tests on the pieces it composes (`useDeckLoader`, `useAutosave`, `slideSidebarLogic`, `BackgroundPicker`, `SlideCanvas`/`FreeElementLayer` integration tests) - not by a test that renders `EditorPage.jsx` itself.
+- ~~`EditorPage.jsx` has no dedicated test.~~ **Fixed.** `EditorPage.test.jsx` covers the route composition itself: the no-id demo route renders the seeded deck without touching the backend, and `/editor/:deckId` covers the loading → ready and loading → error paths against a mocked `deckApi`.
 - **Real-browser verification gap.** Everything in §1 is verified by jsdom/Vitest (including the free-element drag/resize/rotate math, which relies on a test-only `getBoundingClientRect` mock — see `FreeElementInteraction.integration.test.jsx`). None of it has been clicked through in an actual browser against the real `EditorPage.jsx` yet - including the newly-wired `/editor/:deckId` persistence flow against a real running backend. Treat "tests pass" and "works in the app" as separate claims until that manual pass happens.
 
 ---
 
 ## 5. Test status
 
-**149/149 tests passing** across 26 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker).
+**163/163 tests passing** across 27 files (`npm run test`), `npm run build` passing. Growth this session: 111 → 128 (free-element selection state + persistence hooks + SlideSidebar wiring) → 136 (semantic layout transformation) → 141 (background data model/rendering) → 149 (BackgroundPicker) → 163 (§4 defect fixes: reducer payload validation + `EditorPage.test.jsx`).
 
 **Repository integrity**: all Editor V2 source files required by committed code are tracked and committed on `editor-deck-model`. A fresh checkout of the branch builds and passes the full test suite with no missing dependencies (verified again this session).
 
