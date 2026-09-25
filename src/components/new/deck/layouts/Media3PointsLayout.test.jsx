@@ -38,4 +38,15 @@ describe("Media3PointsLayout", () => {
     render(<Media3PointsLayout content={content} onChangeContent={() => {}} />);
     expect(screen.getByText("Onboarding takes weeks")).toBeInTheDocument();
   });
+
+  it("sizes the heading/point-title fonts off the theme's scale tokens, not a fixed class", () => {
+    const content = {
+      heading: "Key Features",
+      media: { url: "", type: "image" },
+      points: [{ title: "One", body: "First" }],
+    };
+    render(<Media3PointsLayout content={content} onChangeContent={() => {}} />);
+    expect(screen.getByText("Key Features").style.fontSize).toBe("calc(2.25rem * var(--theme-heading-scale, 1))");
+    expect(screen.getByText("One").style.fontSize).toBe("calc(1.25rem * var(--theme-heading-scale, 1))");
+  });
 });

@@ -1,5 +1,6 @@
 import React from "react";
 import { RichText } from "../RichText";
+import { headingFontSize, bodyFontSize } from "../theme/typographyScale";
 
 export function defaultTitleContent() {
   return { title: "Title Only", subtitle: "" };
@@ -11,7 +12,7 @@ export function TitleLayout({ content, onChangeContent }) {
       <RichText
         as="h1"
         className="text-7xl font-bold"
-        style={{ fontFamily: "var(--theme-heading-font)" }}
+        style={{ fontFamily: "var(--theme-heading-font)", fontSize: headingFontSize(4.5) }}
         value={content.title}
         onChange={(html) => onChangeContent({ title: html })}
       />
@@ -20,7 +21,7 @@ export function TitleLayout({ content, onChangeContent }) {
           <RichText
             as="p"
             className="text-2xl opacity-60"
-            style={{ fontFamily: "var(--theme-body-font)" }}
+            style={{ fontFamily: "var(--theme-body-font)", fontSize: bodyFontSize(1.5) }}
             value={content.subtitle}
             onChange={(html) => onChangeContent({ subtitle: html })}
           />

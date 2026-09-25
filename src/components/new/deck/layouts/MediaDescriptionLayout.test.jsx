@@ -57,4 +57,14 @@ describe("MediaDescriptionLayout", () => {
     );
     expect(rightContainer.querySelector('[data-col="media"]')).toBe(rightContainer.querySelector(".flex > *:last-child"));
   });
+
+  it("sizes the heading/body fonts off the theme's scale tokens, not a fixed class", () => {
+    render(
+      <MediaDescriptionLayout
+        content={{ heading: "H", body: "<p>B</p>", media: { url: "", type: "image" }, mediaPosition: "left" }}
+        onChangeContent={() => {}}
+      />
+    );
+    expect(screen.getByText("H").style.fontSize).toBe("calc(2.25rem * var(--theme-heading-scale, 1))");
+  });
 });

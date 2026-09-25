@@ -35,4 +35,11 @@ describe("CtaLayout", () => {
     expect(button.style.backgroundColor).toBe("var(--theme-primary)");
     expect(button.style.color).toBe("var(--theme-background)");
   });
+
+  it("sizes the heading/body fonts off the theme's scale tokens, not a fixed class", () => {
+    render(
+      <CtaLayout content={{ heading: "Join Us", body: "<p>Reach out.</p>", buttonLabel: "Contact us" }} onChangeContent={() => {}} />
+    );
+    expect(screen.getByText("Join Us").style.fontSize).toBe("calc(3rem * var(--theme-heading-scale, 1))");
+  });
 });

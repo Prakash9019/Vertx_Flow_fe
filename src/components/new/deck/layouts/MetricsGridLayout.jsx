@@ -1,5 +1,6 @@
 import React from "react";
 import { RichText } from "../RichText";
+import { headingFontSize, bodyFontSize } from "../theme/typographyScale";
 
 export function defaultMetricsGridContent() {
   return {
@@ -23,7 +24,7 @@ export function MetricsGridLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold text-center"
-        style={{ fontFamily: "var(--theme-heading-font)" }}
+        style={{ fontFamily: "var(--theme-heading-font)", fontSize: headingFontSize(2.25) }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
@@ -33,14 +34,14 @@ export function MetricsGridLayout({ content, onChangeContent }) {
             <RichText
               as="div"
               className="text-5xl font-bold"
-              style={{ fontFamily: "var(--theme-heading-font)", color: "var(--theme-primary)" }}
+              style={{ fontFamily: "var(--theme-heading-font)", color: "var(--theme-primary)", fontSize: headingFontSize(3) }}
               value={metric.value}
               onChange={(html) => updateMetric(index, { value: html })}
             />
             <RichText
               as="div"
               className="mt-2 opacity-70"
-              style={{ fontFamily: "var(--theme-body-font)" }}
+              style={{ fontFamily: "var(--theme-body-font)", fontSize: bodyFontSize(1) }}
               value={metric.label}
               onChange={(html) => updateMetric(index, { label: html })}
             />

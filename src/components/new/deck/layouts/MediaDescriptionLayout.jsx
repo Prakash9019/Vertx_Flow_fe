@@ -1,5 +1,6 @@
 import React from "react";
 import { RichText } from "../RichText";
+import { headingFontSize, bodyFontSize } from "../theme/typographyScale";
 
 export function defaultMediaDescriptionContent() {
   return {
@@ -47,14 +48,14 @@ export function MediaDescriptionLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold"
-        style={{ fontFamily: "var(--theme-heading-font)" }}
+        style={{ fontFamily: "var(--theme-heading-font)", fontSize: headingFontSize(2.25) }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
       <RichText
         as="div"
         className="mt-6 text-lg opacity-80"
-        style={{ fontFamily: "var(--theme-body-font)" }}
+        style={{ fontFamily: "var(--theme-body-font)", fontSize: bodyFontSize(1.125) }}
         value={content.body}
         onChange={(html) => onChangeContent({ body: html })}
       />

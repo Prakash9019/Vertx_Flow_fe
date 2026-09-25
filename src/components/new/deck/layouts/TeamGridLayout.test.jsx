@@ -25,4 +25,11 @@ describe("TeamGridLayout", () => {
     expect(screen.getByText("Alan Turing")).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute("src", "https://example.com/b.png");
   });
+
+  it("sizes the heading/member-name fonts off the theme's scale tokens, not a fixed class", () => {
+    const content = { heading: "Team", members: [{ photoUrl: "", name: "Ada Lovelace", role: "CEO" }] };
+    render(<TeamGridLayout content={content} onChangeContent={() => {}} />);
+    expect(screen.getByText("Team").style.fontSize).toBe("calc(2.25rem * var(--theme-heading-scale, 1))");
+    expect(screen.getByText("Ada Lovelace").style.fontSize).toBe("calc(1rem * var(--theme-heading-scale, 1))");
+  });
 });

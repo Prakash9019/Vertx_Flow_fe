@@ -16,4 +16,15 @@ describe("ProblemLayout", () => {
     expect(screen.getByText("The Problem")).toBeInTheDocument();
     expect(screen.getByText("Users churn fast.")).toBeInTheDocument();
   });
+
+  it("sizes the heading/body fonts off the theme's scale tokens, not a fixed class", () => {
+    render(<ProblemLayout content={{ heading: "The Problem", body: "<p>Users churn fast.</p>" }} onChangeContent={() => {}} />);
+    expect(screen.getByText("The Problem").style.fontSize).toBe("calc(3rem * var(--theme-heading-scale, 1))");
+    // "Users churn fast." sits inside the RichText field's own <p> (from its
+    // html value); the fontSize style lives on the wrapping "div" RichText
+    // itself renders as, one level up.
+    expect(screen.getByText("Users churn fast.").closest("div").style.fontSize).toBe(
+      "calc(1.25rem * var(--theme-body-scale, 1))"
+    );
+  });
 });

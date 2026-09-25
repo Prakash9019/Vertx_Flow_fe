@@ -19,4 +19,10 @@ describe("TitleLayout", () => {
     const { container } = render(<TitleLayout content={{ title: "Vertx Flow", subtitle: "" }} onChangeContent={() => {}} />);
     expect(container.querySelector('[data-field="subtitle"]')).toBeNull();
   });
+
+  it("sizes the heading/subtitle fonts off the theme's scale tokens, not a fixed class", () => {
+    render(<TitleLayout content={{ title: "Vertx Flow", subtitle: "Pitch better" }} onChangeContent={() => {}} />);
+    expect(screen.getByText("Vertx Flow").style.fontSize).toBe("calc(4.5rem * var(--theme-heading-scale, 1))");
+    expect(screen.getByText("Pitch better").style.fontSize).toBe("calc(1.5rem * var(--theme-body-scale, 1))");
+  });
 });

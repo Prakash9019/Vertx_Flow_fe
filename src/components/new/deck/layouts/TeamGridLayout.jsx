@@ -1,5 +1,6 @@
 import React from "react";
 import { RichText } from "../RichText";
+import { headingFontSize, bodyFontSize } from "../theme/typographyScale";
 
 export function defaultTeamGridContent() {
   return { heading: "Team", members: [{ photoUrl: "", name: "Name", role: "Role" }] };
@@ -16,7 +17,7 @@ export function TeamGridLayout({ content, onChangeContent }) {
       <RichText
         as="h2"
         className="text-4xl font-bold text-center"
-        style={{ fontFamily: "var(--theme-heading-font)" }}
+        style={{ fontFamily: "var(--theme-heading-font)", fontSize: headingFontSize(2.25) }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
@@ -31,14 +32,14 @@ export function TeamGridLayout({ content, onChangeContent }) {
             <RichText
               as="div"
               className="mt-4 font-semibold"
-              style={{ fontFamily: "var(--theme-heading-font)" }}
+              style={{ fontFamily: "var(--theme-heading-font)", fontSize: headingFontSize(1) }}
               value={member.name}
               onChange={(html) => updateMember(index, { name: html })}
             />
             <RichText
               as="div"
               className="opacity-70"
-              style={{ fontFamily: "var(--theme-body-font)" }}
+              style={{ fontFamily: "var(--theme-body-font)", fontSize: bodyFontSize(1) }}
               value={member.role}
               onChange={(html) => updateMember(index, { role: html })}
             />

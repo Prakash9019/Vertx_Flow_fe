@@ -1,5 +1,6 @@
 import React from "react";
 import { RichText } from "../RichText";
+import { headingFontSize, bodyFontSize } from "../theme/typographyScale";
 
 export function defaultProblemContent() {
   return { heading: "The Problem", body: "<p>Describe the problem your customers face.</p>" };
@@ -11,14 +12,14 @@ export function ProblemLayout({ content, onChangeContent }) {
       <RichText
         as="h1"
         className="text-5xl font-bold text-center"
-        style={{ fontFamily: "var(--theme-heading-font)" }}
+        style={{ fontFamily: "var(--theme-heading-font)", fontSize: headingFontSize(3) }}
         value={content.heading}
         onChange={(html) => onChangeContent({ heading: html })}
       />
       <RichText
         as="div"
         className="mt-8 text-xl opacity-80 max-w-3xl text-left"
-        style={{ fontFamily: "var(--theme-body-font)" }}
+        style={{ fontFamily: "var(--theme-body-font)", fontSize: bodyFontSize(1.25) }}
         toolbarButtons={["bold", "italic", "underline", "fontSize", "textColor", "backgroundColor", "formatUL", "formatOL"]}
         value={content.body}
         onChange={(html) => onChangeContent({ body: html })}
